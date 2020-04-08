@@ -462,7 +462,7 @@ Future main() async {
 *  `dart:io` library provides classes that command-line apps can use for accessing HTTP resources, as well as running HTTP servers.
 
 ### GIT
-* Remote:  [git@gitlab.asoft-python.com:g-sangdong/swift-training.git]()
+* Remote: [git@gitlab.asoft-python.com:g-sangdong/swift-training.git]()
 * Folder: 02.library-tour
 
 

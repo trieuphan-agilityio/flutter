@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider_sample/stream_screen.dart';
+
+import 'counter_screen.dart';
+import 'home_screen.dart';
 
 void main() {
   runApp(MyApp());
-}
-
-class Counter extends ChangeNotifier {
-  int _counter;
-  int get count => _counter;
-
-  Counter(this._counter);
-
-  void increment() {
-    _counter = _counter + 1;
-    notifyListeners();
-  }
 }
 
 class MyApp extends StatefulWidget {
@@ -37,45 +29,11 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MyHomePage(title: 'Flutter Demo Home Page'),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  final String title;
-
-  MyHomePage({this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Consumer<Counter>(builder: (context, counter, _) {
-              return Text(
-                '${counter.count}',
-                style: Theme.of(context).textTheme.headline4,
-              );
-            }),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Provider.of<Counter>(context, listen: false).increment();
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        home: MaterialApp(routes: {
+          '/': (_) => HomeScreen(),
+          '/counter': (_) => CounterScreen(),
+          '/stream_provider': (_) => BatteryScreen(),
+        }),
       ),
     );
   }

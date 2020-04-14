@@ -4,11 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class Dot {
-  Color color;
-  Dot({this.color});
-}
-
 /// BatteryInfo holds the battery information of the device
 class BatteryInfo {
   final int batteryLevel;
@@ -65,14 +60,14 @@ class BatteryScreen extends StatefulWidget {
 }
 
 class _BatteryScreenState extends State<BatteryScreen> {
-  final srv = DeviceInfoService();
+  final service = DeviceInfoService();
   var isBatteryUnavailable = false;
 
   @override
   Widget build(BuildContext context) {
     return StreamProvider.value(
       initialData: BatteryInfo(-1),
-      value: srv.batteryLevel,
+      value: service.batteryLevel,
       catchError: (context, error) {
         isBatteryUnavailable = true;
       },
@@ -89,7 +84,7 @@ class _BatteryScreenState extends State<BatteryScreen> {
             RaisedButton(
               onPressed: () {
                 isBatteryUnavailable = false;
-                srv._broadcastBatteryLevel();
+                service._broadcastBatteryLevel();
               },
               child: Text('Start'),
             )

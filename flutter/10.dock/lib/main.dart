@@ -1,20 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:flutter/widgets.dart';
+import 'dart:ui';
 
 void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(),
-    );
-  }
+  runApp(MyHomePage());
 }
 
 class MyHomePage extends StatefulWidget {
@@ -30,21 +19,30 @@ class _MyHomePageState extends State<MyHomePage> {
         return HorizontalSplitter(
           width: availableWidth,
           height: availableHeight,
-          children: <Widget>[
-            Panel(
-              'Explorer',
-              Container(color: Colors.tealAccent),
-              initialRatio: 0.2,
-            ),
-            Panel(
-              'Editor',
-              Container(color: Colors.white70),
-            ),
-            Panel(
-              'Properties',
-              Container(color: Colors.lightGreenAccent),
-              initialRatio: 0.18,
-            ),
+          initialLayoutMask: '0.20, 0.62, 0.18',
+          docks: <Dock>[
+            Dock(widget: Panel('Explorer', ColorDemo())),
+            Dock(widgetBuilder: (context, w, h) {
+              return VerticalSplitter(
+                width: w,
+                height: h,
+                initialLayoutMask: '0.10, 0.68, 0.22',
+                docks: <Dock>[
+                  Dock(widget: Panel('Toolbar', ColorDemo())),
+                  Dock(widgetBuilder: (context, w, h) {
+                    return HorizontalSplitter(
+                        width: w,
+                        height: h,
+                        docks: <Dock>[
+                          Dock(widget: Panel('Editor 1', ColorDemo())),
+                          Dock(widget: Panel('Editor 2', ColorDemo())),
+                        ]);
+                  }),
+                  Dock(widget: Panel('Console', ColorDemo())),
+                ],
+              );
+            }),
+            Dock(widget: Panel('Properties', ColorDemo())),
           ],
         );
       },
@@ -56,241 +54,530 @@ class _MyHomePageState extends State<MyHomePage> {
 /// Dock Manager
 /// ===================================================================
 
-typedef DockLayoutBuilder = Widget Function(
+typedef DockContentBuilder = Widget Function(
     BuildContext context, double width, double height);
 
 class DockManager extends StatelessWidget {
-  /// Builds child widget given this widget's size.
-  final DockLayoutBuilder builder;
+  final DockContentBuilder builder;
 
-  const DockManager({Key key, @required this.builder})
-      : assert(builder != null),
-        super(key: key);
+  const DockManager({Key key, this.builder}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var mediaWidth = MediaQuery.of(context).size.width;
-    var mediaHeight = MediaQuery.of(context).size.height;
-    return Container(
-      color: Colors.white,
-      child: builder(context, mediaWidth, mediaHeight),
-    );
-  }
-}
-
-class Panel extends StatefulWidget {
-  final String _title;
-  final Widget child;
-  bool stackedVertical;
-
-  /// sizeQuota is the maximum available width/height that
-  /// widget can take.
-  double sizeQuota;
-
-  /// ratio is the percentage of space the panel takes in the splitter.
-  /// The percentage is specified in [initialRatio] and is between 0..1
-  double initialRatio;
-
-  Panel(this._title, this.child, {Key key, double initialRatio})
-      : assert(initialRatio == null || (initialRatio > 0 && initialRatio <= 1)),
-        super(key: key) {
-    this.initialRatio = initialRatio;
-  }
-
-  @override
-  _PanelState createState() => _PanelState();
-
-  String get title => _title;
-}
-
-class _PanelState extends State<Panel> {
-  double _ratio;
-
-  double get ratio {
-    return _ratio == null ? widget.initialRatio : _ratio;
-  }
-
-  set ratio(double value) => _ratio = value;
-
-  @override
-  Widget build(BuildContext context) {
-    if (ratio == null) {
-      return Expanded(child: _buildContent());
-    }
-    return SizedBox(
-      width: widget.sizeQuota * ratio,
-      height: null,
-      child: _buildContent(),
-    );
-  }
-
-  _buildContent() {
-    return Container(
-      padding: EdgeInsets.all(1),
-      child: widget.child,
-    );
-  }
-}
-
-/// ===================================================================
-/// Splitter
-/// ===================================================================
-
-class SplitterBar extends StatefulWidget {
-  final Widget previousWidget;
-  final Widget nextWidget;
-  final bool stackedVertical;
-
-  static const num FAT = 8;
-  static const num PADDING = 1;
-
-  const SplitterBar(this.previousWidget, this.nextWidget, this.stackedVertical,
-      {Key key})
-      : assert(previousWidget != null),
-        assert(stackedVertical != null),
-        super(key: key);
-
-  @override
-  _SplitterBarState createState() => _SplitterBarState();
-}
-
-class _SplitterBarState extends State<SplitterBar> {
-  static const initialOpacity = 0.6;
-  static const highlightOpacity = 0.5;
-  double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (e) => _mouseEnter(),
-      onExit: (e) => _mouseExit(),
-      child: Container(
-        padding: EdgeInsets.all(SplitterBar.PADDING),
-        width: widget.stackedVertical ? null : SplitterBar.FAT,
-        height: widget.stackedVertical ? SplitterBar.FAT : null,
-        child: Container(
-          color: Colors.blueGrey.withOpacity(opacity ?? initialOpacity),
+    /// textDirection is mandatory property that need to be declared on
+    /// the very top ancestor in the widget tree.
+    ///
+    /// https://github.com/flutter/flutter/issues/19039
+    return MediaQuery(
+      data: MediaQueryData.fromWindow(window),
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // guess the available width & height to build the layout.
+              final w = constraints.minWidth;
+              final h = constraints.minHeight;
+              print('Size Constraints {w:$w, h: $h}');
+              assert(w != 0 && h != 0);
+              return builder(context, w, h);
+            },
+          ),
         ),
       ),
     );
   }
+}
 
-  _mouseEnter() {
-    setState(() {
-      opacity = highlightOpacity;
-    });
-  }
+/// Dock represents for a region in the layout. This region can be placed
+/// a Panel or another layouts (horizontal layout or vertical layout).
+class Dock {
+  final Widget widget;
+  final DockContentBuilder widgetBuilder;
 
-  _mouseExit() {
-    setState(() {
-      opacity = initialOpacity;
-    });
+  Dock({this.widget, this.widgetBuilder})
+      : assert(widget != null || widgetBuilder != null);
+}
+
+class Panel extends StatefulWidget {
+  final String title;
+  final Widget child;
+
+  const Panel(this.title, this.child, {Key key}) : super(key: key);
+
+  @override
+  _PanelState createState() => _PanelState();
+}
+
+class _PanelState extends State<Panel> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: SolarizedColor.base3,
+      padding: const EdgeInsets.all(1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          SizedBox(
+            height: 20,
+            child: Container(
+              color: SolarizedColor.base2,
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    child: Text(
+                      widget.title,
+                      style: TextStyle(color: SolarizedColor.base00),
+                    ),
+                  )),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              color: SolarizedColor.base3,
+              child: widget.child,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
-abstract class Splitter {
-  bool stackedVertical;
-  double width;
-  double height;
+/// ===================================================================
+/// Splitters
+/// ===================================================================
 
-  List<Widget> splitterBars;
+/// The horizontal/vertical layouts are represented by a pseudo string as
+/// format below:
+///
+/// 0.20, 0.62, 0.18.
+///
+/// The fraction number represented for the width of a panel in the layout.
+/// They are separated by ', '.
+const MASK_SEPARATOR = ', ';
 
-  /// built_children are the list of child Widget that will be added
-  /// into this Splitter widget.
-  List<Widget> builtChildren = [];
+class SplitterProvider extends InheritedWidget {
+  final ValueNotifier<String> layoutMask;
+  final ValueNotifier<double> dividerPosition;
+  final Widget child;
 
-  void buildSplitters(List<Widget> children) {
-    if (children.length <= 1) {
-      return;
-    }
+  SplitterProvider({this.layoutMask, this.dividerPosition, this.child});
 
-    splitterBars = List<Widget>();
-    for (var i = 0; i < children.length - 1; i++) {
-      var previous = children[i];
-      var next = children[i + 1];
-      var splitterBar = SplitterBar(previous, next, stackedVertical);
-      splitterBars.add(splitterBar);
-
-      // add the panel and split bar to the widget tree
-      insertDock(previous);
-      builtChildren.add(splitterBar);
-    }
-    insertDock(children.last);
-
-    /// estimate size quota for each Dockable widget
-    double sizeQuota;
-    num numOfSplitterBars = splitterBars.length;
-    if (stackedVertical) {
-      sizeQuota = height - (SplitterBar.FAT * numOfSplitterBars);
-    } else {
-      sizeQuota = width - (SplitterBar.FAT * numOfSplitterBars);
-    }
-
-    for (var i = 0; i < builtChildren.length; i++) {
-      if (builtChildren[i] is Panel) {
-        (builtChildren[i] as Panel).sizeQuota = sizeQuota;
-      }
-    }
+  @override
+  bool updateShouldNotify(SplitterProvider oldWidget) {
+    return true;
   }
 
-  void insertDock(Widget dock) {
-    if (dock is Panel) {
-      dock.stackedVertical = stackedVertical;
-    }
-    builtChildren.add(dock);
-  }
+  static SplitterProvider of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType();
 }
 
-class HorizontalSplitter extends StatefulWidget with Splitter {
+abstract class Splitter extends StatefulWidget {
   final double width;
   final double height;
+  final List<Dock> docks;
+  final String initialLayoutMask;
+  final bool stackedVertical;
 
+  double get layoutSize {
+    if (stackedVertical) {
+      return height;
+    }
+    return width;
+  }
+
+  const Splitter(
+      {Key key,
+      @required this.width,
+      @required this.height,
+      @required this.docks,
+      this.initialLayoutMask,
+      @required this.stackedVertical})
+      : super(key: key);
+}
+
+mixin SplitterStateMixin<T extends Splitter> on State<T> {
+  String _lastLayoutMask;
+  ValueNotifier<String> layoutMask;
+
+  double _lastDividerPosition;
+  ValueNotifier<double> dividerPosition;
+
+  double estDividerPosition;
+
+  @override
+  void initState() {
+    if (widget.initialLayoutMask == null) {
+      // By default, the dock layout should fill panel equally.
+      //
+      // Below are few default layout mask if we don't specify
+      // the initialLayoutMask:
+      //
+      // 2 panels: 0.5, 0.5
+      // 3 panels: 0.33, 0.33, 0.33
+      int numOfDocks = widget.docks.length;
+      _lastLayoutMask =
+          List.filled(numOfDocks, 1 / numOfDocks).join(MASK_SEPARATOR);
+    } else {
+      _lastLayoutMask = widget.initialLayoutMask;
+    }
+
+    layoutMask = ValueNotifier<String>(_lastLayoutMask);
+    layoutMask.addListener(_layoutMaskChanged);
+
+    dividerPosition = ValueNotifier<double>(null);
+    dividerPosition.addListener(_dividerPositionChanged);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    layoutMask.removeListener(_layoutMaskChanged);
+    dividerPosition.removeListener(_dividerPositionChanged);
+    super.dispose();
+  }
+
+  void _layoutMaskChanged() {
+    setState(() {
+      _lastLayoutMask = layoutMask.value;
+    });
+  }
+
+  void _dividerPositionChanged() {
+    setState(() {
+      _lastDividerPosition = dividerPosition.value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SplitterProvider(
+      layoutMask: layoutMask,
+      dividerPosition: dividerPosition,
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: Stack(children: <Widget>[
+          buildLayout(_buildContent()),
+          if (_lastDividerPosition != null)
+            _buildDividerGuideline(_lastDividerPosition),
+        ]),
+      ),
+    );
+  }
+
+  /// Leaving the decision to build a layout widget to the concrete class.
+  /// This layout widget will contains all the dock widgets inside.
+  Widget buildLayout(List<Widget> children);
+
+  List<Widget> _buildContent() {
+    List<Widget> children = [];
+
+    for (var i = 0; i < widget.docks.length; i++) {
+      final dock = widget.docks[i];
+
+      final numOfSplitters = (widget.docks.length / 2).ceil();
+      final sizeQuota = widget.layoutSize - numOfSplitters * Divider.FAT;
+
+      // build the children with layout mask from the state
+      final ratio = double.parse(_lastLayoutMask.split(MASK_SEPARATOR)[i]);
+      final dockSize = ratio * sizeQuota;
+
+      Widget dockWidget;
+      if (dock.widgetBuilder == null) {
+        if (widget.stackedVertical) {
+          dockWidget = SizedBox(height: dockSize, child: dock.widget);
+        } else {
+          dockWidget = SizedBox(width: dockSize, child: dock.widget);
+        }
+      } else {
+        if (widget.stackedVertical) {
+          dockWidget = dock.widgetBuilder(context, widget.width, dockSize);
+        } else {
+          dockWidget = dock.widgetBuilder(context, dockSize, widget.height);
+        }
+      }
+      children.add(dockWidget);
+
+      // don't add splitter bar at the edge.
+      if (i == widget.docks.length - 1) {
+        break;
+      }
+
+      final splitterBar = Divider(
+        index: i,
+        stackedVertical: widget.stackedVertical,
+        layoutSize: sizeQuota,
+      );
+      children.add(splitterBar);
+    }
+    return children;
+  }
+
+  Widget _buildDividerGuideline(double offset) {
+    if (widget.stackedVertical) {
+      return Positioned(
+          top: offset,
+          child: Container(
+              color: SolarizedColor.orange,
+              child: SizedBox(width: widget.width, height: 2)));
+    } else {
+      return Positioned(
+          left: offset,
+          child: Container(
+            color: SolarizedColor.orange,
+            child: SizedBox(width: 2, height: widget.height),
+          ));
+    }
+  }
+}
+
+/// ===================================================================
+/// Horizontal Splitter
+/// ===================================================================
+
+class HorizontalSplitter extends Splitter {
   HorizontalSplitter({
     Key key,
-    @required List<Widget> children,
-    @required this.width,
-    @required this.height,
-  }) : super(key: key) {
-    this.stackedVertical = false;
-    this.buildSplitters(children);
-  }
+    @required width,
+    @required height,
+    @required docks,
+    initialLayoutMask,
+  }) : super(
+          width: width,
+          height: height,
+          docks: docks,
+          initialLayoutMask: initialLayoutMask,
+          stackedVertical: false,
+        );
 
   @override
-  _HorizontalState createState() => _HorizontalState();
+  _HorizontalSplitterState createState() => _HorizontalSplitterState();
 }
 
-class _HorizontalState extends State<HorizontalSplitter> {
+class _HorizontalSplitterState extends State<HorizontalSplitter>
+    with SingleTickerProviderStateMixin, SplitterStateMixin {
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[...widget.builtChildren],
-    );
+  Widget buildLayout(List<Widget> children) {
+    return Row(children: children);
   }
 }
 
-class VerticalSplitter extends StatefulWidget with Splitter {
-  final double width;
-  final double height;
+/// ===================================================================
+/// Vertical Splitter
+/// ===================================================================
 
+class VerticalSplitter extends Splitter {
   VerticalSplitter({
     Key key,
-    @required List<Widget> children,
-    @required this.width,
-    @required this.height,
-  }) : super(key: key) {
-    this.stackedVertical = true;
-    this.buildSplitters(children);
-  }
-
+    @required width,
+    @required height,
+    @required docks,
+    initialLayoutMask,
+  }) : super(
+          width: width,
+          height: height,
+          docks: docks,
+          initialLayoutMask: initialLayoutMask,
+          stackedVertical: true,
+        );
   @override
-  _VerticalState createState() => _VerticalState();
+  _VerticalSplitterState createState() => _VerticalSplitterState();
 }
 
-class _VerticalState extends State<VerticalSplitter> {
+class _VerticalSplitterState extends State<VerticalSplitter>
+    with SingleTickerProviderStateMixin, SplitterStateMixin {
+  @override
+  Widget buildLayout(List<Widget> children) {
+    return Column(children: children);
+  }
+}
+
+/// ===================================================================
+/// Divider
+/// ===================================================================
+
+class Divider extends StatefulWidget {
+  final bool stackedVertical;
+
+  /// Total width or height of the layout in which this splitter is placed.
+  final double layoutSize;
+
+  /// indicates the location of the Divider in the layout.
+  final int index;
+
+  const Divider(
+      {Key key,
+      @required this.index,
+      @required this.stackedVertical,
+      @required this.layoutSize})
+      : super(key: key);
+
+  @override
+  _DividerState createState() => _DividerState();
+
+  // UX
+  static const double FAT = 8;
+  static const double PADDING = 3;
+}
+
+class _DividerState extends State<Divider> {
+  // The amount the splitter bar has move in the main axis in
+  // the coordinate space of the event receiver since started.
+  double _delta;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[...widget.builtChildren],
+    // find the layout mask that this splitter can manipulate by dragging.
+    final splitter = SplitterProvider.of(context);
+    final layoutMask = splitter.layoutMask;
+    final dividerPosition = splitter.dividerPosition;
+
+    return GestureDetector(
+      onPanStart: (details) {
+        _delta = 0;
+        _dividerPositionChanged(_delta, layoutMask, dividerPosition);
+      },
+      onPanUpdate: (details) {
+        var changed;
+        if (widget.stackedVertical) {
+          changed = details.delta.dy;
+        } else {
+          changed = details.delta.dx;
+        }
+
+        // if there is no change on the main axis then not notify.
+        if (changed == 0) return;
+
+        _delta += changed;
+        _dividerPositionChanged(_delta, layoutMask, dividerPosition);
+      },
+      onPanEnd: (_) {
+        /// Take the delta while the resizer is dragged and transform it to
+        /// the layout mask for the dock layout manager to rebuild.
+        final ratio = (_delta / widget.layoutSize).toPrecision(2);
+
+        // unbox the layout mask from string to easier format to read.
+        var currentMask =
+            layoutMask.value.split(MASK_SEPARATOR).map(double.parse).toList();
+        currentMask[widget.index] = currentMask[widget.index] + ratio;
+        currentMask[widget.index + 1] = currentMask[widget.index + 1] - ratio;
+
+        layoutMask.value = currentMask.join(MASK_SEPARATOR);
+
+        // clean placeholder
+        dividerPosition.value = null;
+      },
+      child: Container(
+        color: SolarizedColor.base3,
+        padding: const EdgeInsets.all(Divider.PADDING),
+        width: widget.stackedVertical ? null : Divider.FAT,
+        height: widget.stackedVertical ? Divider.FAT : null,
+        child: Container(color: SolarizedColor.base1.withOpacity(0.6)),
+      ),
     );
   }
+
+  void _dividerPositionChanged(
+    double delta,
+    ValueNotifier<String> layoutMask,
+    ValueNotifier<double> dividerPosition,
+  ) {
+    // unbox the layout mask from string to easier format to read.
+    final currentMask =
+        layoutMask.value.split(MASK_SEPARATOR).map(double.parse).toList();
+
+    double centerOffset = 0;
+    for (var i = 0; i <= widget.index; i++) {
+      // panel width
+      centerOffset += currentMask[i] * widget.layoutSize;
+      // divider width
+      centerOffset += Divider.FAT;
+    }
+    // adjust it to the center offset
+    centerOffset -= Divider.FAT / 2;
+
+    dividerPosition.value = centerOffset + delta;
+  }
+}
+
+/// ===================================================================
+/// Demos
+/// ===================================================================
+
+class ColorDemo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListView(children: <Widget>[
+        for (var c in genRainbowColors())
+          Container(
+            color: c,
+            height: 40,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 2),
+                Container(
+                  color: SolarizedColor.base3,
+                  child: Text(
+                    c.toString(),
+                    style: TextStyle(fontSize: 10, color: SolarizedColor.blue),
+                  ),
+                ),
+                SizedBox(height: 2),
+              ],
+            ),
+          )
+      ]),
+    );
+  }
+
+  /// https://krazydad.com/tutorials/makecolors.php
+  static Iterable<Color> genRainbowColors() sync* {
+    final length = 200;
+    final center = 128;
+    final width = 127;
+    final frequency = pi * 2 / length;
+    for (var i = 0; i < length; ++i) {
+      final r = (sin(frequency * i + 2) * width + center).toInt();
+      final g = (sin(frequency * i + 0) * width + center).toInt();
+      final b = (sin(frequency * i + 4) * width + center).toInt();
+      yield Color.fromRGBO(r, g, b, 1);
+    }
+  }
+}
+
+/// ===================================================================
+/// Misc
+/// ===================================================================
+
+/// Round a double to a given degree of precision after decimal point.
+/// https://stackoverflow.com/a/59522007
+extension Precision on double {
+  double toPrecision(int fractionDigits) {
+    double mod = pow(10, fractionDigits.toDouble());
+    return ((this * mod).round().toDouble() / mod);
+  }
+}
+
+class SolarizedColor {
+  static const base03 = Color.fromRGBO(0, 43, 54, 1);
+  static const base02 = Color.fromRGBO(7, 54, 66, 1);
+  static const base01 = Color.fromRGBO(88, 110, 117, 1);
+  static const base00 = Color.fromRGBO(101, 123, 131, 1);
+  static const base0 = Color.fromRGBO(131, 148, 150, 1);
+  static const base1 = Color.fromRGBO(147, 161, 161, 1);
+  static const base2 = Color.fromRGBO(238, 232, 213, 1);
+  static const base3 = Color.fromRGBO(253, 246, 227, 1);
+  static const yellow = Color.fromRGBO(181, 137, 0, 1);
+  static const orange = Color.fromRGBO(203, 75, 22, 1);
+  static const red = Color.fromRGBO(211, 1, 2, 1);
+  static const magenta = Color.fromRGBO(211, 54, 130, 1);
+  static const violet = Color.fromRGBO(108, 113, 196, 1);
+  static const blue = Color.fromRGBO(38, 139, 210, 1);
+  static const cyan = Color.fromRGBO(42, 161, 152, 1);
+  static const green = Color.fromRGBO(133, 153, 0, 1);
 }

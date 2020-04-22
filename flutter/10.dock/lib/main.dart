@@ -318,13 +318,17 @@ mixin SplitterStateMixin<T extends Splitter> on State<T> {
 
   Widget _buildDividerShadow(double offset) {
     if (widget.stackedVertical) {
-      return Positioned(
+      return AnimatedPositioned(
+          curve: Curves.easeOutExpo,
+          duration: Duration(milliseconds: 16),
           top: offset,
           child: Container(
               color: SolarizedColor.orange,
               child: SizedBox(width: widget.width, height: 2)));
     } else {
-      return Positioned(
+      return AnimatedPositioned(
+          curve: Curves.easeOutExpo,
+          duration: Duration(milliseconds: 16),
           left: offset,
           child: Container(
             color: SolarizedColor.orange,

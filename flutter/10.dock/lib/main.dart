@@ -262,7 +262,7 @@ mixin SplitterStateMixin<T extends Splitter> on State<T> {
         child: Stack(children: <Widget>[
           buildLayout(_buildContent()),
           if (_lastDividerPosition != null)
-            _buildDividerGuideline(_lastDividerPosition),
+            _buildDividerShadow(_lastDividerPosition),
         ]),
       ),
     );
@@ -316,7 +316,7 @@ mixin SplitterStateMixin<T extends Splitter> on State<T> {
     return children;
   }
 
-  Widget _buildDividerGuideline(double offset) {
+  Widget _buildDividerShadow(double offset) {
     if (widget.stackedVertical) {
       return Positioned(
           top: offset,

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:ui';
 
@@ -14,39 +15,47 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return DockManager(
-      builder: (context, availableWidth, availableHeight) {
-        return HorizontalSplitter(
+    final editorRegion = Dock(widgetBuilder: (context, w, h) {
+      return VerticalSplitter(
+          width: w,
+          height: h,
+          initialLayoutMask: '0.10, 0.68, 0.22',
+          docks: <Dock>[
+            Dock(widget: Panel('Toolbar', Container())),
+            Dock(widgetBuilder: (context, w, h) {
+              return HorizontalSplitter(width: w, height: h, docks: <Dock>[
+                Dock(widget: Panel('Editor 1', ColorDemo())),
+                Dock(widgetBuilder: (_, w, h) {
+                  return VerticalSplitter(width: w, height: h, docks: <Dock>[
+                    Dock(
+                        widget: Panel(
+                      'Horizontal Scroll',
+                      HorizontalScrollDemo(),
+                    )),
+                    Dock(
+                        widget: Panel(
+                      'Bidirectional Scroll - by nesting two scroller',
+                      NestedScrollDemo(),
+                    )),
+                  ]);
+                })
+              ]);
+            }),
+            Dock(widget: Panel('Console', ColorDemo())),
+          ]);
+    });
+
+    return DockManager(builder: (context, availableWidth, availableHeight) {
+      return HorizontalSplitter(
           width: availableWidth,
           height: availableHeight,
           initialLayoutMask: '0.20, 0.62, 0.18',
           docks: <Dock>[
             Dock(widget: Panel('Explorer', ColorDemo())),
-            Dock(widgetBuilder: (context, w, h) {
-              return VerticalSplitter(
-                width: w,
-                height: h,
-                initialLayoutMask: '0.10, 0.68, 0.22',
-                docks: <Dock>[
-                  Dock(widget: Panel('Toolbar', ColorDemo())),
-                  Dock(widgetBuilder: (context, w, h) {
-                    return HorizontalSplitter(
-                        width: w,
-                        height: h,
-                        docks: <Dock>[
-                          Dock(widget: Panel('Editor 1', ColorDemo())),
-                          Dock(widget: Panel('Editor 2', ColorDemo())),
-                        ]);
-                  }),
-                  Dock(widget: Panel('Console', ColorDemo())),
-                ],
-              );
-            }),
-            Dock(widget: Panel('Properties', ColorDemo())),
-          ],
-        );
-      },
-    );
+            editorRegion,
+            Dock(widget: Panel('Properties', ColorDemo()))
+          ]);
+    });
   }
 }
 
@@ -160,6 +169,8 @@ const MASK_SEPARATOR = ', ';
 class SplitterProvider extends InheritedWidget {
   final ValueNotifier<String> layoutMask;
   final ValueNotifier<double> dividerPosition;
+
+  @override
   final Widget child;
 
   SplitterProvider({this.layoutMask, this.dividerPosition, this.child});
@@ -216,7 +227,7 @@ mixin SplitterStateMixin<T extends Splitter> on State<T> {
       //
       // 2 panels: 0.5, 0.5
       // 3 panels: 0.33, 0.33, 0.33
-      int numOfDocks = widget.docks.length;
+      final numOfDocks = widget.docks.length;
       _lastLayoutMask =
           List.filled(numOfDocks, 1 / numOfDocks).join(MASK_SEPARATOR);
     } else {
@@ -273,7 +284,7 @@ mixin SplitterStateMixin<T extends Splitter> on State<T> {
   Widget buildLayout(List<Widget> children);
 
   List<Widget> _buildContent() {
-    List<Widget> children = [];
+    var children = <Widget>[];
 
     for (var i = 0; i < widget.docks.length; i++) {
       final dock = widget.docks[i];
@@ -493,7 +504,7 @@ class _DividerState extends State<Divider> {
     final currentMask =
         layoutMask.value.split(MASK_SEPARATOR).map(double.parse).toList();
 
-    double centerOffset = 0;
+    var centerOffset = 0.0;
     for (var i = 0; i <= widget.index; i++) {
       // panel width
       centerOffset += currentMask[i] * widget.layoutSize;
@@ -509,6 +520,90 @@ class _DividerState extends State<Divider> {
 
 /// ===================================================================
 /// Demos
+/// ===================================================================
+
+class HorizontalScrollDemo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(slivers: <Widget>[
+      SliverToBoxAdapter(
+          child: Container(
+        width: 500,
+        height: 500,
+        decoration: FlutterLogoDecoration(),
+      ))
+    ]);
+  }
+}
+
+/// ===================================================================
+/// Custom Sliver widget
+/// ===================================================================
+
+class NestedScrollDemo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Container(
+            width: 500,
+            height: 500,
+            decoration: FlutterLogoDecoration(),
+          ),
+        ));
+  }
+}
+
+class RenderBigFlutterLogo extends RenderSliverSingleBoxAdapter {
+  RenderBigFlutterLogo({RenderBox child}) : super(child: child);
+
+  @override
+  void performLayout() {
+    final constraints = this.constraints;
+    child.layout(constraints.asBoxConstraints(), parentUsesSize: true);
+    double childExtent;
+    switch (constraints.axis) {
+      case Axis.horizontal:
+        childExtent = child.size.width;
+        break;
+      case Axis.vertical:
+        childExtent = child.size.height;
+        break;
+    }
+    assert(childExtent != null);
+    final paintedChildSize =
+        calculatePaintOffset(constraints, from: 0.0, to: childExtent);
+
+    assert(paintedChildSize.isFinite);
+    assert(paintedChildSize >= 0.0);
+
+    geometry = SliverGeometry(
+      scrollExtent: childExtent,
+      paintExtent: paintedChildSize,
+      maxPaintExtent: childExtent,
+      cacheExtent: 0,
+      hasVisualOverflow: childExtent > constraints.remainingPaintExtent ||
+          constraints.scrollOffset > 0.0,
+    );
+    setChildParentData(child, constraints, geometry);
+  }
+}
+
+class BigFlutterLogo extends SingleChildRenderObjectWidget {
+  const BigFlutterLogo({
+    Key key,
+    Widget child,
+  }) : super(key: key, child: child);
+
+  @override
+  RenderBigFlutterLogo createRenderObject(BuildContext context) =>
+      RenderBigFlutterLogo();
+}
+
+/// ===================================================================
+/// Color Demo
 /// ===================================================================
 
 class ColorDemo extends StatelessWidget {

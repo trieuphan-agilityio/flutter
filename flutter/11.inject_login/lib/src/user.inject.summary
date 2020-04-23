@@ -1,0 +1,28 @@
+{
+  "asset": "asset:inject_login/lib/src/user.dart",
+  "summary": {
+    "injector": [],
+    "module": [
+      {
+        "name": "UserServices",
+        "providers": [
+          {
+            "name": "userRepo",
+            "kind": "method",
+            "injectedType": {
+              "lookupKey": {
+                "root": "asset:inject_login/lib/src/user.dart#UserRepo",
+                "qualifier": null
+              },
+              "isProvider": false
+            },
+            "singleton": false,
+            "asynchronous": false,
+            "dependencies": []
+          }
+        ]
+      }
+    ],
+    "injectable": []
+  }
+}

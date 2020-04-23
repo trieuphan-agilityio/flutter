@@ -2,10 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'app_services.dart';
-import 'auth.dart';
-import 'login.dart';
-import 'user.dart';
+import 'src/app_services.dart';
+import 'src/auth.dart';
+import 'src/login.dart';
+import 'src/user.dart';
 
 Future main() async {
   final services = await AppServices.create(

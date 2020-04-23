@@ -1,0 +1,43 @@
+{
+  "asset": "asset:inject_login/lib/src/login.dart",
+  "summary": {
+    "injector": [],
+    "module": [
+      {
+        "name": "LoginServices",
+        "providers": [
+          {
+            "name": "loginBloc",
+            "kind": "method",
+            "injectedType": {
+              "lookupKey": {
+                "root": "asset:inject_login/lib/src/login.dart#LoginBloc",
+                "qualifier": null
+              },
+              "isProvider": false
+            },
+            "singleton": false,
+            "asynchronous": false,
+            "dependencies": [
+              {
+                "lookupKey": {
+                  "root": "asset:inject_login/lib/src/user.dart#UserRepo",
+                  "qualifier": null
+                },
+                "isProvider": false
+              },
+              {
+                "lookupKey": {
+                  "root": "asset:inject_login/lib/src/auth.dart#AuthBloc",
+                  "qualifier": null
+                },
+                "isProvider": false
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "injectable": []
+  }
+}

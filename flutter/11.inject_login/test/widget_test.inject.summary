@@ -1,0 +1,8 @@
+{
+  "asset": "asset:inject_login/test/widget_test.dart",
+  "summary": {
+    "injector": [],
+    "module": [],
+    "injectable": []
+  }
+}

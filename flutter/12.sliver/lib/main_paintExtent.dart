@@ -17,7 +17,11 @@ class Home extends StatelessWidget {
           slivers: <Widget>[
             SliverToBoxAdapter(child: Logo()),
             SliverToBoxAdapter(child: Logo()),
+            SliverToBoxAdapter(child: Logo()),
             SliverDemo(child: Logo(color: Colors.blueGrey, size: 201)),
+            SliverToBoxAdapter(child: Logo()),
+            SliverToBoxAdapter(child: Logo()),
+            SliverToBoxAdapter(child: Logo()),
           ],
         ),
       ),
@@ -46,6 +50,8 @@ class RenderSliverDemo extends RenderSliverSingleBoxAdapter {
     // scrolled beyond the extent of the screen.
     double extent =
         constraints.viewportMainAxisExtent - constraints.precedingScrollExtent;
+
+    print(constraints.remainingPaintExtent);
 
     if (child != null) {
       double childExtent;

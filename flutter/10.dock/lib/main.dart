@@ -166,21 +166,23 @@ class _PanelState extends State<Panel> {
 /// They are separated by ', '.
 const MASK_SEPARATOR = ', ';
 
-class SplitterProvider extends InheritedWidget {
+class _SplitterScope extends InheritedWidget {
   final ValueNotifier<String> layoutMask;
   final ValueNotifier<double> dividerPosition;
 
-  @override
-  final Widget child;
+  const _SplitterScope({
+    Key key,
+    @required this.layoutMask,
+    @required this.dividerPosition,
+    Widget child,
+  }) : super(key: key, child: child);
 
-  SplitterProvider({this.layoutMask, this.dividerPosition, this.child});
-
   @override
-  bool updateShouldNotify(SplitterProvider oldWidget) {
+  bool updateShouldNotify(_SplitterScope oldWidget) {
     return true;
   }
 
-  static SplitterProvider of(BuildContext context) =>
+  static _SplitterScope of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType();
 }
 
@@ -264,7 +266,7 @@ mixin SplitterStateMixin<T extends Splitter> on State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return SplitterProvider(
+    return _SplitterScope(
       layoutMask: layoutMask,
       dividerPosition: dividerPosition,
       child: SizedBox(
@@ -446,7 +448,7 @@ class _DividerState extends State<Divider> {
   @override
   Widget build(BuildContext context) {
     // find the layout mask that this splitter can manipulate by dragging.
-    final splitter = SplitterProvider.of(context);
+    final splitter = _SplitterScope.of(context);
     final layoutMask = splitter.layoutMask;
     final dividerPosition = splitter.dividerPosition;
 
@@ -474,7 +476,7 @@ class _DividerState extends State<Divider> {
         /// the layout mask for the dock layout manager to rebuild.
         final ratio = (_delta / widget.layoutSize).toPrecision(2);
 
-        // unbox the layout mask from string to easier format to read.
+        // unboxed the layout mask from string to easier format to read.
         var currentMask =
             layoutMask.value.split(MASK_SEPARATOR).map(double.parse).toList();
         currentMask[widget.index] = currentMask[widget.index] + ratio;
@@ -500,7 +502,7 @@ class _DividerState extends State<Divider> {
     ValueNotifier<String> layoutMask,
     ValueNotifier<double> dividerPosition,
   ) {
-    // unbox the layout mask from string to easier format to read.
+    // unboxed the layout mask from string to easier format to read.
     final currentMask =
         layoutMask.value.split(MASK_SEPARATOR).map(double.parse).toList();
 

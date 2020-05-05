@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -19,9 +20,12 @@ class _Demo extends StatelessWidget {
       map: Container(
           color: Colors.blueGrey,
           child: Container(decoration: FlutterLogoDecoration())),
-      appBar: AppBar(
-        leading: Icon(Icons.menu),
-        backgroundColor: Colors.transparent,
+      drawer: Drawer(
+        child: ListView(children: <Widget>[
+          DrawerHeader(child: FlutterLogo()),
+          ListTile(leading: Icon(Icons.mail), title: Text('Hello')),
+          ListTile(leading: Icon(Icons.send), title: Text('World')),
+        ]),
       ),
       input: Card(
         margin: EdgeInsets.symmetric(horizontal: 16),
@@ -31,7 +35,7 @@ class _Demo extends StatelessWidget {
         ),
       ),
       locationRefresher: LocationRefresher(),
-      promoBanner: const PromoBanner(),
+      promoBanner: const EarnMoreWithVisaCard(),
       sliverFeedItems: <Widget>[
         SliverToBoxAdapter(child: FeedDivider()),
         SliverToBoxAdapter(child: FeedSingleItem()),
@@ -53,7 +57,33 @@ class _Demo extends StatelessWidget {
 
 class Home extends StatefulWidget {
   final Widget map;
-  final Widget appBar;
+
+  final Widget drawer;
+
+  /// {@macro flutter.material.drawer.dragStartBehavior}
+  final DragStartBehavior drawerDragStartBehavior;
+
+  /// The color to use for the scrim that obscures primary content while a drawer is open.
+  ///
+  /// By default, the color is [Colors.black54]
+  final Color drawerScrimColor;
+
+  /// The width of the area within which a horizontal swipe will open the
+  /// drawer.
+  ///
+  /// By default, the value used is 20.0 added to the padding edge of
+  /// `MediaQuery.of(context).padding` that corresponds to [alignment].
+  /// This ensures that the drag area for notched devices is not obscured. For
+  /// example, if `TextDirection.of(context)` is set to [TextDirection.ltr],
+  /// 20.0 will be added to `MediaQuery.of(context).padding.left`.
+  final double drawerEdgeDragWidth;
+
+  /// Determines if the [Scaffold.drawer] can be opened with a drag
+  /// gesture.
+  ///
+  /// By default, the drag gesture is enabled.
+  final bool drawerEnableOpenDragGesture;
+
   final Widget input;
   final Widget locationRefresher;
   final Widget promoBanner;
@@ -62,8 +92,12 @@ class Home extends StatefulWidget {
   const Home({
     Key key,
     @required this.map,
-    this.appBar,
-    this.input,
+    @required this.drawer,
+    this.drawerDragStartBehavior = DragStartBehavior.start,
+    this.drawerScrimColor,
+    this.drawerEdgeDragWidth,
+    this.drawerEnableOpenDragGesture = true,
+    @required this.input,
     this.locationRefresher,
     this.promoBanner,
     this.sliverFeedItems,
@@ -74,6 +108,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final GlobalKey<DrawerControllerState> _drawerKey =
+      GlobalKey<DrawerControllerState>();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -84,39 +121,39 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              widget.appBar,
+              AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {
+                    _drawerKey.currentState?.open();
+                  },
+                ),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
               widget.input,
             ],
           ),
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: _FeedController(
-            promoBanner: widget.promoBanner,
-            sliverFeedItems: widget.sliverFeedItems,
-          ),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return _FeedController(
+              availableHeight: constraints.maxHeight,
+              promoBanner: widget.promoBanner,
+              sliverFeedItems: widget.sliverFeedItems,
+            );
+          },
+        ),
+        DrawerController(
+          key: _drawerKey,
+          alignment: DrawerAlignment.start,
+          child: widget.drawer,
+          dragStartBehavior: widget.drawerDragStartBehavior,
+          scrimColor: widget.drawerScrimColor,
+          edgeDragWidth: widget.drawerEdgeDragWidth,
+          enableOpenDragGesture: widget.drawerEnableOpenDragGesture,
         ),
       ],
-    );
-  }
-}
-
-class LocationRefresher extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: <Widget>[
-          FloatingActionButton(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            onPressed: () {},
-            child: Icon(Icons.refresh),
-          ),
-          SizedBox(height: 16),
-          Text('490 Post St', style: Theme.of(context).textTheme.subtitle2),
-        ],
-      ),
     );
   }
 }
@@ -125,28 +162,24 @@ class LocationRefresher extends StatelessWidget {
 /// Promotion Banner
 /// ===================================================================
 
-/// Signature for the callback that's called when a [_FeedController] is
-/// opened or closed.
-typedef _FeedDrawerCallback = void Function(bool isOpened);
-
 class _FeedController extends StatefulWidget {
   const _FeedController({
     GlobalKey key,
+    this.availableHeight,
     this.promoBanner,
     this.sliverFeedItems,
-    this.feedDrawerCallback,
     this.edgeDragHeight,
   })  : assert(promoBanner != null),
         assert(sliverFeedItems != null),
         super(key: key);
 
+  /// Total available height for the scroll area
+  final double availableHeight;
+
   /// The widget below this widget in the tree.
   final Widget promoBanner;
 
   final List<Widget> sliverFeedItems;
-
-  /// Optional callback that is called when a [Drawer] is opened or closed.
-  final _FeedDrawerCallback feedDrawerCallback;
 
   /// The height of the area within which a vertical swipe will open the drawer.
   ///
@@ -158,21 +191,34 @@ class _FeedController extends StatefulWidget {
   _FeedControllerState createState() => _FeedControllerState();
 }
 
-const double _kEdgeDragHeight = 150.0;
-const double _kMinFlingVelocity = 365.0;
+/// Total available space of the feed header when activated and collapsing.
+const double _kPromoFlexibleSpace = 300;
+
+/// The height of promotion banner when the feed drawer is inactive.
+const double _kPromoBannerHeight = 150;
+
+/// When dragging the promo banner faster than this velocity, the animation
+/// controller is "fling" depends on the direction of the pan gesture.
+const double _kMinFlingVelocity = 500;
+
 const Duration _kBaseSettleDuration = Duration(milliseconds: 246);
 
 class _FeedControllerState extends State<_FeedController>
     with SingleTickerProviderStateMixin {
   ScrollController _scrollController;
+  Animation<double> scrollOffsetAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(duration: _kBaseSettleDuration, vsync: this)
-          ..addListener(_animationChanged)
-          ..addStatusListener(_animationStatusChanged);
+    _controller = AnimationController(
+        duration: _kBaseSettleDuration,
+        reverseDuration: _kBaseSettleDuration * 1.5, // reverse should be slower
+        vsync: this);
+
+    scrollOffsetAnimation = _controller.drive(Tween<double>(
+        begin: 0.0, end: widget.availableHeight - _kPromoFlexibleSpace))
+      ..addListener(_animationChanged);
 
     _scrollController = ScrollController()..addListener(_scrollChanged);
   }
@@ -187,12 +233,26 @@ class _FeedControllerState extends State<_FeedController>
   void _animationChanged() {
     setState(() {
       if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_controller.value * 812.0);
+        _scrollController.jumpTo(scrollOffsetAnimation.value);
       }
     });
   }
 
-  void _animationStatusChanged(AnimationStatus status) {}
+  double backdropOpacity = 0.0;
+
+  void _scrollChanged() {
+    setState(() {
+      // when scrolling over 30% the backdrop turn to black completely
+      backdropOpacity = math.min(
+          1.0, _scrollController.offset / (widget.availableHeight * 0.3));
+
+      bool isScrollOverFlexibleSpace = _scrollController.offset <
+          widget.availableHeight - _kPromoFlexibleSpace;
+
+      if (_controller.status == AnimationStatus.completed &&
+          isScrollOverFlexibleSpace) _controller.reverse(from: 0.6);
+    });
+  }
 
   AnimationController _controller;
 
@@ -209,35 +269,19 @@ class _FeedControllerState extends State<_FeedController>
     }
   }
 
-  final GlobalKey _drawerKey = GlobalKey();
-
-  double get _height {
-    final RenderBox box =
-        _drawerKey.currentContext?.findRenderObject() as RenderBox;
-    if (box != null) return box.size.height;
-    return _kEdgeDragHeight;
+  void _move(double delta, Size size) {
+    _controller.value = _controller.value + (-delta / size.height);
   }
 
-  bool _previouslyOpened = false;
-
-  void _move(DragUpdateDetails details) {
-    double delta = details.primaryDelta / _height;
-    _controller.value = _controller.value + -delta;
-
-    final bool opened = _controller.value > 0.5;
-    if (opened != _previouslyOpened && widget.feedDrawerCallback != null)
-      widget.feedDrawerCallback(opened);
-    _previouslyOpened = opened;
-  }
-
-  void _settle(DragEndDetails details) {
+  void _settle(Offset pixelsPerSecond, Size size) {
     if (_controller.isDismissed) return;
-    if (details.velocity.pixelsPerSecond.dy.abs() >= _kMinFlingVelocity) {
-      double visualVelocity = details.velocity.pixelsPerSecond.dy / _height;
+
+    // if dragging fast enough
+    if (pixelsPerSecond.dy.abs() >= _kMinFlingVelocity) {
+      double visualVelocity = -pixelsPerSecond.dy / size.height;
       _controller.fling(velocity: visualVelocity);
-      if (widget.feedDrawerCallback != null)
-        widget.feedDrawerCallback(visualVelocity > 0.0);
     } else if (_controller.value < 0.5) {
+      // or drag lower than a thresholds will close the promo banner
       close();
     } else {
       open();
@@ -246,58 +290,70 @@ class _FeedControllerState extends State<_FeedController>
 
   void open() {
     _controller.fling(velocity: 1.0);
-    if (widget.feedDrawerCallback != null) widget.feedDrawerCallback(true);
   }
 
   void close() {
     _controller.fling(velocity: -1.0);
-    if (widget.feedDrawerCallback != null) widget.feedDrawerCallback(false);
   }
 
   final GlobalKey _gestureDetectorKey = GlobalKey();
-  final GlobalKey _customScrollKey = GlobalKey();
-
-  double backdropOpacity = 0.0;
-
-  void _scrollChanged() {
-    setState(() {
-      // when scrolling over 30% the backdrop turn to black completely
-      backdropOpacity = math.min(1.0, _scrollController.offset / (812.0 * 0.3));
-    });
-  }
+  final GlobalKey _scrollKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     if (_controller.status == AnimationStatus.dismissed) {
+      final size = MediaQuery.of(context).size;
       return Align(
           alignment: AlignmentDirectional.bottomCenter,
           child: GestureDetector(
               key: _gestureDetectorKey,
-              onVerticalDragUpdate: _move,
-              onVerticalDragEnd: _settle,
+              onVerticalDragUpdate: (details) {
+                _move(details.primaryDelta, size);
+              },
+              onVerticalDragEnd: (details) {
+                _settle(details.velocity.pixelsPerSecond, size);
+              },
               child: widget.promoBanner));
     } else {
-      return GestureDetector(
-        key: _gestureDetectorKey,
-        onVerticalDragDown: _handleDragDown,
-        onVerticalDragUpdate: _move,
-        onVerticalDragEnd: _settle,
-        onVerticalDragCancel: _handleDragCancel,
-        child: _buildCustomScrollView(),
+      return PrimaryScrollController(
+        controller: _scrollController,
+        child: _buildScrollableContent(),
       );
     }
+  }
+
+  Widget _buildScrollableContent() {
+    if (_controller.status == AnimationStatus.completed)
+      return _buildCustomScrollView();
+
+    final size = MediaQuery.of(context).size;
+    return GestureDetector(
+      key: _gestureDetectorKey,
+      onVerticalDragDown: _handleDragDown,
+      onVerticalDragUpdate: (details) {
+        _move(details.primaryDelta, size);
+      },
+      onVerticalDragEnd: (details) {
+        _settle(details.velocity.pixelsPerSecond, size);
+      },
+      onVerticalDragCancel: _handleDragCancel,
+      child: _buildCustomScrollView(),
+    );
   }
 
   Widget _buildCustomScrollView() {
     return RepaintBoundary(
       child: CustomScrollView(
-        key: _customScrollKey,
-        controller: _scrollController,
+        key: _scrollKey,
+        primary: true,
         slivers: <Widget>[
           SliverPromoBanner(
             child: Stack(
               children: <Widget>[
-                Container(color: Theme.of(context).primaryColor),
+                Container(
+                    color: Theme.of(context)
+                        .primaryColor
+                        .withOpacity(backdropOpacity)),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: widget.promoBanner,
@@ -381,39 +437,59 @@ class RenderSliverPromoBanner extends RenderSliverSingleBoxAdapter {
   }
 }
 
-class PromoBanner extends StatelessWidget {
-  const PromoBanner({Key key}) : super(key: key);
+class EarnMoreWithVisaCard extends StatelessWidget {
+  const EarnMoreWithVisaCard({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _kEdgeDragHeight,
+      height: _kPromoBannerHeight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              height: 60.0,
-              padding: EdgeInsets.symmetric(horizontal: 50),
-              decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  )),
-              child: Text(
-                'UBER',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    .copyWith(color: Theme.of(context).primaryColorLight),
+          Transform.rotate(
+            angle: 0.12,
+            origin: Offset(-200, 0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                height: 60.0,
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                decoration: BoxDecoration(
+                    color: Color.fromRGBO(33, 33, 33, 1),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    )),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'UBER',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(color: Theme.of(context).primaryColorLight),
+                  ),
+                ),
               ),
             ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Container(height: 90.0, color: Colors.teal),
+            child: Card(
+              elevation: 1,
+              margin: EdgeInsets.zero,
+              child: Container(
+                height: 90.0,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.indigoAccent, Colors.lightBlue],
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -462,12 +538,32 @@ class FeedMultiItem extends StatelessWidget {
 }
 
 /// ===================================================================
-/// Feed Divider
+/// Miscellaneous
 /// ===================================================================
 
 class FeedDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(height: 6, color: Theme.of(context).primaryColor);
+  }
+}
+
+class LocationRefresher extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: <Widget>[
+          FloatingActionButton(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            onPressed: () {},
+            child: Icon(Icons.refresh),
+          ),
+          SizedBox(height: 16),
+          Text('490 Post St', style: Theme.of(context).textTheme.subtitle2),
+        ],
+      ),
+    );
   }
 }

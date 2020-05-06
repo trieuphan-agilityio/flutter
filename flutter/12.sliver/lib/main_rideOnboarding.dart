@@ -240,11 +240,16 @@ class _FeedControllerState extends State<_FeedController>
 
   double backdropOpacity = 0.0;
 
+  /// It determines whether AppBar should be visible or not.
+  double appBarVisibility = 0.0;
+
   void _scrollChanged() {
     setState(() {
       // when scrolling over 30% the backdrop turn to black completely
       backdropOpacity = math.min(
           1.0, _scrollController.offset / (widget.availableHeight * 0.3));
+
+      appBarVisibility = backdropOpacity != 1.0 ? 0.0 : 1.0;
 
       bool isScrollOverFlexibleSpace = _scrollController.offset <
           widget.availableHeight - _kPromoFlexibleSpace;
@@ -343,27 +348,45 @@ class _FeedControllerState extends State<_FeedController>
 
   Widget _buildCustomScrollView() {
     return RepaintBoundary(
-      child: CustomScrollView(
-        key: _scrollKey,
-        primary: true,
-        slivers: <Widget>[
-          SliverPromoBanner(
-            child: Stack(
-              children: <Widget>[
-                Container(
-                    color: Theme.of(context)
-                        .primaryColor
-                        .withOpacity(backdropOpacity)),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: widget.promoBanner,
+      child: Stack(children: <Widget>[
+        Container(
+            color: Theme.of(context).primaryColor.withOpacity(backdropOpacity)),
+        CustomScrollView(
+          key: _scrollKey,
+          primary: true,
+          slivers: <Widget>[
+            SliverOpacity(
+              opacity: appBarVisibility,
+              sliver: SliverAppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_upward),
+                  onPressed: () {
+                    _scrollController.animateTo(
+                      0,
+                      duration: _kBaseSettleDuration,
+                      curve: Curves.easeOutExpo,
+                    );
+                  },
                 ),
-              ],
+                title: Text('Messages'),
+                centerTitle: false,
+                pinned: true,
+              ),
             ),
-          ),
-          ...widget.sliverFeedItems,
-        ],
-      ),
+            SliverPromoBanner(
+              child: Stack(
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: widget.promoBanner,
+                  ),
+                ],
+              ),
+            ),
+            ...widget.sliverFeedItems,
+          ],
+        ),
+      ]),
     );
   }
 }

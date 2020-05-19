@@ -9,7 +9,7 @@ part of 'user_form.dart';
 class _$EditUserForm implements UserForm {
   final User _model;
 
-  _$UserEditForm(User model) : _model = model;
+  _$EditUserForm(User model) : _model = model;
 
   @override
   User get model => _model;

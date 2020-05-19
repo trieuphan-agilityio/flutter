@@ -7,6 +7,48 @@ part of 'user_form.dart';
 // **************************************************************************
 
 class _$EditUserForm extends UserForm {
+  _$EditUserForm(this.model);
+
+  final User model;
+
+  @override
+  get builder {
+    return (BuildContext context) {
+      return Container(
+        alignment: Alignment.topLeft,
+        width: 800,
+        child: Shortcuts(
+          shortcuts: <LogicalKeySet, Intent>{
+            // Pressing enter on the field will now move to the next field.
+            LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
+          },
+          child: FocusTraversalGroup(
+            child: Form(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    username,
+                    const SizedBox(height: 24),
+                    email,
+                    const SizedBox(height: 24),
+                    phone,
+                    const SizedBox(height: 24),
+                    bio,
+                    const SizedBox(height: 24),
+                    password,
+                    const SizedBox(height: 24),
+                    passwordConfirmation,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    };
+  }
+
   @override
   FormField<String> get username {
     return AgTextField(

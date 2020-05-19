@@ -1,16 +1,10 @@
 import 'package:admin_template/admin_template.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'user.dart';
 
 part 'user_form.g.dart';
-
-typedef WidgetBuilder = Widget Function(BuildContext);
-
-abstract class AgForm<T> {
-  T get model;
-  WidgetBuilder get builder;
-}
 
 @agEditForm
 abstract class UserForm implements AgForm<User> {

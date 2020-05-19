@@ -53,10 +53,10 @@ class FormDemoState extends State<FormDemo> {
     ..passwordConfirmation = ''
     ..groups = List(0));
 
-  UserForm get userForm => UserForm.editing(user);
+  UserForm get editUserForm => UserForm.editing(user);
 
   @override
   Widget build(BuildContext context) {
-    return userForm.builder(context);
+    return editUserForm.builder(context);
   }
 }

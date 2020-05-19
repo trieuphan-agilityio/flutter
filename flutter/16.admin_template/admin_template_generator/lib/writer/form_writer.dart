@@ -5,7 +5,7 @@ import 'package:code_builder/code_builder.dart';
 import 'package:code_builder/src/base.dart';
 
 class FormField {
-  final FieldElement fieldElement;
+  final PropertyAccessorElement fieldElement;
   final String name;
   final DartType rawType;
 

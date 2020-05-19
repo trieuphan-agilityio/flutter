@@ -13,10 +13,7 @@ class FormProcessor implements Processor<Form> {
   Form process() {
     final name = _classElement.displayName;
     final getters = [
-      ..._classElement.fields.where((e) {
-        print(e.kind);
-        return e.kind == ElementKind.GETTER;
-      }),
+      ..._classElement.accessors.where((a) => a.isGetter),
     ];
     final formFields = _getFormFields(getters);
     return Form(
@@ -26,7 +23,7 @@ class FormProcessor implements Processor<Form> {
     );
   }
 
-  List<FormField> _getFormFields(final List<FieldElement> elements) {
+  List<FormField> _getFormFields(final List<PropertyAccessorElement> elements) {
     return elements.map((e) {
       return FormField(e, e.name, e.type);
     }).toList();

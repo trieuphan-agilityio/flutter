@@ -6,37 +6,51 @@ part 'user.g.dart';
 enum UserRole { moderator, editor }
 
 abstract class User implements Built<User, UserBuilder> {
-  User._();
-
-  @agRequired
-  @agName
+  @AgText(
+    required: true,
+  )
   String get username;
 
-//  @AgCharField(
-//    hintText: 'Your email address',
-//    labelText: 'E-mail',
-//  )
+  @AgText(
+    required: true,
+    hintText: 'Your email address',
+    labelText: 'E-mail',
+  )
   String get email;
 
   @AgMask(pattern: '(###) ###-###')
   String get phone;
 
-  @agRequired
-  @agPassword
-  @AgMax(30)
-//  @AgCharField(
-//    helperText: 'No more than 8 characters.',
-//    labelText: 'Password *',
-//    validators: [],
-//  )
+  @AgText(
+    maxLength: 200,
+    hintText: 'Tell us about yourself'
+        ' (e.g., write down what you do or what hobbies you have)',
+    helperText: 'Keep it short, this is just a demo.',
+    labelText: 'Life story',
+  )
+  @nullable
+  String get bio;
+
+  @AgPassword(
+    required: true,
+    minLength: 8,
+    helperText: 'Must have at least 8 characters.',
+    labelText: 'Password',
+    validators: [],
+  )
   String get password;
 
   @AgMatch(otherProperty: 'password')
-  @AgMax(30)
+  @AgPassword(
+    required: true,
+  )
   String get passwordConfirmation;
 
-  @agRequired
+  @AgRelated(
+    required: true,
+  )
   List<UserRole> get groups;
 
   factory User([void Function(UserBuilder) updates]) = _$User;
+  User._();
 }

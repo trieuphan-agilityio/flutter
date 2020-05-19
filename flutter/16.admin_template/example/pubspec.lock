@@ -15,6 +15,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  admin_template_annotation:
+    dependency: transitive
+    description:
+      path: "../admin_template_annotation"
+      relative: true
+    source: path
+    version: "0.0.1"
   admin_template_generator:
     dependency: "direct dev"
     description:

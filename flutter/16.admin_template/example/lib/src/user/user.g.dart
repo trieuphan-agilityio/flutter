@@ -14,6 +14,8 @@ class _$User extends User {
   @override
   final String phone;
   @override
+  final String bio;
+  @override
   final String password;
   @override
   final String passwordConfirmation;
@@ -27,6 +29,7 @@ class _$User extends User {
       {this.username,
       this.email,
       this.phone,
+      this.bio,
       this.password,
       this.passwordConfirmation,
       this.groups})
@@ -65,6 +68,7 @@ class _$User extends User {
         username == other.username &&
         email == other.email &&
         phone == other.phone &&
+        bio == other.bio &&
         password == other.password &&
         passwordConfirmation == other.passwordConfirmation &&
         groups == other.groups;
@@ -75,8 +79,10 @@ class _$User extends User {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, username.hashCode), email.hashCode),
-                    phone.hashCode),
+                $jc(
+                    $jc($jc($jc(0, username.hashCode), email.hashCode),
+                        phone.hashCode),
+                    bio.hashCode),
                 password.hashCode),
             passwordConfirmation.hashCode),
         groups.hashCode));
@@ -88,6 +94,7 @@ class _$User extends User {
           ..add('username', username)
           ..add('email', email)
           ..add('phone', phone)
+          ..add('bio', bio)
           ..add('password', password)
           ..add('passwordConfirmation', passwordConfirmation)
           ..add('groups', groups))
@@ -110,6 +117,10 @@ class UserBuilder implements Builder<User, UserBuilder> {
   String get phone => _$this._phone;
   set phone(String phone) => _$this._phone = phone;
 
+  String _bio;
+  String get bio => _$this._bio;
+  set bio(String bio) => _$this._bio = bio;
+
   String _password;
   String get password => _$this._password;
   set password(String password) => _$this._password = password;
@@ -130,6 +141,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
       _username = _$v.username;
       _email = _$v.email;
       _phone = _$v.phone;
+      _bio = _$v.bio;
       _password = _$v.password;
       _passwordConfirmation = _$v.passwordConfirmation;
       _groups = _$v.groups;
@@ -158,6 +170,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
             username: username,
             email: email,
             phone: phone,
+            bio: bio,
             password: password,
             passwordConfirmation: passwordConfirmation,
             groups: groups);

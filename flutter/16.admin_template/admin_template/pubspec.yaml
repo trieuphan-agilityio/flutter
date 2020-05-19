@@ -13,6 +13,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  admin_template_annotation:
+    path: ../admin_template_annotation
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

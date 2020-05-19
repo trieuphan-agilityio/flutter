@@ -1,3 +1,4 @@
+# admin_template
 An admin template powered by Dart's source_gen.
 
 ### Packages

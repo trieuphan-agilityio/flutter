@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:collection/collection.dart';
 
 class Model {
   final ClassElement classElement;
@@ -29,17 +30,24 @@ class ModelField {
   ModelField(this.fieldElement, this.name, this.annotations);
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ModelField &&
-          runtimeType == other.runtimeType &&
-          fieldElement == other.fieldElement &&
-          name == other.name &&
-          annotations == other.annotations;
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ModelField &&
+            runtimeType == other.runtimeType &&
+            fieldElement == other.fieldElement &&
+            name == other.name &&
+            const ListEquality<ModelFieldAnnotation>()
+                .equals(annotations, other.annotations);
+  }
 
   @override
   int get hashCode =>
       fieldElement.hashCode ^ name.hashCode ^ annotations.hashCode;
+
+  @override
+  String toString() {
+    return 'ModelField{fieldElement: $fieldElement, name: $name, annotations: $annotations}';
+  }
 }
 
 class ModelFieldAnnotation {
@@ -56,4 +64,9 @@ class ModelFieldAnnotation {
 
   @override
   int get hashCode => name.hashCode;
+
+  @override
+  String toString() {
+    return 'ModelFieldAnnotation{name: $name}';
+  }
 }

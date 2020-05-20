@@ -57,7 +57,7 @@ class AgRegExp {
 /// Field Metadata
 /// ===================================================================
 
-abstract class _AgBase {
+abstract class AgBase {
   final bool required;
   final int minLength;
   final int maxLength;
@@ -72,7 +72,7 @@ abstract class _AgBase {
     return defaultValidators + _validators;
   }
 
-  const _AgBase({
+  const AgBase({
     this.required,
     this.minLength,
     this.maxLength,
@@ -83,7 +83,7 @@ abstract class _AgBase {
   }) : _validators = validators;
 }
 
-class AgText extends _AgBase {
+class AgText extends AgBase {
   const AgText({
     bool required,
     int minLength,
@@ -106,7 +106,7 @@ class AgText extends _AgBase {
   List<Validator> get defaultValidators => [];
 }
 
-class AgPassword extends _AgBase {
+class AgPassword extends AgBase {
   const AgPassword({
     bool required,
     int minLength,
@@ -129,7 +129,7 @@ class AgPassword extends _AgBase {
   List<Validator> get defaultValidators => [];
 }
 
-class AgRelated extends _AgBase {
+class AgRelated extends AgBase {
   const AgRelated({
     bool required,
     String hintText,

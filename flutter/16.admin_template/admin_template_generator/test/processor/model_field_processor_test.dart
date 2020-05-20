@@ -29,7 +29,7 @@ Future<FieldElement> _generateFieldElement(final String field) async {
   final library = await resolveSource('''
       library test;
       
-      import 'package:floor_annotation/floor_annotation.dart';
+      import 'package:admin_template_annotation/annotations.dart';
       import 'dart:typed_data';
       
       class Foo {

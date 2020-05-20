@@ -58,13 +58,6 @@ class FormDemoState extends State<FormDemo> {
   @override
   Widget build(BuildContext context) {
     print('FormDemo is built');
-    return Material(
-      child: Column(
-        children: [
-          Navigator.pushNamed(context, routeName)
-          editUserForm.builder(context),
-        ],
-      ),
-    );
+    return editUserForm.builder(context);
   }
 }

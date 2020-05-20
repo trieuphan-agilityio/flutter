@@ -6,14 +6,11 @@ import 'user.dart';
 
 part 'user_form.g.dart';
 
-@agEditForm
-abstract class UserForm implements AgForm<User> {
-  static UserForm editing(User model) => _$EditUserForm(model);
+@AgForm(modelType: User)
+abstract class UserForm {
+  /// The widget to mount this form to the Widget tree
+  Widget Function(BuildContext) get builder;
 
-  FormField<String> get username;
-  FormField<String> get email;
-  FormField<String> get phone;
-  FormField<String> get bio;
-  FormField<String> get password;
-  FormField<String> get passwordConfirmation;
+  factory UserForm.edit(User model) => _$UserForm(model);
+  UserForm._();
 }

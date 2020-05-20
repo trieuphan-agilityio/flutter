@@ -1,6 +1,9 @@
+import 'package:admin_template_annotation/annotations.dart';
+import 'package:admin_template_generator/processor/model_processor.dart';
 import 'package:admin_template_generator/processor/processor.dart';
-import 'package:admin_template_generator/writer/form_writer.dart';
+import 'package:admin_template_generator/value_object/form.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:source_gen/source_gen.dart';
 
 class FormProcessor implements Processor<Form> {
   final ClassElement _classElement;
@@ -12,20 +15,19 @@ class FormProcessor implements Processor<Form> {
   @override
   Form process() {
     final name = _classElement.displayName;
-    final getters = [
-      ..._classElement.accessors.where((a) => a.isGetter),
-    ];
-    final formFields = _getFormFields(getters);
+
+    final formAnnotation =
+        TypeChecker.fromRuntime(AgForm).firstAnnotationOfExact(_classElement);
+
+    final modelElement = formAnnotation
+        .getField('modelType')
+        .toTypeValue()
+        .element as ClassElement;
+
     return Form(
       _classElement,
       name,
-      formFields,
+      ModelProcessor(modelElement).process(),
     );
-  }
-
-  List<FormField> _getFormFields(final List<PropertyAccessorElement> elements) {
-    return elements.map((e) {
-      return FormField(e, e.name, e.type);
-    }).toList();
   }
 }

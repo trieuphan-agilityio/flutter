@@ -8,13 +8,14 @@ import 'package:code_builder/code_builder.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'processor/form_processor.dart';
+import 'value_object/form.dart';
 
 /// A generator that produces the implementation of the form code.
 ///
 /// Note: This supposes to not use Annotation to build edit form.
 /// For now annotation is the easiest manner to make a generator.
 /// In the future, the generator should lookup the implementors of AgForm instead.
-class FormGenerator extends GeneratorForAnnotation<AgEditForm> {
+class FormGenerator extends GeneratorForAnnotation<AgForm> {
   @override
   FutureOr<String> generateForAnnotatedElement(
     final Element element,
@@ -31,7 +32,7 @@ class FormGenerator extends GeneratorForAnnotation<AgEditForm> {
   Form _getForm(final Element element) {
     if (element is! ClassElement) {
       throw InvalidGenerationSourceError(
-          'The element annotated with @agEditForm is not a class.',
+          'The element annotated with @AgForm is not a class.',
           element: element);
     }
 

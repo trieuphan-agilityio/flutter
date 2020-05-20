@@ -10,11 +10,14 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  analyzer: any
+  analyzer: ^0.39.8
+  build: ^1.2.2
   code_builder: ^3.2.1
+  meta: ^1.1.8
   source_gen: ^0.9.5
   admin_template_annotation:
     path: ../admin_template_annotation
 
 dev_dependencies:
   test: ^1.11.0
+  build_test: ^0.10.12

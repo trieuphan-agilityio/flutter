@@ -1,24 +1,7 @@
+import 'package:admin_template_generator/value_object/form.dart';
 import 'package:admin_template_generator/writer/writer.dart';
-import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:code_builder/src/base.dart';
-
-class FormField {
-  final PropertyAccessorElement fieldElement;
-  final String name;
-  final DartType rawType;
-
-  FormField(this.fieldElement, this.name, this.rawType);
-}
-
-class Form {
-  final ClassElement classElement;
-  final String name;
-  final List<FormField> fields;
-
-  Form(this.classElement, this.name, this.fields);
-}
 
 /// Creates the implementation of a Form
 class FormWriter extends Writer {
@@ -29,8 +12,8 @@ class FormWriter extends Writer {
   @override
   Spec write() {
     final classBuilder = ClassBuilder()
-      ..name = '_\$Edit${form.name}'
-      ..extend = refer('UserForm')
+      ..name = '_\$${form.name}'
+      ..extend = refer(form.name)
       ..constructors.add(_createConstructor())
       ..fields.addAll(_createFields())
       ..methods.addAll(_createGetters());
@@ -41,7 +24,7 @@ class FormWriter extends Writer {
   Constructor _createConstructor() {
     return Constructor((b) => b
       ..requiredParameters.add(Parameter((pb) => pb..name = 'this.model'))
-      ..annotations);
+      ..initializers.add(Code('super._()')));
   }
 
   List<Field> _createFields() {
@@ -59,6 +42,7 @@ class FormWriter extends Writer {
         ..annotations.add(refer('override'))
         ..name = 'builder'
         ..type = MethodType.getter
+        ..returns = refer('Widget Function(BuildContext)')
         ..body = Code.scope((allocate) {
           return '''
           return (BuildContext context) {
@@ -97,7 +81,7 @@ class FormWriter extends Writer {
           };
           ''';
         })),
-      ...form.fields.map((f) {
+      ...form.model.fields.map((f) {
         final getter = Method((b) => b
           ..annotations.add(refer('override'))
           ..name = f.name

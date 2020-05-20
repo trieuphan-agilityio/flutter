@@ -152,12 +152,11 @@ class AgRelated extends _AgBase {
 /// Form
 /// ===================================================================
 
-class AgEditForm {
-  const AgEditForm._();
+/// An annotation to instruct the generator build code for creating/edit form
+class AgForm {
+  final Type modelType;
+  const AgForm({this.modelType});
 }
-
-/// An annotation to instruct the generator build code for editing form
-const AgEditForm agEditForm = AgEditForm._();
 
 /// ===================================================================
 /// Validators

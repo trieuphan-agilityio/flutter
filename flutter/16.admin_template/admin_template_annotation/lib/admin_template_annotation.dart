@@ -57,25 +57,23 @@ class AgRegExp {
 /// Field Metadata
 /// ===================================================================
 
-abstract class AgBase {
+abstract class AgBase<T> {
+  final T initialValue;
   final bool required;
-  final int minLength;
-  final int maxLength;
   final String hintText;
   final String labelText;
   final String helperText;
   final List<Validator> _validators;
 
-  List<Validator> get defaultValidators;
+  List<Validator> get defaultValidators => [];
 
   List<Validator> get validators {
     return defaultValidators + _validators;
   }
 
   const AgBase({
+    this.initialValue,
     this.required,
-    this.minLength,
-    this.maxLength,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -84,17 +82,18 @@ abstract class AgBase {
 }
 
 class AgText extends AgBase {
+  final int minLength;
+  final int maxLength;
+
   const AgText({
+    this.minLength,
+    this.maxLength,
     bool required,
-    int minLength,
-    int maxLength,
     String hintText,
     String labelText,
     String helperText,
     List<Validator> validators,
   }) : super(
-          minLength: minLength,
-          maxLength: maxLength,
           required: required,
           hintText: hintText,
           labelText: labelText,
@@ -107,26 +106,24 @@ class AgText extends AgBase {
 }
 
 class AgPassword extends AgBase {
+  final int minLength;
+  final int maxLength;
+
   const AgPassword({
+    this.minLength,
+    this.maxLength,
     bool required,
-    int minLength,
-    int maxLength,
     String hintText,
     String labelText,
     String helperText,
     List<Validator> validators,
   }) : super(
           required: required,
-          minLength: minLength,
-          maxLength: maxLength,
           hintText: hintText,
           labelText: labelText,
           helperText: helperText,
           validators: validators,
         );
-
-  @override
-  List<Validator> get defaultValidators => [];
 }
 
 class AgRelated extends AgBase {
@@ -143,9 +140,44 @@ class AgRelated extends AgBase {
           helperText: helperText,
           validators: validators,
         );
+}
 
-  @override
-  List<Validator> get defaultValidators => [];
+class AgBool extends AgBase {
+  final bool initialValue;
+
+  const AgBool({
+    this.initialValue = false,
+    bool required,
+    String hintText,
+    String labelText,
+    String helperText,
+  }) : super(
+          required: required,
+          hintText: hintText,
+          labelText: labelText,
+          helperText: helperText,
+          validators: const [],
+        );
+}
+
+class AgInt extends AgBase {
+  final int minLength;
+  final int maxLength;
+
+  const AgInt({
+    this.minLength,
+    this.maxLength,
+    bool required,
+    String hintText,
+    String labelText,
+    String helperText,
+  }) : super(
+          required: required,
+          hintText: hintText,
+          labelText: labelText,
+          helperText: helperText,
+          validators: const [],
+        );
 }
 
 /// ===================================================================

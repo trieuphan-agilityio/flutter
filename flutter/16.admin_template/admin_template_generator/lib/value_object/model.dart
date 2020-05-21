@@ -25,9 +25,18 @@ class Model {
 class ModelField {
   final FieldElement fieldElement;
   final String name;
+
+  /// Annotation that indicates the type of form field.
+  final ModelFieldAnnotation formFieldAnnotation;
+
   final List<ModelFieldAnnotation> annotations;
 
-  ModelField(this.fieldElement, this.name, this.annotations);
+  ModelField(
+    this.fieldElement,
+    this.name,
+    this.annotations, {
+    this.formFieldAnnotation,
+  });
 
   @override
   bool operator ==(Object other) {
@@ -36,17 +45,21 @@ class ModelField {
             runtimeType == other.runtimeType &&
             fieldElement == other.fieldElement &&
             name == other.name &&
+            formFieldAnnotation == other.formFieldAnnotation &&
             const ListEquality<ModelFieldAnnotation>()
                 .equals(annotations, other.annotations);
   }
 
   @override
   int get hashCode =>
-      fieldElement.hashCode ^ name.hashCode ^ annotations.hashCode;
+      fieldElement.hashCode ^
+      name.hashCode ^
+      formFieldAnnotation.hashCode ^
+      annotations.hashCode;
 
   @override
   String toString() {
-    return 'ModelField{fieldElement: $fieldElement, name: $name, annotations: $annotations}';
+    return 'ModelField{fieldElement: $fieldElement, name: $name, formFieldAnnotation: $formFieldAnnotation, annotations: $annotations}';
   }
 }
 

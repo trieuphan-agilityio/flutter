@@ -1,4 +1,4 @@
-import 'package:admin_template_annotation/annotations.dart';
+import 'package:admin_template_annotation/admin_template_annotation.dart';
 import 'package:admin_template_generator/processor/model_processor.dart';
 import 'package:admin_template_generator/processor/processor.dart';
 import 'package:admin_template_generator/value_object/form.dart';

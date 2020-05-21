@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:admin_template_annotation/annotations.dart';
+import 'package:admin_template_annotation/admin_template_annotation.dart';
 import 'package:admin_template_generator/writer/form_writer.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';

@@ -1,3 +1,4 @@
+import 'package:admin_template_annotation/admin_template_annotation.dart';
 import 'package:admin_template_generator/processor/model_field_processor.dart';
 import 'package:admin_template_generator/processor/model_processor.dart';
 import 'package:admin_template_generator/value_object/model.dart';
@@ -18,15 +19,25 @@ void main() {
         @AgPassword()
         final String password;
         
-        Person(this.id, this.name);
+        @AgBoolField(
+          required: true,
+          initialValue: true,
+        )
+        final Bool isAdmin;
+        
+        Person(this.id, this.name, this.isAdmin);
       }
     ''');
     final actual = ModelProcessor(classElement).process();
 
     const name = 'User';
-    final modelFields = classElement.fields
-        .map((fieldElement) => ModelFieldProcessor(fieldElement).process())
-        .toList();
+    final modelFields = classElement.fields.map((e) {
+      final annotation = TypeChecker.fromRuntime(AgBase).firstAnnotationOf(e);
+      return ModelFieldProcessor(
+        e,
+        ModelFieldAnnotation(annotation.type.getDisplayString()),
+      ).process();
+    }).toList();
     final expected = Model(
       classElement,
       name,

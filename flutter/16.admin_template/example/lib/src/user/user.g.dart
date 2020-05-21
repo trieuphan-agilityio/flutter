@@ -20,7 +20,7 @@ class _$User extends User {
   @override
   final String passwordConfirmation;
   @override
-  final List<UserRole> groups;
+  final bool acceptPromotionalEmail;
 
   factory _$User([void Function(UserBuilder) updates]) =>
       (new UserBuilder()..update(updates)).build();
@@ -32,7 +32,7 @@ class _$User extends User {
       this.bio,
       this.password,
       this.passwordConfirmation,
-      this.groups})
+      this.acceptPromotionalEmail})
       : super._() {
     if (username == null) {
       throw new BuiltValueNullFieldError('User', 'username');
@@ -49,8 +49,8 @@ class _$User extends User {
     if (passwordConfirmation == null) {
       throw new BuiltValueNullFieldError('User', 'passwordConfirmation');
     }
-    if (groups == null) {
-      throw new BuiltValueNullFieldError('User', 'groups');
+    if (acceptPromotionalEmail == null) {
+      throw new BuiltValueNullFieldError('User', 'acceptPromotionalEmail');
     }
   }
 
@@ -71,7 +71,7 @@ class _$User extends User {
         bio == other.bio &&
         password == other.password &&
         passwordConfirmation == other.passwordConfirmation &&
-        groups == other.groups;
+        acceptPromotionalEmail == other.acceptPromotionalEmail;
   }
 
   @override
@@ -85,7 +85,7 @@ class _$User extends User {
                     bio.hashCode),
                 password.hashCode),
             passwordConfirmation.hashCode),
-        groups.hashCode));
+        acceptPromotionalEmail.hashCode));
   }
 
   @override
@@ -97,7 +97,7 @@ class _$User extends User {
           ..add('bio', bio)
           ..add('password', password)
           ..add('passwordConfirmation', passwordConfirmation)
-          ..add('groups', groups))
+          ..add('acceptPromotionalEmail', acceptPromotionalEmail))
         .toString();
   }
 }
@@ -130,9 +130,10 @@ class UserBuilder implements Builder<User, UserBuilder> {
   set passwordConfirmation(String passwordConfirmation) =>
       _$this._passwordConfirmation = passwordConfirmation;
 
-  List<UserRole> _groups;
-  List<UserRole> get groups => _$this._groups;
-  set groups(List<UserRole> groups) => _$this._groups = groups;
+  bool _acceptPromotionalEmail;
+  bool get acceptPromotionalEmail => _$this._acceptPromotionalEmail;
+  set acceptPromotionalEmail(bool acceptPromotionalEmail) =>
+      _$this._acceptPromotionalEmail = acceptPromotionalEmail;
 
   UserBuilder();
 
@@ -144,7 +145,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
       _bio = _$v.bio;
       _password = _$v.password;
       _passwordConfirmation = _$v.passwordConfirmation;
-      _groups = _$v.groups;
+      _acceptPromotionalEmail = _$v.acceptPromotionalEmail;
       _$v = null;
     }
     return this;
@@ -173,7 +174,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
             bio: bio,
             password: password,
             passwordConfirmation: passwordConfirmation,
-            groups: groups);
+            acceptPromotionalEmail: acceptPromotionalEmail);
     replace(_$result);
     return _$result;
   }

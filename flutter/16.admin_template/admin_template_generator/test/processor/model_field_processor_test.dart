@@ -12,14 +12,18 @@ void main() {
       final String name;
     ''');
 
-    final actual = ModelFieldProcessor(fieldElement).process();
+    final actual = ModelFieldProcessor(
+      fieldElement,
+      ModelFieldAnnotation('AgText'),
+    ).process();
 
     const name = 'name';
-    final annotation = ModelFieldAnnotation('AgText');
+    final formFieldAnnotation = ModelFieldAnnotation('AgText');
     final expected = ModelField(
       fieldElement,
       name,
-      [annotation],
+      const [],
+      formFieldAnnotation: formFieldAnnotation,
     );
     expect(actual, equals(expected));
   });
@@ -29,7 +33,7 @@ Future<FieldElement> _generateFieldElement(final String field) async {
   final library = await resolveSource('''
       library test;
       
-      import 'package:admin_template_annotation/annotations.dart';
+      import 'package:admin_template_annotation/admin_template_annotation.dart';
       import 'dart:typed_data';
       
       class Foo {

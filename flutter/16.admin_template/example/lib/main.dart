@@ -51,7 +51,7 @@ class FormDemoState extends State<FormDemo> {
     ..phone = ''
     ..password = ''
     ..passwordConfirmation = ''
-    ..groups = List(0));
+    ..acceptPromotionalEmail = true);
 
   UserForm get editUserForm => UserForm.edit(user);
 

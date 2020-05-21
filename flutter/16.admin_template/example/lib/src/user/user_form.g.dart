@@ -39,6 +39,8 @@ class _$UserForm extends UserForm {
                     password,
                     const SizedBox(height: 24),
                     passwordConfirmation,
+                    const SizedBox(height: 24),
+                    acceptPromotionalEmail,
                   ],
                 ),
               ),
@@ -50,17 +52,98 @@ class _$UserForm extends UserForm {
   }
 
   @override
-  FormField<String> get builder {
+  FormField<String> get username {
     return AgTextField(
-      labelText: 'builder',
+      labelText: 'username',
       onSaved: (newValue) {
-        model.rebuild((b) => b.builder = newValue);
+        model.rebuild((b) => b.username = newValue);
       },
       validator: (value) {
-        final validator = NameValidator<User>(propertyResolver: (user) {
-          return user.builder;
+        final validator = NameValidator<User>(propertyResolver: (m) {
+          return m.username;
         });
         return validator.validate(model);
+      },
+    );
+  }
+
+  @override
+  FormField<String> get email {
+    return AgTextField(
+      labelText: 'email',
+      onSaved: (newValue) {
+        model.rebuild((b) => b.email = newValue);
+      },
+      validator: (value) {
+        final validator = NameValidator<User>(propertyResolver: (m) {
+          return m.email;
+        });
+        return validator.validate(model);
+      },
+    );
+  }
+
+  @override
+  FormField<String> get phone {
+    return AgTextField(
+      labelText: 'phone',
+      onSaved: (newValue) {
+        model.rebuild((b) => b.phone = newValue);
+      },
+      validator: (value) {
+        final validator = NameValidator<User>(propertyResolver: (m) {
+          return m.phone;
+        });
+        return validator.validate(model);
+      },
+    );
+  }
+
+  @override
+  FormField<String> get bio {
+    return AgTextField(
+      labelText: 'bio',
+      onSaved: (newValue) {
+        model.rebuild((b) => b.bio = newValue);
+      },
+      validator: (value) {
+        final validator = NameValidator<User>(propertyResolver: (m) {
+          return m.bio;
+        });
+        return validator.validate(model);
+      },
+    );
+  }
+
+  @override
+  FormField<String> get password {
+    return AgPasswordField(
+      labelText: 'password',
+      onSaved: (newValue) {
+        model.rebuild((b) => b.password = newValue);
+      },
+    );
+  }
+
+  @override
+  FormField<String> get passwordConfirmation {
+    return AgPasswordField(
+      labelText: 'passwordConfirmation',
+      onSaved: (newValue) {
+        model.rebuild((b) => b.passwordConfirmation = newValue);
+      },
+    );
+  }
+
+  @override
+  FormField<bool> get acceptPromotionalEmail {
+    return AgCheckboxField(
+      initialValue: true,
+      labelText: 'Is default site',
+      helperText:
+          'If true, this site will handle request for all other hostnames that do not have a site entry of their own.',
+      onSaved: (newValue) {
+        model.rebuild((b) => b.acceptPromotionalEmail = newValue);
       },
     );
   }

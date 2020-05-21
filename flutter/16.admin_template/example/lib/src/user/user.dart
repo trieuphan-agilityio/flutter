@@ -19,6 +19,7 @@ abstract class User implements Built<User, UserBuilder> {
   String get email;
 
   @AgMask(pattern: '(###) ###-###')
+  @AgText()
   String get phone;
 
   @AgText(
@@ -46,10 +47,17 @@ abstract class User implements Built<User, UserBuilder> {
   )
   String get passwordConfirmation;
 
-  @AgRelated(
-    required: true,
+  @AgBool(
+    initialValue: true,
+    helperText: 'I\'d like to receive the weekly email about new deals.',
+    labelText: 'Opt-in hot deals',
   )
-  List<UserRole> get groups;
+  bool get acceptPromotionalEmail;
+
+//  @AgRelated(
+//    required: true,
+//  )
+//  List<UserRole> get groups;
 
   factory User([void Function(UserBuilder) updates]) = _$User;
   User._();

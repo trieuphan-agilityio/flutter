@@ -9,25 +9,42 @@ import 'package:meta/meta.dart';
 
 /// Creates the implementation of a Form field
 abstract class FieldWriter extends Writer {
-  final ModelField field;
-
   /// Keep a reference to the origin model
   final Model model;
+  final ModelField field;
 
-  FieldWriter._(this.field, this.model);
+  FieldWriter._(this.model, this.field);
 
-  factory FieldWriter(ModelField field, Model model) {
+  factory FieldWriter(Model model, ModelField field) {
     switch (field.formFieldAnnotation.type.getDisplayString()) {
       case Annotation.agText:
-        return TextFieldWriter(field, model);
+        return TextFieldWriter(model, field);
       case Annotation.agBool:
-        return BoolFieldWriter(field, model);
+        return BoolFieldWriter(model, field);
       case Annotation.agPassword:
-        return PasswordFieldWriter(field, model);
+        return PasswordFieldWriter(model, field);
       default:
         throw ArgumentError(
             '${field.formFieldAnnotation.type.getDisplayString()} is not supported');
     }
+  }
+
+  Spec writeAttributes() {
+    String attributes = '';
+    for (var attr in field.attributes) {
+      switch (attr.name) {
+        case AnnotationField.labelText:
+        case AnnotationField.hintText:
+        case AnnotationField.labelText:
+        case AnnotationField.helperText:
+          attributes +=
+              StringFieldAttributeWriter(model, field, attr).write().toString();
+          break;
+        default:
+          break;
+      }
+    }
+    return Code(attributes);
   }
 }
 
@@ -36,16 +53,12 @@ typedef WriteBody = Spec Function();
 class BaseFieldWriter extends FieldWriter {
   final WriteBody writeBody;
 
-  BaseFieldWriter(
-    ModelField field,
-    Model model, {
-    @required this.writeBody,
-  }) : super._(field, model);
+  BaseFieldWriter(Model model, ModelField field, {@required this.writeBody})
+      : super._(model, field);
 
   @override
   Spec write() {
     final fieldBuilder = Method((b) => b
-      ..annotations.add(CodeExpression(Code('override')))
       ..name = field.name
       ..type = MethodType.getter
       ..returns =
@@ -58,30 +71,14 @@ class BaseFieldWriter extends FieldWriter {
 class TextFieldWriter extends FieldWriter {
   FieldWriter delegate;
 
-  TextFieldWriter(
-    ModelField field,
-    Model model,
-  ) : super._(field, model) {
-    delegate = BaseFieldWriter(field, model, writeBody: () {
-      String labelText = 'labelText: \'${field.name}\',';
-      String helperText = '';
-
-      assert(labelText == '' || labelText.endsWith(','));
-      assert(helperText == '' || helperText.endsWith(','));
-
+  TextFieldWriter(Model model, ModelField field) : super._(model, field) {
+    delegate = BaseFieldWriter(model, field, writeBody: () {
       return Code(
         '''
         return AgTextField(
-          $labelText
-          $helperText
+          ${writeAttributes()}
           onSaved: (newValue) {
             model.rebuild((b) => b.${field.name} = newValue);
-          },
-          validator: (value) {
-            final validator = NameValidator<${model.name}>(propertyResolver: (m) {
-              return m.${field.name};
-            });
-            return validator.validate(model);
           },
         );
         ''',
@@ -98,40 +95,12 @@ class TextFieldWriter extends FieldWriter {
 class BoolFieldWriter extends FieldWriter {
   FieldWriter delegate;
 
-  BoolFieldWriter(
-    ModelField field,
-    Model model,
-  ) : super._(field, model) {
-    delegate = BaseFieldWriter(field, model, writeBody: () {
-      String labelText = 'labelText: \'Is default site\',';
-      String helperText =
-          'helperText: \'If true, this site will handle request for all other '
-          'hostnames that do not have a site entry of their own.\',';
-
-      assert(labelText == '' || labelText.endsWith(','));
-      assert(helperText == '' || helperText.endsWith(','));
-
-      String attributes = '';
-      for (var attr in field.attributes) {
-        switch (attr.name) {
-          case AnnotationField.required:
-            attributes +=
-                BoolFieldAttributeWriter(model, field, attr).write().toString();
-            break;
-          case AnnotationField.labelText:
-            attributes += StringFieldAttributeWriter(model, field, attr)
-                .write()
-                .toString();
-            break;
-          default:
-            break;
-        }
-      }
-
+  BoolFieldWriter(Model model, ModelField field) : super._(model, field) {
+    delegate = BaseFieldWriter(model, field, writeBody: () {
       return Code(
         '''
         return AgCheckboxField(
-          $attributes,
+          ${writeAttributes()}
           onSaved: (newValue) {
             model.rebuild((b) => b.${field.name} = newValue);
           },
@@ -139,6 +108,19 @@ class BoolFieldWriter extends FieldWriter {
         ''',
       );
     });
+  }
+
+  @override
+  Spec writeAttributes() {
+    Spec attributes = delegate.writeAttributes();
+    for (var attr in field.attributes) {
+      if (attr.name == AnnotationField.initialValue) {
+        attributes = Code(attributes.toString() +
+            BoolFieldAttributeWriter(model, field, attr).write().toString());
+        break;
+      }
+    }
+    return attributes;
   }
 
   @override
@@ -150,22 +132,12 @@ class BoolFieldWriter extends FieldWriter {
 class PasswordFieldWriter extends FieldWriter {
   FieldWriter delegate;
 
-  PasswordFieldWriter(
-    ModelField field,
-    Model model,
-  ) : super._(field, model) {
-    delegate = BaseFieldWriter(field, model, writeBody: () {
-      String labelText = 'labelText: \'${field.name}\',';
-      String helperText = '';
-
-      assert(labelText == '' || labelText.endsWith(','));
-      assert(helperText == '' || helperText.endsWith(','));
-
+  PasswordFieldWriter(Model model, ModelField field) : super._(model, field) {
+    delegate = BaseFieldWriter(model, field, writeBody: () {
       return Code(
         '''
         return AgPasswordField(
-          $labelText
-          $helperText
+          ${writeAttributes()}
           onSaved: (newValue) {
             model.rebuild((b) => b.${field.name} = newValue);
           },

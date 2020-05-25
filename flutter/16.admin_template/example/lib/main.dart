@@ -51,13 +51,13 @@ class FormDemoState extends State<FormDemo> {
     ..phone = ''
     ..password = ''
     ..passwordConfirmation = ''
-    ..acceptPromotionalEmail = true);
+    ..acceptPromotionalEmail = true
+    ..groups = const []);
 
   UserForm get editUserForm => UserForm.edit(user);
 
   @override
   Widget build(BuildContext context) {
-    print('FormDemo is built');
     return editUserForm.builder(context);
   }
 }

@@ -13,7 +13,7 @@ class BoolFieldAttributeWriter implements Writer {
 
   @override
   Spec write() {
-    return Code('${attribute.name}: ${attribute.value}');
+    return Code('${attribute.name}: ${attribute.value},');
   }
 }
 
@@ -26,6 +26,6 @@ class StringFieldAttributeWriter implements Writer {
 
   @override
   Spec write() {
-    return Code('${attribute.name}: \'${attribute.value}\'');
+    return Code('${attribute.name}: \"${attribute.value}\",');
   }
 }

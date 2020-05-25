@@ -11,7 +11,7 @@ abstract class User implements Built<User, UserBuilder> {
 
   @AgText(
     required: true,
-    hintText: 'Your email address',
+    hintText: 'Your business email address',
     labelText: 'E-mail',
   )
   String get email;

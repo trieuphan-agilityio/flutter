@@ -16,7 +16,7 @@ class FormWriter extends Writer {
       ..name = '_\$${form.name}'
       ..extend = refer(form.name)
       ..constructors.add(_createConstructor())
-      ..fields.addAll(_createFields())
+      ..fields.add(_createModelField())
       ..methods.addAll([
         _createBuilderMethod(),
         ..._createGetters(),
@@ -31,13 +31,11 @@ class FormWriter extends Writer {
       ..initializers.add(Code('super._()')));
   }
 
-  List<Field> _createFields() {
-    return [
-      Field((b) => b
-        ..name = 'model'
-        ..type = refer(form.model.name)
-        ..modifier = FieldModifier.final$)
-    ];
+  Field _createModelField() {
+    return Field((b) => b
+      ..name = 'model'
+      ..type = refer(form.model.name)
+      ..modifier = FieldModifier.final$);
   }
 
   Method _createBuilderMethod() {
@@ -82,7 +80,7 @@ class FormWriter extends Writer {
 
   List<Spec> _createGetters() {
     return form.model.fields
-        .map((f) => FieldWriter(f, form.model).write())
+        .map((field) => FieldWriter(form.model, field).write())
         .toList();
   }
 }

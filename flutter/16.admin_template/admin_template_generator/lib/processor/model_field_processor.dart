@@ -2,6 +2,7 @@ import 'package:admin_template_annotation/admin_template_annotation.dart';
 import 'package:admin_template_generator/misc/constants.dart';
 import 'package:admin_template_generator/misc/type_utils.dart';
 import 'package:admin_template_generator/processor/processor.dart';
+import 'package:admin_template_generator/recase.dart';
 import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
@@ -42,13 +43,27 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
   @override
   ModelField process() {
     final name = fieldElement.displayName;
+    List<FieldAttribute> attributes = attributeGetters
+        .map((attributeGetter) => attributeGetter.call())
+        .where((e) => e != null)
+        .toList();
+
+    final labelText = attributes.firstWhere(
+        (FieldAttribute e) => e.name == AnnotationField.labelText,
+        orElse: () => null);
+
+    // add labelText attribute if omit
+    if (labelText == null) {
+      attributes.add(FieldAttribute<String>(
+        AnnotationField.labelText,
+        name.toTitleCase(),
+      ));
+    }
+
     return ModelField(
       fieldElement,
       name,
-      attributes: attributeGetters
-          .map((getter) => getter.call())
-          .where((e) => e != null)
-          .toList(),
+      attributes: attributes,
       formFieldAnnotation: formFieldAnnotation,
     );
   }
@@ -56,27 +71,21 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
   FieldAttribute<int> _getMinLengthAttr() {
     final value =
         formFieldAnnotation?.getField(AnnotationField.minLength)?.toIntValue();
-
     if (value == null) return null;
-
     return FieldAttribute<int>(AnnotationField.minLength, value);
   }
 
   FieldAttribute<int> _getMaxLengthAttr() {
     final value =
         formFieldAnnotation?.getField(AnnotationField.maxLength)?.toIntValue();
-
     if (value == null) return null;
-
     return FieldAttribute<int>(AnnotationField.maxLength, value);
   }
 
   FieldAttribute<bool> _getRequiredAttr() {
     final value =
         formFieldAnnotation?.getField(AnnotationField.required)?.toBoolValue();
-
     if (value == null) return null;
-
     return FieldAttribute<bool>(AnnotationField.required, value);
   }
 
@@ -84,9 +93,7 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.hintText)
         ?.toStringValue();
-
     if (value == null) return null;
-
     return FieldAttribute<String>(AnnotationField.hintText, value);
   }
 
@@ -94,9 +101,7 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.helperText)
         ?.toStringValue();
-
     if (value == null) return null;
-
     return FieldAttribute<String>(AnnotationField.helperText, value);
   }
 
@@ -104,9 +109,7 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.labelText)
         ?.toStringValue();
-
     if (value == null) return null;
-
     return FieldAttribute<String>(AnnotationField.labelText, value);
   }
 }
@@ -130,9 +133,7 @@ class TextFieldProcessor extends ModelFieldProcessor {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
         ?.toStringValue();
-
     if (value == null) return null;
-
     return FieldAttribute<String>(AnnotationField.initialValue, value);
   }
 }
@@ -156,9 +157,7 @@ class PasswordFieldProcessor extends ModelFieldProcessor {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
         ?.toStringValue();
-
     if (value == null) return null;
-
     return FieldAttribute<String>(AnnotationField.initialValue, value);
   }
 }
@@ -180,9 +179,7 @@ class BoolFieldProcessor extends ModelFieldProcessor {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
         ?.toBoolValue();
-
     if (value == null) return null;
-
     return FieldAttribute<bool>(AnnotationField.initialValue, value);
   }
 }

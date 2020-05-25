@@ -1,4 +1,5 @@
 import 'package:admin_template_annotation/admin_template_annotation.dart';
+import 'package:admin_template_generator/misc/type_utils.dart';
 import 'package:admin_template_generator/processor/form_processor.dart';
 import 'package:admin_template_generator/value_object/form.dart';
 import 'package:analyzer/dart/element/element.dart';
@@ -48,8 +49,7 @@ Future<List<Form>> _getForms() async {
 
   return library.classes
       .where((element) => element.isAbstract)
-      .where((element) =>
-          TypeChecker.fromRuntime(AgForm).hasAnnotationOfExact(element))
+      .where((element) => element.hasAnnotationExact(AgForm))
       .map((element) => FormProcessor(element).process())
       .toList();
 }

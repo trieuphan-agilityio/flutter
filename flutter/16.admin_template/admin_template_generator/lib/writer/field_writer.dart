@@ -1,5 +1,7 @@
 import 'package:admin_template_generator/misc/constants.dart';
 import 'package:admin_template_generator/value_object/model.dart';
+import 'package:admin_template_generator/value_object/model_field.dart';
+import 'package:admin_template_generator/writer/field_attribute_writer.dart';
 import 'package:admin_template_generator/writer/writer.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:code_builder/src/base.dart';
@@ -15,7 +17,7 @@ abstract class FieldWriter extends Writer {
   FieldWriter._(this.field, this.model);
 
   factory FieldWriter(ModelField field, Model model) {
-    switch (field.formFieldAnnotation.name) {
+    switch (field.formFieldAnnotation.type.getDisplayString()) {
       case Annotation.agText:
         return TextFieldWriter(field, model);
       case Annotation.agBool:
@@ -24,7 +26,7 @@ abstract class FieldWriter extends Writer {
         return PasswordFieldWriter(field, model);
       default:
         throw ArgumentError(
-            '${field.formFieldAnnotation.name} is not supported');
+            '${field.formFieldAnnotation.type.getDisplayString()} is not supported');
     }
   }
 }
@@ -109,12 +111,27 @@ class BoolFieldWriter extends FieldWriter {
       assert(labelText == '' || labelText.endsWith(','));
       assert(helperText == '' || helperText.endsWith(','));
 
+      String attributes = '';
+      for (var attr in field.attributes) {
+        switch (attr.name) {
+          case AnnotationField.required:
+            attributes +=
+                BoolFieldAttributeWriter(model, field, attr).write().toString();
+            break;
+          case AnnotationField.labelText:
+            attributes += StringFieldAttributeWriter(model, field, attr)
+                .write()
+                .toString();
+            break;
+          default:
+            break;
+        }
+      }
+
       return Code(
         '''
         return AgCheckboxField(
-          initialValue: true,
-          $labelText
-          $helperText
+          $attributes,
           onSaved: (newValue) {
             model.rebuild((b) => b.${field.name} = newValue);
           },

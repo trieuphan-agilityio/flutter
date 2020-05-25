@@ -16,6 +16,7 @@ dependencies:
   meta: ^1.1.8
   source_gen: ^0.9.5
   collection: ^1.14.11
+  equatable: ^1.0.0
   admin_template_annotation:
     path: ../admin_template_annotation
 

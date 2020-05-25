@@ -4,11 +4,20 @@ import 'package:source_gen/source_gen.dart';
 
 extension AnnotationChecker on Element {
   bool hasAnnotation(final Type type) {
-    return _typeChecker(type).hasAnnotationOfExact(this);
+    return _typeChecker(type).hasAnnotationOf(this, throwOnUnresolved: false);
+  }
+
+  bool hasAnnotationExact(final Type type) {
+    return _typeChecker(type)
+        .hasAnnotationOfExact(this, throwOnUnresolved: false);
   }
 
   /// Returns the first annotation object found on [type]
   DartObject getAnnotation(final Type type) {
+    return _typeChecker(type).firstAnnotationOf(this);
+  }
+
+  DartObject getAnnotationExact(final Type type) {
     return _typeChecker(type).firstAnnotationOfExact(this);
   }
 }

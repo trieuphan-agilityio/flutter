@@ -1,7 +1,5 @@
-import 'package:admin_template_annotation/admin_template_annotation.dart';
-import 'package:admin_template_generator/processor/model_field_processor.dart';
 import 'package:admin_template_generator/processor/model_processor.dart';
-import 'package:admin_template_generator/value_object/model.dart';
+import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build_test/build_test.dart';
 import 'package:source_gen/source_gen.dart';
@@ -19,32 +17,25 @@ void main() {
         @AgPassword()
         final String password;
         
-        @AgBoolField(
-          required: true,
-          initialValue: true,
-        )
-        final Bool isAdmin;
+        @AgBool(required: true, initialValue: true)
+        final bool isAdmin;
         
-        Person(this.id, this.name, this.isAdmin);
+        User(this.id, this.name, this.password, this.isAdmin);
       }
     ''');
     final actual = ModelProcessor(classElement).process();
 
-    const name = 'User';
-    final modelFields = classElement.fields.map((e) {
-      final annotation = TypeChecker.fromRuntime(AgBase).firstAnnotationOf(e);
-      return ModelFieldProcessor(
-        e,
-        ModelFieldAnnotation(annotation.type.getDisplayString()),
-      ).process();
-    }).toList();
-    final expected = Model(
-      classElement,
-      name,
-      modelFields,
-    );
-
-    expect(actual, equals(expected));
+    expect(actual.classElement, equals(classElement));
+    expect(actual.name, equals('User'));
+    expect(actual.fields.length, equals(3));
+    expect(actual.fields[0].name, equals('name'));
+    expect(actual.fields[2].name, equals('isAdmin'));
+    expect(
+        actual.fields[2].attributes,
+        equals([
+          FieldAttribute<bool>('required', true),
+          FieldAttribute<bool>('initialValue', true),
+        ]));
   });
 }
 
@@ -52,7 +43,7 @@ Future<ClassElement> _createClassElement(final String clazz) async {
   final library = await resolveSource('''
       library test;
       
-      import 'package:floor_annotation/floor_annotation.dart';
+      import 'package:admin_template_annotation/admin_template_annotation.dart';
       
       $clazz
       ''', (resolver) async {

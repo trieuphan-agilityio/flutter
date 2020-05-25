@@ -1,8 +1,8 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class AgCheckboxField extends FormField<bool> {
+  final ValueChanged<bool> onFieldSubmitted;
   AgCheckboxField({
     Key key,
     @required bool initialValue,
@@ -14,22 +14,20 @@ class AgCheckboxField extends FormField<bool> {
     FormFieldSetter<bool> onSaved,
     FormFieldValidator<bool> validator,
     ValueChanged<bool> onFieldSubmitted,
-  }) : super(
+  })  : onFieldSubmitted = onFieldSubmitted,
+        super(
           key: key,
           onSaved: onSaved,
           validator: validator,
           initialValue: initialValue,
           builder: (FormFieldState<bool> field) {
-            final _AgCheckboxFieldState state = field as _AgCheckboxFieldState;
-            return Column(
+            final control = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  dragStartBehavior: DragStartBehavior.down,
-                  onTap: state.toggle,
-                  child: Checkbox(
-                    value: state._value,
-                    onChanged: onFieldSubmitted,
-                  ),
+                Checkbox(
+                  value: field.value,
+                  onChanged: field.didChange,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 Text(
                   helperText,
@@ -37,23 +35,25 @@ class AgCheckboxField extends FormField<bool> {
                 ),
               ],
             );
+
+            if (labelText == null) return control;
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                    width: 150,
+                    child: Text(
+                      labelText,
+                      style: Theme.of(field.context)
+                          .textTheme
+                          .subtitle2
+                          .copyWith(fontWeight: FontWeight.bold),
+                    )),
+                SizedBox(width: 16),
+                Expanded(child: control),
+              ],
+            );
           },
         );
-
-  @override
-  FormFieldState<bool> createState() => _AgCheckboxFieldState();
-}
-
-class _AgCheckboxFieldState extends FormFieldState<bool> {
-  bool _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = value;
-  }
-
-  void toggle() {
-    setState(() => _value = !_value);
-  }
 }

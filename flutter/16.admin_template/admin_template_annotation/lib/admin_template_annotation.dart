@@ -58,126 +58,103 @@ class AgRegExp {
 /// ===================================================================
 
 abstract class AgBase<T> {
-  final T initialValue;
+  T get initialValue;
+  bool get required;
+  String get hintText;
+  String get labelText;
+  String get helperText;
+}
+
+class AgText implements AgBase<String> {
+  final int minLength;
+  final int maxLength;
+  final String initialValue;
   final bool required;
   final String hintText;
   final String labelText;
   final String helperText;
-  final List<Validator> _validators;
 
-  List<Validator> get defaultValidators => [];
-
-  List<Validator> get validators {
-    return defaultValidators + _validators;
-  }
-
-  const AgBase({
+  const AgText({
+    this.minLength,
+    this.maxLength,
     this.initialValue,
     this.required,
     this.hintText,
     this.labelText,
     this.helperText,
-    List<Validator> validators,
-  }) : _validators = validators;
+  });
 }
 
-class AgText extends AgBase {
+class AgPassword implements AgBase<String> {
   final int minLength;
   final int maxLength;
-
-  const AgText({
-    this.minLength,
-    this.maxLength,
-    bool required,
-    String hintText,
-    String labelText,
-    String helperText,
-    List<Validator> validators,
-  }) : super(
-          required: required,
-          hintText: hintText,
-          labelText: labelText,
-          helperText: helperText,
-          validators: validators,
-        );
-
-  @override
-  List<Validator> get defaultValidators => [];
-}
-
-class AgPassword extends AgBase {
-  final int minLength;
-  final int maxLength;
+  final String initialValue;
+  final bool required;
+  final String hintText;
+  final String labelText;
+  final String helperText;
 
   const AgPassword({
     this.minLength,
     this.maxLength,
-    bool required,
-    String hintText,
-    String labelText,
-    String helperText,
-    List<Validator> validators,
-  }) : super(
-          required: required,
-          hintText: hintText,
-          labelText: labelText,
-          helperText: helperText,
-          validators: validators,
-        );
+    this.initialValue,
+    this.required,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
 }
 
-class AgRelated extends AgBase {
+class AgRelated<T> implements AgBase<T> {
+  final T initialValue;
+  final bool required;
+  final String hintText;
+  final String labelText;
+  final String helperText;
+
   const AgRelated({
-    bool required,
-    String hintText,
-    String labelText,
-    String helperText,
-    List<Validator> validators,
-  }) : super(
-          required: required,
-          hintText: hintText,
-          labelText: labelText,
-          helperText: helperText,
-          validators: validators,
-        );
+    this.initialValue,
+    this.required,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
 }
 
-class AgBool extends AgBase {
+class AgBool implements AgBase<bool> {
   final bool initialValue;
+  final bool required;
+  final String hintText;
+  final String labelText;
+  final String helperText;
 
   const AgBool({
-    this.initialValue = false,
-    bool required,
-    String hintText,
-    String labelText,
-    String helperText,
-  }) : super(
-          required: required,
-          hintText: hintText,
-          labelText: labelText,
-          helperText: helperText,
-          validators: const [],
-        );
+    this.initialValue,
+    this.required,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
 }
 
-class AgInt extends AgBase {
+class AgInt implements AgBase<int> {
   final int minLength;
   final int maxLength;
+  final int initialValue;
+  final bool required;
+  final String hintText;
+  final String labelText;
+  final String helperText;
 
-  const AgInt({
+  AgInt({
     this.minLength,
     this.maxLength,
-    bool required,
-    String hintText,
-    String labelText,
-    String helperText,
-  }) : super(
-          required: required,
-          hintText: hintText,
-          labelText: labelText,
-          helperText: helperText,
-          validators: const [],
-        );
+    this.initialValue,
+    this.required,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
 }
 
 /// ===================================================================
@@ -188,57 +165,4 @@ class AgInt extends AgBase {
 class AgForm {
   final Type modelType;
   const AgForm({this.modelType});
-}
-
-/// ===================================================================
-/// Validators
-/// ===================================================================
-typedef PropertyResolver<M, P> = P Function(M);
-
-abstract class Validator<M, P> {
-  const Validator();
-
-  PropertyResolver<M, P> get propertyResolver;
-
-  String validate(M model);
-}
-
-class RegExpValidator<M> implements Validator<M, String> {
-  final PropertyResolver<M, String> _propertyResolver;
-  final String pattern;
-
-  RegExp get regExp => RegExp(pattern);
-
-  const RegExpValidator({
-    this.pattern,
-    PropertyResolver<M, String> propertyResolver,
-  }) : _propertyResolver = propertyResolver;
-
-  @override
-  PropertyResolver<M, String> get propertyResolver => _propertyResolver;
-
-  @override
-  String validate(M model) {
-    final String value = propertyResolver(model);
-    if (regExp.hasMatch(value)) return '$regExp does not match.';
-    return null;
-  }
-}
-
-class NameValidator<M> extends RegExpValidator<M> {
-  const NameValidator({
-    PropertyResolver<M, String> propertyResolver,
-  }) : super(
-          pattern: r'^[A-Za-z ]+$',
-          propertyResolver: propertyResolver,
-        );
-}
-
-class EmailValidator<M> extends RegExpValidator<M> {
-  const EmailValidator({
-    PropertyResolver<M, String> propertyResolver,
-  }) : super(
-          pattern: r'^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$',
-          propertyResolver: propertyResolver,
-        );
 }

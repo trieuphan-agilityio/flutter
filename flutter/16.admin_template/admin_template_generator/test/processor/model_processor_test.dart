@@ -1,3 +1,4 @@
+import 'package:admin_template_generator/misc/constants.dart';
 import 'package:admin_template_generator/processor/model_processor.dart';
 import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:analyzer/dart/element/element.dart';
@@ -33,8 +34,10 @@ void main() {
     expect(
         actual.fields[2].attributes,
         equals([
-          FieldAttribute<bool>('required', true),
-          FieldAttribute<bool>('initialValue', true),
+          FieldAttribute<bool>(AnnotationField.required, true),
+          FieldAttribute<String>(
+              AnnotationField.initialValue, 'model.isAdmin || true'),
+          FieldAttribute<String>(AnnotationField.labelText, 'Is Admin'),
         ]));
   });
 }

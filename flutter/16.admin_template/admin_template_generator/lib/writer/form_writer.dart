@@ -34,8 +34,7 @@ class FormWriter extends Writer {
   Field _createModelField() {
     return Field((b) => b
       ..name = 'model'
-      ..type = refer(form.model.name)
-      ..modifier = FieldModifier.final$);
+      ..type = refer(form.model.name));
   }
 
   Method _createBuilderMethod() {
@@ -47,10 +46,16 @@ class FormWriter extends Writer {
       ..annotations.add(refer('override'))
       ..name = 'builder'
       ..type = MethodType.getter
-      ..returns = refer('Widget Function(BuildContext)')
+      ..returns = refer('FormBuilder')
       ..body = Code.scope((allocate) {
         return '''
-          return (BuildContext context) {
+          return (
+            BuildContext context, {
+            bool autovalidate = false,
+            WillPopCallback onWillPop,
+            VoidCallback onChanged,
+            ValueChanged<User> onSaved,
+          }) {
             return Container(
               alignment: Alignment.topLeft,
               width: 800,
@@ -61,13 +66,46 @@ class FormWriter extends Writer {
                 },
                 child: FocusTraversalGroup(
                   child: Form(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          $formFields
-                        ],
-                      ),
+                    autovalidate: autovalidate,
+                    onWillPop: onWillPop,
+                    onChanged: onChanged,
+                    child: Builder(
+                      builder: (BuildContext fContext) {
+                        return SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              $formFields
+                              const SizedBox(height: 24),
+                              Row(children: [
+                                RaisedButton(
+                                  color: Theme.of(context).buttonColor,
+                                  child: Text('Save'),
+                                  onPressed: () {
+                                    final formState = Form.of(fContext);
+                                    if (formState.validate()) {
+                                      Form.of(fContext).save();
+                                      onSaved(model);
+                                    }
+                                  },
+                                ),
+                                RaisedButton(
+                                  child: Text('Reset'),
+                                  onPressed: () {
+                                    Form.of(fContext).reset();
+                                  },
+                                ),
+                                RaisedButton(
+                                  child: Text('Cancel'),
+                                  onPressed: () {
+                                    print('Cancel');
+                                  },
+                                ),
+                              ]),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),

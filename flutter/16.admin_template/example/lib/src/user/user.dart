@@ -18,6 +18,7 @@ abstract class User implements Built<User, UserBuilder> {
 
   //@AgMask(pattern: '(###) ###-###')
   @AgText()
+  @nullable
   String get phone;
 
   @AgText(

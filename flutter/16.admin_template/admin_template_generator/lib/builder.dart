@@ -8,5 +8,5 @@ import 'package:source_gen/source_gen.dart';
 ///
 /// Use 'flutter packages pub run build_runner watch' to trigger
 /// code generation on changes.
-Builder formBuilder(final BuilderOptions _) =>
+Builder adminTemplateBuilder(final BuilderOptions _) =>
     SharedPartBuilder([FormGenerator()], 'admin_template');

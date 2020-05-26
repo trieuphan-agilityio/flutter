@@ -133,8 +133,15 @@ class TextFieldProcessor extends ModelFieldProcessor {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
         ?.toStringValue();
-    if (value == null) return null;
-    return FieldAttribute<String>(AnnotationField.initialValue, value);
+
+    final fieldName = fieldElement.displayName;
+
+    if (value == null)
+      return FieldAttribute<String>(
+          AnnotationField.initialValue, 'model.$fieldName');
+
+    return FieldAttribute<String>(
+        AnnotationField.initialValue, 'model.$fieldName ?? \'$value\'');
   }
 }
 
@@ -157,8 +164,15 @@ class PasswordFieldProcessor extends ModelFieldProcessor {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
         ?.toStringValue();
-    if (value == null) return null;
-    return FieldAttribute<String>(AnnotationField.initialValue, value);
+
+    final fieldName = fieldElement.displayName;
+
+    if (value == null)
+      return FieldAttribute<String>(
+          AnnotationField.initialValue, 'model.$fieldName');
+
+    return FieldAttribute<String>(
+        AnnotationField.initialValue, 'model.$fieldName ?? \'$value\'');
   }
 }
 
@@ -175,11 +189,18 @@ class BoolFieldProcessor extends ModelFieldProcessor {
         _getLabelTextAttr,
       ];
 
-  FieldAttribute<bool> _getInitialValueAttr() {
+  FieldAttribute<String> _getInitialValueAttr() {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
         ?.toBoolValue();
-    if (value == null) return null;
-    return FieldAttribute<bool>(AnnotationField.initialValue, value);
+
+    final fieldName = fieldElement.displayName;
+
+    if (value == null)
+      return FieldAttribute<String>(
+          AnnotationField.initialValue, 'model.$fieldName');
+
+    return FieldAttribute<String>(
+        AnnotationField.initialValue, 'model.$fieldName ?? $value');
   }
 }

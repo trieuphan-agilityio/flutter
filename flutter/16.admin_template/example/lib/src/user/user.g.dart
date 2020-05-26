@@ -43,9 +43,6 @@ class _$User extends User {
     if (email == null) {
       throw new BuiltValueNullFieldError('User', 'email');
     }
-    if (phone == null) {
-      throw new BuiltValueNullFieldError('User', 'phone');
-    }
     if (password == null) {
       throw new BuiltValueNullFieldError('User', 'password');
     }

@@ -11,6 +11,7 @@ class AgCheckboxField extends FormField<bool> {
     String hintText,
     String helperText,
     String prefixText,
+    ValueChanged<bool> onChanged,
     FormFieldSetter<bool> onSaved,
     FormFieldValidator<bool> validator,
     ValueChanged<bool> onFieldSubmitted,
@@ -21,12 +22,19 @@ class AgCheckboxField extends FormField<bool> {
           validator: validator,
           initialValue: initialValue,
           builder: (FormFieldState<bool> field) {
+            void onChangedHandler(bool value) {
+              if (onChanged != null) {
+                onChanged(value);
+              }
+              field.didChange(value);
+            }
+
             final control = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Checkbox(
                   value: field.value,
-                  onChanged: field.didChange,
+                  onChanged: onChangedHandler,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 Text(

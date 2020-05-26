@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 void main() {
   test('Process form field annotation', () async {
     final fieldElement = await _generateFieldElement('''
-      @AgText(required: false, initialValue: "", labelText: "Pet owner\'s name")
+      @AgText(required: false, initialValue: "", labelText: "Pet owner's name")
       final String name;
     ''');
 
@@ -24,8 +24,9 @@ void main() {
       name,
       attributes: [
         FieldAttribute<bool>(AnnotationField.required, false),
-        FieldAttribute<String>(AnnotationField.initialValue, ''),
-        FieldAttribute<String>(AnnotationField.labelText, 'Pet owner\'s name'),
+        FieldAttribute<String>(
+            AnnotationField.initialValue, "model.name ?? ''"),
+        FieldAttribute<String>(AnnotationField.labelText, "Pet owner's name"),
       ],
       formFieldAnnotation: formFieldAnnotation,
     );

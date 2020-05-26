@@ -45,19 +45,38 @@ class FormDemo extends StatefulWidget {
 }
 
 class FormDemoState extends State<FormDemo> {
-  User user = User((b) => b
-    ..username = ''
-    ..email = ''
-    ..phone = ''
-    ..password = ''
-    ..passwordConfirmation = ''
-    ..acceptPromotionalEmail = true
-    ..groups = const []);
+  User user;
 
-  UserForm get editUserForm => UserForm.edit(user);
+  UserForm get editUserForm {
+    print('initialise UserForm.edit(user)');
+    return UserForm.edit(user);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    user = User((b) => b
+      ..username = 'johndoe'
+      ..email = 'johndoe@example.com'
+      ..phone = '561111111'
+      ..password = ''
+      ..passwordConfirmation = ''
+      ..acceptPromotionalEmail = false
+      ..groups = const []);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return editUserForm.builder(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        editUserForm.builder(context, onSaved: (User newValue) {
+          setState(() {
+            user = newValue;
+          });
+        }),
+        Text(user.toString()),
+      ],
+    );
   }
 }

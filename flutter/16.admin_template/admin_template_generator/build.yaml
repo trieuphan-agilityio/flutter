@@ -9,7 +9,7 @@ builders:
     target: ":admin_template_generator"
     import: "package:admin_template_generator/builder.dart"
     # The builder function name, which gets called on build/watch
-    builder_factories: ["formBuilder"]
+    builder_factories: ["adminTemplateBuilder"]
     # The 'partId' argument to 'SharedPartBuilder' is 'admin_template'
     build_extensions: {".dart": [".admin_template.g.part"]}
     # Apply the Builder to the package with a direct dependency on the package exposing the builder

@@ -1,9 +1,11 @@
 <component name="ProjectDictionaryState">
   <dictionary name="sang">
     <words>
+      <w>autovalidate</w>
       <w>dartfmt</w>
       <w>formatters</w>
       <w>hostnames</w>
+      <w>recase</w>
     </words>
   </dictionary>
 </component>

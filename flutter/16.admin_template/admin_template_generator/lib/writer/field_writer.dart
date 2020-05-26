@@ -16,7 +16,8 @@ abstract class FieldWriter extends Writer {
   FieldWriter._(this.model, this.field);
 
   factory FieldWriter(Model model, ModelField field) {
-    switch (field.formFieldAnnotation.type.getDisplayString()) {
+    final fieldType = field.formFieldAnnotation.type.getDisplayString();
+    switch (fieldType) {
       case Annotation.agText:
         return TextFieldWriter(model, field);
       case Annotation.agBool:
@@ -24,22 +25,27 @@ abstract class FieldWriter extends Writer {
       case Annotation.agPassword:
         return PasswordFieldWriter(model, field);
       default:
-        throw ArgumentError(
-            '${field.formFieldAnnotation.type.getDisplayString()} is not supported');
+        throw ArgumentError('$fieldType is not supported');
     }
   }
 
   Spec writeAttributes() {
     String attributes = '';
+
     for (var attr in field.attributes) {
       switch (attr.name) {
         case AnnotationField.labelText:
         case AnnotationField.hintText:
-        case AnnotationField.labelText:
         case AnnotationField.helperText:
           attributes +=
               StringFieldAttributeWriter(model, field, attr).write().toString();
           break;
+
+        case AnnotationField.initialValue:
+          attributes +=
+              PlainFieldAttributeWriter(model, field, attr).write().toString();
+          break;
+
         default:
           break;
       }
@@ -78,7 +84,7 @@ class TextFieldWriter extends FieldWriter {
         return AgTextField(
           ${writeAttributes()}
           onSaved: (newValue) {
-            model.rebuild((b) => b.${field.name} = newValue);
+            model = model.rebuild((b) => b.${field.name} = newValue);
           },
         );
         ''',
@@ -102,25 +108,12 @@ class BoolFieldWriter extends FieldWriter {
         return AgCheckboxField(
           ${writeAttributes()}
           onSaved: (newValue) {
-            model.rebuild((b) => b.${field.name} = newValue);
+            model = model.rebuild((b) => b.${field.name} = newValue);
           },
         );
         ''',
       );
     });
-  }
-
-  @override
-  Spec writeAttributes() {
-    Spec attributes = delegate.writeAttributes();
-    for (var attr in field.attributes) {
-      if (attr.name == AnnotationField.initialValue) {
-        attributes = Code(attributes.toString() +
-            BoolFieldAttributeWriter(model, field, attr).write().toString());
-        break;
-      }
-    }
-    return attributes;
   }
 
   @override
@@ -139,7 +132,7 @@ class PasswordFieldWriter extends FieldWriter {
         return AgPasswordField(
           ${writeAttributes()}
           onSaved: (newValue) {
-            model.rebuild((b) => b.${field.name} = newValue);
+            model = model.rebuild((b) => b.${field.name} = newValue);
           },
         );
         ''',

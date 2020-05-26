@@ -15,6 +15,7 @@ class AgTextField extends FormField<String> {
     String hintText,
     String helperText,
     String prefixText,
+    ValueChanged<String> onChanged,
     FormFieldSetter<String> onSaved,
     FormFieldValidator<String> validator,
     ValueChanged<String> onFieldSubmitted,
@@ -34,11 +35,19 @@ class AgTextField extends FormField<String> {
               prefixText: prefixText,
             ).applyDefaults(Theme.of(field.context).inputDecorationTheme);
 
+            void onChangedHandler(String value) {
+              if (onChanged != null) {
+                onChanged(value);
+              }
+              field.didChange(value);
+            }
+
             final textField = TextField(
               decoration:
                   effectiveDecoration.copyWith(errorText: field.errorText),
               inputFormatters: inputFormatters,
               onSubmitted: onFieldSubmitted,
+              onChanged: onChangedHandler,
             );
 
             if (labelText == null) return textField;
@@ -70,14 +79,17 @@ class AgTextField extends FormField<String> {
 class AgPasswordField extends FormField<String> {
   AgPasswordField({
     Key key,
+    String initialValue,
     String labelText,
     String hintText,
     String helperText,
+    ValueChanged<String> onChanged,
     FormFieldSetter<String> onSaved,
     FormFieldValidator<String> validator,
     ValueChanged<String> onFieldSubmitted,
   }) : super(
           key: key,
+          initialValue: initialValue,
           onSaved: onSaved,
           validator: validator,
           builder: (FormFieldState<String> field) {
@@ -95,12 +107,20 @@ class AgPasswordField extends FormField<String> {
                       state._obscureText ? 'show password' : 'hide password',
                 ),
               ),
-            );
+            ).applyDefaults(Theme.of(field.context).inputDecorationTheme);
+
+            void onChangedHandler(String value) {
+              if (onChanged != null) {
+                onChanged(value);
+              }
+              field.didChange(value);
+            }
 
             final textField = TextField(
               obscureText: state._obscureText,
               decoration:
                   effectiveDecoration.copyWith(errorText: field.errorText),
+              onChanged: onChangedHandler,
               onSubmitted: onFieldSubmitted,
             );
 

@@ -9,7 +9,7 @@ abstract class User implements Built<User, UserBuilder> {
   @AgText(required: true)
   String get username;
 
-  @AgText(
+  @AgEmail(
     required: true,
     hintText: 'Your business email address',
     labelText: 'E-mail',

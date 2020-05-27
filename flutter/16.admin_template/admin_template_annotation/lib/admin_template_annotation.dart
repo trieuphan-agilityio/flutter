@@ -1,11 +1,5 @@
 import 'package:meta/meta.dart';
 
-class AgEmail {
-  const AgEmail._();
-}
-
-const AgEmail agEmail = AgEmail._();
-
 class AgName {
   const AgName._();
 }
@@ -97,6 +91,24 @@ class AgPassword implements AgBase<String> {
   const AgPassword({
     this.minLength,
     this.maxLength,
+    this.initialValue,
+    this.required,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
+}
+
+class AgEmail implements AgBase<String> {
+  final String pattern;
+  final String initialValue;
+  final bool required;
+  final String hintText;
+  final String labelText;
+  final String helperText;
+
+  const AgEmail({
+    this.pattern,
     this.initialValue,
     this.required,
     this.hintText,

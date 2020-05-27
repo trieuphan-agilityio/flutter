@@ -19,6 +19,7 @@ abstract class FieldWriter extends Writer {
     final fieldType = field.formFieldAnnotation.type.getDisplayString();
     switch (fieldType) {
       case Annotation.agText:
+      case Annotation.agEmail:
         return TextFieldWriter(model, field);
       case Annotation.agBool:
         return BoolFieldWriter(model, field);
@@ -42,6 +43,8 @@ abstract class FieldWriter extends Writer {
           break;
 
         case AnnotationField.initialValue:
+        case AnnotationField.maxLength:
+        case AnnotationField.validator:
           attributes +=
               PlainFieldAttributeWriter(model, field, attr).write().toString();
           break;
@@ -67,12 +70,15 @@ class BaseFieldWriter extends FieldWriter {
     final fieldBuilder = Method((b) => b
       ..name = field.name
       ..type = MethodType.getter
-      ..returns =
-          refer('FormField<${field.fieldElement.type.getDisplayString()}>')
+      ..returns = refer('Widget')
       ..body = writeBody()).toBuilder();
     return fieldBuilder.build();
   }
 }
+
+/// ===================================================================
+/// AgTextField
+/// ===================================================================
 
 class TextFieldWriter extends FieldWriter {
   FieldWriter delegate;
@@ -98,6 +104,10 @@ class TextFieldWriter extends FieldWriter {
   }
 }
 
+/// ===================================================================
+/// AgCheckboxField
+/// ===================================================================
+
 class BoolFieldWriter extends FieldWriter {
   FieldWriter delegate;
 
@@ -121,6 +131,10 @@ class BoolFieldWriter extends FieldWriter {
     return delegate.write();
   }
 }
+
+/// ===================================================================
+/// AgPasswordField
+/// ===================================================================
 
 class PasswordFieldWriter extends FieldWriter {
   FieldWriter delegate;

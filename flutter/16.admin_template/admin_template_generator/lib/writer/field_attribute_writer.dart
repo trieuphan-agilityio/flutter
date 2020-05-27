@@ -7,7 +7,7 @@ import 'package:code_builder/src/base.dart';
 class PlainFieldAttributeWriter implements Writer {
   final Model model;
   final ModelField field;
-  final FieldAttribute<String> attribute;
+  final FieldAttribute<dynamic> attribute;
 
   PlainFieldAttributeWriter(this.model, this.field, this.attribute);
 

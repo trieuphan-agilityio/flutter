@@ -28,6 +28,8 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
         return PasswordFieldProcessor._(fieldElement);
       case Annotation.agBool:
         return BoolFieldProcessor._(fieldElement);
+      case Annotation.agEmail:
+        return EmailFieldProcessor._(fieldElement);
       default:
         throw ArgumentError(
             '${fieldElement.type.getDisplayString()} is not supported.');
@@ -114,8 +116,11 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
   }
 }
 
-class TextFieldProcessor extends ModelFieldProcessor {
-  @override
+/// ===================================================================
+/// AgText
+/// ===================================================================
+
+class TextFieldProcessor extends ModelFieldProcessor with InitialStringValue {
   TextFieldProcessor._(FieldElement fieldElement) : super._(fieldElement);
 
   @override
@@ -128,25 +133,14 @@ class TextFieldProcessor extends ModelFieldProcessor {
         _getHelperTextAttr,
         _getLabelTextAttr,
       ];
-
-  FieldAttribute<String> _getInitialValueAttr() {
-    final value = formFieldAnnotation
-        ?.getField(AnnotationField.initialValue)
-        ?.toStringValue();
-
-    final fieldName = fieldElement.displayName;
-
-    if (value == null)
-      return FieldAttribute<String>(
-          AnnotationField.initialValue, 'model.$fieldName');
-
-    return FieldAttribute<String>(
-        AnnotationField.initialValue, 'model.$fieldName ?? \'$value\'');
-  }
 }
 
-class PasswordFieldProcessor extends ModelFieldProcessor {
-  @override
+/// ===================================================================
+/// AgPassword
+/// ===================================================================
+
+class PasswordFieldProcessor extends ModelFieldProcessor
+    with InitialStringValue {
   PasswordFieldProcessor._(FieldElement fieldElement) : super._(fieldElement);
 
   @override
@@ -159,7 +153,53 @@ class PasswordFieldProcessor extends ModelFieldProcessor {
         _getHelperTextAttr,
         _getLabelTextAttr,
       ];
+}
 
+/// ===================================================================
+/// AgBool
+/// ===================================================================
+
+class BoolFieldProcessor extends ModelFieldProcessor with InitialBoolValue {
+  BoolFieldProcessor._(FieldElement fieldElement) : super._(fieldElement);
+
+  @override
+  List<AttributeGetter> get attributeGetters => [
+        _getRequiredAttr,
+        _getInitialValueAttr,
+        _getHintTextAttr,
+        _getHelperTextAttr,
+        _getLabelTextAttr,
+      ];
+}
+
+/// ===================================================================
+/// AgEmail
+/// ===================================================================
+
+class EmailFieldProcessor extends ModelFieldProcessor with InitialStringValue {
+  EmailFieldProcessor._(FieldElement fieldElement) : super._(fieldElement);
+
+  @override
+  List<AttributeGetter> get attributeGetters => [
+        _getRequiredAttr,
+        _getInitialValueAttr,
+        _getHintTextAttr,
+        _getHelperTextAttr,
+        _getLabelTextAttr,
+        _getValidatorAttr,
+      ];
+
+  FieldAttribute<String> _getValidatorAttr() {
+    return FieldAttribute<String>(
+        AnnotationField.validator, 'EmailValidator(property: \'email\')');
+  }
+}
+
+/// ===================================================================
+/// Mixin
+/// ===================================================================
+
+mixin InitialStringValue on ModelFieldProcessor {
   FieldAttribute<String> _getInitialValueAttr() {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)
@@ -176,19 +216,7 @@ class PasswordFieldProcessor extends ModelFieldProcessor {
   }
 }
 
-class BoolFieldProcessor extends ModelFieldProcessor {
-  @override
-  BoolFieldProcessor._(FieldElement fieldElement) : super._(fieldElement);
-
-  @override
-  List<AttributeGetter> get attributeGetters => [
-        _getRequiredAttr,
-        _getInitialValueAttr,
-        _getHintTextAttr,
-        _getHelperTextAttr,
-        _getLabelTextAttr,
-      ];
-
+mixin InitialBoolValue on ModelFieldProcessor {
   FieldAttribute<String> _getInitialValueAttr() {
     final value = formFieldAnnotation
         ?.getField(AnnotationField.initialValue)

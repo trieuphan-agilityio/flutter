@@ -6,151 +6,173 @@ import 'package:flutter/services.dart';
 /// Text Field
 /// ===================================================================
 
-class AgTextField extends FormField<String> {
-  AgTextField({
+class AgTextField extends StatefulWidget {
+  final TextEditingController controller;
+  final String initialValue;
+  final Widget icon;
+  final String labelText;
+  final String hintText;
+  final String helperText;
+  final String prefixText;
+  final int maxLength;
+  final ValueChanged<String> onChanged;
+  final FormFieldSetter<String> onSaved;
+  final FormFieldValidator<String> validator;
+  final ValueChanged<String> onFieldSubmitted;
+  final List<TextInputFormatter> inputFormatters;
+
+  const AgTextField({
     Key key,
-    String initialValue,
-    Widget icon,
-    String labelText,
-    String hintText,
-    String helperText,
-    String prefixText,
-    ValueChanged<String> onChanged,
-    FormFieldSetter<String> onSaved,
-    FormFieldValidator<String> validator,
-    ValueChanged<String> onFieldSubmitted,
-    List<TextInputFormatter> inputFormatters,
-  }) : super(
-          key: key,
-          onSaved: onSaved,
-          validator: validator,
-          initialValue: initialValue,
-          builder: (FormFieldState<String> field) {
-            final effectiveDecoration = InputDecoration(
-              border: OutlineInputBorder(),
-              filled: true,
-              suffixIcon: icon,
-              hintText: hintText,
-              helperText: helperText,
-              prefixText: prefixText,
-            ).applyDefaults(Theme.of(field.context).inputDecorationTheme);
+    this.controller,
+    this.initialValue,
+    this.icon,
+    this.labelText,
+    this.hintText,
+    this.helperText,
+    this.prefixText,
+    this.maxLength,
+    this.onChanged,
+    this.onSaved,
+    this.validator,
+    this.onFieldSubmitted,
+    this.inputFormatters,
+  }) : super(key: key);
 
-            void onChangedHandler(String value) {
-              if (onChanged != null) {
-                onChanged(value);
-              }
-              field.didChange(value);
-            }
+  @override
+  _AgTextFieldState createState() => _AgTextFieldState();
+}
 
-            final textField = TextField(
-              decoration:
-                  effectiveDecoration.copyWith(errorText: field.errorText),
-              inputFormatters: inputFormatters,
-              onSubmitted: onFieldSubmitted,
-              onChanged: onChangedHandler,
-            );
+class _AgTextFieldState extends State<AgTextField> {
+  @override
+  Widget build(BuildContext context) {
+    final decoration = InputDecoration(
+      border: OutlineInputBorder(),
+      filled: true,
+      suffixIcon: widget.icon,
+      hintText: widget.hintText,
+      helperText: widget.helperText,
+      prefixText: widget.prefixText,
+    );
 
-            if (labelText == null) return textField;
+    final textField = TextFormField(
+      onSaved: widget.onSaved,
+      initialValue: widget.initialValue,
+      decoration: decoration,
+      maxLength: widget.maxLength,
+      validator: widget.validator,
+      inputFormatters: widget.inputFormatters,
+      onChanged: widget.onChanged,
+    );
 
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 150,
-                    child: Text(
-                      labelText,
-                      style: Theme.of(field.context)
-                          .textTheme
-                          .subtitle2
-                          .copyWith(fontWeight: FontWeight.bold),
-                    )),
-                SizedBox(width: 16),
-                Expanded(child: textField),
-              ],
-            );
-          },
-        );
+    if (widget.labelText == null) return textField;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 150,
+          child: Text(
+            widget.labelText,
+            style: Theme.of(context)
+                .textTheme
+                .subtitle2
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+        ),
+        SizedBox(width: 16),
+        Expanded(child: textField),
+      ],
+    );
+  }
 }
 
 /// ===================================================================
 /// Password Field
 /// ===================================================================
 
-class AgPasswordField extends FormField<String> {
-  AgPasswordField({
+class AgPasswordField extends StatefulWidget {
+  final TextEditingController controller;
+  final String initialValue;
+  final Widget icon;
+  final String labelText;
+  final String hintText;
+  final String helperText;
+  final String prefixText;
+  final int maxLength;
+  final ValueChanged<String> onChanged;
+  final FormFieldSetter<String> onSaved;
+  final FormFieldValidator<String> validator;
+  final ValueChanged<String> onFieldSubmitted;
+
+  const AgPasswordField({
     Key key,
-    String initialValue,
-    String labelText,
-    String hintText,
-    String helperText,
-    ValueChanged<String> onChanged,
-    FormFieldSetter<String> onSaved,
-    FormFieldValidator<String> validator,
-    ValueChanged<String> onFieldSubmitted,
-  }) : super(
-          key: key,
-          initialValue: initialValue,
-          onSaved: onSaved,
-          validator: validator,
-          builder: (FormFieldState<String> field) {
-            final _AgPasswordFieldState state = field as _AgPasswordFieldState;
-            final effectiveDecoration = InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: hintText,
-              helperText: helperText,
-              suffixIcon: GestureDetector(
-                dragStartBehavior: DragStartBehavior.down,
-                onTap: state.toggleViewPassword,
-                child: Icon(
-                  state._obscureText ? Icons.visibility : Icons.visibility_off,
-                  semanticLabel:
-                      state._obscureText ? 'show password' : 'hide password',
-                ),
-              ),
-            ).applyDefaults(Theme.of(field.context).inputDecorationTheme);
-
-            void onChangedHandler(String value) {
-              if (onChanged != null) {
-                onChanged(value);
-              }
-              field.didChange(value);
-            }
-
-            final textField = TextField(
-              obscureText: state._obscureText,
-              decoration:
-                  effectiveDecoration.copyWith(errorText: field.errorText),
-              onChanged: onChangedHandler,
-              onSubmitted: onFieldSubmitted,
-            );
-
-            if (labelText == null) return textField;
-
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 150,
-                    child: Text(
-                      labelText,
-                      style: Theme.of(field.context)
-                          .textTheme
-                          .subtitle2
-                          .copyWith(fontWeight: FontWeight.bold),
-                    )),
-                SizedBox(width: 16),
-                Expanded(child: textField),
-              ],
-            );
-          },
-        );
+    this.controller,
+    this.initialValue,
+    this.icon,
+    this.labelText,
+    this.hintText,
+    this.helperText,
+    this.prefixText,
+    this.maxLength,
+    this.onChanged,
+    this.onSaved,
+    this.validator,
+    this.onFieldSubmitted,
+  }) : super(key: key);
 
   @override
-  FormFieldState<String> createState() => _AgPasswordFieldState();
+  _AgPasswordFieldState createState() => _AgPasswordFieldState();
 }
 
-class _AgPasswordFieldState extends FormFieldState<String> {
+class _AgPasswordFieldState extends State<AgPasswordField> {
   bool _obscureText = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final decoration = InputDecoration(
+      border: OutlineInputBorder(),
+      hintText: widget.hintText,
+      helperText: widget.helperText,
+      suffixIcon: GestureDetector(
+        dragStartBehavior: DragStartBehavior.down,
+        onTap: () => setState(() => _obscureText = !_obscureText),
+        child: Icon(
+          _obscureText ? Icons.visibility : Icons.visibility_off,
+          semanticLabel: _obscureText ? 'show password' : 'hide password',
+        ),
+      ),
+    );
+
+    final textField = TextFormField(
+      onSaved: widget.onSaved,
+      initialValue: widget.initialValue,
+      decoration: decoration,
+      obscureText: _obscureText,
+      maxLength: widget.maxLength,
+      validator: widget.validator,
+      onChanged: widget.onChanged,
+    );
+
+    if (widget.labelText == null) return textField;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 150,
+          child: Text(
+            widget.labelText,
+            style: Theme.of(context)
+                .textTheme
+                .subtitle2
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+        ),
+        SizedBox(width: 16),
+        Expanded(child: textField),
+      ],
+    );
+  }
 
   void toggleViewPassword() {
     setState(() => _obscureText = !_obscureText);

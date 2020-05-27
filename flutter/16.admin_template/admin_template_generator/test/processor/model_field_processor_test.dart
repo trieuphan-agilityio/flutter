@@ -9,10 +9,10 @@ import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Process form field annotation', () async {
+  test('Process Text field annotation', () async {
     final fieldElement = await _generateFieldElement('''
-      @AgText(required: false, initialValue: "", labelText: "Pet owner's name")
-      final String name;
+    @AgText(required: false, initialValue: "", labelText: "Pet owner's name")
+    final String name;
     ''');
 
     final actual = ModelFieldProcessor(fieldElement).process();
@@ -27,6 +27,35 @@ void main() {
         FieldAttribute<String>(
             AnnotationField.initialValue, "model.name ?? ''"),
         FieldAttribute<String>(AnnotationField.labelText, "Pet owner's name"),
+      ],
+      formFieldAnnotation: formFieldAnnotation,
+    );
+    expect(actual, equals(expected));
+  });
+
+  test('Process Email field annotation', () async {
+    final fieldElement = await _generateFieldElement('''
+    @AgEmail(
+      required: true,
+      hintText: "Your business email address",
+      labelText: "E-mail",
+    )
+    final String email;
+    ''');
+
+    final actual = ModelFieldProcessor(fieldElement).process();
+
+    const name = 'email';
+    final formFieldAnnotation = fieldElement.getAnnotation(AgEmail);
+    final expected = ModelField(
+      fieldElement,
+      name,
+      attributes: [
+        FieldAttribute<bool>(AnnotationField.required, true),
+        FieldAttribute<String>(
+            AnnotationField.hintText, "Your business email address"),
+        FieldAttribute<String>(AnnotationField.labelText, "E-email"),
+        FieldAttribute<String>(AnnotationField.validator, ""),
       ],
       formFieldAnnotation: formFieldAnnotation,
     );

@@ -2,6 +2,7 @@ abstract class Annotation {
   static const agText = 'AgText';
   static const agBool = 'AgBool';
   static const agPassword = 'AgPassword';
+  static const agEmail = 'AgEmail';
 }
 
 abstract class AnnotationField {
@@ -13,4 +14,6 @@ abstract class AnnotationField {
   static const hintText = 'hintText';
   static const labelText = 'labelText';
   static const helperText = 'helperText';
+
+  static const validator = 'validator';
 }

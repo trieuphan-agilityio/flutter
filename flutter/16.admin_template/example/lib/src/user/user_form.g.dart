@@ -90,7 +90,7 @@ class _$UserForm extends UserForm {
     };
   }
 
-  FormField<String> get username {
+  Widget get username {
     return AgTextField(
       initialValue: model.username,
       labelText: "Username",
@@ -100,18 +100,19 @@ class _$UserForm extends UserForm {
     );
   }
 
-  FormField<String> get email {
+  Widget get email {
     return AgTextField(
       initialValue: model.email,
       hintText: "Your business email address",
       labelText: "E-mail",
+      validator: EmailValidator(property: 'email'),
       onSaved: (newValue) {
         model = model.rebuild((b) => b.email = newValue);
       },
     );
   }
 
-  FormField<String> get phone {
+  Widget get phone {
     return AgTextField(
       initialValue: model.phone,
       labelText: "Phone",
@@ -121,8 +122,9 @@ class _$UserForm extends UserForm {
     );
   }
 
-  FormField<String> get bio {
+  Widget get bio {
     return AgTextField(
+      maxLength: 200,
       initialValue: model.bio,
       hintText:
           "Tell us about yourself (e.g., write down what you do or what hobbies you have)",
@@ -134,7 +136,7 @@ class _$UserForm extends UserForm {
     );
   }
 
-  FormField<String> get password {
+  Widget get password {
     return AgPasswordField(
       initialValue: model.password,
       helperText: "Must have at least 8 characters.",
@@ -145,7 +147,7 @@ class _$UserForm extends UserForm {
     );
   }
 
-  FormField<String> get passwordConfirmation {
+  Widget get passwordConfirmation {
     return AgPasswordField(
       initialValue: model.passwordConfirmation,
       labelText: "Password Confirmation",
@@ -155,7 +157,7 @@ class _$UserForm extends UserForm {
     );
   }
 
-  FormField<bool> get acceptPromotionalEmail {
+  Widget get acceptPromotionalEmail {
     return AgCheckboxField(
       initialValue: model.acceptPromotionalEmail ?? true,
       helperText: "I'd like to receive the weekly email about new deals.",

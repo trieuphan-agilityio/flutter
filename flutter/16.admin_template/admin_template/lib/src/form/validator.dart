@@ -1,63 +1,62 @@
+import 'package:meta/meta.dart';
+
 /// ===================================================================
 /// Validators
 /// ===================================================================
-typedef PropertyResolver<M, P> = P Function(M);
 
-abstract class Validator<M, P> {
-  const Validator();
+abstract class Validator<T> {
+  Validator();
 
-  String get propertyName;
-  PropertyResolver<M, P> get propertyResolver;
+  String get property;
+  String get error;
 
-  String validate(M model);
+  String call(T value);
 }
 
-class RegExpValidator<M> implements Validator<M, String> {
+class RegExpValidator implements Validator<String> {
   final String pattern;
-  final String propertyName;
-  final PropertyResolver<M, String> propertyResolver;
+  final String property;
+  final String error;
 
   RegExp get regExp => RegExp(pattern);
 
-  const RegExpValidator(
-      {this.pattern, this.propertyName, this.propertyResolver});
+  RegExpValidator({
+    @required this.pattern,
+    @required this.property,
+    String error,
+  }) : this.error = error ?? '$pattern does not match.';
 
   @override
-  String validate(M model) {
-    final String value = propertyResolver(model);
+  String call(String value) {
     if (regExp.hasMatch(value)) return null;
-    return '$regExp does not match.';
+    return error;
   }
 }
 
-class RequiredValidator<M> implements Validator<M, dynamic> {
-  final String propertyName;
-  final PropertyResolver<M, dynamic> propertyResolver;
+class RequiredValidator implements Validator<dynamic> {
+  final String property;
+  final String error;
 
-  const RequiredValidator({this.propertyName, this.propertyResolver});
+  RequiredValidator({@required this.property, String error})
+      : this.error = error ?? '$property is required.';
 
   @override
-  String validate(M model) {
-    final dynamic value = propertyResolver(model);
-    if (value == null) return '';
-    return '$propertyName is required.';
+  String call(dynamic value) {
+    if (value == null) return error;
+    return null;
   }
 }
 
-class NameValidator<M> extends RegExpValidator<M> {
-  const NameValidator({
-    PropertyResolver<M, String> propertyResolver,
-  }) : super(
-          pattern: r'^[A-Za-z ]+$',
-          propertyResolver: propertyResolver,
-        );
+class NameValidator extends RegExpValidator {
+  NameValidator({@required String property, String error})
+      : super(pattern: r'^[A-Za-z ]+$', property: property, error: error);
 }
 
-class EmailValidator<M> extends RegExpValidator<M> {
-  const EmailValidator({
-    PropertyResolver<M, String> propertyResolver,
-  }) : super(
+class EmailValidator extends RegExpValidator {
+  EmailValidator({@required String property, String error})
+      : super(
           pattern: r'^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$',
-          propertyResolver: propertyResolver,
+          property: property,
+          error: error ?? 'E-mail is invalid.',
         );
 }

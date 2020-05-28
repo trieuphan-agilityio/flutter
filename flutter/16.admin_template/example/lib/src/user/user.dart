@@ -1,9 +1,26 @@
 import 'package:admin_template/admin_template.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 
 part 'user.g.dart';
 
-enum UserRole { moderator, editor }
+/// ===================================================================
+/// UserRole
+/// ===================================================================
+
+class UserRole extends EnumClass {
+  static const UserRole moderator = _$moderator;
+  static const UserRole editor = _$editor;
+
+  const UserRole._(String name) : super(name);
+
+  static BuiltSet<UserRole> get values => _$urValues;
+  static UserRole valueOf(String name) => _$urValueOf(name);
+}
+
+/// ===================================================================
+/// User
+/// ===================================================================
 
 abstract class User implements Built<User, UserBuilder> {
   @AgText(required: true)
@@ -43,14 +60,17 @@ abstract class User implements Built<User, UserBuilder> {
   @AgPassword()
   String get passwordConfirmation;
 
-  @AgBool(
+  @AgCheckbox(
     initialValue: true,
     helperText: 'I\'d like to receive the weekly email about new deals.',
     labelText: 'Opt-in hot deals',
   )
   bool get acceptPromotionalEmail;
 
-  //@AgRelated(required: true)
+  @AgCheckboxList(
+    choices: const [UserRole.editor, UserRole.moderator],
+    helperText: 'The groups this user belongs to.',
+  )
   List<UserRole> get groups;
 
   factory User([void Function(UserBuilder) updates]) = _$User;

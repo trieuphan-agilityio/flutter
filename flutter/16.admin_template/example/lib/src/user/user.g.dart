@@ -6,6 +6,25 @@ part of 'user.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
+const UserRole _$moderator = const UserRole._('moderator');
+const UserRole _$editor = const UserRole._('editor');
+
+UserRole _$urValueOf(String name) {
+  switch (name) {
+    case 'moderator':
+      return _$moderator;
+    case 'editor':
+      return _$editor;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<UserRole> _$urValues = new BuiltSet<UserRole>(const <UserRole>[
+  _$moderator,
+  _$editor,
+]);
+
 class _$User extends User {
   @override
   final String username;

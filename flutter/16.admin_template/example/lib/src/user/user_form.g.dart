@@ -53,6 +53,8 @@ class _$UserForm extends UserForm {
                         const SizedBox(height: 24),
                         acceptPromotionalEmail,
                         const SizedBox(height: 24),
+                        AgCheckboxListField(),
+                        const SizedBox(height: 24),
                         Row(children: [
                           RaisedButton(
                             color: Theme.of(context).buttonColor,

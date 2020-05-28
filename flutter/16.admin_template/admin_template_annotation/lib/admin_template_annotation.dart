@@ -1,3 +1,4 @@
+import 'package:built_value/built_value.dart';
 import 'package:meta/meta.dart';
 
 class AgName {
@@ -133,14 +134,14 @@ class AgRelated<T> implements AgBase<T> {
   });
 }
 
-class AgBool implements AgBase<bool> {
+class AgCheckbox implements AgBase<bool> {
   final bool initialValue;
   final bool required;
   final String hintText;
   final String labelText;
   final String helperText;
 
-  const AgBool({
+  const AgCheckbox({
     this.initialValue,
     this.required,
     this.hintText,
@@ -158,9 +159,27 @@ class AgInt implements AgBase<int> {
   final String labelText;
   final String helperText;
 
-  AgInt({
+  const AgInt({
     this.minLength,
     this.maxLength,
+    this.initialValue,
+    this.required,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
+}
+
+class AgCheckboxList<T extends EnumClass> implements AgBase<List<T>> {
+  final List<T> choices;
+  final List<T> initialValue;
+  final bool required;
+  final String hintText;
+  final String labelText;
+  final String helperText;
+
+  const AgCheckboxList({
+    this.choices,
     this.initialValue,
     this.required,
     this.hintText,

@@ -5,7 +5,7 @@ abstract class Annotation {
   static const agEmail = 'AgEmail';
 }
 
-abstract class AnnotationField {
+abstract class FieldAnnotation {
   static const initialValue = 'initialValue';
   static const required = 'required';
   static const minLength = 'minLength';

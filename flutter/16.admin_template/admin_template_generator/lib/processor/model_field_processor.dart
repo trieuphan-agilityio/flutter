@@ -64,47 +64,47 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
 
   FieldAttribute<int> _getMinLengthAttr() {
     final value =
-        formFieldAnnotation?.getField(AnnotationField.minLength)?.toIntValue();
+        formFieldAnnotation?.getField(FieldAnnotation.minLength)?.toIntValue();
     if (value == null) return null;
-    return FieldAttribute<int>(AnnotationField.minLength, value);
+    return FieldAttribute<int>(FieldAnnotation.minLength, value);
   }
 
   FieldAttribute<int> _getMaxLengthAttr() {
     final value =
-        formFieldAnnotation?.getField(AnnotationField.maxLength)?.toIntValue();
+        formFieldAnnotation?.getField(FieldAnnotation.maxLength)?.toIntValue();
     if (value == null) return null;
-    return FieldAttribute<int>(AnnotationField.maxLength, value);
+    return FieldAttribute<int>(FieldAnnotation.maxLength, value);
   }
 
   FieldAttribute<bool> _getRequiredAttr() {
     final value =
-        formFieldAnnotation?.getField(AnnotationField.required)?.toBoolValue();
+        formFieldAnnotation?.getField(FieldAnnotation.required)?.toBoolValue();
     if (value == null) return null;
-    return FieldAttribute<bool>(AnnotationField.required, value);
+    return FieldAttribute<bool>(FieldAnnotation.required, value);
   }
 
   FieldAttribute<String> _getHintTextAttr() {
     final value = formFieldAnnotation
-        ?.getField(AnnotationField.hintText)
+        ?.getField(FieldAnnotation.hintText)
         ?.toStringValue();
     if (value == null) return null;
-    return FieldAttribute<String>(AnnotationField.hintText, value);
+    return FieldAttribute<String>(FieldAnnotation.hintText, value);
   }
 
   FieldAttribute<String> _getHelperTextAttr() {
     final value = formFieldAnnotation
-        ?.getField(AnnotationField.helperText)
+        ?.getField(FieldAnnotation.helperText)
         ?.toStringValue();
     if (value == null) return null;
-    return FieldAttribute<String>(AnnotationField.helperText, value);
+    return FieldAttribute<String>(FieldAnnotation.helperText, value);
   }
 
   FieldAttribute<String> _getLabelTextAttr() {
     final value = formFieldAnnotation
-        ?.getField(AnnotationField.labelText)
+        ?.getField(FieldAnnotation.labelText)
         ?.toStringValue();
     if (value == null) return null;
-    return FieldAttribute<String>(AnnotationField.labelText, value);
+    return FieldAttribute<String>(FieldAnnotation.labelText, value);
   }
 }
 
@@ -123,7 +123,7 @@ class RequiredModifier implements FieldAttributeModifier {
 
   @override
   void applyTo(List<FieldAttribute> attributes) {
-    final required = attributes.findByName(AnnotationField.required);
+    final required = attributes.findByName(FieldAnnotation.required);
 
     // skip this rule if required attribute is not specified
     if (required == null) return;
@@ -131,17 +131,17 @@ class RequiredModifier implements FieldAttributeModifier {
     // gonna convert required attribute to a validator
     attributes.remove(required);
 
-    final validator = attributes.findByName(AnnotationField.validator);
+    final validator = attributes.findByName(FieldAnnotation.validator);
     if (validator == null) {
       attributes.add(FieldAttribute<String>(
-        AnnotationField.validator,
+        FieldAnnotation.validator,
         'RequiredValidator(property: \'$fieldName\')',
       ));
     } else {
       // if validator is not configured yet, let's make a composite validator
       attributes.remove(validator);
       attributes.add(FieldAttribute<String>(
-        AnnotationField.validator,
+        FieldAnnotation.validator,
         """
         CompositeValidator(property: '$fieldName', validators: [
           RequiredValidator(property: '$fieldName'),
@@ -160,13 +160,13 @@ class LabelTextModifier implements FieldAttributeModifier {
   LabelTextModifier(this.fieldName);
 
   void applyTo(List<FieldAttribute<dynamic>> attributes) {
-    final labelText = attributes.findByName(AnnotationField.labelText);
+    final labelText = attributes.findByName(FieldAnnotation.labelText);
 
     // skip this rule
     if (labelText != null) return;
 
     attributes.add(FieldAttribute<String>(
-      AnnotationField.labelText,
+      FieldAnnotation.labelText,
       fieldName.toTitleCase(),
     ));
   }
@@ -179,7 +179,7 @@ class MinLengthModifier implements FieldAttributeModifier {
 
   @override
   void applyTo(List<FieldAttribute> attributes) {
-    final minLength = attributes.findByName(AnnotationField.minLength);
+    final minLength = attributes.findByName(FieldAnnotation.minLength);
 
     // skip if omit
     if (minLength == null) return;
@@ -187,17 +187,17 @@ class MinLengthModifier implements FieldAttributeModifier {
     // convert minLength attribute to a validator
     attributes.remove(minLength);
 
-    final validator = attributes.findByName(AnnotationField.validator);
+    final validator = attributes.findByName(FieldAnnotation.validator);
     if (validator == null) {
       attributes.add(FieldAttribute<String>(
-        AnnotationField.validator,
+        FieldAnnotation.validator,
         'MinLengthValidator(${minLength.value}, property: \'$fieldName\')',
       ));
     } else {
       // if validator is not configured yet, let's make a composite validator
       attributes.remove(validator);
       attributes.add(FieldAttribute<String>(
-        AnnotationField.validator,
+        FieldAnnotation.validator,
         """
         CompositeValidator(property: '$fieldName', validators: [
           ${validator.value},
@@ -284,7 +284,7 @@ class EmailFieldProcessor extends ModelFieldProcessor with InitialStringValue {
 
   FieldAttribute<String> _getValidatorAttr() {
     return FieldAttribute<String>(
-        AnnotationField.validator, 'EmailValidator(property: \'email\')');
+        FieldAnnotation.validator, 'EmailValidator(property: \'email\')');
   }
 }
 
@@ -295,33 +295,33 @@ class EmailFieldProcessor extends ModelFieldProcessor with InitialStringValue {
 mixin InitialStringValue on ModelFieldProcessor {
   FieldAttribute<String> _getInitialValueAttr() {
     final value = formFieldAnnotation
-        ?.getField(AnnotationField.initialValue)
+        ?.getField(FieldAnnotation.initialValue)
         ?.toStringValue();
 
     final fieldName = fieldElement.displayName;
 
     if (value == null)
       return FieldAttribute<String>(
-          AnnotationField.initialValue, 'model.$fieldName');
+          FieldAnnotation.initialValue, 'model.$fieldName');
 
     return FieldAttribute<String>(
-        AnnotationField.initialValue, 'model.$fieldName ?? \'$value\'');
+        FieldAnnotation.initialValue, 'model.$fieldName ?? \'$value\'');
   }
 }
 
 mixin InitialBoolValue on ModelFieldProcessor {
   FieldAttribute<String> _getInitialValueAttr() {
     final value = formFieldAnnotation
-        ?.getField(AnnotationField.initialValue)
+        ?.getField(FieldAnnotation.initialValue)
         ?.toBoolValue();
 
     final fieldName = fieldElement.displayName;
 
     if (value == null)
       return FieldAttribute<String>(
-          AnnotationField.initialValue, 'model.$fieldName');
+          FieldAnnotation.initialValue, 'model.$fieldName');
 
     return FieldAttribute<String>(
-        AnnotationField.initialValue, 'model.$fieldName ?? $value');
+        FieldAnnotation.initialValue, 'model.$fieldName ?? $value');
   }
 }

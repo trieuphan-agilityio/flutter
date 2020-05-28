@@ -34,10 +34,10 @@ void main() {
     expect(
         actual.fields[2].attributes,
         equals([
-          FieldAttribute<bool>(AnnotationField.required, true),
+          FieldAttribute<bool>(FieldAnnotation.required, true),
           FieldAttribute<String>(
-              AnnotationField.initialValue, 'model.isAdmin || true'),
-          FieldAttribute<String>(AnnotationField.labelText, 'Is Admin'),
+              FieldAnnotation.initialValue, 'model.isAdmin || true'),
+          FieldAttribute<String>(FieldAnnotation.labelText, 'Is Admin'),
         ]));
   });
 }

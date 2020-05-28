@@ -23,10 +23,10 @@ void main() {
       fieldElement,
       name,
       attributes: [
-        FieldAttribute<bool>(AnnotationField.required, false),
+        FieldAttribute<bool>(FieldAnnotation.required, false),
         FieldAttribute<String>(
-            AnnotationField.initialValue, "model.name ?? ''"),
-        FieldAttribute<String>(AnnotationField.labelText, "Pet owner's name"),
+            FieldAnnotation.initialValue, "model.name ?? ''"),
+        FieldAttribute<String>(FieldAnnotation.labelText, "Pet owner's name"),
       ],
       formFieldAnnotation: formFieldAnnotation,
     );
@@ -51,12 +51,12 @@ void main() {
       fieldElement,
       name,
       attributes: [
-        FieldAttribute<bool>(AnnotationField.required, true),
-        FieldAttribute<String>(AnnotationField.initialValue, 'model.email'),
+        FieldAttribute<bool>(FieldAnnotation.required, true),
+        FieldAttribute<String>(FieldAnnotation.initialValue, 'model.email'),
         FieldAttribute<String>(
-            AnnotationField.hintText, "Your business email address"),
-        FieldAttribute<String>(AnnotationField.labelText, "E-mail"),
-        FieldAttribute<String>(AnnotationField.validator, """
+            FieldAnnotation.hintText, "Your business email address"),
+        FieldAttribute<String>(FieldAnnotation.labelText, "E-mail"),
+        FieldAttribute<String>(FieldAnnotation.validator, """
         CompositeValidator(property: 'email', validators: [
           RequiredValidator(property: 'email'),
           EmailValidator(property: 'email'),
@@ -85,11 +85,11 @@ void main() {
       fieldElement,
       name,
       attributes: [
-        FieldAttribute<String>(AnnotationField.initialValue, 'model.password'),
+        FieldAttribute<String>(FieldAnnotation.initialValue, 'model.password'),
         FieldAttribute<String>(
-            AnnotationField.hintText, 'Must have at least 8 characters.'),
-        FieldAttribute<String>(AnnotationField.labelText, 'Password'),
-        FieldAttribute<String>(AnnotationField.validator,
+            FieldAnnotation.hintText, 'Must have at least 8 characters.'),
+        FieldAttribute<String>(FieldAnnotation.labelText, 'Password'),
+        FieldAttribute<String>(FieldAnnotation.validator,
             'MinLengthValidator(8, property: \'password\')'),
       ],
       formFieldAnnotation: formFieldAnnotation,

@@ -35,16 +35,16 @@ abstract class FieldWriter extends Writer {
 
     for (var attr in field.attributes) {
       switch (attr.name) {
-        case AnnotationField.labelText:
-        case AnnotationField.hintText:
-        case AnnotationField.helperText:
+        case FieldAnnotation.labelText:
+        case FieldAnnotation.hintText:
+        case FieldAnnotation.helperText:
           attributes +=
               StringFieldAttributeWriter(model, field, attr).write().toString();
           break;
 
-        case AnnotationField.initialValue:
-        case AnnotationField.maxLength:
-        case AnnotationField.validator:
+        case FieldAnnotation.initialValue:
+        case FieldAnnotation.maxLength:
+        case FieldAnnotation.validator:
           attributes +=
               PlainFieldAttributeWriter(model, field, attr).write().toString();
           break;

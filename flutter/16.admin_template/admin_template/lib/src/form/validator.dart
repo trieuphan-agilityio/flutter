@@ -13,6 +13,27 @@ abstract class Validator<T> {
   String call(T value);
 }
 
+class CompositeValidator<T> implements Validator<T> {
+  final String property;
+  final List<Validator> validators;
+
+  CompositeValidator({
+    @required this.property,
+    @required this.validators,
+  });
+
+  String call(T value) {
+    for (final validator in validators) {
+      var error = validator.call(value);
+      if (error != null) return error;
+    }
+    return null;
+  }
+
+  @override
+  String get error => null;
+}
+
 class RegExpValidator implements Validator<String> {
   final String pattern;
   final String property;
@@ -37,26 +58,51 @@ class RequiredValidator implements Validator<dynamic> {
   final String property;
   final String error;
 
-  RequiredValidator({@required this.property, String error})
-      : this.error = error ?? '$property is required.';
+  RequiredValidator({
+    @required this.property,
+    String error,
+  }) : this.error = error ?? '$property is required.';
 
   @override
   String call(dynamic value) {
+    if (value is String && value == '') return error;
     if (value == null) return error;
     return null;
   }
 }
 
 class NameValidator extends RegExpValidator {
-  NameValidator({@required String property, String error})
-      : super(pattern: r'^[A-Za-z ]+$', property: property, error: error);
+  NameValidator({
+    @required String property,
+    String error,
+  }) : super(pattern: r'^[A-Za-z ]+$', property: property, error: error);
 }
 
 class EmailValidator extends RegExpValidator {
-  EmailValidator({@required String property, String error})
-      : super(
+  EmailValidator({
+    @required String property,
+    String error,
+  }) : super(
           pattern: r'^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$',
           property: property,
           error: error ?? 'E-mail is invalid.',
         );
+}
+
+class MinLengthValidator implements Validator<String> {
+  final int minLength;
+  final String property;
+  final String error;
+
+  MinLengthValidator(
+    this.minLength, {
+    this.property,
+    String error,
+  }) : this.error = error ?? '$property is too short.';
+
+  @override
+  String call(String value) {
+    if (value.length < minLength) return error;
+    return null;
+  }
 }

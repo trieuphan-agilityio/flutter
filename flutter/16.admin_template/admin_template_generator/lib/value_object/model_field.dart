@@ -43,6 +43,13 @@ class FieldAttribute<T> extends Equatable {
   }
 }
 
+extension FindFieldAttribute on List<FieldAttribute> {
+  /// Find the field attribute by name
+  FieldAttribute findByName(String name) {
+    return firstWhere((FieldAttribute e) => e.name == name, orElse: () => null);
+  }
+}
+
 class ModelFieldAnnotation extends Equatable {
   final String name;
 

@@ -50,17 +50,9 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
         .where((e) => e != null)
         .toList();
 
-    final labelText = attributes.firstWhere(
-        (FieldAttribute e) => e.name == AnnotationField.labelText,
-        orElse: () => null);
-
-    // add labelText attribute if omit
-    if (labelText == null) {
-      attributes.add(FieldAttribute<String>(
-        AnnotationField.labelText,
-        name.toTitleCase(),
-      ));
-    }
+    LabelTextModifier(name).applyTo(attributes);
+    RequiredModifier(name).applyTo(attributes);
+    MinLengthModifier(name).applyTo(attributes);
 
     return ModelField(
       fieldElement,
@@ -113,6 +105,107 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
         ?.toStringValue();
     if (value == null) return null;
     return FieldAttribute<String>(AnnotationField.labelText, value);
+  }
+}
+
+/// ===================================================================
+/// Model Field Modifier
+/// ===================================================================
+
+abstract class FieldAttributeModifier {
+  void applyTo(List<FieldAttribute> attributes);
+}
+
+class RequiredModifier implements FieldAttributeModifier {
+  final String fieldName;
+
+  RequiredModifier(this.fieldName);
+
+  @override
+  void applyTo(List<FieldAttribute> attributes) {
+    final required = attributes.findByName(AnnotationField.required);
+
+    // skip this rule if required attribute is not specified
+    if (required == null) return;
+
+    // gonna convert required attribute to a validator
+    attributes.remove(required);
+
+    final validator = attributes.findByName(AnnotationField.validator);
+    if (validator == null) {
+      attributes.add(FieldAttribute<String>(
+        AnnotationField.validator,
+        'RequiredValidator(property: \'$fieldName\')',
+      ));
+    } else {
+      // if validator is not configured yet, let's make a composite validator
+      attributes.remove(validator);
+      attributes.add(FieldAttribute<String>(
+        AnnotationField.validator,
+        """
+        CompositeValidator(property: '$fieldName', validators: [
+          RequiredValidator(property: '$fieldName'),
+          ${validator.value},
+        ])
+        """,
+      ));
+    }
+  }
+}
+
+/// If labelText is omitted, it will be filled with the name of field element.
+class LabelTextModifier implements FieldAttributeModifier {
+  final String fieldName;
+
+  LabelTextModifier(this.fieldName);
+
+  void applyTo(List<FieldAttribute<dynamic>> attributes) {
+    final labelText = attributes.findByName(AnnotationField.labelText);
+
+    // skip this rule
+    if (labelText != null) return;
+
+    attributes.add(FieldAttribute<String>(
+      AnnotationField.labelText,
+      fieldName.toTitleCase(),
+    ));
+  }
+}
+
+class MinLengthModifier implements FieldAttributeModifier {
+  final String fieldName;
+
+  MinLengthModifier(this.fieldName);
+
+  @override
+  void applyTo(List<FieldAttribute> attributes) {
+    final minLength = attributes.findByName(AnnotationField.minLength);
+
+    // skip if omit
+    if (minLength == null) return;
+
+    // convert minLength attribute to a validator
+    attributes.remove(minLength);
+
+    final validator = attributes.findByName(AnnotationField.validator);
+    if (validator == null) {
+      attributes.add(FieldAttribute<String>(
+        AnnotationField.validator,
+        'MinLengthValidator(${minLength.value}, property: \'$fieldName\')',
+      ));
+    } else {
+      // if validator is not configured yet, let's make a composite validator
+      attributes.remove(validator);
+      attributes.add(FieldAttribute<String>(
+        AnnotationField.validator,
+        """
+        CompositeValidator(property: '$fieldName', validators: [
+          ${validator.value},
+          MinLengthValidator(${minLength.value}, property: \'$fieldName\'),
+        ])
+        """,
+      ));
+    }
   }
 }
 

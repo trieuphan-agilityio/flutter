@@ -40,7 +40,7 @@ abstract class User implements Built<User, UserBuilder> {
   String get password;
 
   //@AgMatch(otherProperty: 'password')
-  @AgPassword(required: true)
+  @AgPassword()
   String get passwordConfirmation;
 
   @AgBool(

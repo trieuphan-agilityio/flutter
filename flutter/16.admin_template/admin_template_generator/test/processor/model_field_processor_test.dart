@@ -9,7 +9,7 @@ import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Process Text field annotation', () async {
+  test('Handle Text field annotation', () async {
     final fieldElement = await _generateFieldElement('''
     @AgText(required: false, initialValue: "", labelText: "Pet owner's name")
     final String name;
@@ -33,7 +33,7 @@ void main() {
     expect(actual, equals(expected));
   });
 
-  test('Process Email field annotation', () async {
+  test('Handle Email field annotation', () async {
     final fieldElement = await _generateFieldElement('''
     @AgEmail(
       required: true,
@@ -52,10 +52,45 @@ void main() {
       name,
       attributes: [
         FieldAttribute<bool>(AnnotationField.required, true),
+        FieldAttribute<String>(AnnotationField.initialValue, 'model.email'),
         FieldAttribute<String>(
             AnnotationField.hintText, "Your business email address"),
-        FieldAttribute<String>(AnnotationField.labelText, "E-email"),
-        FieldAttribute<String>(AnnotationField.validator, ""),
+        FieldAttribute<String>(AnnotationField.labelText, "E-mail"),
+        FieldAttribute<String>(AnnotationField.validator, """
+        CompositeValidator(property: 'email', validators: [
+          RequiredValidator(property: 'email'),
+          EmailValidator(property: 'email'),
+        ])
+        """),
+      ],
+      formFieldAnnotation: formFieldAnnotation,
+    );
+    expect(actual, equals(expected));
+  });
+
+  test('Handle a field annotation with minLength attribute', () async {
+    final fieldElement = await _generateFieldElement('''
+    @AgPassword(
+      minLength: 8,
+      hintText: "Must have at least 8 characters.",
+    )
+    String get password;
+    ''');
+
+    final actual = ModelFieldProcessor(fieldElement).process();
+
+    const name = 'password';
+    final formFieldAnnotation = fieldElement.getAnnotation(AgPassword);
+    final expected = ModelField(
+      fieldElement,
+      name,
+      attributes: [
+        FieldAttribute<String>(AnnotationField.initialValue, 'model.password'),
+        FieldAttribute<String>(
+            AnnotationField.hintText, 'Must have at least 8 characters.'),
+        FieldAttribute<String>(AnnotationField.labelText, 'Password'),
+        FieldAttribute<String>(AnnotationField.validator,
+            'MinLengthValidator(8, property: \'password\')'),
       ],
       formFieldAnnotation: formFieldAnnotation,
     );

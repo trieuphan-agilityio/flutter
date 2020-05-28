@@ -94,6 +94,7 @@ class _$UserForm extends UserForm {
     return AgTextField(
       initialValue: model.username,
       labelText: "Username",
+      validator: RequiredValidator(property: 'username'),
       onSaved: (newValue) {
         model = model.rebuild((b) => b.username = newValue);
       },
@@ -105,7 +106,10 @@ class _$UserForm extends UserForm {
       initialValue: model.email,
       hintText: "Your business email address",
       labelText: "E-mail",
-      validator: EmailValidator(property: 'email'),
+      validator: CompositeValidator(property: 'email', validators: [
+        RequiredValidator(property: 'email'),
+        EmailValidator(property: 'email'),
+      ]),
       onSaved: (newValue) {
         model = model.rebuild((b) => b.email = newValue);
       },
@@ -141,6 +145,10 @@ class _$UserForm extends UserForm {
       initialValue: model.password,
       helperText: "Must have at least 8 characters.",
       labelText: "Password",
+      validator: CompositeValidator(property: 'password', validators: [
+        RequiredValidator(property: 'password'),
+        MinLengthValidator(8, property: 'password'),
+      ]),
       onSaved: (newValue) {
         model = model.rebuild((b) => b.password = newValue);
       },

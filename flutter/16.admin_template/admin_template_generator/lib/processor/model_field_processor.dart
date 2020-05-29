@@ -6,9 +6,11 @@ import 'package:admin_template_generator/recase.dart';
 import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:built_value/built_value.dart';
 
 typedef AttributeGetter<T> = FieldAttribute<T> Function();
 
+/// Extract information from [FieldElement] and abstract it in a plain model.
 abstract class ModelFieldProcessor implements Processor<ModelField> {
   final FieldElement fieldElement;
 
@@ -30,9 +32,11 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
         return BoolFieldProcessor._(fieldElement);
       case Annotation.agEmail:
         return EmailFieldProcessor._(fieldElement);
+      case Annotation.agList:
+        return CheckboxListFieldProcessor._(fieldElement);
       default:
         throw ArgumentError(
-            '${fieldElement.type.getDisplayString()} is not supported.');
+            '${annotation.type.getDisplayString()} is not supported.');
     }
   }
 
@@ -50,6 +54,7 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
         .where((e) => e != null)
         .toList();
 
+    OnSavedModifier(name).applyTo(attributes);
     LabelTextModifier(name).applyTo(attributes);
     RequiredModifier(name).applyTo(attributes);
     MinLengthModifier(name).applyTo(attributes);
@@ -114,6 +119,20 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
 
 abstract class FieldAttributeModifier {
   void applyTo(List<FieldAttribute> attributes);
+}
+
+class OnSavedModifier implements FieldAttributeModifier {
+  final String fieldName;
+
+  OnSavedModifier(this.fieldName);
+
+  @override
+  void applyTo(List<FieldAttribute> attributes) {
+    attributes.add(FieldAttribute<String>(
+      FieldAnnotation.onSaved,
+      '(newValue) { model = model.rebuild((b) => b.$fieldName = newValue); }',
+    ));
+  }
 }
 
 class RequiredModifier implements FieldAttributeModifier {
@@ -284,8 +303,46 @@ class EmailFieldProcessor extends ModelFieldProcessor with InitialStringValue {
 
   FieldAttribute<String> _getValidatorAttr() {
     return FieldAttribute<String>(
-        FieldAnnotation.validator, 'EmailValidator(property: \'email\')');
+        FieldAnnotation.validator, "EmailValidator(property: 'email')");
   }
+}
+
+/// ===================================================================
+/// AgList
+/// ===================================================================
+
+class CheckboxListFieldProcessor extends ModelFieldProcessor
+    with InitialListValue {
+  CheckboxListFieldProcessor._(FieldElement fieldElement)
+      : super._(fieldElement);
+
+  @override
+  List<AttributeGetter> get attributeGetters => [
+        _getChoicesAttr,
+        _getInitialValueAttr,
+        _getRequiredAttr,
+        _getHintTextAttr,
+        _getHelperTextAttr,
+        _getLabelTextAttr,
+        _getChoiceTypeAttr,
+      ];
+
+  FieldAttribute<List<String>> _getChoicesAttr() {
+    final value =
+        formFieldAnnotation?.getField(FieldAnnotation.choices)?.toListValue();
+    if (value == null) return null;
+    return FieldAttribute<List<String>>(
+      FieldAnnotation.choices,
+      value.map((e) => (e as EnumClass).name).toList(),
+    );
+  }
+
+  /// Metadata attribute that describes type of the [choices].
+  FieldAttribute<Type> _getChoiceTypeAttr() {
+    return FieldAttribute<Type>(kChoiceTypeAttr, fieldElement.runtimeType);
+  }
+
+  static const String kChoiceTypeAttr = 'ChoiceTypeAttr';
 }
 
 /// ===================================================================
@@ -305,7 +362,7 @@ mixin InitialStringValue on ModelFieldProcessor {
           FieldAnnotation.initialValue, 'model.$fieldName');
 
     return FieldAttribute<String>(
-        FieldAnnotation.initialValue, 'model.$fieldName ?? \'$value\'');
+        FieldAnnotation.initialValue, "model.$fieldName ?? '$value'");
   }
 }
 
@@ -314,6 +371,23 @@ mixin InitialBoolValue on ModelFieldProcessor {
     final value = formFieldAnnotation
         ?.getField(FieldAnnotation.initialValue)
         ?.toBoolValue();
+
+    final fieldName = fieldElement.displayName;
+
+    if (value == null)
+      return FieldAttribute<String>(
+          FieldAnnotation.initialValue, 'model.$fieldName');
+
+    return FieldAttribute<String>(
+        FieldAnnotation.initialValue, 'model.$fieldName ?? $value');
+  }
+}
+
+mixin InitialListValue on ModelFieldProcessor {
+  FieldAttribute<String> _getInitialValueAttr() {
+    final value = formFieldAnnotation
+        ?.getField(FieldAnnotation.initialValue)
+        ?.toListValue();
 
     final fieldName = fieldElement.displayName;
 

@@ -66,6 +66,7 @@ class RequiredValidator implements Validator<dynamic> {
   @override
   String call(dynamic value) {
     if (value is String && value == '') return error;
+    if (value is Iterable && value.isEmpty) return error;
     if (value == null) return error;
     return null;
   }

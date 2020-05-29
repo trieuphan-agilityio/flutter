@@ -96,6 +96,37 @@ void main() {
     );
     expect(actual, equals(expected));
   });
+
+  test('Handle List field annotation', () async {
+    final fieldElement = await _generateFieldElement('''
+    @AgList(
+      choices: const [AnswerItem.A, AnswerItem.B],
+      helperText: "Choose A, B or both.",
+    )
+    List<AnswerItem> get answer;
+    ''');
+
+    final actual = ModelFieldProcessor(fieldElement).process();
+
+    final expectedAttrs = [
+      FieldAttribute<List<String>>(FieldAnnotation.choices, ['A', 'B']),
+      FieldAttribute<String>(FieldAnnotation.initialValue, 'model.answer'),
+      FieldAttribute<String>(
+          FieldAnnotation.helperText, 'Choose A, B or both.'),
+      FieldAttribute<String>(FieldAnnotation.labelText, 'Answer'),
+      FieldAttribute<String>(
+        FieldAnnotation.onSaved,
+        '(newValue) { model = model.rebuild((b) => b.answer = newValue); }',
+      ),
+    ];
+
+    expect(actual.name, equals('answer'));
+    expect(actual.attributes, unorderedEquals(expectedAttrs));
+    expect(
+      actual.formFieldAnnotation,
+      equals(fieldElement.getAnnotation(AgList)),
+    );
+  });
 }
 
 Future<FieldElement> _generateFieldElement(final String field) async {
@@ -103,10 +134,20 @@ Future<FieldElement> _generateFieldElement(final String field) async {
       library test;
       
       import 'package:admin_template_annotation/admin_template_annotation.dart';
+      import 'package:built_value/built_value.dart';
       import 'dart:typed_data';
       
       abstract class Foo {
         $field
+      }
+      
+      class AnswerItem implements EnumClass {
+        final String name;
+        
+        const AnswerItem(this.name);
+        
+        static const AnswerItem A = AnswerItem('A');
+        static const AnswerItem B = AnswerItem('B');
       }
       ''', (resolver) async {
     return LibraryReader(await resolver.findLibraryByName('test'));

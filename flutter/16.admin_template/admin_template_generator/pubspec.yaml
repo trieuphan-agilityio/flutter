@@ -18,6 +18,7 @@ dependencies:
   collection: ^1.14.11
   equatable: ^1.0.0
   recase: ^3.0.0
+  built_value: ^7.0.2
   admin_template_annotation:
     path: ../admin_template_annotation
 

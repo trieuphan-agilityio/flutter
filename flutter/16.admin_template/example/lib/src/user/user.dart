@@ -60,14 +60,15 @@ abstract class User implements Built<User, UserBuilder> {
   @AgPassword()
   String get passwordConfirmation;
 
-  @AgCheckbox(
+  @AgBool(
     initialValue: true,
     helperText: 'I\'d like to receive the weekly email about new deals.',
     labelText: 'Opt-in hot deals',
   )
   bool get acceptPromotionalEmail;
 
-  @AgCheckboxList(
+  @AgList(
+    required: true,
     choices: const [UserRole.editor, UserRole.moderator],
     helperText: 'The groups this user belongs to.',
   )

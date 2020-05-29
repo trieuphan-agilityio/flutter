@@ -53,7 +53,16 @@ class _$UserForm extends UserForm {
                         const SizedBox(height: 24),
                         acceptPromotionalEmail,
                         const SizedBox(height: 24),
-                        AgCheckboxListField(),
+                        AgCheckboxListField(
+                          choices: const [UserRole.moderator, UserRole.editor],
+                          initialValue: model.groups,
+                          labelText: 'Groups',
+                          helperText: 'The groups this user belongs to.',
+                          onSaved: (newValue) {
+                            model = model.rebuild((b) => b.groups = newValue);
+                          },
+                          validator: RequiredValidator(property: 'groups'),
+                        ),
                         const SizedBox(height: 24),
                         Row(children: [
                           RaisedButton(

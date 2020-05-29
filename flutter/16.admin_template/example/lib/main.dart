@@ -67,16 +67,19 @@ class FormDemoState extends State<FormDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        editUserForm.builder(context, onSaved: (User newValue) {
-          setState(() {
-            user = newValue;
-          });
-        }),
-        Text(user.toString()),
-      ],
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          editUserForm.builder(context, onSaved: (User newValue) {
+            setState(() {
+              user = newValue;
+            });
+          }),
+          Text(user.toString()),
+        ],
+      ),
     );
   }
 }

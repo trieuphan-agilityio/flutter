@@ -134,14 +134,14 @@ class AgRelated<T> implements AgBase<T> {
   });
 }
 
-class AgCheckbox implements AgBase<bool> {
+class AgBool implements AgBase<bool> {
   final bool initialValue;
   final bool required;
   final String hintText;
   final String labelText;
   final String helperText;
 
-  const AgCheckbox({
+  const AgBool({
     this.initialValue,
     this.required,
     this.hintText,
@@ -170,7 +170,7 @@ class AgInt implements AgBase<int> {
   });
 }
 
-class AgCheckboxList<T extends EnumClass> implements AgBase<List<T>> {
+class AgList<T extends EnumClass> implements AgBase<List<T>> {
   final List<T> choices;
   final List<T> initialValue;
   final bool required;
@@ -178,7 +178,7 @@ class AgCheckboxList<T extends EnumClass> implements AgBase<List<T>> {
   final String labelText;
   final String helperText;
 
-  const AgCheckboxList({
+  const AgList({
     this.choices,
     this.initialValue,
     this.required,

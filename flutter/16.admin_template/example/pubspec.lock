@@ -16,7 +16,7 @@ packages:
     source: path
     version: "0.0.1"
   admin_template_annotation:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../admin_template_annotation"
       relative: true

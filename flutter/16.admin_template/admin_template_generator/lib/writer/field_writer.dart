@@ -25,6 +25,8 @@ abstract class FieldWriter extends Writer {
         return BoolFieldWriter(model, field);
       case Annotation.agPassword:
         return PasswordFieldWriter(model, field);
+      case Annotation.agList:
+        return TextFieldWriter(model, field);
       default:
         throw ArgumentError('$fieldType is not supported');
     }
@@ -45,6 +47,10 @@ abstract class FieldWriter extends Writer {
         case FieldAnnotation.initialValue:
         case FieldAnnotation.maxLength:
         case FieldAnnotation.validator:
+          attributes +=
+              PlainFieldAttributeWriter(model, field, attr).write().toString();
+          break;
+        case FieldAnnotation.choices:
           attributes +=
               PlainFieldAttributeWriter(model, field, attr).write().toString();
           break;
@@ -89,9 +95,6 @@ class TextFieldWriter extends FieldWriter {
         '''
         return AgTextField(
           ${writeAttributes()}
-          onSaved: (newValue) {
-            model = model.rebuild((b) => b.${field.name} = newValue);
-          },
         );
         ''',
       );
@@ -117,9 +120,6 @@ class BoolFieldWriter extends FieldWriter {
         '''
         return AgCheckboxField(
           ${writeAttributes()}
-          onSaved: (newValue) {
-            model = model.rebuild((b) => b.${field.name} = newValue);
-          },
         );
         ''',
       );
@@ -145,9 +145,32 @@ class PasswordFieldWriter extends FieldWriter {
         '''
         return AgPasswordField(
           ${writeAttributes()}
-          onSaved: (newValue) {
-            model = model.rebuild((b) => b.${field.name} = newValue);
-          },
+        );
+        ''',
+      );
+    });
+  }
+
+  @override
+  Spec write() {
+    return delegate.write();
+  }
+}
+
+/// ===================================================================
+/// AgCheckboxListField
+/// ===================================================================
+
+class CheckboxListFieldWriter extends FieldWriter {
+  FieldWriter delegate;
+
+  CheckboxListFieldWriter(Model model, ModelField field)
+      : super._(model, field) {
+    delegate = BaseFieldWriter(model, field, writeBody: () {
+      return Code(
+        '''
+        AgCheckboxListField(
+          ${writeAttributes()}
         );
         ''',
       );

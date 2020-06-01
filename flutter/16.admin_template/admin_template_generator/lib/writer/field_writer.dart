@@ -4,7 +4,6 @@ import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:admin_template_generator/writer/field_attribute_writer.dart';
 import 'package:admin_template_generator/writer/writer.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:code_builder/src/base.dart';
 import 'package:meta/meta.dart';
 
 /// Creates the implementation of a Form field
@@ -26,13 +25,13 @@ abstract class FieldWriter extends Writer {
       case Annotation.agPassword:
         return PasswordFieldWriter(model, field);
       case Annotation.agList:
-        return TextFieldWriter(model, field);
+        return CheckboxListFieldWriter(model, field);
       default:
         throw ArgumentError('$fieldType is not supported');
     }
   }
 
-  Spec writeAttributes() {
+  Code writeAttributes() {
     String attributes = '';
 
     for (var attr in field.attributes) {
@@ -47,10 +46,7 @@ abstract class FieldWriter extends Writer {
         case FieldAnnotation.initialValue:
         case FieldAnnotation.maxLength:
         case FieldAnnotation.validator:
-          attributes +=
-              PlainFieldAttributeWriter(model, field, attr).write().toString();
-          break;
-        case FieldAnnotation.choices:
+        case FieldAnnotation.onSaved:
           attributes +=
               PlainFieldAttributeWriter(model, field, attr).write().toString();
           break;
@@ -63,7 +59,7 @@ abstract class FieldWriter extends Writer {
   }
 }
 
-typedef WriteBody = Spec Function();
+typedef WriteBody = Code Function();
 
 class BaseFieldWriter extends FieldWriter {
   final WriteBody writeBody;
@@ -72,7 +68,7 @@ class BaseFieldWriter extends FieldWriter {
       : super._(model, field);
 
   @override
-  Spec write() {
+  Method write() {
     final fieldBuilder = Method((b) => b
       ..name = field.name
       ..type = MethodType.getter
@@ -102,7 +98,7 @@ class TextFieldWriter extends FieldWriter {
   }
 
   @override
-  Spec write() {
+  Method write() {
     return delegate.write();
   }
 }
@@ -127,7 +123,7 @@ class BoolFieldWriter extends FieldWriter {
   }
 
   @override
-  Spec write() {
+  Method write() {
     return delegate.write();
   }
 }
@@ -152,7 +148,7 @@ class PasswordFieldWriter extends FieldWriter {
   }
 
   @override
-  Spec write() {
+  Method write() {
     return delegate.write();
   }
 }
@@ -169,7 +165,7 @@ class CheckboxListFieldWriter extends FieldWriter {
     delegate = BaseFieldWriter(model, field, writeBody: () {
       return Code(
         '''
-        AgCheckboxListField(
+        return AgCheckboxListField(
           ${writeAttributes()}
         );
         ''',
@@ -178,7 +174,28 @@ class CheckboxListFieldWriter extends FieldWriter {
   }
 
   @override
-  Spec write() {
+  Code writeAttributes() {
+    var attrs = super.writeAttributes();
+    FieldAttribute<List<String>> choiceAttr =
+        field.attributes.findByName(FieldAnnotation.choices);
+    assert(choiceAttr != null);
+
+    FieldAttribute<String> choiceTypeAttr =
+        field.attributes.findByName(FieldMetadata.choiceType);
+    assert(choiceTypeAttr != null);
+
+    var choicesValueLiteral = choiceAttr.value
+        .map((e) => '${choiceTypeAttr.value}.$e,')
+        .toList()
+        .join();
+
+    choicesValueLiteral = 'const [$choicesValueLiteral]';
+
+    return Code(attrs.toString() + '${choiceAttr.name}: $choicesValueLiteral,');
+  }
+
+  @override
+  Method write() {
     return delegate.write();
   }
 }

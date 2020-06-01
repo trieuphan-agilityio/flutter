@@ -41,7 +41,7 @@ class _$User extends User {
   @override
   final bool acceptPromotionalEmail;
   @override
-  final List<UserRole> groups;
+  final BuiltList<UserRole> groups;
 
   factory _$User([void Function(UserBuilder) updates]) =>
       (new UserBuilder()..update(updates)).build();
@@ -161,9 +161,10 @@ class UserBuilder implements Builder<User, UserBuilder> {
   set acceptPromotionalEmail(bool acceptPromotionalEmail) =>
       _$this._acceptPromotionalEmail = acceptPromotionalEmail;
 
-  List<UserRole> _groups;
-  List<UserRole> get groups => _$this._groups;
-  set groups(List<UserRole> groups) => _$this._groups = groups;
+  ListBuilder<UserRole> _groups;
+  ListBuilder<UserRole> get groups =>
+      _$this._groups ??= new ListBuilder<UserRole>();
+  set groups(ListBuilder<UserRole> groups) => _$this._groups = groups;
 
   UserBuilder();
 
@@ -176,7 +177,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
       _password = _$v.password;
       _passwordConfirmation = _$v.passwordConfirmation;
       _acceptPromotionalEmail = _$v.acceptPromotionalEmail;
-      _groups = _$v.groups;
+      _groups = _$v.groups?.toBuilder();
       _$v = null;
     }
     return this;
@@ -197,16 +198,29 @@ class UserBuilder implements Builder<User, UserBuilder> {
 
   @override
   _$User build() {
-    final _$result = _$v ??
-        new _$User._(
-            username: username,
-            email: email,
-            phone: phone,
-            bio: bio,
-            password: password,
-            passwordConfirmation: passwordConfirmation,
-            acceptPromotionalEmail: acceptPromotionalEmail,
-            groups: groups);
+    _$User _$result;
+    try {
+      _$result = _$v ??
+          new _$User._(
+              username: username,
+              email: email,
+              phone: phone,
+              bio: bio,
+              password: password,
+              passwordConfirmation: passwordConfirmation,
+              acceptPromotionalEmail: acceptPromotionalEmail,
+              groups: groups.build());
+    } catch (_) {
+      String _$failedField;
+      try {
+        _$failedField = 'groups';
+        groups.build();
+      } catch (e) {
+        throw new BuiltValueNestedFieldError(
+            'User', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

@@ -1,4 +1,5 @@
 import 'package:admin_template/admin_template.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:example/src/user/user.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +63,7 @@ class FormDemoState extends State<FormDemo> {
       ..password = ''
       ..passwordConfirmation = ''
       ..acceptPromotionalEmail = false
-      ..groups = const []);
+      ..groups = ListBuilder<UserRole>());
   }
 
   @override

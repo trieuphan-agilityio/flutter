@@ -6,7 +6,7 @@ import 'package:admin_template_generator/recase.dart';
 import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:built_value/built_value.dart';
+import 'package:source_gen/source_gen.dart';
 
 typedef AttributeGetter<T> = FieldAttribute<T> Function();
 
@@ -58,6 +58,9 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
     LabelTextModifier(name).applyTo(attributes);
     RequiredModifier(name).applyTo(attributes);
     MinLengthModifier(name).applyTo(attributes);
+
+    // Attributes are sorted by name before writing to keep it consistent.
+    attributes.sort((a, b) => a.name.compareTo(b.name));
 
     return ModelField(
       fieldElement,
@@ -142,10 +145,14 @@ class RequiredModifier implements FieldAttributeModifier {
 
   @override
   void applyTo(List<FieldAttribute> attributes) {
-    final required = attributes.findByName(FieldAnnotation.required);
+    FieldAttribute<bool> required =
+        attributes.findByName(FieldAnnotation.required);
 
     // skip this rule if required attribute is not specified
     if (required == null) return;
+
+    // skip if required is false
+    if (!required.value) return;
 
     // gonna convert required attribute to a validator
     attributes.remove(required);
@@ -302,8 +309,9 @@ class EmailFieldProcessor extends ModelFieldProcessor with InitialStringValue {
       ];
 
   FieldAttribute<String> _getValidatorAttr() {
+    final name = fieldElement.displayName;
     return FieldAttribute<String>(
-        FieldAnnotation.validator, "EmailValidator(property: 'email')");
+        FieldAnnotation.validator, "EmailValidator(property: '$name')");
   }
 }
 
@@ -331,18 +339,28 @@ class CheckboxListFieldProcessor extends ModelFieldProcessor
     final value =
         formFieldAnnotation?.getField(FieldAnnotation.choices)?.toListValue();
     if (value == null) return null;
+
+    // Read 'name' property from the instance of [EnumClass]'s subclass
     return FieldAttribute<List<String>>(
       FieldAnnotation.choices,
-      value.map((e) => (e as EnumClass).name).toList(),
+      value.map((e) => ConstantReader(e).read('name').stringValue).toList(),
     );
   }
 
   /// Metadata attribute that describes type of the [choices].
-  FieldAttribute<Type> _getChoiceTypeAttr() {
-    return FieldAttribute<Type>(kChoiceTypeAttr, fieldElement.runtimeType);
-  }
+  FieldAttribute<String> _getChoiceTypeAttr() {
+    final type = fieldElement.type.getDisplayString();
 
-  static const String kChoiceTypeAttr = 'ChoiceTypeAttr';
+    String elementType;
+    // verify list literal
+    if (type.startsWith('BuiltList<') && type.endsWith('>')) {
+      elementType = type.substring(10, type.length - 1);
+    }
+
+    assert(elementType != null);
+
+    return FieldAttribute<String>(FieldMetadata.choiceType, elementType);
+  }
 }
 
 /// ===================================================================

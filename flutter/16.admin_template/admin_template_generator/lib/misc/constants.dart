@@ -21,3 +21,7 @@ abstract class FieldAnnotation {
 
   static const choices = 'choices';
 }
+
+abstract class FieldMetadata {
+  static const String choiceType = 'choiceType';
+}

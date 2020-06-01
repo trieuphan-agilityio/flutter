@@ -11,7 +11,7 @@ void main() {
   List<Form> forms;
   setUpAll(() async => forms = await _getForms());
 
-  test('detect form fields from given model', () async {
+  test('Detect form fields from given model', () async {
     final nameElement = await _generateFieldElement('''
     final String name;
     ''');
@@ -55,18 +55,21 @@ Future<List<Form>> _getForms() async {
 }
 
 Future<FieldElement> _generateFieldElement(final String field) async {
-  final library = await resolveSource('''
-      library test;
-      
-      import 'package:admin_template_annotation/admin_template_annotation.dart';
-      import 'dart:typed_data';
-      
-      class Foo {
-        $field
-      }
-      ''', (resolver) async {
-    return LibraryReader(await resolver.findLibraryByName('test'));
-  });
+  final library = await resolveSource(
+    '''
+    library test;
+    
+    import 'package:admin_template_annotation/admin_template_annotation.dart';
+    import 'dart:typed_data';
+    
+    class Foo {
+      $field
+    }
+    ''',
+    (resolver) async {
+      return LibraryReader(await resolver.findLibraryByName('test'));
+    },
+  );
 
   return library.classes.first.fields.first;
 }

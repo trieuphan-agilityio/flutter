@@ -1,4 +1,5 @@
 import 'package:admin_template_annotation/admin_template_annotation.dart';
+import 'package:built_value/built_value.dart';
 import 'package:flutter/material.dart';
 
 /// A checkbox widget that is decorated with a label.
@@ -41,7 +42,7 @@ class LabeledCheckbox extends StatelessWidget {
   }
 }
 
-class AgCheckboxListField<T extends ListItem> extends StatefulWidget {
+class AgCheckboxListField<T extends EnumClass> extends StatefulWidget {
   const AgCheckboxListField({
     Key key,
     @required this.choices,
@@ -72,7 +73,7 @@ class AgCheckboxListField<T extends ListItem> extends StatefulWidget {
   _AgCheckboxListFieldState<T> createState() => _AgCheckboxListFieldState<T>();
 }
 
-class _AgCheckboxListFieldState<T extends ListItem>
+class _AgCheckboxListFieldState<T extends EnumClass>
     extends State<AgCheckboxListField<T>> {
   @override
   Widget build(BuildContext context) {

@@ -62,7 +62,7 @@ abstract class User implements Built<User, UserBuilder> {
 
   @AgBool(
     initialValue: true,
-    helperText: 'I\'d like to receive the weekly email about new deals.',
+    helperText: 'I would like to receive the weekly email about new deals.',
     labelText: 'Opt-in hot deals',
   )
   bool get acceptPromotionalEmail;
@@ -72,7 +72,7 @@ abstract class User implements Built<User, UserBuilder> {
     choices: const [UserRole.editor, UserRole.moderator],
     helperText: 'The groups this user belongs to.',
   )
-  List<UserRole> get groups;
+  BuiltList<UserRole> get groups;
 
   factory User([void Function(UserBuilder) updates]) = _$User;
   User._();

@@ -5,8 +5,10 @@ import 'package:built_value/built_value.dart';
 part 'user.g.dart';
 
 /// ===================================================================
-/// UserRole
+/// User Role
 /// ===================================================================
+
+const List<String> _kGroupChoices = ['moderator', 'editor'];
 
 class UserRole extends EnumClass {
   static const UserRole moderator = _$moderator;
@@ -69,10 +71,10 @@ abstract class User implements Built<User, UserBuilder> {
 
   @AgList(
     required: true,
-    choices: const [UserRole.editor, UserRole.moderator],
+    choices: _kGroupChoices,
     helperText: 'The groups this user belongs to.',
   )
-  BuiltList<UserRole> get groups;
+  BuiltList<String> get groups;
 
   factory User([void Function(UserBuilder) updates]) = _$User;
   User._();

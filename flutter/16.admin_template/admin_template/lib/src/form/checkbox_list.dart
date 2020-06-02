@@ -1,5 +1,4 @@
-import 'package:admin_template_annotation/admin_template_annotation.dart';
-import 'package:built_value/built_value.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 
 /// A checkbox widget that is decorated with a label.
@@ -42,7 +41,7 @@ class LabeledCheckbox extends StatelessWidget {
   }
 }
 
-class AgCheckboxListField<T extends EnumClass> extends StatefulWidget {
+class AgCheckboxListField extends StatefulWidget {
   const AgCheckboxListField({
     Key key,
     @required this.choices,
@@ -58,32 +57,31 @@ class AgCheckboxListField<T extends EnumClass> extends StatefulWidget {
   })  : assert(choices != null && choices.length > 0),
         super(key: key);
 
-  final List<T> choices;
-  final List<T> initialValue;
+  final List<String> choices;
+  final BuiltList<String> initialValue;
   final Widget icon;
   final String labelText;
   final String hintText;
   final String helperText;
   final bool autovalidate;
-  final ValueChanged<List<T>> onChanged;
-  final FormFieldSetter<List<T>> onSaved;
-  final FormFieldValidator<List<T>> validator;
+  final ValueChanged<BuiltList<String>> onChanged;
+  final FormFieldSetter<BuiltList<String>> onSaved;
+  final FormFieldValidator<BuiltList<String>> validator;
 
   @override
-  _AgCheckboxListFieldState<T> createState() => _AgCheckboxListFieldState<T>();
+  _AgCheckboxListFieldState createState() => _AgCheckboxListFieldState();
 }
 
-class _AgCheckboxListFieldState<T extends EnumClass>
-    extends State<AgCheckboxListField<T>> {
+class _AgCheckboxListFieldState extends State<AgCheckboxListField> {
   @override
   Widget build(BuildContext context) {
-    final control = FormField<List<T>>(
+    final control = FormField<BuiltList<String>>(
       initialValue: widget.initialValue,
       onSaved: widget.onSaved,
       validator: widget.validator,
       autovalidate: widget.autovalidate,
-      builder: (FormFieldState<List<T>> field) {
-        void onChangedHandler(List<T> value) {
+      builder: (FormFieldState<BuiltList<String>> field) {
+        void onChangedHandler(BuiltList<String> value) {
           if (widget.onChanged != null) {
             widget.onChanged(value);
           }
@@ -101,17 +99,17 @@ class _AgCheckboxListFieldState<T extends EnumClass>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ...widget.choices.map(
-                (T e) => LabeledCheckbox(
-                  label: e.name,
-                  onChanged: (bool value) {
-                    var currentVal = [...field.value];
-                    if (value)
-                      currentVal.add(e);
+                (String value) => LabeledCheckbox(
+                  label: value,
+                  onChanged: (bool newValue) {
+                    var currentVal = BuiltList.of([...field.value]);
+                    if (newValue)
+                      currentVal = currentVal.rebuild((b) => b.add(value));
                     else
-                      currentVal.remove(e);
+                      currentVal = currentVal.rebuild((b) => b.remove(value));
                     onChangedHandler(currentVal);
                   },
-                  value: field.value.contains(e),
+                  value: field.value.contains(value),
                 ),
               ),
             ],

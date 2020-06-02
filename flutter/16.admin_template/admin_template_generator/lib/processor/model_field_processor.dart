@@ -6,7 +6,6 @@ import 'package:admin_template_generator/recase.dart';
 import 'package:admin_template_generator/value_object/model_field.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:source_gen/source_gen.dart';
 
 typedef AttributeGetter<T> = FieldAttribute<T> Function();
 
@@ -54,7 +53,11 @@ abstract class ModelFieldProcessor implements Processor<ModelField> {
         .where((e) => e != null)
         .toList();
 
-    OnSavedModifier(name).applyTo(attributes);
+    if (this is CheckboxListFieldProcessor)
+      ListOnSavedModifier(name).applyTo(attributes);
+    else
+      OnSavedModifier(name).applyTo(attributes);
+
     LabelTextModifier(name).applyTo(attributes);
     RequiredModifier(name).applyTo(attributes);
     MinLengthModifier(name).applyTo(attributes);
@@ -134,6 +137,21 @@ class OnSavedModifier implements FieldAttributeModifier {
     attributes.add(FieldAttribute<String>(
       FieldAnnotation.onSaved,
       '(newValue) { model = model.rebuild((b) => b.$fieldName = newValue); }',
+    ));
+  }
+}
+
+/// A modifier for saving a list type object
+class ListOnSavedModifier implements FieldAttributeModifier {
+  final String fieldName;
+
+  ListOnSavedModifier(this.fieldName);
+
+  @override
+  void applyTo(List<FieldAttribute> attributes) {
+    attributes.add(FieldAttribute<String>(
+      FieldAnnotation.onSaved,
+      '(newValue) { model = model.rebuild((b) => b.$fieldName = ListBuilder(newValue)); }',
     ));
   }
 }
@@ -332,7 +350,6 @@ class CheckboxListFieldProcessor extends ModelFieldProcessor
         _getHintTextAttr,
         _getHelperTextAttr,
         _getLabelTextAttr,
-        _getChoiceTypeAttr,
       ];
 
   FieldAttribute<List<String>> _getChoicesAttr() {
@@ -343,23 +360,8 @@ class CheckboxListFieldProcessor extends ModelFieldProcessor
     // Read 'name' property from the instance of [EnumClass]'s subclass
     return FieldAttribute<List<String>>(
       FieldAnnotation.choices,
-      value.map((e) => ConstantReader(e).read('name').stringValue).toList(),
+      value.map((v) => v.toStringValue()).toList(),
     );
-  }
-
-  /// Metadata attribute that describes type of the [choices].
-  FieldAttribute<String> _getChoiceTypeAttr() {
-    final type = fieldElement.type.getDisplayString();
-
-    String elementType;
-    // verify list literal
-    if (type.startsWith('BuiltList<') && type.endsWith('>')) {
-      elementType = type.substring(10, type.length - 1);
-    }
-
-    assert(elementType != null);
-
-    return FieldAttribute<String>(FieldMetadata.choiceType, elementType);
   }
 }
 

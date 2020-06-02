@@ -180,14 +180,8 @@ class CheckboxListFieldWriter extends FieldWriter {
         field.attributes.findByName(FieldAnnotation.choices);
     assert(choiceAttr != null);
 
-    FieldAttribute<String> choiceTypeAttr =
-        field.attributes.findByName(FieldMetadata.choiceType);
-    assert(choiceTypeAttr != null);
-
-    var choicesValueLiteral = choiceAttr.value
-        .map((e) => '${choiceTypeAttr.value}.$e,')
-        .toList()
-        .join();
+    var choicesValueLiteral =
+        choiceAttr.value.map((v) => '\'$v\',').toList().join();
 
     choicesValueLiteral = 'const [$choicesValueLiteral]';
 

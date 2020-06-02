@@ -41,7 +41,7 @@ class _$User extends User {
   @override
   final bool acceptPromotionalEmail;
   @override
-  final BuiltList<UserRole> groups;
+  final BuiltList<String> groups;
 
   factory _$User([void Function(UserBuilder) updates]) =>
       (new UserBuilder()..update(updates)).build();
@@ -161,10 +161,10 @@ class UserBuilder implements Builder<User, UserBuilder> {
   set acceptPromotionalEmail(bool acceptPromotionalEmail) =>
       _$this._acceptPromotionalEmail = acceptPromotionalEmail;
 
-  ListBuilder<UserRole> _groups;
-  ListBuilder<UserRole> get groups =>
-      _$this._groups ??= new ListBuilder<UserRole>();
-  set groups(ListBuilder<UserRole> groups) => _$this._groups = groups;
+  ListBuilder<String> _groups;
+  ListBuilder<String> get groups =>
+      _$this._groups ??= new ListBuilder<String>();
+  set groups(ListBuilder<String> groups) => _$this._groups = groups;
 
   UserBuilder();
 

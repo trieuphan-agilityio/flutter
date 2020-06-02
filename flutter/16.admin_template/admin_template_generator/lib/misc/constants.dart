@@ -3,7 +3,7 @@ abstract class Annotation {
   static const agBool = 'AgBool';
   static const agPassword = 'AgPassword';
   static const agEmail = 'AgEmail';
-  static const agList = 'AgList<dynamic>';
+  static const agList = 'AgList';
 }
 
 abstract class FieldAnnotation {

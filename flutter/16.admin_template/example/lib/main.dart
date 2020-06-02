@@ -48,11 +48,6 @@ class FormDemo extends StatefulWidget {
 class FormDemoState extends State<FormDemo> {
   User user;
 
-  UserForm get editUserForm {
-    print('initialise UserForm.edit(user)');
-    return UserForm.edit(user);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -63,7 +58,7 @@ class FormDemoState extends State<FormDemo> {
       ..password = ''
       ..passwordConfirmation = ''
       ..acceptPromotionalEmail = false
-      ..groups = ListBuilder<UserRole>());
+      ..groups = ListBuilder());
   }
 
   @override
@@ -73,7 +68,7 @@ class FormDemoState extends State<FormDemo> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          editUserForm.builder(context, onSaved: (User newValue) {
+          UserForm.edit(user).builder(context, onSaved: (User newValue) {
             setState(() {
               user = newValue;
             });

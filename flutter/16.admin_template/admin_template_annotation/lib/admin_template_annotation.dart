@@ -1,4 +1,3 @@
-import 'package:built_value/built_value.dart';
 import 'package:meta/meta.dart';
 
 class AgName {
@@ -170,9 +169,9 @@ class AgInt implements AgBase<int> {
   });
 }
 
-class AgList<T extends EnumClass> implements AgBase<List<T>> {
-  final List<T> choices;
-  final List<T> initialValue;
+class AgList implements AgBase<List<String>> {
+  final List<String> choices;
+  final List<String> initialValue;
   final bool required;
   final String hintText;
   final String labelText;

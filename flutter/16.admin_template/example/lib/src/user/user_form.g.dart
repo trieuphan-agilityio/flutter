@@ -7,9 +7,14 @@ part of 'user_form.dart';
 // **************************************************************************
 
 class _$UserForm extends UserForm {
-  _$UserForm(this.model) : super._();
+  _$UserForm(User model)
+      : _model = ValueNotifier(model),
+        super._();
 
-  User model;
+  final ValueNotifier<User> _model;
+
+  User get model => _model.value;
+  set model(User newValue) => _model.value = newValue;
 
   @override
   FormBuilder get builder {
@@ -192,10 +197,5 @@ class _$UserForm extends UserForm {
         'editor',
       ],
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return builder(context);
   }
 }

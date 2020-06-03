@@ -1,6 +1,7 @@
 import 'package:admin_template/admin_template.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:example/src/user/user.dart';
+import 'package:example/src/web_page/web_page_form.dart';
 import 'package:flutter/material.dart';
 
 import 'user.dart';
@@ -31,21 +32,42 @@ class _Demo extends StatelessWidget {
         ),
         VerticalSplitter(initialLayoutMask: '0.1, 0.9', children: [
           Container(color: Theme.of(context).primaryColor),
-          FormDemo(),
+          _WebPageFormDemo(),
         ]),
       ]),
     );
   }
 }
 
-class FormDemo extends StatefulWidget {
-  const FormDemo({Key key}) : super(key: key);
+/// ===================================================================
+/// WebPage form demo
+/// ===================================================================
 
+class _WebPageFormDemo extends StatelessWidget {
   @override
-  FormDemoState createState() => FormDemoState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          WebPageForm(),
+        ],
+      ),
+    );
+  }
 }
 
-class FormDemoState extends State<FormDemo> {
+/// ===================================================================
+/// User form demo
+/// ===================================================================
+
+class _UserFormDemo extends StatefulWidget {
+  const _UserFormDemo({Key key}) : super(key: key);
+
+  @override
+  _UserFormDemoState createState() => _UserFormDemoState();
+}
+
+class _UserFormDemoState extends State<_UserFormDemo> {
   User user;
 
   @override

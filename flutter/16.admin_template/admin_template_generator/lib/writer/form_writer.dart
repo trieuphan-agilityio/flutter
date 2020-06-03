@@ -46,7 +46,7 @@ class FormWriter extends Writer {
       ..annotations.add(refer('override'))
       ..name = 'builder'
       ..type = MethodType.getter
-      ..returns = refer('FormBuilder')
+      ..returns = refer('FormBuilder<${form.model.name}>')
       ..body = Code.scope((allocate) {
         return '''
           return (
@@ -54,7 +54,7 @@ class FormWriter extends Writer {
             bool autovalidate = false,
             WillPopCallback onWillPop,
             VoidCallback onChanged,
-            ValueChanged<User> onSaved,
+            ValueChanged<${form.model.name}> onSaved,
           }) {
             return Container(
               alignment: Alignment.topLeft,

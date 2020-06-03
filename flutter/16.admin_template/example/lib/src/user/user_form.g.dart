@@ -7,17 +7,12 @@ part of 'user_form.dart';
 // **************************************************************************
 
 class _$UserForm extends UserForm {
-  _$UserForm(User model)
-      : _model = ValueNotifier(model),
-        super._();
+  _$UserForm(this.model) : super._();
 
-  final ValueNotifier<User> _model;
-
-  User get model => _model.value;
-  set model(User newValue) => _model.value = newValue;
+  User model;
 
   @override
-  FormBuilder get builder {
+  FormBuilder<User> get builder {
     return (
       BuildContext context, {
       bool autovalidate = false,

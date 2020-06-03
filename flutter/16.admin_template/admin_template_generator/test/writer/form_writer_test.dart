@@ -25,13 +25,13 @@ void main() {
         Website model;
         
         @override
-        FormBuilder get builder {
+        FormBuilder<Website> get builder {
           return (
             BuildContext context, {
             bool autovalidate = false,
             WillPopCallback onWillPop,
             VoidCallback onChanged,
-            ValueChanged<User> onSaved,
+            ValueChanged<Website> onSaved,
           }) {
             return Container(
               alignment: Alignment.topLeft,

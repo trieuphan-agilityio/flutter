@@ -1,6 +1,7 @@
 import 'package:admin_template/admin_template.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:example/src/user/user.dart';
+import 'package:example/src/web_page/web_page.dart';
 import 'package:example/src/web_page/web_page_form.dart';
 import 'package:flutter/material.dart';
 
@@ -46,10 +47,15 @@ class _Demo extends StatelessWidget {
 class _WebPageFormDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final model = WebPage((b) => b
+      ..title = 'Flutter is awesome!'
+      ..slug = 'flutter-is-awesome'
+      ..live = true);
+
     return Scaffold(
       body: Column(
         children: [
-          WebPageForm(),
+          WebPageForm(model),
         ],
       ),
     );

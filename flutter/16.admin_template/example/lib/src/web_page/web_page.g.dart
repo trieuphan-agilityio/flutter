@@ -37,12 +37,6 @@ class _$WebPage extends WebPage {
     if (live == null) {
       throw new BuiltValueNullFieldError('WebPage', 'live');
     }
-    if (firstPublishedAt == null) {
-      throw new BuiltValueNullFieldError('WebPage', 'firstPublishedAt');
-    }
-    if (lastPublishedAt == null) {
-      throw new BuiltValueNullFieldError('WebPage', 'lastPublishedAt');
-    }
   }
 
   @override

@@ -13,8 +13,10 @@ abstract class WebPage implements Built<WebPage, WebPageBuilder> {
   @AgBool()
   bool get live;
 
+  @nullable
   DateTime get firstPublishedAt;
 
+  @nullable
   DateTime get lastPublishedAt;
 
   factory WebPage([void Function(WebPageBuilder) updates]) = _$WebPage;

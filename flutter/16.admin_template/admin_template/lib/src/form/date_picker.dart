@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 
 import 'utils.dart' as utils;
 
+const double _kDatePickerDropdownWidth = 280.0;
+const double _kDatePickerDropdownHeight = 300.0;
+
 class DatePickerField extends StatefulWidget {
   DatePickerField({
     Key key,
@@ -16,8 +19,10 @@ class DatePickerField extends StatefulWidget {
     this.selectableDayPredicate,
     this.errorFormatText,
     this.errorInvalidText,
-    this.fieldHintText,
-    this.fieldLabelText,
+    this.labelText,
+    this.hintText,
+    this.helperText,
+    this.prefixText,
     this.autofocus = false,
   })  : assert(firstDate != null),
         assert(lastDate != null),
@@ -59,17 +64,23 @@ class DatePickerField extends StatefulWidget {
   /// [lastDate], or doesn't pass the [selectableDayPredicate].
   final String errorInvalidText;
 
-  /// The hint text displayed in the [TextField].
-  ///
-  /// If this is null, it will default to the date format string. For example,
-  /// 'mm/dd/yyyy' for en_US.
-  final String fieldHintText;
-
   /// The label text displayed in the [TextField].
   ///
   /// If this is null, it will default to the words representing the date format
   /// string. For example, 'Month, Day, Year' for en_US.
-  final String fieldLabelText;
+  final String labelText;
+
+  /// The hint text displayed in the [TextField].
+  ///
+  /// If this is null, it will default to the date format string. For example,
+  /// 'mm/dd/yyyy' for en_US.
+  final String hintText;
+
+  /// The helper text displayed in the [TextField].
+  final String helperText;
+
+  /// The prefix text displayed in the [TextField].
+  final String prefixText;
 
   /// {@macro flutter.widgets.editableText.autofocus}
   final bool autofocus;
@@ -96,10 +107,37 @@ class _DatePickerFieldState extends State<DatePickerField> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_selectedDate != null) {
+      _inputText = _formatDate(_selectedDate);
+      TextEditingValue textEditingValue =
+          _controller.value.copyWith(text: _inputText);
+      // Select the new text if we are auto focused and haven't selected the text before.
+      if (widget.autofocus && !_autoSelected) {
+        textEditingValue = textEditingValue.copyWith(
+          selection: TextSelection(
+            baseOffset: 0,
+            extentOffset: _inputText.length,
+          ),
+        );
+        _autoSelected = true;
+      }
+      _controller.value = textEditingValue;
+    }
+  }
+
   DateTime _parseDate(String text) {
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
     return localizations.parseCompactDate(text);
+  }
+
+  String _formatDate(DateTime date) {
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
+    return localizations.formatCompactDate(date);
   }
 
   bool _isValidAcceptableDate(DateTime date) {
@@ -113,9 +151,11 @@ class _DatePickerFieldState extends State<DatePickerField> {
   String _validateDate(String text) {
     final DateTime date = _parseDate(text);
     if (date == null) {
-      return widget.errorFormatText ?? 'Invalid format.';
+      return widget.errorFormatText ??
+          MaterialLocalizations.of(context).invalidDateFormatLabel;
     } else if (!_isValidAcceptableDate(date)) {
-      return widget.errorInvalidText ?? 'Out of range.';
+      return widget.errorInvalidText ??
+          MaterialLocalizations.of(context).dateOutOfRangeLabel;
     }
     return null;
   }
@@ -144,22 +184,27 @@ class _DatePickerFieldState extends State<DatePickerField> {
 
   @override
   Widget build(BuildContext context) {
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
     final InputDecoration effectiveDecoration =
         (widget.decoration ?? const InputDecoration())
             .applyDefaults(Theme.of(context).inputDecorationTheme);
 
     return TextFormField(
       decoration: effectiveDecoration.copyWith(
-        hintText: widget.fieldHintText ?? 'mm/dd/yyyy',
-        labelText: widget.fieldLabelText ?? 'Enter Date',
-        suffixIcon: GestureDetector(
-          dragStartBehavior: DragStartBehavior.down,
-          onTap: () {
-            print('open date picker');
+        hintText: widget.hintText ?? localizations.dateHelpText,
+        labelText: widget.labelText ?? localizations.dateInputLabel,
+        helperText: widget.helperText,
+        suffixIcon: IconButton(
+          icon: Icon(Icons.date_range, semanticLabel: 'open date picker'),
+          onPressed: () async {
             final RenderBox datePicker =
                 context.findRenderObject() as RenderBox;
             final RenderBox overlay =
                 Overlay.of(context).context.findRenderObject() as RenderBox;
+
+            // find position of the text field on the coordinate system of the
+            // overlay
             final RelativeRect position = RelativeRect.fromRect(
               Rect.fromPoints(
                 datePicker.localToGlobal(Offset.zero, ancestor: overlay),
@@ -169,17 +214,27 @@ class _DatePickerFieldState extends State<DatePickerField> {
               ),
               Offset.zero & overlay.size,
             );
-            showDatePicker(
+
+            final pickedDate = await showDatePicker(
               context: context,
               position: position,
+              initialDate: widget.initialDate,
+              firstDate: widget.firstDate,
+              lastDate: widget.lastDate,
             );
+
+            if (_isValidAcceptableDate(pickedDate)) {
+              _selectedDate = pickedDate;
+              _inputText = _formatDate(pickedDate);
+              _controller.text = _inputText;
+              widget.onDateSaved(pickedDate);
+            }
           },
-          child: Icon(Icons.date_range, semanticLabel: 'open date picker'),
         ),
       ),
       validator: _validateDate,
       inputFormatters: <TextInputFormatter>[
-        DateTextInputFormatter('/'),
+        DateTextInputFormatter(localizations.dateSeparator),
       ],
       keyboardType: TextInputType.datetime,
       onSaved: _handleSaved,
@@ -193,35 +248,21 @@ class _DatePickerFieldState extends State<DatePickerField> {
     @required BuildContext context,
     @required RelativeRect position,
     bool useRootNavigator = false,
+    DateTime initialDate,
+    DateTime firstDate,
+    DateTime lastDate,
   }) {
     assert(context != null);
     assert(position != null);
     assert(useRootNavigator != null);
 
     return Navigator.of(context, rootNavigator: useRootNavigator).push(
-      _ModalDatePickerRoute<DateTime>(
+      _DatePickerDropdownRoute(
         position: position,
-        elevation: 1,
-        semanticLabel: 'label',
-        barrierLabel: '',
-        picker: Material(
-          type: MaterialType.card,
-          elevation: 2,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minWidth: 280,
-            ),
-            child: IntrinsicWidth(
-              stepWidth: 280,
-              child: CalendarDatePicker(
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now().subtract(Duration(days: 365)),
-                lastDate: DateTime.now().add(Duration(days: 30)),
-                onDateChanged: (newValue) {},
-              ),
-            ),
-          ),
-        ),
+        elevation: 2,
+        initialDate: initialDate,
+        firstDate: firstDate,
+        lastDate: lastDate,
       ),
     );
   }
@@ -261,23 +302,25 @@ class DateTextInputFormatter extends TextInputFormatter {
 }
 
 /// ===================================================================
-/// Popup Route
+/// Date Dicker Route
 /// ===================================================================
 const Duration _kModalDatePickerDuration = Duration(milliseconds: 300);
 
-class _ModalDatePickerRoute<T> extends PopupRoute<T> {
-  _ModalDatePickerRoute({
+class _DatePickerDropdownRoute extends PopupRoute<DateTime> {
+  _DatePickerDropdownRoute({
     this.position,
-    this.picker,
     this.elevation,
     this.barrierLabel,
-    this.semanticLabel,
+    this.initialDate,
+    this.firstDate,
+    this.lastDate,
   });
 
   final RelativeRect position;
-  final Widget picker;
   final double elevation;
-  final String semanticLabel;
+  final DateTime initialDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
 
   @override
   Color get barrierColor => null;
@@ -291,16 +334,81 @@ class _ModalDatePickerRoute<T> extends PopupRoute<T> {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
+    Widget picker = _DatePickerDropdown(route: this);
+
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
       removeBottom: true,
       removeLeft: true,
       removeRight: true,
-      child: picker,
+      child: Builder(builder: (BuildContext context) {
+        return CustomSingleChildLayout(
+          delegate: _DatePickerDropdownRouteLayout(position),
+          child: picker,
+        );
+      }),
     );
   }
 
   @override
   Duration get transitionDuration => _kModalDatePickerDuration;
+}
+
+// Positioning of the date picker dropdown on the screen
+class _DatePickerDropdownRouteLayout extends SingleChildLayoutDelegate {
+  _DatePickerDropdownRouteLayout(this.position);
+
+  // Rectangle of underlying text field, relative to the overlay's dimensions.
+  final RelativeRect position;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    return BoxConstraints.tightFor(
+      width: _kDatePickerDropdownWidth,
+      height: _kDatePickerDropdownHeight,
+    );
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    // size: The size of the overlay.
+    // childSize: The size of the dropdown, when fully open, as determined by
+    // getConstraintsForChild.
+
+    // Dropdown is left-aligned with the date text field.
+    double x = position.left;
+
+    // Find the vertical position.
+    double y = position.top + (size.height - position.top - position.bottom);
+
+    return Offset(x, y);
+  }
+
+  @override
+  bool shouldRelayout(_DatePickerDropdownRouteLayout oldDelegate) {
+    return position != oldDelegate.position;
+  }
+}
+
+class _DatePickerDropdown extends StatelessWidget {
+  const _DatePickerDropdown({Key key, this.route}) : super(key: key);
+
+  final _DatePickerDropdownRoute route;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.card,
+      elevation: route.elevation,
+      child: CalendarDatePicker(
+        initialDate: route.initialDate ?? DateTime.now(),
+        firstDate: route.firstDate,
+        lastDate: route.lastDate,
+        onDateChanged: (newValue) {
+          Navigator.of(context).pop(newValue);
+        },
+      ),
+    );
+  }
 }

@@ -1,6 +1,5 @@
 export 'package:admin_template_annotation/admin_template_annotation.dart';
 
-export 'src/edit_handlers/field_panel.dart';
 export 'src/form/checkbox.dart';
 export 'src/form/checkbox_list.dart';
 export 'src/form/date_picker.dart';

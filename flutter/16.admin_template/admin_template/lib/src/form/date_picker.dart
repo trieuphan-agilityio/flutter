@@ -316,7 +316,10 @@ class _DatePickerDropdownRoute extends PopupRoute<DateTime> {
     this.lastDate,
   });
 
+  // Rectangle of underlying text field, relative to the overlay's
+  // coordinator system.
   final RelativeRect position;
+
   final double elevation;
   final DateTime initialDate;
   final DateTime firstDate;

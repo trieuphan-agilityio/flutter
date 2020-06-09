@@ -97,12 +97,12 @@ class _WebPageFormState extends State<WebPageForm> {
   }
 
   Widget get lastPublishedAt {
-    return DatePickerField(
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now().subtract(Duration(days: 7)),
-      lastDate: DateTime.now().add(Duration(days: 30)),
+    return DateRangePickerField(
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 90)),
       onDateSaved: (newValue) {
-        model = model.rebuild((b) => b..lastPublishedAt = newValue);
+        print('saved ${newValue.start.toIso8601String()},'
+            ' ended at ${newValue.end.toIso8601String()}');
       },
     );
   }

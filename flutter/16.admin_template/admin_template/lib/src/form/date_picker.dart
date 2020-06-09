@@ -2,10 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'utils.dart' as utils;
+import 'date_utils.dart' as utils;
 
-const double _kDatePickerDropdownWidth = 280.0;
-const double _kDatePickerDropdownHeight = 300.0;
+const double _kDatePickerDropdownWidth = 256.0;
+const double _kDatePickerDropdownHeight = 280.0;
 
 class DatePickerField extends StatefulWidget {
   DatePickerField({
@@ -302,7 +302,7 @@ class DateTextInputFormatter extends TextInputFormatter {
 }
 
 /// ===================================================================
-/// Date Dicker Route
+/// Date Picker Route
 /// ===================================================================
 const Duration _kModalDatePickerDuration = Duration(milliseconds: 300);
 

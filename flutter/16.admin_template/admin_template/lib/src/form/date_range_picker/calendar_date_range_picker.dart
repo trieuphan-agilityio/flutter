@@ -20,6 +20,7 @@ const double _monthItemSpaceBetweenRows = 8.0;
 const double _horizontalPadding = 8.0;
 const double _maxCalendarWidth = 256.0;
 const double _maxCalendarHeight = 280.0;
+const Widget _kMonthDivider = VerticalDivider(width: 1.0, thickness: 1.0);
 
 /// Displays a grid of days for a given month and allows the user to select a date.
 ///
@@ -114,6 +115,8 @@ class CalendarDateRangePicker extends StatefulWidget {
 class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
   DateTime _startDate;
   DateTime _endDate;
+  DateTime _dateOnHover;
+
   int _initialMonthIndex = 0;
   ScrollController _controller;
   bool _showWeekBottomDivider;
@@ -175,6 +178,19 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
     }
   }
 
+  /// Handle selection when user hovers on the calendar.
+  void _updateOnHover(DateTime date) {
+    setState(() {
+      if (_startDate != null && _endDate == null) {
+        if (date == null) {
+          _dateOnHover = null;
+        } else if (!date.isBefore(_startDate)) {
+          _dateOnHover = date;
+        }
+      }
+    });
+  }
+
   // This updates the selected date range using this logic:
   //
   // * From the unselected state, selecting one date creates the start date.
@@ -187,6 +203,7 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
   void _updateSelection(DateTime date) {
     _vibrate();
     setState(() {
+      _dateOnHover = null;
       if (_startDate != null &&
           _endDate == null &&
           !date.isBefore(_startDate)) {
@@ -225,25 +242,30 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
           child: _MonthItem(
             selectedDateStart: _startDate,
             selectedDateEnd: _endDate,
+            dateOnHover: _dateOnHover,
             currentDate: widget.currentDate,
             firstDate: widget.firstDate,
             lastDate: widget.lastDate,
             displayedMonth: month,
             onChanged: _updateSelection,
+            onHover: _updateOnHover,
           ),
         ),
-        VerticalDivider(thickness: 1.0),
+        _kMonthDivider,
         Flexible(
           child: _MonthItem(
             selectedDateStart: _startDate,
             selectedDateEnd: _endDate,
+            dateOnHover: _dateOnHover,
             currentDate: widget.currentDate,
             firstDate: widget.firstDate,
             lastDate: widget.lastDate,
             displayedMonth: nextMonth,
             onChanged: _updateSelection,
+            onHover: _updateOnHover,
           ),
         ),
+        _kMonthDivider,
       ],
     );
   }
@@ -259,6 +281,7 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
             scrollDirection: Axis.horizontal,
             controller: _controller,
             center: sliverAfterKey,
+            physics: const ClampingScrollPhysics(),
             slivers: <Widget>[
               SliverList(
                 delegate: SliverChildBuilderDelegate(
@@ -294,8 +317,10 @@ class _MonthItem extends StatelessWidget {
     Key key,
     @required this.selectedDateStart,
     @required this.selectedDateEnd,
+    @required this.dateOnHover,
     @required this.currentDate,
     @required this.onChanged,
+    @required this.onHover,
     @required this.firstDate,
     @required this.lastDate,
     @required this.displayedMonth,
@@ -312,8 +337,13 @@ class _MonthItem extends StatelessWidget {
         assert(selectedDateStart == null ||
             selectedDateEnd == null ||
             !selectedDateStart.isAfter(selectedDateEnd)),
+        assert(dateOnHover == null || !dateOnHover.isBefore(firstDate)),
+        assert(dateOnHover == null || !dateOnHover.isAfter(lastDate)),
+        assert(dateOnHover == null || selectedDateEnd == null),
+        assert(dateOnHover == null || !dateOnHover.isBefore(selectedDateStart)),
         assert(currentDate != null),
         assert(onChanged != null),
+        assert(onHover != null),
         assert(displayedMonth != null),
         assert(dragStartBehavior != null),
         super(key: key);
@@ -328,11 +358,19 @@ class _MonthItem extends StatelessWidget {
   /// This date is highlighted in the picker.
   final DateTime selectedDateEnd;
 
+  /// The currently hovered date.
+  ///
+  /// This date is highlighted in the picker.
+  final DateTime dateOnHover;
+
   /// The current date at the time the picker is displayed.
   final DateTime currentDate;
 
   /// Called when the user picks a day.
   final ValueChanged<DateTime> onChanged;
+
+  /// Called when the user hovers on a day.
+  final ValueChanged<DateTime> onHover;
 
   /// The earliest date the user is permitted to pick.
   final DateTime firstDate;
@@ -395,6 +433,14 @@ class _MonthItem extends StatelessWidget {
         dayToBuild.isAfter(selectedDateStart) &&
         dayToBuild.isBefore(selectedDateEnd);
 
+    // hover
+    final bool isOnHover = selectedDateStart != null && dateOnHover != null;
+    final bool isInHoverRange = isOnHover &&
+        dayToBuild.isAfter(selectedDateStart) &&
+        dayToBuild.isBefore(dateOnHover);
+    final bool isDateOnHover =
+        dateOnHover != null && dayToBuild.isAtSameMomentAs(dateOnHover);
+
     _HighlightPainter highlightPainter;
 
     if (isSelectedDayStart || isSelectedDayEnd) {
@@ -434,6 +480,23 @@ class _MonthItem extends StatelessWidget {
         border: Border.all(color: colorScheme.primary, width: 1),
         shape: BoxShape.circle,
       );
+    } else if (isDateOnHover) {
+      decoration = BoxDecoration(
+        border: Border.all(color: colorScheme.primary, width: 1),
+        shape: BoxShape.circle,
+      );
+      highlightPainter = _HighlightPainter(
+        color: highlightColor,
+        style: _HighlightPainterStyle.highlightTrailingOnHover,
+        textDirection: textDirection,
+      );
+    } else if (isInHoverRange) {
+      // The days within the on hover range get an outline background highlight.
+      highlightPainter = _HighlightPainter(
+        color: highlightColor,
+        style: _HighlightPainterStyle.highlightAllOnHover,
+        textDirection: textDirection,
+      );
     }
 
     // We want the day of month to be spoken first irrespective of the
@@ -466,6 +529,13 @@ class _MonthItem extends StatelessWidget {
     if (highlightPainter != null) {
       dayWidget = CustomPaint(
         painter: highlightPainter,
+        child: dayWidget,
+      );
+    }
+
+    if (!isDisabled) {
+      dayWidget = MouseRegion(
+        onEnter: (e) => onHover(dayToBuild),
         child: dayWidget,
       );
     }
@@ -726,6 +796,15 @@ enum _HighlightPainterStyle {
 
   /// Paints a rectangle that occupies all available space.
   highlightAll,
+
+  /// Paints an outline rectangle that occupies the leading half of the space.
+  highlightLeadingOnHover,
+
+  /// Paints an outline rectangle that occupies the trailing half of the space.
+  highlightTrailingOnHover,
+
+  /// Paint an outline rectangle that occupies all available space.
+  highlightAllOnHover,
 }
 
 /// This custom painter will add a background highlight to its child.
@@ -755,6 +834,10 @@ class _HighlightPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
+    final Paint paintOnHover = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke;
+
     // This ensures no gaps in the highlight track due to floating point
     // division of the available screen width.
     final double width = size.width + 1;
@@ -780,6 +863,45 @@ class _HighlightPainter extends CustomPainter {
           Rect.fromLTWH(0, 0, width, size.height),
           paint,
         );
+        break;
+      case _HighlightPainterStyle.highlightTrailingOnHover:
+//        canvas.drawArc(
+//          Rect.fromLTWH(0, 0, width, size.height),
+//          -0.5 * math.pi,
+//          math.pi,
+//          false,
+//          paintOnHover,
+//        );
+        canvas.drawLine(Offset.zero, Offset(size.width / 2, 0), paintOnHover);
+        canvas.drawLine(
+          Offset(0, size.height),
+          Offset(size.width / 2, size.height),
+          paintOnHover,
+        );
+        break;
+      case _HighlightPainterStyle.highlightLeadingOnHover:
+        canvas.drawArc(
+          Rect.fromLTWH(0, 0, width, size.height),
+          0.5 * math.pi,
+          1.5 * math.pi,
+          false,
+          paintOnHover,
+        );
+        canvas.drawLine(
+          Offset(size.width / 2, 0),
+          Offset(size.width, 0),
+          paintOnHover,
+        );
+        canvas.drawLine(
+          Offset(size.width / 2, size.height),
+          Offset(size.width, size.height),
+          paintOnHover,
+        );
+        break;
+      case _HighlightPainterStyle.highlightAllOnHover:
+        canvas.drawLine(Offset.zero, Offset(size.width, 0), paintOnHover);
+        canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height),
+            paintOnHover);
         break;
       default:
         break;

@@ -275,7 +275,7 @@ class _DateRangePickerDropdown extends StatelessWidget {
         firstDate: route.firstDate,
         lastDate: route.lastDate,
         onDateRangeChanged: (newValue) {
-          Navigator.of(context).pop(newValue);
+          //Navigator.of(context).pop(newValue);
         },
       ),
     );

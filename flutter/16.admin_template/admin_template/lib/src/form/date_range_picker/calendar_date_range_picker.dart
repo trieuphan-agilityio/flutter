@@ -4,6 +4,7 @@
 
 import 'dart:math' as math;
 
+import 'package:admin_template/src/utils/line_painter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -432,15 +433,6 @@ class _MonthItem extends StatelessWidget {
     final bool isInRange = isRangeSelected &&
         dayToBuild.isAfter(selectedDateStart) &&
         dayToBuild.isBefore(selectedDateEnd);
-
-    // hover
-    final bool isOnHover = selectedDateStart != null && dateOnHover != null;
-    final bool isInHoverRange = isOnHover &&
-        dayToBuild.isAfter(selectedDateStart) &&
-        dayToBuild.isBefore(dateOnHover);
-    final bool isDateOnHover =
-        dateOnHover != null && dayToBuild.isAtSameMomentAs(dateOnHover);
-
     _HighlightPainter highlightPainter;
 
     if (isSelectedDayStart || isSelectedDayEnd) {
@@ -479,23 +471,6 @@ class _MonthItem extends StatelessWidget {
       decoration = BoxDecoration(
         border: Border.all(color: colorScheme.primary, width: 1),
         shape: BoxShape.circle,
-      );
-    } else if (isDateOnHover) {
-      decoration = BoxDecoration(
-        border: Border.all(color: colorScheme.primary, width: 1),
-        shape: BoxShape.circle,
-      );
-      highlightPainter = _HighlightPainter(
-        color: highlightColor,
-        style: _HighlightPainterStyle.highlightTrailingOnHover,
-        textDirection: textDirection,
-      );
-    } else if (isInHoverRange) {
-      // The days within the on hover range get an outline background highlight.
-      highlightPainter = _HighlightPainter(
-        color: highlightColor,
-        style: _HighlightPainterStyle.highlightAllOnHover,
-        textDirection: textDirection,
       );
     }
 
@@ -558,6 +533,108 @@ class _MonthItem extends StatelessWidget {
     return Container(color: isHighlighted ? _highlightColor(context) : null);
   }
 
+  List<Widget> _buildHoverDecoration(BuildContext context,
+      List<Widget> dayItems, int numOfWeeks, int dayOffset) {
+    assert(selectedDateStart != null);
+    assert(dateOnHover != null);
+
+    final int year = displayedMonth.year;
+    final int month = displayedMonth.month;
+
+    // Decorate day items on hover range
+    final List<Widget> decoratedDayItems = <Widget>[];
+    for (int i = 0; i < numOfWeeks; i++) {
+      final int start = i * DateTime.daysPerWeek;
+      final int end = math.min(
+        start + DateTime.daysPerWeek,
+        dayItems.length,
+      );
+
+      List<Widget> weekList = dayItems.sublist(start, end);
+      final TextDirection textDirection = Directionality.of(context);
+      final Color highlightColor = _highlightColor(context);
+
+      final List<Widget> decoratedWeekList = <Widget>[];
+      bool isLeading;
+      bool isTrailing;
+      for (int j = 0; j < weekList.length; j++) {
+        final Widget dayWidget = weekList[j];
+        _HighlightPainterStyle painterStyle;
+
+        final int day = start - dayOffset + 1 + j;
+
+        if (day < 0) {
+          decoratedWeekList.add(dayWidget);
+          continue;
+        }
+
+        final DateTime dayToBuild = DateTime(year, month, day);
+
+        final bool isDisabled =
+            dayToBuild.isAfter(lastDate) || dayToBuild.isBefore(firstDate);
+
+        if (isDisabled) {
+          decoratedWeekList.add(dayWidget);
+          continue;
+        }
+
+        // first meaning day is the leading
+        isLeading = isLeading == null ? true : false;
+
+        // last meaning day is the trailing
+        isTrailing = j == weekList.length - 1 ? true : false;
+
+        final bool isInHoverRange = dayToBuild.isAfter(selectedDateStart) &&
+            !dayToBuild.isAfter(dateOnHover);
+
+        final bool isSelectedStartDay =
+            dayToBuild.isAtSameMomentAs(selectedDateStart);
+
+        final bool isDayOnHover = dayToBuild.isAtSameMomentAs(dateOnHover);
+
+        if (isSelectedStartDay && !isDayOnHover) {
+          painterStyle = _HighlightPainterStyle.highlightLeadingOnHover;
+        } else if (isDayOnHover && !isSelectedStartDay) {
+          painterStyle = _HighlightPainterStyle.highlightTrailingOnHover;
+        } else if (isLeading && isInHoverRange) {
+          painterStyle = _HighlightPainterStyle.highlightLeadingOnHover;
+        } else if (isTrailing && isInHoverRange) {
+          painterStyle = _HighlightPainterStyle.highlightTrailingOnHover;
+        } else if (isInHoverRange && !isSelectedStartDay) {
+          painterStyle = _HighlightPainterStyle.highlightAllOnHover;
+        }
+
+        if (painterStyle == null) {
+          decoratedWeekList.add(dayWidget);
+          continue;
+        }
+
+        decoratedWeekList.add(CustomPaint(
+          painter: _HighlightPainter(
+            textDirection: textDirection,
+            color: highlightColor,
+            style: painterStyle,
+          ),
+          child: dayWidget,
+        ));
+      }
+
+      final DateTime dateBeforeTrailingPadding =
+          DateTime(year, month, end - dayOffset);
+
+      // Only highlight if it is after the start date and
+      // on/before the hovering date.
+      final bool isTrailingInHoverRange = selectedDateStart != null &&
+          dateOnHover != null &&
+          dateBeforeTrailingPadding.isBefore(selectedDateStart) &&
+          !dateBeforeTrailingPadding.isBefore(dateOnHover);
+
+      decoratedDayItems.addAll(decoratedWeekList);
+    }
+
+    return decoratedDayItems;
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
@@ -592,6 +669,42 @@ class _MonthItem extends StatelessWidget {
       }
     }
 
+    List<Widget> decoratedDayItems;
+    if (selectedDateStart == null || dateOnHover == null)
+      // skip the decorating if it isn't hovered
+      decoratedDayItems = dayItems;
+    else
+      decoratedDayItems =
+          _buildHoverDecoration(context, dayItems, weeks, dayOffset);
+
+    // hover
+//      final bool isOnHover = selectedDateStart != null && dateOnHover != null;
+//      final bool isInHoverRange = isOnHover &&
+//          dayToBuild.isAfter(selectedDateStart) &&
+//          dayToBuild.isBefore(dateOnHover);
+//      final bool isDateOnHover =
+//          dateOnHover != null && dayToBuild.isAtSameMomentAs(dateOnHover);
+
+//      if (isDateOnHover) {
+//        decoration = BoxDecoration(
+//          border: Border.all(color: colorScheme.primary, width: 1),
+//          shape: BoxShape.circle,
+//        );
+//        highlightPainter = _HighlightPainter(
+//          color: highlightColor,
+//          style: _HighlightPainterStyle.highlightTrailingOnHover,
+//          textDirection: textDirection,
+//        );
+//      } else if (isInHoverRange) {
+//        // The days within the on hover range get an outline background highlight.
+//        highlightPainter = _HighlightPainter(
+//          color: highlightColor,
+//          style: _HighlightPainterStyle.highlightAllOnHover,
+//          textDirection: textDirection,
+//        );
+//      }
+//    }
+
     // Add the leading/trailing edge containers to each week in order to
     // correctly extend the range highlight.
     final List<Widget> paddedDayItems = <Widget>[];
@@ -599,9 +712,9 @@ class _MonthItem extends StatelessWidget {
       final int start = i * DateTime.daysPerWeek;
       final int end = math.min(
         start + DateTime.daysPerWeek,
-        dayItems.length,
+        decoratedDayItems.length,
       );
-      final List<Widget> weekList = dayItems.sublist(start, end);
+      final List<Widget> weekList = decoratedDayItems.sublist(start, end);
 
       final DateTime dateAfterLeadingPadding =
           DateTime(year, month, start - dayOffset + 1);
@@ -616,9 +729,9 @@ class _MonthItem extends StatelessWidget {
 
       // Only add a trailing edge container if it is for a full week and not a
       // partial week.
-      if (end < dayItems.length ||
-          (end == dayItems.length &&
-              dayItems.length % DateTime.daysPerWeek == 0)) {
+      if (end < decoratedDayItems.length ||
+          (end == decoratedDayItems.length &&
+              decoratedDayItems.length % DateTime.daysPerWeek == 0)) {
         final DateTime dateBeforeTrailingPadding =
             DateTime(year, month, end - dayOffset);
         // Only color the edge container if it is on/after the start date and
@@ -845,6 +958,13 @@ class _HighlightPainter extends CustomPainter {
     final Rect rectRight =
         Rect.fromLTWH(size.width / 2, 0, width / 2, size.height);
 
+    final double squareLength = math.min(size.width, size.height);
+    final Rect squareOfCirle = Rect.fromCenter(
+      center: Offset(size.width / 2, size.height / 2),
+      width: squareLength,
+      height: squareLength,
+    );
+
     switch (style) {
       case _HighlightPainterStyle.highlightTrailing:
         canvas.drawRect(
@@ -865,43 +985,68 @@ class _HighlightPainter extends CustomPainter {
         );
         break;
       case _HighlightPainterStyle.highlightTrailingOnHover:
-//        canvas.drawArc(
-//          Rect.fromLTWH(0, 0, width, size.height),
-//          -0.5 * math.pi,
-//          math.pi,
-//          false,
-//          paintOnHover,
-//        );
-        canvas.drawLine(Offset.zero, Offset(size.width / 2, 0), paintOnHover);
-        canvas.drawLine(
-          Offset(0, size.height),
-          Offset(size.width / 2, size.height),
-          paintOnHover,
-        );
-        break;
-      case _HighlightPainterStyle.highlightLeadingOnHover:
+        // draw an half-right arc
         canvas.drawArc(
-          Rect.fromLTWH(0, 0, width, size.height),
-          0.5 * math.pi,
-          1.5 * math.pi,
+          squareOfCirle,
+          -0.5 * math.pi,
+          math.pi,
           false,
           paintOnHover,
         );
-        canvas.drawLine(
+        _drawDashLine(
+          canvas,
+          Offset.zero,
+          Offset(size.width / 2, 0),
+          paintOnHover,
+          color,
+        );
+        _drawDashLine(
+          canvas,
+          Offset(0, size.height),
+          Offset(size.width / 2, size.height),
+          paintOnHover,
+          color,
+        );
+        break;
+      case _HighlightPainterStyle.highlightLeadingOnHover:
+        // draw an half-left arc
+        canvas.drawArc(
+          squareOfCirle,
+          0.5 * math.pi,
+          math.pi,
+          false,
+          paintOnHover,
+        );
+        _drawDashLine(
+          canvas,
           Offset(size.width / 2, 0),
           Offset(size.width, 0),
           paintOnHover,
+          color,
         );
-        canvas.drawLine(
+        _drawDashLine(
+          canvas,
           Offset(size.width / 2, size.height),
           Offset(size.width, size.height),
           paintOnHover,
+          color,
         );
         break;
       case _HighlightPainterStyle.highlightAllOnHover:
-        canvas.drawLine(Offset.zero, Offset(size.width, 0), paintOnHover);
-        canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height),
-            paintOnHover);
+        _drawDashLine(
+          canvas,
+          Offset.zero,
+          Offset(size.width, 0),
+          paintOnHover,
+          color,
+        );
+        _drawDashLine(
+          canvas,
+          Offset(0, size.height),
+          Offset(size.width, size.height),
+          paintOnHover,
+          color,
+        );
         break;
       default:
         break;
@@ -910,4 +1055,22 @@ class _HighlightPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+LinePainter _linePainter;
+
+void _drawDashLine(
+  Canvas canvas,
+  Offset p1,
+  Offset p2,
+  Paint paint,
+  Color strokeColor,
+) {
+  _linePainter ??= new LinePainter();
+  _linePainter.draw(
+      canvas: canvas,
+      paint: paint,
+      points: [math.Point(p1.dx, p1.dy), math.Point(p2.dx, p2.dy)],
+      stroke: strokeColor,
+      dashPattern: <int>[3]);
 }

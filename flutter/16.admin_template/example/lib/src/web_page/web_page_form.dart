@@ -100,7 +100,7 @@ class _WebPageFormState extends State<WebPageForm> {
     return DateRangePickerField(
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(Duration(days: 90)),
-      onDateSaved: (newValue) {
+      onDateRangeSaved: (newValue) {
         print('saved ${newValue.start.toIso8601String()},'
             ' ended at ${newValue.end.toIso8601String()}');
       },

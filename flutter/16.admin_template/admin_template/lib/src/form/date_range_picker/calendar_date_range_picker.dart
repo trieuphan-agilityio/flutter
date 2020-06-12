@@ -619,16 +619,6 @@ class _MonthItem extends StatelessWidget {
         ));
       }
 
-      final DateTime dateBeforeTrailingPadding =
-          DateTime(year, month, end - dayOffset);
-
-      // Only highlight if it is after the start date and
-      // on/before the hovering date.
-      final bool isTrailingInHoverRange = selectedDateStart != null &&
-          dateOnHover != null &&
-          dateBeforeTrailingPadding.isBefore(selectedDateStart) &&
-          !dateBeforeTrailingPadding.isBefore(dateOnHover);
-
       decoratedDayItems.addAll(decoratedWeekList);
     }
 
@@ -986,12 +976,13 @@ class _HighlightPainter extends CustomPainter {
         break;
       case _HighlightPainterStyle.highlightTrailingOnHover:
         // draw an half-right arc
-        canvas.drawArc(
+        _drawDashArc(
+          canvas,
           squareOfCirle,
           -0.5 * math.pi,
           math.pi,
-          false,
           paintOnHover,
+          color,
         );
         _drawDashLine(
           canvas,
@@ -1010,12 +1001,13 @@ class _HighlightPainter extends CustomPainter {
         break;
       case _HighlightPainterStyle.highlightLeadingOnHover:
         // draw an half-left arc
-        canvas.drawArc(
+        _drawDashArc(
+          canvas,
           squareOfCirle,
           0.5 * math.pi,
           math.pi,
-          false,
           paintOnHover,
+          color,
         );
         _drawDashLine(
           canvas,
@@ -1057,8 +1049,13 @@ class _HighlightPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
+/// ===================================================================
+/// Utility to draw dash line/arc
+/// ===================================================================
+
 LinePainter _linePainter;
 
+/// Draw a dash line of 2 given points.
 void _drawDashLine(
   Canvas canvas,
   Offset p1,
@@ -1073,4 +1070,28 @@ void _drawDashLine(
       points: [math.Point(p1.dx, p1.dy), math.Point(p2.dx, p2.dy)],
       stroke: strokeColor,
       dashPattern: <int>[3]);
+}
+
+/// Draw a simple dash arc.
+void _drawDashArc(
+  Canvas canvas,
+  Rect rect,
+  double startAngle,
+  double sweepAngle,
+  Paint paint,
+  Color strokeColor,
+) {
+  final int dashLength = 3;
+  final double radius = rect.width / 2;
+  // based on the arc length formula S = r0, we can find r as follow.
+  final stepAngle = dashLength / radius;
+
+  double drawedAngle = 0;
+  while (drawedAngle < sweepAngle) {
+    // draw arc with angle is computed as above.
+    canvas.drawArc(rect, startAngle + drawedAngle, stepAngle, false, paint);
+
+    // jump to next step;
+    drawedAngle += stepAngle * 2;
+  }
 }

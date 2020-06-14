@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mex/features/home.dart';
@@ -19,6 +20,12 @@ void main() async {
       BlocProvider<LoginBloc>(create: (_) => mexServices.loginBloc),
     ],
     child: MaterialApp(
+      theme: ThemeData(
+          pageTransitionsTheme: PageTransitionsTheme(builders: {
+        TargetPlatform.android: SharedAxisPageTransitionsBuilder(
+          transitionType: SharedAxisTransitionType.horizontal,
+        )
+      })),
       routes: {
         '/': (_) => LoginWidget(),
         '/home': (_) => HomeWidget(),

@@ -18,6 +18,13 @@
             </list>
           </value>
         </entry>
+        <entry key="animations">
+          <value>
+            <list>
+              <option value="$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/animations-1.1.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="archive">
           <value>
             <list>
@@ -788,6 +795,7 @@
       <root url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/yaml-2.2.1/lib" />
       <root url="file://$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-4.0.0/lib" />
       <root url="file://$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/analyzer-0.39.10/lib" />
+      <root url="file://$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/animations-1.1.0/lib" />
       <root url="file://$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/archive-2.0.13/lib" />
       <root url="file://$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/args-1.6.0/lib" />
       <root url="file://$USER_HOME$/opt/flutter/.pub-cache/hosted/pub.dartlang.org/async-2.4.1/lib" />

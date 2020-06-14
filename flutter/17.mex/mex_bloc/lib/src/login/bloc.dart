@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:mex_bloc/src/auth/bloc.dart';
 import 'package:mex_bloc/src/user/service.dart';
@@ -9,6 +11,10 @@ import 'package:mex_bloc/src/user/service.dart';
 /// =======================================================
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  static LoginBloc of(BuildContext context) {
+    return BlocProvider.of<LoginBloc>(context);
+  }
+
   final UserRepo userRepo;
   final AuthBloc authBloc;
 

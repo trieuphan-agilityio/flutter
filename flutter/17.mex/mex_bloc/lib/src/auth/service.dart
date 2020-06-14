@@ -12,5 +12,6 @@ abstract class AuthServiceLocator {
 @module
 class AuthService {
   @provide
+  @singleton
   AuthBloc authBloc(UserRepo userRepo) => AuthBloc(userRepo: userRepo);
 }

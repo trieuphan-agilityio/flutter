@@ -15,6 +15,7 @@ abstract class LoginServiceLocator {
 @module
 class LoginService {
   @provide
+  @singleton
   LoginBloc loginBloc(UserRepo userRepo, AuthBloc authBloc) =>
       LoginBloc(userRepo: userRepo, authBloc: authBloc);
 }

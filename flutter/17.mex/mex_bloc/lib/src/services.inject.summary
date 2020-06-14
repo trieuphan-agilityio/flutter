@@ -1,0 +1,61 @@
+{
+  "asset": "asset:mex_bloc/lib/src/services.dart",
+  "summary": {
+    "injector": [
+      {
+        "name": "MexServices",
+        "providers": [
+          {
+            "name": "userRepo",
+            "kind": "getter",
+            "injectedType": {
+              "lookupKey": {
+                "root": "asset:mex_bloc/lib/src/user/service.dart#UserRepo",
+                "qualifier": null
+              },
+              "isProvider": false
+            },
+            "singleton": false,
+            "asynchronous": false,
+            "dependencies": []
+          },
+          {
+            "name": "authBloc",
+            "kind": "getter",
+            "injectedType": {
+              "lookupKey": {
+                "root": "asset:mex_bloc/lib/src/auth/bloc.dart#AuthBloc",
+                "qualifier": null
+              },
+              "isProvider": false
+            },
+            "singleton": false,
+            "asynchronous": false,
+            "dependencies": []
+          },
+          {
+            "name": "loginBloc",
+            "kind": "getter",
+            "injectedType": {
+              "lookupKey": {
+                "root": "asset:mex_bloc/lib/src/login/bloc.dart#LoginBloc",
+                "qualifier": null
+              },
+              "isProvider": false
+            },
+            "singleton": false,
+            "asynchronous": false,
+            "dependencies": []
+          }
+        ],
+        "modules": [
+          "asset:mex_bloc/lib/src/user/service.dart#UserService",
+          "asset:mex_bloc/lib/src/auth/service.dart#AuthService",
+          "asset:mex_bloc/lib/src/login/service.dart#LoginService"
+        ]
+      }
+    ],
+    "module": [],
+    "injectable": []
+  }
+}

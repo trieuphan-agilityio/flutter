@@ -1,10 +1,7 @@
 import 'package:inject/inject.dart';
 import 'package:meta/meta.dart';
 
-/// Provides service locator for user feature.
-UserServiceLocator userService;
-
-/// Declares dependencies of the user feature.
+/// Declares the public API to InheritWidget to expose.
 abstract class UserServiceLocator {
   @provide
   UserRepo get userRepo;

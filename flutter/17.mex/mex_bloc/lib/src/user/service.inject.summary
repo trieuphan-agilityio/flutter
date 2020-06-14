@@ -1,0 +1,28 @@
+{
+  "asset": "asset:mex_bloc/lib/src/user/service.dart",
+  "summary": {
+    "injector": [],
+    "module": [
+      {
+        "name": "UserService",
+        "providers": [
+          {
+            "name": "userRepo",
+            "kind": "method",
+            "injectedType": {
+              "lookupKey": {
+                "root": "asset:mex_bloc/lib/src/user/service.dart#UserRepo",
+                "qualifier": null
+              },
+              "isProvider": false
+            },
+            "singleton": false,
+            "asynchronous": false,
+            "dependencies": []
+          }
+        ]
+      }
+    ],
+    "injectable": []
+  }
+}

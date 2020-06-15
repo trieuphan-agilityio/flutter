@@ -41,25 +41,16 @@ class DateRangePickerField extends FormField<DateTimeRange> {
           initialValue: initialDateRange,
           builder: (FormFieldState<DateTimeRange> field) {
             final state = field as _DateRangePickerFieldState;
-            final startDate = state.startDate;
-            final endDate = state.endDate;
-
             return InputDateRangePicker(
-              initialStartDate: startDate,
-              initialEndDate: endDate,
+              initialStartDate: state.startDate,
+              initialEndDate: state.endDate,
               firstDate: firstDate,
               lastDate: lastDate,
               onStartDateChanged: (DateTime value) {
                 state.startDate = value;
-                print(state.startDate);
-                if (startDate != null && endDate != null)
-                  state.onDateRangeChanged();
               },
               onEndDateChanged: (DateTime value) {
                 state.endDate = value;
-                print(state.endDate);
-                if (startDate != null && endDate != null)
-                  state.onDateRangeChanged();
               },
             );
           },
@@ -127,24 +118,21 @@ class DateRangePickerField extends FormField<DateTimeRange> {
 }
 
 class _DateRangePickerFieldState extends FormFieldState<DateTimeRange> {
-  DateTime startDate;
-  DateTime endDate;
+  DateTime _startDate;
+  DateTime _endDate;
 
-  @override
-  void initState() {
-    if (widget.initialDateRange != null) {
-      startDate = widget.initialDateRange.start;
-      endDate = widget.initialDateRange.end;
-    }
-    super.initState();
+  DateTime get startDate => value == null ? null : value.start;
+  set startDate(newValue) {
+    _startDate = newValue;
+    if (_startDate != null && _endDate != null)
+      didChange(DateTimeRange(start: _startDate, end: _endDate));
   }
 
-  void onDateRangeChanged() {
-    setState(() {});
-    widget.onSaved(DateTimeRange(
-      start: startDate,
-      end: endDate,
-    ));
+  DateTime get endDate => value == null ? null : value.end;
+  set endDate(newValue) {
+    _endDate = newValue;
+    if (_startDate != null && _endDate != null)
+      didChange(DateTimeRange(start: _startDate, end: _endDate));
   }
 
   @override

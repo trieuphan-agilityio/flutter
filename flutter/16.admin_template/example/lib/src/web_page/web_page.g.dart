@@ -16,7 +16,7 @@ class _$WebPage extends WebPage {
   @override
   final DateTime firstPublishedAt;
   @override
-  final DateTime lastPublishedAt;
+  final DateTimeRange publishDateRange;
 
   factory _$WebPage([void Function(WebPageBuilder) updates]) =>
       (new WebPageBuilder()..update(updates)).build();
@@ -26,7 +26,7 @@ class _$WebPage extends WebPage {
       this.slug,
       this.live,
       this.firstPublishedAt,
-      this.lastPublishedAt})
+      this.publishDateRange})
       : super._() {
     if (title == null) {
       throw new BuiltValueNullFieldError('WebPage', 'title');
@@ -54,7 +54,7 @@ class _$WebPage extends WebPage {
         slug == other.slug &&
         live == other.live &&
         firstPublishedAt == other.firstPublishedAt &&
-        lastPublishedAt == other.lastPublishedAt;
+        publishDateRange == other.publishDateRange;
   }
 
   @override
@@ -62,7 +62,7 @@ class _$WebPage extends WebPage {
     return $jf($jc(
         $jc($jc($jc($jc(0, title.hashCode), slug.hashCode), live.hashCode),
             firstPublishedAt.hashCode),
-        lastPublishedAt.hashCode));
+        publishDateRange.hashCode));
   }
 
   @override
@@ -72,7 +72,7 @@ class _$WebPage extends WebPage {
           ..add('slug', slug)
           ..add('live', live)
           ..add('firstPublishedAt', firstPublishedAt)
-          ..add('lastPublishedAt', lastPublishedAt))
+          ..add('publishDateRange', publishDateRange))
         .toString();
   }
 }
@@ -97,10 +97,10 @@ class WebPageBuilder implements Builder<WebPage, WebPageBuilder> {
   set firstPublishedAt(DateTime firstPublishedAt) =>
       _$this._firstPublishedAt = firstPublishedAt;
 
-  DateTime _lastPublishedAt;
-  DateTime get lastPublishedAt => _$this._lastPublishedAt;
-  set lastPublishedAt(DateTime lastPublishedAt) =>
-      _$this._lastPublishedAt = lastPublishedAt;
+  DateTimeRange _publishDateRange;
+  DateTimeRange get publishDateRange => _$this._publishDateRange;
+  set publishDateRange(DateTimeRange publishDateRange) =>
+      _$this._publishDateRange = publishDateRange;
 
   WebPageBuilder();
 
@@ -110,7 +110,7 @@ class WebPageBuilder implements Builder<WebPage, WebPageBuilder> {
       _slug = _$v.slug;
       _live = _$v.live;
       _firstPublishedAt = _$v.firstPublishedAt;
-      _lastPublishedAt = _$v.lastPublishedAt;
+      _publishDateRange = _$v.publishDateRange;
       _$v = null;
     }
     return this;
@@ -137,7 +137,7 @@ class WebPageBuilder implements Builder<WebPage, WebPageBuilder> {
             slug: slug,
             live: live,
             firstPublishedAt: firstPublishedAt,
-            lastPublishedAt: lastPublishedAt);
+            publishDateRange: publishDateRange);
     replace(_$result);
     return _$result;
   }

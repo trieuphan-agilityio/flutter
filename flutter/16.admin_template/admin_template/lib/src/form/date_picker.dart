@@ -1,8 +1,8 @@
+import 'package:admin_template_core/core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'date_utils.dart' as utils;
 import 'field_utils.dart' as field_utils;
 
 const double _kDatePickerDropdownWidth = 256.0;
@@ -27,9 +27,9 @@ class DatePickerField extends StatefulWidget {
     this.autofocus = false,
   })  : assert(firstDate != null),
         assert(lastDate != null),
-        initialDate = initialDate != null ? utils.dateOnly(initialDate) : null,
-        firstDate = utils.dateOnly(firstDate),
-        lastDate = utils.dateOnly(lastDate),
+        initialDate = initialDate != null ? dateOnly(initialDate) : null,
+        firstDate = dateOnly(firstDate),
+        lastDate = dateOnly(lastDate),
         super(key: key);
 
   /// If provided, it will be used as the default value of the field.

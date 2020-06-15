@@ -5,9 +5,10 @@
 import 'dart:math' as math;
 
 import 'package:admin_template/src/utils/line_painter.dart';
+import 'package:admin_template_core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide DateTimeRange;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -72,14 +73,14 @@ class CalendarDateRangePicker extends StatefulWidget {
     DateTime currentDate,
     @required this.onDateRangeChanged,
   })  : initialStartDate =
-            initialStartDate != null ? utils.dateOnly(initialStartDate) : null,
+            initialStartDate != null ? dateOnly(initialStartDate) : null,
         initialEndDate =
-            initialEndDate != null ? utils.dateOnly(initialEndDate) : null,
+            initialEndDate != null ? dateOnly(initialEndDate) : null,
         assert(firstDate != null),
         assert(lastDate != null),
-        firstDate = utils.dateOnly(firstDate),
-        lastDate = utils.dateOnly(lastDate),
-        currentDate = utils.dateOnly(currentDate ?? DateTime.now()),
+        firstDate = dateOnly(firstDate),
+        lastDate = dateOnly(lastDate),
+        currentDate = dateOnly(currentDate ?? DateTime.now()),
         super(key: key) {
     assert(
         this.initialStartDate == null ||
@@ -136,7 +137,7 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
     final DateTime initialDate = widget.initialStartDate ?? widget.currentDate;
     if (widget.firstDate.isBefore(initialDate) &&
         widget.lastDate.isAfter(initialDate)) {
-      _initialMonthIndex = utils.monthDelta(widget.firstDate, initialDate);
+      _initialMonthIndex = monthDelta(widget.firstDate, initialDate);
     }
 
     _showWeekBottomDivider = _initialMonthIndex != 0;
@@ -162,8 +163,7 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
 
   /// Number of months that are selectable, the period time is from [firstDate]
   /// to [lastDate].
-  int get _numberOfMonths =>
-      utils.monthDelta(widget.firstDate, widget.lastDate) + 1;
+  int get _numberOfMonths => monthDelta(widget.firstDate, widget.lastDate) + 1;
 
   void _vibrate() {
     switch (Theme.of(context).platform) {
@@ -464,7 +464,7 @@ class _MonthItem extends StatelessWidget {
     } else if (isDisabled) {
       itemStyle = textTheme.bodyText2
           ?.apply(color: colorScheme.onSurface.withOpacity(0.38));
-    } else if (utils.isSameDay(currentDate, dayToBuild)) {
+    } else if (isSameDay(currentDate, dayToBuild)) {
       // The current day gets a different text color and a circle stroke
       // border.
       itemStyle = textTheme.bodyText2?.apply(color: colorScheme.primary);

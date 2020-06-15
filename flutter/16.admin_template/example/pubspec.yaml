@@ -24,11 +24,14 @@ dependencies:
   flutter:
     sdk: flutter
 
+  admin_template:
+      path: ../admin_template
+
+  admin_template_core:
+    path: ../admin_template_core
+
   built_collection: '>=2.0.0 <5.0.0'
   built_value: ^7.0.2
-
-  admin_template:
-    path: ../admin_template
 
 dev_dependencies:
   flutter_test:

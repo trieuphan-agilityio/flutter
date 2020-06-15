@@ -25,11 +25,11 @@ class UserRole extends EnumClass {
 /// ===================================================================
 
 abstract class User implements Built<User, UserBuilder> {
-  @AgText(required: true)
+  @AgText(isRequired: true)
   String get username;
 
   @AgEmail(
-    required: true,
+    isRequired: true,
     hintText: 'Your business email address',
     labelText: 'E-mail',
   )
@@ -51,7 +51,7 @@ abstract class User implements Built<User, UserBuilder> {
   String get bio;
 
   @AgPassword(
-    required: true,
+    isRequired: true,
     minLength: 8,
     helperText: 'Must have at least 8 characters.',
     labelText: 'Password',
@@ -70,7 +70,7 @@ abstract class User implements Built<User, UserBuilder> {
   bool get acceptPromotionalEmail;
 
   @AgList(
-    required: true,
+    isRequired: true,
     choices: _kGroupChoices,
     helperText: 'The groups this user belongs to.',
   )

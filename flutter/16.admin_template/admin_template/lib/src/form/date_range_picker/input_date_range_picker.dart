@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/material.dart';
+import 'package:admin_template_core/core.dart';
+import 'package:flutter/material.dart' hide DateTimeRange;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../date_utils.dart' as utils;
 import '../field_utils.dart' as field_utils;
 import 'calendar_date_range_picker.dart';
 
@@ -40,13 +40,13 @@ class InputDateRangePicker extends StatefulWidget {
     this.autofocus = false,
     this.autovalidate = false,
   })  : initialStartDate =
-            initialStartDate == null ? null : utils.dateOnly(initialStartDate),
+            initialStartDate == null ? null : dateOnly(initialStartDate),
         initialEndDate =
-            initialEndDate == null ? null : utils.dateOnly(initialEndDate),
+            initialEndDate == null ? null : dateOnly(initialEndDate),
         assert(firstDate != null),
-        firstDate = utils.dateOnly(firstDate),
+        firstDate = dateOnly(firstDate),
         assert(lastDate != null),
-        lastDate = utils.dateOnly(lastDate),
+        lastDate = dateOnly(lastDate),
         assert(firstDate != null),
         assert(lastDate != null),
         assert(autofocus != null),
@@ -317,20 +317,47 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
       Offset.zero & overlay.size,
     );
 
+    var initialStartDate;
+    var initialEndDate;
+
+    void resetInitialDateRange() {
+      initialStartDate = null;
+      initialEndDate = null;
+    }
+
+    // reset initial date range if the value is invalid.
+    if (widget.initialStartDate != null &&
+        widget.initialStartDate.isBefore(widget.firstDate)) {
+      resetInitialDateRange();
+    } else if (widget.initialEndDate != null &&
+        widget.initialEndDate.isAfter(widget.initialEndDate)) {
+      resetInitialDateRange();
+    } else if (widget.initialStartDate == null ||
+        widget.initialEndDate == null) {
+      resetInitialDateRange();
+    } else {
+      initialStartDate = widget.initialStartDate;
+      initialEndDate = widget.initialEndDate;
+    }
+
     final selectedDateRange = await _doShowDateRangePicker(
       context: context,
       position: position,
-      initialStartDate: widget.initialStartDate,
-      initialEndDate: widget.initialEndDate,
+      initialStartDate: initialStartDate,
+      initialEndDate: initialEndDate,
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
     );
 
     if (selectedDateRange == null) return;
 
-    print('changed $selectedDateRange');
-    _handleStartChanged(_formatDate(selectedDateRange.start));
-    _handleEndChanged(_formatDate(selectedDateRange.end));
+    final startText = _formatDate(selectedDateRange.start);
+    _startController.text = startText;
+    _handleStartChanged(startText);
+
+    final endText = _formatDate(selectedDateRange.end);
+    _endController.text = endText;
+    _handleEndChanged(endText);
   }
 }
 

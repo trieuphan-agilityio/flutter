@@ -1,3 +1,4 @@
+import 'package:admin_template_core/core.dart';
 import 'package:meta/meta.dart';
 
 class AgName {
@@ -53,7 +54,7 @@ class AgRegExp {
 
 abstract class AgBase<T> {
   T get initialValue;
-  bool get required;
+  bool get isRequired;
   String get hintText;
   String get labelText;
   String get helperText;
@@ -63,7 +64,7 @@ class AgText implements AgBase<String> {
   final int minLength;
   final int maxLength;
   final String initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
@@ -72,7 +73,7 @@ class AgText implements AgBase<String> {
     this.minLength,
     this.maxLength,
     this.initialValue,
-    this.required,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -83,7 +84,7 @@ class AgPassword implements AgBase<String> {
   final int minLength;
   final int maxLength;
   final String initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
@@ -92,7 +93,7 @@ class AgPassword implements AgBase<String> {
     this.minLength,
     this.maxLength,
     this.initialValue,
-    this.required,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -102,7 +103,7 @@ class AgPassword implements AgBase<String> {
 class AgEmail implements AgBase<String> {
   final String pattern;
   final String initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
@@ -110,7 +111,7 @@ class AgEmail implements AgBase<String> {
   const AgEmail({
     this.pattern,
     this.initialValue,
-    this.required,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -119,14 +120,14 @@ class AgEmail implements AgBase<String> {
 
 class AgRelated<T> implements AgBase<T> {
   final T initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
 
   const AgRelated({
     this.initialValue,
-    this.required,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -135,14 +136,14 @@ class AgRelated<T> implements AgBase<T> {
 
 class AgBool implements AgBase<bool> {
   final bool initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
 
   const AgBool({
     this.initialValue,
-    this.required,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -153,7 +154,7 @@ class AgInt implements AgBase<int> {
   final int minLength;
   final int maxLength;
   final int initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
@@ -162,7 +163,27 @@ class AgInt implements AgBase<int> {
     this.minLength,
     this.maxLength,
     this.initialValue,
-    this.required,
+    this.isRequired,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+  });
+}
+
+class AgDateRange implements AgBase<DateTimeRange> {
+  final DateTimeRange initialValue;
+  final String startDate;
+  final String endDate;
+  final bool isRequired;
+  final String hintText;
+  final String labelText;
+  final String helperText;
+
+  const AgDateRange({
+    this.initialValue,
+    @required this.startDate,
+    @required this.endDate,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
@@ -172,7 +193,7 @@ class AgInt implements AgBase<int> {
 class AgList implements AgBase<List<String>> {
   final List<String> choices;
   final List<String> initialValue;
-  final bool required;
+  final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
@@ -180,7 +201,7 @@ class AgList implements AgBase<List<String>> {
   const AgList({
     this.choices,
     this.initialValue,
-    this.required,
+    this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,

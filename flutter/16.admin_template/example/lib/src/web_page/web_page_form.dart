@@ -44,7 +44,7 @@ class _WebPageFormState extends State<WebPageForm> {
                     children: [
                       firstPublishedAt,
                       const SizedBox(height: 24),
-                      lastPublishedAt,
+                      publishDateRange,
                       const SizedBox(height: 24),
                       Row(children: [
                         RaisedButton(
@@ -96,13 +96,12 @@ class _WebPageFormState extends State<WebPageForm> {
     );
   }
 
-  Widget get lastPublishedAt {
+  Widget get publishDateRange {
     return DateRangePickerField(
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(Duration(days: 90)),
       onDateRangeSaved: (newValue) {
-        print('saved ${newValue.start.toIso8601String()},'
-            ' ended at ${newValue.end.toIso8601String()}');
+        model = model.rebuild((b) => b..publishDateRange = newValue);
       },
     );
   }

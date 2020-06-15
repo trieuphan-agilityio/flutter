@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:admin_template_core/core.dart';
+import 'package:flutter/material.dart' hide DateTimeRange;
 import 'package:flutter/widgets.dart';
 
-import '../date_utils.dart' as utils;
 import 'input_date_range_picker.dart';
 
 const double _kDateRangePickerDropdownWidth = 512.0;
@@ -28,9 +28,9 @@ class DateRangePickerField extends StatefulWidget {
   })  : assert(firstDate != null),
         assert(lastDate != null),
         initialDateRange =
-            initialDateRange != null ? utils.datesOnly(initialDateRange) : null,
-        firstDate = utils.dateOnly(firstDate),
-        lastDate = utils.dateOnly(lastDate),
+            initialDateRange != null ? datesOnly(initialDateRange) : null,
+        firstDate = dateOnly(firstDate),
+        lastDate = dateOnly(lastDate),
         super(key: key);
 
   /// If provided, it will be used as the default value of the field.
@@ -116,19 +116,23 @@ class _DateRangePickerFieldState extends State<DateRangePickerField> {
       lastDate: widget.lastDate,
       onStartDateChanged: (DateTime value) {
         startDate = value;
-        if (startDate != null && endDate != null)
+        if (startDate != null && endDate != null) {
+          setState(() {});
           widget.onDateRangeSaved(DateTimeRange(
             start: startDate,
             end: endDate,
           ));
+        }
       },
       onEndDateChanged: (DateTime value) {
         endDate = value;
-        if (startDate != null && endDate != null)
+        if (startDate != null && endDate != null) {
+          setState(() {});
           widget.onDateRangeSaved(DateTimeRange(
             start: startDate,
             end: endDate,
           ));
+        }
       },
     );
   }

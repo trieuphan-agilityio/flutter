@@ -88,6 +88,7 @@ class _WebPageFormState extends State<WebPageForm> {
 
   Widget get firstPublishedAt {
     return DatePickerField(
+      initialDate: model.firstPublishedAt,
       firstDate: DateTime.now().subtract(Duration(days: 7)),
       lastDate: DateTime.now().add(Duration(days: 30)),
       onDateSaved: (newValue) {
@@ -98,9 +99,10 @@ class _WebPageFormState extends State<WebPageForm> {
 
   Widget get publishDateRange {
     return DateRangePickerField(
+      initialDateRange: model.publishDateRange,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(Duration(days: 90)),
-      onDateRangeSaved: (newValue) {
+      onSaved: (newValue) {
         model = model.rebuild((b) => b..publishDateRange = newValue);
       },
     );

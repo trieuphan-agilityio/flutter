@@ -7,7 +7,7 @@ import 'input_date_range_picker.dart';
 const double _kDateRangePickerDropdownWidth = 512.0;
 const double _kDateRangePickerDropdownHeight = 280.0;
 
-class DateRangePickerField extends StatefulWidget {
+class DateRangePickerField extends FormField<DateTimeRange> {
   DateRangePickerField({
     Key key,
     DateTimeRange initialDateRange,
@@ -24,6 +24,9 @@ class DateRangePickerField extends StatefulWidget {
     this.hintText,
     this.helperText,
     this.prefixText,
+    ValueChanged<DateTimeRange> onChanged,
+    FormFieldSetter<DateTimeRange> onSaved,
+    FormFieldValidator<DateTimeRange> validator,
     this.autofocus = false,
   })  : assert(firstDate != null),
         assert(lastDate != null),
@@ -31,7 +34,36 @@ class DateRangePickerField extends StatefulWidget {
             initialDateRange != null ? datesOnly(initialDateRange) : null,
         firstDate = dateOnly(firstDate),
         lastDate = dateOnly(lastDate),
-        super(key: key);
+        super(
+          key: key,
+          onSaved: onSaved,
+          validator: validator,
+          initialValue: initialDateRange,
+          builder: (FormFieldState<DateTimeRange> field) {
+            final state = field as _DateRangePickerFieldState;
+            final startDate = state.startDate;
+            final endDate = state.endDate;
+
+            return InputDateRangePicker(
+              initialStartDate: startDate,
+              initialEndDate: endDate,
+              firstDate: firstDate,
+              lastDate: lastDate,
+              onStartDateChanged: (DateTime value) {
+                state.startDate = value;
+                print(state.startDate);
+                if (startDate != null && endDate != null)
+                  state.onDateRangeChanged();
+              },
+              onEndDateChanged: (DateTime value) {
+                state.endDate = value;
+                print(state.endDate);
+                if (startDate != null && endDate != null)
+                  state.onDateRangeChanged();
+              },
+            );
+          },
+        );
 
   /// If provided, it will be used as the default value of the field.
   final DateTimeRange initialDateRange;
@@ -94,7 +126,7 @@ class DateRangePickerField extends StatefulWidget {
   _DateRangePickerFieldState createState() => _DateRangePickerFieldState();
 }
 
-class _DateRangePickerFieldState extends State<DateRangePickerField> {
+class _DateRangePickerFieldState extends FormFieldState<DateTimeRange> {
   DateTime startDate;
   DateTime endDate;
 
@@ -107,33 +139,14 @@ class _DateRangePickerFieldState extends State<DateRangePickerField> {
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return InputDateRangePicker(
-      initialStartDate: startDate,
-      initialEndDate: endDate,
-      firstDate: widget.firstDate,
-      lastDate: widget.lastDate,
-      onStartDateChanged: (DateTime value) {
-        startDate = value;
-        if (startDate != null && endDate != null) {
-          setState(() {});
-          widget.onDateRangeSaved(DateTimeRange(
-            start: startDate,
-            end: endDate,
-          ));
-        }
-      },
-      onEndDateChanged: (DateTime value) {
-        endDate = value;
-        if (startDate != null && endDate != null) {
-          setState(() {});
-          widget.onDateRangeSaved(DateTimeRange(
-            start: startDate,
-            end: endDate,
-          ));
-        }
-      },
-    );
+  void onDateRangeChanged() {
+    setState(() {});
+    widget.onSaved(DateTimeRange(
+      start: startDate,
+      end: endDate,
+    ));
   }
+
+  @override
+  DateRangePickerField get widget => super.widget as DateRangePickerField;
 }

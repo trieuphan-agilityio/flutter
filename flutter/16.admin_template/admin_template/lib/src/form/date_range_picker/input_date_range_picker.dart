@@ -325,6 +325,9 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
       initialEndDate = null;
     }
 
+    print('widget.initialStartDate ${widget.initialStartDate}');
+    print('widget.initialEndDate ${widget.initialEndDate}');
+
     // reset initial date range if the value is invalid.
     if (widget.initialStartDate != null &&
         widget.initialStartDate.isBefore(widget.firstDate)) {
@@ -339,6 +342,9 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
       initialStartDate = widget.initialStartDate;
       initialEndDate = widget.initialEndDate;
     }
+
+    print('initialStartDate ${initialStartDate}');
+    print('initialEndDate ${initialEndDate}');
 
     final selectedDateRange = await _doShowDateRangePicker(
       context: context,

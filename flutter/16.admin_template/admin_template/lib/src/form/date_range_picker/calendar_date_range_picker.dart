@@ -15,13 +15,16 @@ import 'package:flutter/widgets.dart';
 
 import '../date_utils.dart' as utils;
 
-const double _monthItemHeaderHeight = 58.0;
-const double _monthItemFooterHeight = 12.0;
-const double _monthItemRowHeight = 28.0;
-const double _monthItemSpaceBetweenRows = 8.0;
+const int _maxDayPickerRowCount = 6; // A 31 day month that starts on Saturday.
+const double _dayPickerRowHeight = 28.0;
 const double _horizontalPadding = 8.0;
-const double _maxCalendarWidth = 256.0;
 const double _maxCalendarHeight = 280.0;
+const double _maxCalendarWidth = 256.0;
+const double _monthItemFooterHeight = 8.0;
+const double _monthItemHeaderHeight = 58.0;
+const double _monthItemRowHeight = 28.0;
+const double _monthItemSpaceBetweenRows = 4.0;
+const double _monthPickerHorizontalPadding = 8.0;
 const Widget _kMonthDivider = VerticalDivider(width: 1.0, thickness: 1.0);
 
 /// Displays a grid of days for a given month and allows the user to select a date.
@@ -275,33 +278,37 @@ class _CalendarDateRangePickerState extends State<CalendarDateRangePicker> {
   Widget build(BuildContext context) {
     const Key sliverAfterKey = Key('sliverAfterKey');
 
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: CustomScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: _controller,
-            center: sliverAfterKey,
-            physics: const ClampingScrollPhysics(),
-            slivers: <Widget>[
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return _buildMonthItem(context, index, true);
-                  },
-                  childCount: _initialMonthIndex,
-                ),
+    return Stack(
+      children: [
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: CustomScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _controller,
+                center: sliverAfterKey,
+                physics: const NeverScrollableScrollPhysics(),
+                slivers: <Widget>[
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return _buildMonthItem(context, index, true);
+                      },
+                      childCount: _initialMonthIndex,
+                    ),
+                  ),
+                  SliverList(
+                    key: sliverAfterKey,
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) =>
+                          _buildMonthItem(context, index, false),
+                      childCount: _numberOfMonths - _initialMonthIndex,
+                    ),
+                  ),
+                ],
               ),
-              SliverList(
-                key: sliverAfterKey,
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) =>
-                      _buildMonthItem(context, index, false),
-                  childCount: _numberOfMonths - _initialMonthIndex,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
@@ -667,34 +674,6 @@ class _MonthItem extends StatelessWidget {
       decoratedDayItems =
           _buildHoverDecoration(context, dayItems, weeks, dayOffset);
 
-    // hover
-//      final bool isOnHover = selectedDateStart != null && dateOnHover != null;
-//      final bool isInHoverRange = isOnHover &&
-//          dayToBuild.isAfter(selectedDateStart) &&
-//          dayToBuild.isBefore(dateOnHover);
-//      final bool isDateOnHover =
-//          dateOnHover != null && dayToBuild.isAtSameMomentAs(dateOnHover);
-
-//      if (isDateOnHover) {
-//        decoration = BoxDecoration(
-//          border: Border.all(color: colorScheme.primary, width: 1),
-//          shape: BoxShape.circle,
-//        );
-//        highlightPainter = _HighlightPainter(
-//          color: highlightColor,
-//          style: _HighlightPainterStyle.highlightTrailingOnHover,
-//          textDirection: textDirection,
-//        );
-//      } else if (isInHoverRange) {
-//        // The days within the on hover range get an outline background highlight.
-//        highlightPainter = _HighlightPainter(
-//          color: highlightColor,
-//          style: _HighlightPainterStyle.highlightAllOnHover,
-//          textDirection: textDirection,
-//        );
-//      }
-//    }
-
     // Add the leading/trailing edge containers to each week in order to
     // correctly extend the range highlight.
     final List<Widget> paddedDayItems = <Widget>[];
@@ -742,7 +721,7 @@ class _MonthItem extends StatelessWidget {
           constraints: BoxConstraints(maxWidth: _maxCalendarWidth),
           height: _monthItemHeaderHeight,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: AlignmentDirectional.centerStart,
+          alignment: AlignmentDirectional.center,
           child: ExcludeSemantics(
             child: Text(
               localizations.formatMonthYear(displayedMonth),
@@ -754,19 +733,112 @@ class _MonthItem extends StatelessWidget {
         Container(
           constraints: BoxConstraints.tightFor(
             width: _maxCalendarWidth,
-            height: gridHeight,
+            height: _dayPickerRowHeight,
           ),
-          child: GridView.custom(
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: _monthItemGridDelegate,
-            childrenDelegate: SliverChildListDelegate(
-              paddedDayItems,
-              addRepaintBoundaries: false,
+          child: _DayHeaders(),
+        ),
+        Expanded(
+          child: Container(
+            constraints: BoxConstraints.tightFor(
+              width: _maxCalendarWidth,
+              height: gridHeight,
+            ),
+            child: GridView.custom(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: _monthItemGridDelegate,
+              childrenDelegate: SliverChildListDelegate(
+                paddedDayItems,
+                addRepaintBoundaries: false,
+              ),
             ),
           ),
         ),
-        const SizedBox(height: _monthItemFooterHeight),
+        //const SizedBox(height: _monthItemFooterHeight),
       ],
+    );
+  }
+}
+
+class _DayPickerGridDelegate extends SliverGridDelegate {
+  const _DayPickerGridDelegate();
+
+  @override
+  SliverGridLayout getLayout(SliverConstraints constraints) {
+    const int columnCount = DateTime.daysPerWeek;
+    final double tileWidth = constraints.crossAxisExtent / columnCount;
+    final double tileHeight = _dayPickerRowHeight;
+    return SliverGridRegularTileLayout(
+      childCrossAxisExtent: tileWidth,
+      childMainAxisExtent: tileHeight,
+      crossAxisCount: columnCount,
+      crossAxisStride: tileWidth,
+      mainAxisStride: tileHeight,
+      reverseCrossAxis: axisDirectionIsReversed(constraints.crossAxisDirection),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_DayPickerGridDelegate oldDelegate) => false;
+}
+
+const _DayPickerGridDelegate _dayPickerGridDelegate = _DayPickerGridDelegate();
+
+class _DayHeaders extends StatelessWidget {
+  /// Builds widgets showing abbreviated days of week. The first widget in the
+  /// returned list corresponds to the first day of week for the current locale.
+  ///
+  /// Examples:
+  ///
+  /// ```
+  /// ┌ Sunday is the first day of week in the US (en_US)
+  /// |
+  /// S M T W T F S  <-- the returned list contains these widgets
+  /// _ _ _ _ _ 1 2
+  /// 3 4 5 6 7 8 9
+  ///
+  /// ┌ But it's Monday in the UK (en_GB)
+  /// |
+  /// M T W T F S S  <-- the returned list contains these widgets
+  /// _ _ _ _ 1 2 3
+  /// 4 5 6 7 8 9 10
+  /// ```
+  List<Widget> _getDayHeaders(
+      TextStyle headerStyle, MaterialLocalizations localizations) {
+    final List<Widget> result = <Widget>[];
+    for (int i = localizations.firstDayOfWeekIndex; true; i = (i + 1) % 7) {
+      final String weekday = localizations.narrowWeekdays[i];
+      result.add(ExcludeSemantics(
+        child: Center(child: Text(weekday, style: headerStyle)),
+      ));
+      if (i == (localizations.firstDayOfWeekIndex - 1) % 7) break;
+    }
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextStyle dayHeaderStyle = theme.textTheme.caption?.apply(
+      color: colorScheme.onSurface.withOpacity(0.60),
+    );
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
+    final List<Widget> labels = _getDayHeaders(dayHeaderStyle, localizations);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: _monthPickerHorizontalPadding,
+      ),
+      child: GridView.custom(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: _dayPickerGridDelegate,
+        childrenDelegate: SliverChildListDelegate(
+          labels,
+          addRepaintBoundaries: false,
+        ),
+      ),
     );
   }
 }

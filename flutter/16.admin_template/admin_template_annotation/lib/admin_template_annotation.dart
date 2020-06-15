@@ -171,23 +171,22 @@ class AgInt implements AgBase<int> {
 }
 
 class AgDateRange implements AgBase<DateTimeRange> {
-  final DateTimeRange initialValue;
-  final String startDate;
-  final String endDate;
   final bool isRequired;
   final String hintText;
   final String labelText;
   final String helperText;
 
   const AgDateRange({
-    this.initialValue,
-    @required this.startDate,
-    @required this.endDate,
     this.isRequired,
     this.hintText,
     this.labelText,
     this.helperText,
   });
+
+  // The DateTime value cannot assign to const variable. It's impossible to
+  // construct a const DateTimeRange variable.
+  @override
+  DateTimeRange get initialValue => null;
 }
 
 class AgList implements AgBase<List<String>> {

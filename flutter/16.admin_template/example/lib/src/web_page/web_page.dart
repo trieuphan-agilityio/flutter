@@ -21,7 +21,6 @@ abstract class WebPage implements Built<WebPage, WebPageBuilder> {
   DateTime get firstPublishedAt;
 
   @nullable
-  @AgDateRange(startDate: '06/20/2020', endDate: '07/01/2020')
   DateTimeRange get publishDateRange;
 
   factory WebPage([void Function(WebPageBuilder) updates]) = _$WebPage;

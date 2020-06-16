@@ -23,12 +23,11 @@ class InputDateRangePicker extends StatefulWidget {
   /// of a date range.
   InputDateRangePicker({
     Key key,
-    DateTime initialStartDate,
-    DateTime initialEndDate,
+    @required this.startController,
+    @required this.endController,
     @required DateTime firstDate,
     @required DateTime lastDate,
-    @required this.onStartDateChanged,
-    @required this.onEndDateChanged,
+    @required this.onDateRangeChanged,
     this.helpText,
     this.errorFormatText,
     this.errorInvalidText,
@@ -38,26 +37,14 @@ class InputDateRangePicker extends StatefulWidget {
     this.fieldStartLabelText,
     this.fieldEndLabelText,
     this.autofocus = false,
-    this.autovalidate = false,
-  })  : initialStartDate =
-            initialStartDate == null ? null : dateOnly(initialStartDate),
-        initialEndDate =
-            initialEndDate == null ? null : dateOnly(initialEndDate),
-        assert(firstDate != null),
+  })  : assert(firstDate != null),
         firstDate = dateOnly(firstDate),
         assert(lastDate != null),
         lastDate = dateOnly(lastDate),
         assert(firstDate != null),
         assert(lastDate != null),
         assert(autofocus != null),
-        assert(autovalidate != null),
         super(key: key);
-
-  /// The [DateTime] that represents the start of the initial date range selection.
-  final DateTime initialStartDate;
-
-  /// The [DateTime] that represents the end of the initial date range selection.
-  final DateTime initialEndDate;
 
   /// The earliest allowable [DateTime] that the user can select.
   final DateTime firstDate;
@@ -65,11 +52,8 @@ class InputDateRangePicker extends StatefulWidget {
   /// The latest allowable [DateTime] that the user can select.
   final DateTime lastDate;
 
-  /// Called when the user changes the start date of the selected range.
-  final ValueChanged<DateTime> onStartDateChanged;
-
-  /// Called when the user changes the end date of the selected range.
-  final ValueChanged<DateTime> onEndDateChanged;
+  /// Called when the user changes the date range.
+  final ValueChanged<DateTimeRange> onDateRangeChanged;
 
   /// The text that is displayed at the top of the header.
   ///
@@ -102,10 +86,11 @@ class InputDateRangePicker extends StatefulWidget {
   /// {@macro flutter.widgets.editableText.autofocus}
   final bool autofocus;
 
-  /// If true, this the date fields will validate and update their error text
-  /// immediately after every change. Otherwise, you must call
-  /// [InputDateRangePickerState.validate] to validate.
-  final bool autovalidate;
+  /// Controls the text of the end date being edited.
+  final TextEditingController startController;
+
+  /// Controls the text of the start date being edited.
+  final TextEditingController endController;
 
   @override
   InputDateRangePickerState createState() => InputDateRangePickerState();
@@ -114,32 +99,9 @@ class InputDateRangePicker extends StatefulWidget {
 /// The current state of an [InputDateRangePicker]. Can be used to
 /// [validate] the date field entries.
 class InputDateRangePickerState extends State<InputDateRangePicker> {
-  String _startInputText;
-  String _endInputText;
   DateTime _startDate;
   DateTime _endDate;
-  TextEditingController _startController;
-  TextEditingController _endController;
-  String _startErrorText;
-  String _endErrorText;
-  bool _autoSelected = false;
   List<TextInputFormatter> _inputFormatters;
-
-  @override
-  void initState() {
-    super.initState();
-    _startDate = widget.initialStartDate;
-    _startController = TextEditingController();
-    _endDate = widget.initialEndDate;
-    _endController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _startController.dispose();
-    _endController.dispose();
-    super.dispose();
-  }
 
   @override
   void didChangeDependencies() {
@@ -149,39 +111,6 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
     _inputFormatters = <TextInputFormatter>[
       field_utils.DateTextInputFormatter(localizations.dateSeparator),
     ];
-    if (_startDate != null) {
-      _startInputText = localizations.formatCompactDate(_startDate);
-      final bool selectText = widget.autofocus && !_autoSelected;
-      _updateController(_startController, _startInputText, selectText);
-      _autoSelected = selectText;
-    }
-
-    if (_endDate != null) {
-      _endInputText = localizations.formatCompactDate(_endDate);
-      _updateController(_endController, _endInputText, false);
-    }
-  }
-
-  /// Validates that the text in the start and end fields represent a valid
-  /// date range.
-  ///
-  /// Will return true if the range is valid. If not, it will
-  /// return false and display an appropriate error message under one of the
-  /// text fields.
-  bool validate() {
-    String startError = _validateDate(_startDate);
-    final String endError = _validateDate(_endDate);
-    if (startError == null && endError == null) {
-      if (_startDate.isAfter(_endDate)) {
-        startError = widget.errorInvalidRangeText ??
-            MaterialLocalizations.of(context).invalidDateRangeLabel;
-      }
-    }
-    setState(() {
-      _startErrorText = startError;
-      _endErrorText = endError;
-    });
-    return startError == null && endError == null;
   }
 
   DateTime _parseDate(String text) {
@@ -196,51 +125,26 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
     return localizations.formatCompactDate(date);
   }
 
-  String _validateDate(DateTime date) {
-    if (date == null) {
-      return widget.errorFormatText ??
-          MaterialLocalizations.of(context).invalidDateFormatLabel;
-    } else if (date.isBefore(widget.firstDate) ||
-        date.isAfter(widget.lastDate)) {
-      return widget.errorInvalidText ??
-          MaterialLocalizations.of(context).dateOutOfRangeLabel;
-    }
-    return null;
-  }
-
-  void _updateController(
-      TextEditingController controller, String text, bool selectText) {
-    TextEditingValue textEditingValue = controller.value.copyWith(text: text);
-    if (selectText) {
-      textEditingValue = textEditingValue.copyWith(
-          selection: TextSelection(
-        baseOffset: 0,
-        extentOffset: text.length,
-      ));
-    }
-    controller.value = textEditingValue;
-  }
-
   void _handleStartChanged(String text) {
     setState(() {
-      _startInputText = text;
       _startDate = _parseDate(text);
-      widget.onStartDateChanged?.call(_startDate);
+      if (_startDate != null && _endDate != null)
+        widget.onDateRangeChanged?.call(DateTimeRange(
+          start: _startDate,
+          end: _endDate,
+        ));
     });
-    if (widget.autovalidate) {
-      validate();
-    }
   }
 
   void _handleEndChanged(String text) {
     setState(() {
-      _endInputText = text;
       _endDate = _parseDate(text);
-      widget.onEndDateChanged?.call(_endDate);
+      if (_startDate != null && _endDate != null)
+        widget.onDateRangeChanged?.call(DateTimeRange(
+          start: _startDate,
+          end: _endDate,
+        ));
     });
-    if (widget.autovalidate) {
-      validate();
-    }
   }
 
   @override
@@ -254,14 +158,14 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
       children: <Widget>[
         Expanded(
           child: TextField(
-            controller: _startController,
+            controller: widget.startController,
             decoration: InputDecoration(
               border: inputTheme.border ?? const UnderlineInputBorder(),
               filled: inputTheme.filled ?? true,
               hintText: widget.fieldStartHintText ?? localizations.dateHelpText,
               labelText: widget.fieldStartLabelText ??
                   localizations.dateRangeStartLabel,
-              errorText: _startErrorText,
+              errorText: widget.errorInvalidRangeText,
               suffixIcon: IconButton(
                 icon: Icon(Icons.date_range,
                     semanticLabel: 'open date range picker'),
@@ -277,14 +181,13 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
         const SizedBox(width: 8),
         Expanded(
           child: TextField(
-            controller: _endController,
+            controller: widget.endController,
             decoration: InputDecoration(
               border: inputTheme.border ?? const UnderlineInputBorder(),
               filled: inputTheme.filled ?? true,
               hintText: widget.fieldEndHintText ?? localizations.dateHelpText,
               labelText:
                   widget.fieldEndLabelText ?? localizations.dateRangeEndLabel,
-              errorText: _endErrorText,
               suffixIcon: IconButton(
                 icon: Icon(Icons.date_range,
                     semanticLabel: 'open date range picker'),
@@ -317,34 +220,27 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
       Offset.zero & overlay.size,
     );
 
-    var initialStartDate;
-    var initialEndDate;
+    var initialStartDate = _parseDate(widget.startController.text);
+    var initialEndDate = _parseDate(widget.endController.text);
 
     void resetInitialDateRange() {
       initialStartDate = null;
       initialEndDate = null;
     }
 
-    print('widget.initialStartDate ${widget.initialStartDate}');
-    print('widget.initialEndDate ${widget.initialEndDate}');
-
     // reset initial date range if the value is invalid.
-    if (widget.initialStartDate != null &&
-        widget.initialStartDate.isBefore(widget.firstDate)) {
+    if (initialStartDate != null &&
+        initialStartDate.isBefore(widget.firstDate)) {
       resetInitialDateRange();
-    } else if (widget.initialEndDate != null &&
-        widget.initialEndDate.isAfter(widget.initialEndDate)) {
+    } else if (initialEndDate != null &&
+        initialEndDate.isAfter(initialEndDate)) {
       resetInitialDateRange();
-    } else if (widget.initialStartDate == null ||
-        widget.initialEndDate == null) {
+    } else if (initialStartDate == null || initialEndDate == null) {
       resetInitialDateRange();
     } else {
-      initialStartDate = widget.initialStartDate;
-      initialEndDate = widget.initialEndDate;
+      initialStartDate = initialStartDate;
+      initialEndDate = initialEndDate;
     }
-
-    print('initialStartDate ${initialStartDate}');
-    print('initialEndDate ${initialEndDate}');
 
     final selectedDateRange = await _doShowDateRangePicker(
       context: context,
@@ -358,11 +254,9 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
     if (selectedDateRange == null) return;
 
     final startText = _formatDate(selectedDateRange.start);
-    _startController.text = startText;
     _handleStartChanged(startText);
 
     final endText = _formatDate(selectedDateRange.end);
-    _endController.text = endText;
     _handleEndChanged(endText);
   }
 }

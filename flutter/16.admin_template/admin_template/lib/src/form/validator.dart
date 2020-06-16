@@ -1,3 +1,4 @@
+import 'package:admin_template_core/core.dart';
 import 'package:meta/meta.dart';
 
 /// ===================================================================
@@ -11,11 +12,47 @@ abstract class Validator<T> {
   String get error;
 
   String call(T value);
+
+  factory Validator.dateRange({
+    @required String property,
+    DateTime start,
+    DateTime end,
+    Validator<dynamic> additionalValidator,
+  }) {
+    return CompositeValidator(
+      property: property,
+      validators: List<Validator<dynamic>>()
+        ..add(additionalValidator)
+        ..add(DateRangeValidator(property: property, start: start, end: end)),
+    );
+  }
+}
+
+class DateRangeValidator implements Validator<DateTimeRange> {
+  final String property;
+  final DateTime start;
+  final DateTime end;
+  final String error;
+
+  DateRangeValidator({
+    @required this.property,
+    @required this.start,
+    @required this.end,
+    String error,
+  })  : error = error ?? 'Selected dates are not in range.',
+        assert(start.isBefore(end), 'start must be before end.');
+
+  @override
+  String call(DateTimeRange value) {
+    if (value.start.isBefore(start) || value.end.isAfter(end)) return error;
+    return null;
+  }
 }
 
 class CompositeValidator<T> implements Validator<T> {
   final String property;
   final List<Validator> validators;
+  String _error;
 
   CompositeValidator({
     @required this.property,
@@ -25,13 +62,17 @@ class CompositeValidator<T> implements Validator<T> {
   String call(T value) {
     for (final validator in validators) {
       var error = validator.call(value);
-      if (error != null) return error;
+      if (error != null) {
+        _error = error;
+        return error;
+      }
     }
+    _error = null;
     return null;
   }
 
   @override
-  String get error => null;
+  String get error => _error;
 }
 
 class RegExpValidator implements Validator<String> {

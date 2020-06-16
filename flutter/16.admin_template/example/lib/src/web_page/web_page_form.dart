@@ -99,9 +99,15 @@ class _WebPageFormState extends State<WebPageForm> {
 
   Widget get publishDateRange {
     return DateRangePickerField(
-      initialDateRange: model.publishDateRange,
+      initialValue: model.publishDateRange,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(Duration(days: 90)),
+      validator: Validator.dateRange(
+        property: 'publishDateRange',
+        start: DateTime.now(),
+        end: DateTime.now().add(Duration(days: 90)),
+        additionalValidator: RequiredValidator(property: 'publishDateRange'),
+      ),
       onSaved: (newValue) {
         model = model.rebuild((b) => b..publishDateRange = newValue);
       },

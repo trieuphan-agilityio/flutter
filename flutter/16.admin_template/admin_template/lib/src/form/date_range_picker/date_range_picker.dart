@@ -4,13 +4,10 @@ import 'package:flutter/widgets.dart';
 
 import 'input_date_range_picker.dart';
 
-const double _kDateRangePickerDropdownWidth = 512.0;
-const double _kDateRangePickerDropdownHeight = 280.0;
-
 class DateRangePickerField extends FormField<DateTimeRange> {
   DateRangePickerField({
     Key key,
-    DateTimeRange initialDateRange,
+    DateTimeRange initialValue,
     @required DateTime firstDate,
     @required DateTime lastDate,
     this.decoration,
@@ -20,44 +17,50 @@ class DateRangePickerField extends FormField<DateTimeRange> {
     this.selectableEndDayPredicate,
     this.errorFormatText,
     this.errorInvalidText,
-    this.labelText,
-    this.hintText,
+    this.errorInvalidRangeText,
+    this.fieldStartHintText,
+    this.fieldEndHintText,
+    this.fieldStartLabelText,
+    this.fieldEndLabelText,
     this.helperText,
-    this.prefixText,
+    this.fieldStartPrefixText,
+    this.fieldEndPrefixText,
     ValueChanged<DateTimeRange> onChanged,
     FormFieldSetter<DateTimeRange> onSaved,
     FormFieldValidator<DateTimeRange> validator,
     this.autofocus = false,
   })  : assert(firstDate != null),
         assert(lastDate != null),
-        initialDateRange =
-            initialDateRange != null ? datesOnly(initialDateRange) : null,
+        initialValue = initialValue != null ? datesOnly(initialValue) : null,
         firstDate = dateOnly(firstDate),
         lastDate = dateOnly(lastDate),
         super(
           key: key,
           onSaved: onSaved,
           validator: validator,
-          initialValue: initialDateRange,
+          initialValue: initialValue,
           builder: (FormFieldState<DateTimeRange> field) {
             final state = field as _DateRangePickerFieldState;
             return InputDateRangePicker(
-              initialStartDate: state.startDate,
-              initialEndDate: state.endDate,
+              startController: state.startController,
+              endController: state.endController,
               firstDate: firstDate,
               lastDate: lastDate,
-              onStartDateChanged: (DateTime value) {
-                state.startDate = value;
-              },
-              onEndDateChanged: (DateTime value) {
-                state.endDate = value;
-              },
+              onDateRangeChanged: state.didChange,
+              helpText: helperText,
+              errorFormatText: errorFormatText,
+              errorInvalidText: errorInvalidText,
+              errorInvalidRangeText: state.errorText,
+              fieldStartHintText: fieldStartHintText,
+              fieldEndHintText: fieldEndHintText,
+              fieldStartLabelText: fieldStartLabelText,
+              fieldEndLabelText: fieldEndLabelText,
             );
           },
         );
 
   /// If provided, it will be used as the default value of the field.
-  final DateTimeRange initialDateRange;
+  final DateTimeRange initialValue;
 
   /// The earliest allowable [DateTime] that the user can input.
   final DateTime firstDate;
@@ -92,23 +95,30 @@ class DateRangePickerField extends FormField<DateTimeRange> {
   /// [lastDate], or doesn't pass the [selectableDayPredicate].
   final String errorInvalidText;
 
-  /// The label text displayed in the [TextField].
-  ///
-  /// If this is null, it will default to the words representing the date format
-  /// string. For example, 'Month, Day, Year' for en_US.
-  final String labelText;
+  /// Error text used to indicate the dates given don't form a valid date
+  /// range (i.e. the start date is after the end date).
+  final String errorInvalidRangeText;
 
-  /// The hint text displayed in the [TextField].
-  ///
-  /// If this is null, it will default to the date format string. For example,
-  /// 'mm/dd/yyyy' for en_US.
-  final String hintText;
+  /// Hint text shown when the start date field is empty.
+  final String fieldStartHintText;
 
-  /// The helper text displayed in the [TextField].
+  /// Hint text shown when the end date field is empty.
+  final String fieldEndHintText;
+
+  /// Label used for the start date field.
+  final String fieldStartLabelText;
+
+  /// Label used for the end date field.
+  final String fieldEndLabelText;
+
+  /// The helper text displayed in the [TextField]s.
   final String helperText;
 
-  /// The prefix text displayed in the [TextField].
-  final String prefixText;
+  /// The prefix text displayed in the start date [TextField].
+  final String fieldStartPrefixText;
+
+  /// The prefix text displayed in the end date [TextField].
+  final String fieldEndPrefixText;
 
   /// {@macro flutter.widgets.editableText.autofocus}
   final bool autofocus;
@@ -118,23 +128,70 @@ class DateRangePickerField extends FormField<DateTimeRange> {
 }
 
 class _DateRangePickerFieldState extends FormFieldState<DateTimeRange> {
-  DateTime _startDate;
-  DateTime _endDate;
+  /// Controls the start text being edited
+  TextEditingController startController = TextEditingController();
 
-  DateTime get startDate => value == null ? null : value.start;
-  set startDate(newValue) {
-    _startDate = newValue;
-    if (_startDate != null && _endDate != null)
-      didChange(DateTimeRange(start: _startDate, end: _endDate));
+  /// Controls the end text being edited
+  TextEditingController endController = TextEditingController();
+
+  @override
+  void dispose() {
+    startController.dispose();
+    endController.dispose();
+    super.dispose();
   }
 
-  DateTime get endDate => value == null ? null : value.end;
-  set endDate(newValue) {
-    _endDate = newValue;
-    if (_startDate != null && _endDate != null)
-      didChange(DateTimeRange(start: _startDate, end: _endDate));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final localizations = MaterialLocalizations.of(context);
+    if (value != null) {
+      final _startInputText = localizations.formatCompactDate(value.start);
+      _updateController(startController, _startInputText, true);
+
+      final _endInputText = localizations.formatCompactDate(value.end);
+      _updateController(endController, _endInputText, false);
+    }
+  }
+
+  @override
+  void didChange(DateTimeRange value) {
+    super.didChange(value);
+    final startText = _formatDate(value.start);
+    final endText = _formatDate(value.end);
+
+    if (startController.text != startText) startController.text = startText;
+    if (endController.text != endText) endController.text = endText;
+  }
+
+  @override
+  void reset() {
+    super.reset();
+    if (widget.initialValue != null) {
+      startController.text = _formatDate(widget.initialValue.start);
+      endController.text = _formatDate(widget.initialValue.end);
+    }
   }
 
   @override
   DateRangePickerField get widget => super.widget as DateRangePickerField;
+
+  void _updateController(
+    TextEditingController controller,
+    String text,
+    bool selectText,
+  ) {
+    TextEditingValue textEditingValue = controller.value.copyWith(text: text);
+    if (selectText) {
+      textEditingValue = textEditingValue.copyWith(
+        selection: TextSelection(baseOffset: 0, extentOffset: text.length),
+      );
+    }
+    controller.value = textEditingValue;
+  }
+
+  String _formatDate(DateTime date) {
+    final localizations = MaterialLocalizations.of(context);
+    return localizations.formatCompactDate(date);
+  }
 }

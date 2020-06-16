@@ -15,19 +15,17 @@ import 'package:flutter/widgets.dart';
 
 import '../date_utils.dart' as utils;
 
-const int _maxDayPickerRowCount = 6; // A 31 day month that starts on Saturday.
 const double _dayPickerRowHeight = 28.0;
 const double _horizontalPadding = 8.0;
-const double _maxCalendarHeight = 280.0;
 const double _maxCalendarWidth = 256.0;
-const double _monthItemFooterHeight = 8.0;
 const double _monthItemHeaderHeight = 58.0;
 const double _monthItemRowHeight = 28.0;
 const double _monthItemSpaceBetweenRows = 4.0;
 const double _monthPickerHorizontalPadding = 8.0;
 const Widget _kMonthDivider = VerticalDivider(width: 1.0, thickness: 1.0);
 
-/// Displays a grid of days for a given month and allows the user to select a date.
+/// Displays a grid of days for a given month and allows the user to select
+/// a date range.
 ///
 /// Days are arranged in a rectangular grid with one column for each day of the
 /// week. Controls are provided to change the year and month that the grid is

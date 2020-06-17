@@ -130,14 +130,12 @@ class _DatePickerFieldState extends State<DatePickerField> {
   }
 
   DateTime _parseDate(String text) {
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     return localizations.parseCompactDate(text);
   }
 
   String _formatDate(DateTime date) {
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     return localizations.formatCompactDate(date);
   }
 
@@ -185,8 +183,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
 
   @override
   Widget build(BuildContext context) {
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     final InputDecoration effectiveDecoration =
         (widget.decoration ?? const InputDecoration())
             .applyDefaults(Theme.of(context).inputDecorationTheme);
@@ -198,39 +195,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
         helperText: widget.helperText,
         suffixIcon: IconButton(
           icon: Icon(Icons.date_range, semanticLabel: 'open date picker'),
-          onPressed: () async {
-            final RenderBox datePicker =
-                context.findRenderObject() as RenderBox;
-            final RenderBox overlay =
-                Overlay.of(context).context.findRenderObject() as RenderBox;
-
-            // find position of the text field on the coordinate system of the
-            // overlay
-            final RelativeRect position = RelativeRect.fromRect(
-              Rect.fromPoints(
-                datePicker.localToGlobal(Offset.zero, ancestor: overlay),
-                datePicker.localToGlobal(
-                    datePicker.size.bottomRight(Offset.zero),
-                    ancestor: overlay),
-              ),
-              Offset.zero & overlay.size,
-            );
-
-            final pickedDate = await showDatePicker(
-              context: context,
-              position: position,
-              initialDate: widget.initialDate,
-              firstDate: widget.firstDate,
-              lastDate: widget.lastDate,
-            );
-
-            if (_isValidAcceptableDate(pickedDate)) {
-              _selectedDate = pickedDate;
-              _inputText = _formatDate(pickedDate);
-              _controller.text = _inputText;
-              widget.onDateSaved(pickedDate);
-            }
-          },
+          onPressed: showDatePicker,
         ),
       ),
       validator: _validateDate,
@@ -245,7 +210,39 @@ class _DatePickerFieldState extends State<DatePickerField> {
     );
   }
 
-  Future<DateTime> showDatePicker({
+  showDatePicker() async {
+    final RenderBox datePicker = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    // find position of the text field on the coordinate system of the
+    // overlay
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        datePicker.localToGlobal(Offset.zero, ancestor: overlay),
+        datePicker.localToGlobal(datePicker.size.bottomRight(Offset.zero),
+            ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    final pickedDate = await _doShowDatePicker(
+      context: context,
+      position: position,
+      initialDate: widget.initialDate,
+      firstDate: widget.firstDate,
+      lastDate: widget.lastDate,
+    );
+
+    if (_isValidAcceptableDate(pickedDate)) {
+      _selectedDate = pickedDate;
+      _inputText = _formatDate(pickedDate);
+      _controller.text = _inputText;
+      widget.onDateSaved(pickedDate);
+    }
+  }
+
+  Future<DateTime> _doShowDatePicker({
     @required BuildContext context,
     @required RelativeRect position,
     bool useRootNavigator = false,

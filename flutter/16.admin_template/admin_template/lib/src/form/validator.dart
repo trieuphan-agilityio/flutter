@@ -102,7 +102,7 @@ class RequiredValidator implements Validator<dynamic> {
   RequiredValidator({
     @required this.property,
     String error,
-  }) : this.error = error ?? '$property is required.';
+  }) : this.error = error ?? '${property.toTitleCase()} is required.';
 
   @override
   String call(dynamic value) {
@@ -140,7 +140,7 @@ class MinLengthValidator implements Validator<String> {
     this.minLength, {
     this.property,
     String error,
-  }) : this.error = error ?? '$property is too short.';
+  }) : this.error = error ?? '${property.toTitleCase()} is too short.';
 
   @override
   String call(String value) {

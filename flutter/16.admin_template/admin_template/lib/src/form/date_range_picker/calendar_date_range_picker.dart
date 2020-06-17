@@ -409,7 +409,13 @@ class _MonthItem extends StatelessWidget {
   Color _highlightColor(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
     return Color.alphaBlend(
-        colors.primary.withOpacity(0.12), colors.background);
+        colors.primary.withOpacity(0.28), colors.background);
+  }
+
+  Color _dashHighlightColor(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+    return Color.alphaBlend(
+        colors.primaryVariant.withOpacity(0.28), colors.background);
   }
 
   Widget _buildDayItem(BuildContext context, DateTime dayToBuild,
@@ -417,8 +423,7 @@ class _MonthItem extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextTheme textTheme = theme.textTheme;
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     final TextDirection textDirection = Directionality.of(context);
     final Color highlightColor = _highlightColor(context);
     final int day = dayToBuild.day;
@@ -557,7 +562,7 @@ class _MonthItem extends StatelessWidget {
 
       List<Widget> weekList = dayItems.sublist(start, end);
       final TextDirection textDirection = Directionality.of(context);
-      final Color highlightColor = _highlightColor(context);
+      final Color highlightColor = _dashHighlightColor(context);
 
       final List<Widget> decoratedWeekList = <Widget>[];
       bool isLeading;
@@ -634,8 +639,7 @@ class _MonthItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
     final TextTheme textTheme = themeData.textTheme;
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     final int year = displayedMonth.year;
     final int month = displayedMonth.month;
     final int daysInMonth = utils.getDaysInMonth(year, month);
@@ -1019,7 +1023,7 @@ class _HighlightPainter extends CustomPainter {
         Rect.fromLTWH(size.width / 2, 0, width / 2, size.height);
 
     final double squareLength = math.min(size.width, size.height);
-    final Rect squareOfCirle = Rect.fromCenter(
+    final Rect squareOfCircle = Rect.fromCenter(
       center: Offset(size.width / 2, size.height / 2),
       width: squareLength,
       height: squareLength,
@@ -1048,7 +1052,7 @@ class _HighlightPainter extends CustomPainter {
         // draw an half-right arc
         _drawDashArc(
           canvas,
-          squareOfCirle,
+          squareOfCircle,
           -0.5 * math.pi,
           math.pi,
           paintOnHover,
@@ -1073,7 +1077,7 @@ class _HighlightPainter extends CustomPainter {
         // draw an half-left arc
         _drawDashArc(
           canvas,
-          squareOfCirle,
+          squareOfCircle,
           0.5 * math.pi,
           math.pi,
           paintOnHover,

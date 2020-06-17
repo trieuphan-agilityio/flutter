@@ -1,4 +1,5 @@
 import 'package:admin_template/admin_template.dart';
+import 'package:animations/animations.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:example/src/user/user.dart';
 import 'package:example/src/web_page/web_page.dart';
@@ -9,33 +10,70 @@ import 'user.dart';
 
 void main() {
   runApp(MaterialApp(
-    theme: ThemeData(primarySwatch: Colors.teal),
-    home: _Demo(),
+    themeMode: ThemeMode.light,
+    theme: shrineTheme,
+    darkTheme: rallyTheme,
+    home: Scaffold(body: _Demo()),
   ));
 }
 
-class _Demo extends StatelessWidget {
+class _Demo extends StatefulWidget {
+  @override
+  __DemoState createState() => __DemoState();
+}
+
+class __DemoState extends State<_Demo> {
+  int _selectedIndex;
+
+  @override
+  void initState() {
+    _selectedIndex = 0;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: HorizontalSplitter(initialLayoutMask: '0.2, 0.8', children: [
-        Theme(
-          data: greyTheme.copyWith(visualDensity: VisualDensity.compact),
-          child: Builder(builder: (context) {
-            return Container(
-              color: Theme.of(context).primaryColor,
-              child: ListView(physics: ClampingScrollPhysics(), children: [
-                ListTile(leading: Icon(Icons.folder), title: Text('Pages')),
-                ListTile(leading: Icon(Icons.email), title: Text('Inbox')),
-              ]),
-            );
-          }),
+    final theme = Theme.of(context);
+    return Row(
+      children: <Widget>[
+        NavigationRail(
+          selectedIndex: _selectedIndex,
+          labelType: NavigationRailLabelType.selected,
+          destinations: <NavigationRailDestination>[
+            NavigationRailDestination(
+              icon: Icon(Icons.public),
+              label: Text('Publish', style: theme.textTheme.button),
+            ),
+            NavigationRailDestination(
+              icon: Icon(Icons.group),
+              label: Text('Editor', style: theme.textTheme.button),
+            ),
+          ],
+          onDestinationSelected: (int newIndex) {
+            setState(() {
+              _selectedIndex = newIndex;
+            });
+          },
         ),
-        VerticalSplitter(initialLayoutMask: '0.1, 0.9', children: [
-          Container(color: Theme.of(context).primaryColor),
-          _WebPageFormDemo(),
-        ]),
-      ]),
+        const VerticalDivider(width: 1, thickness: 1),
+        Expanded(
+          child: PageTransitionSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (
+              Widget child,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation,
+            ) {
+              return FadeThroughTransition(
+                child: child,
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+              );
+            },
+            child: _selectedIndex == 0 ? _WebPageFormDemo() : _UserFormDemo(),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -51,14 +89,7 @@ class _WebPageFormDemo extends StatelessWidget {
       ..title = 'Flutter is awesome!'
       ..slug = 'flutter-is-awesome'
       ..live = true);
-
-    return Scaffold(
-      body: Column(
-        children: [
-          WebPageForm(model),
-        ],
-      ),
-    );
+    return WebPageForm(model);
   }
 }
 

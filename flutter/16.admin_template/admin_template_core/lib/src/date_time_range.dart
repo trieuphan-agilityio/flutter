@@ -2,9 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:ui' show hashValues;
-
-import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
+import 'package:quiver/core.dart';
 
 /// Encapsulates a start and end [DateTime] that represent the range of dates
 /// between them.
@@ -41,7 +40,7 @@ class DateTimeRange {
   }
 
   @override
-  int get hashCode => hashValues(start, end);
+  int get hashCode => hash2(start, end);
 
   @override
   String toString() {

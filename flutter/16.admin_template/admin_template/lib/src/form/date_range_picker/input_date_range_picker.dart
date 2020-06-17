@@ -106,22 +106,19 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     _inputFormatters = <TextInputFormatter>[
       field_utils.DateTextInputFormatter(localizations.dateSeparator),
     ];
   }
 
   DateTime _parseDate(String text) {
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     return localizations.parseCompactDate(text);
   }
 
   String _formatDate(DateTime date) {
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
+    final localizations = MaterialLocalizations.of(context);
     return localizations.formatCompactDate(date);
   }
 
@@ -149,10 +146,8 @@ class InputDateRangePickerState extends State<InputDateRangePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final MaterialLocalizations localizations =
-        MaterialLocalizations.of(context);
-    final InputDecorationTheme inputTheme =
-        Theme.of(context).inputDecorationTheme;
+    final localizations = MaterialLocalizations.of(context);
+    final inputTheme = Theme.of(context).inputDecorationTheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

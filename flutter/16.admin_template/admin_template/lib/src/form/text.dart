@@ -45,9 +45,10 @@ class AgTextField extends StatefulWidget {
 class _AgTextFieldState extends State<AgTextField> {
   @override
   Widget build(BuildContext context) {
+    final inputTheme = Theme.of(context).inputDecorationTheme;
     final decoration = InputDecoration(
-      border: OutlineInputBorder(),
-      filled: true,
+      border: inputTheme.border ?? const UnderlineInputBorder(),
+      filled: inputTheme.filled ?? true,
       suffixIcon: widget.icon,
       hintText: widget.hintText,
       helperText: widget.helperText,
@@ -129,8 +130,10 @@ class _AgPasswordFieldState extends State<AgPasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    final inputTheme = Theme.of(context).inputDecorationTheme;
     final decoration = InputDecoration(
-      border: OutlineInputBorder(),
+      border: inputTheme.border ?? const UnderlineInputBorder(),
+      filled: inputTheme.filled ?? true,
       hintText: widget.hintText,
       helperText: widget.helperText,
       suffixIcon: GestureDetector(

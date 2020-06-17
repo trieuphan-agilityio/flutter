@@ -29,6 +29,8 @@ class AgCheckboxField extends FormField<bool> {
               field.didChange(value);
             }
 
+            final textTheme = Theme.of(field.context).textTheme;
+
             final control = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -37,10 +39,7 @@ class AgCheckboxField extends FormField<bool> {
                   onChanged: onChangedHandler,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                Text(
-                  helperText,
-                  style: Theme.of(field.context).textTheme.caption,
-                ),
+                Text(helperText, style: textTheme.caption),
               ],
             );
 
@@ -50,14 +49,14 @@ class AgCheckboxField extends FormField<bool> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                    width: 150,
-                    child: Text(
-                      labelText,
-                      style: Theme.of(field.context)
-                          .textTheme
-                          .subtitle2
-                          .copyWith(fontWeight: FontWeight.bold),
-                    )),
+                  width: 150,
+                  child: Text(
+                    labelText,
+                    style: textTheme.subtitle2.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 SizedBox(width: 16),
                 Expanded(child: control),
               ],

@@ -30,7 +30,7 @@ ThemeData _buildShrineTheme() {
     cardColor: shrineBackgroundWhite,
     textSelectionColor: shrinePink100,
     errorColor: shrineErrorRed,
-    toggleableActiveColor: shrinePink100,
+    toggleableActiveColor: shrineBrown600,
     buttonTheme: const ButtonThemeData(
       colorScheme: _shrineColorScheme,
       textTheme: ButtonTextTheme.normal,

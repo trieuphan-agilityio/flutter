@@ -56,61 +56,63 @@ class FormWriter extends Writer {
             VoidCallback onChanged,
             ValueChanged<${form.model.name}> onSaved,
           }) {
-            return Container(
-              alignment: Alignment.topLeft,
-              width: 800,
-              child: Shortcuts(
-                shortcuts: <LogicalKeySet, Intent>{
-                  // Pressing enter on the field will now move to the next field.
-                  LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
-                },
-                child: FocusTraversalGroup(
-                  child: Form(
-                    autovalidate: autovalidate,
-                    onWillPop: onWillPop,
-                    onChanged: onChanged,
-                    child: Builder(
-                      builder: (BuildContext fContext) {
-                        return SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              $formFields
-                              const SizedBox(height: 24),
-                              Row(children: [
-                                RaisedButton(
-                                  color: Theme.of(context).buttonColor,
-                                  child: Text('Save'),
-                                  onPressed: () {
-                                    final formState = Form.of(fContext);
-                                    if (formState.validate()) {
-                                      Form.of(fContext).save();
-                                      onSaved(model);
-                                    }
-                                  },
-                                ),
-                                RaisedButton(
-                                  child: Text('Reset'),
-                                  onPressed: () {
-                                    Form.of(fContext).reset();
-                                  },
-                                ),
-                                RaisedButton(
-                                  child: Text('Cancel'),
-                                  onPressed: () {
-                                    print('Cancel');
-                                  },
-                                ),
-                              ]),
-                            ],
-                          ),
-                        );
-                      },
+            return Row(children: <Widget>[
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 80),
+                constraints: BoxConstraints.expand(width: 800),
+                child: Shortcuts(
+                  shortcuts: <LogicalKeySet, Intent>{
+                    // Pressing enter on the field will now move to the next field.
+                    LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
+                  },
+                  child: FocusTraversalGroup(
+                    child: Form(
+                      autovalidate: autovalidate,
+                      onWillPop: onWillPop,
+                      onChanged: onChanged,
+                      child: Builder(
+                        builder: (BuildContext context) {
+                          return SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                $formFields
+                                const SizedBox(height: 24),
+                                Row(children: [
+                                  MaterialButton(
+                                    color: Theme.of(context).buttonColor,
+                                    child: Text('Save'),
+                                    onPressed: () {
+                                      final formState = Form.of(context);
+                                      if (formState.validate()) {
+                                        Form.of(context).save();
+                                        onSaved(model);
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  FlatButton(
+                                    child: Text('Reset'),
+                                    onPressed: () {
+                                      Form.of(context).reset();
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  FlatButton(
+                                    child: Text('Cancel'),
+                                    onPressed: () {},
+                                  ),
+                                ]),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
-            );
+            ]);
           };
           ''';
       }));

@@ -122,18 +122,14 @@ class _UserFormDemoState extends State<_UserFormDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          UserForm.edit(user).builder(context, onSaved: (User newValue) {
-            setState(() {
-              user = newValue;
-            });
-          }),
-          Text(user.toString()),
-        ],
-      ),
+    return UserForm.edit(user).builder(
+      context,
+      onSaved: (User newValue) {
+        setState(() {
+          user = newValue;
+          print(user);
+        });
+      },
     );
   }
 }

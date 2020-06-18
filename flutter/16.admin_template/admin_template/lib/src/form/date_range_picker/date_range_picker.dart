@@ -1,3 +1,4 @@
+import 'package:admin_template/src/form/field_panel.dart';
 import 'package:admin_template_core/core.dart';
 import 'package:flutter/material.dart' hide DateTimeRange;
 import 'package:flutter/widgets.dart';
@@ -58,7 +59,7 @@ class DateRangePickerField extends FormField<DateTimeRange> {
               fieldEndLabelText: fieldEndLabelText,
             );
 
-            return control;
+            return FieldPanel(labelText: labelText, child: control);
           },
         );
 

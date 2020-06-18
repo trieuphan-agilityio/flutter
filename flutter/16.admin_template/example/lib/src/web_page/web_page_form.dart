@@ -107,8 +107,8 @@ class _WebPageCreatingFormState extends State<WebPageCreatingForm> {
     return AgTextField(
       initialValue: model.slug,
       labelText: 'Slug',
-      helperText: 'Name of the page as it will appear in URLs'
-          'e.g http://domain.com/blog/[my-slug]/',
+      helperText: 'Name of the page, appear in URLs'
+          ' e.g http://demo.io/blog/[my-slug]/',
       onSaved: (newValue) {
         model = model.rebuild((b) => b.slug = newValue);
       },

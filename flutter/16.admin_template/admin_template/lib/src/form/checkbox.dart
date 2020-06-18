@@ -2,6 +2,8 @@ import 'package:admin_template/src/form/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import 'field_panel.dart';
+
 class AgCheckboxField extends FormField<bool> {
   final ValueChanged<bool> onFieldSubmitted;
   AgCheckboxField({
@@ -46,36 +48,19 @@ class AgCheckboxField extends FormField<bool> {
               errorStyle: errorStyle,
             );
 
-            final control = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Checkbox(
-                  value: field.value,
-                  onChanged: onChangedHandler,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                helperError,
-              ],
-            );
-
-            if (labelText == null) return control;
-
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 150,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 18),
-                    child: Text(
-                      labelText,
-                      style: Theme.of(field.context).textTheme.bodyText2,
-                    ),
+            return FieldPanel(
+              labelText: labelText,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Checkbox(
+                    value: field.value,
+                    onChanged: onChangedHandler,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                ),
-                SizedBox(width: 16),
-                Expanded(child: control),
-              ],
+                  helperError,
+                ],
+              ),
             );
           },
         );

@@ -1,6 +1,9 @@
+import 'package:admin_template_core/core.dart';
 import 'package:admin_template/src/form/utils.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
+
+import 'field_panel.dart';
 
 /// A checkbox widget that is decorated with a label.
 class LabeledCheckbox extends StatelessWidget {
@@ -36,7 +39,7 @@ class LabeledCheckbox extends StatelessWidget {
           tristate: tristate,
           onChanged: onChanged,
         ),
-        Text(label, style: Theme.of(context).textTheme.subtitle1),
+        Text(label.toTitleCase(), style: Theme.of(context).textTheme.subtitle1),
       ],
     );
   }
@@ -128,24 +131,6 @@ class _AgCheckboxListFieldState extends State<AgCheckboxListField> {
       },
     );
 
-    if (widget.labelText == null) return control;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 150,
-          child: Padding(
-            padding: EdgeInsets.only(top: 18),
-            child: Text(
-              widget.labelText,
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
-          ),
-        ),
-        SizedBox(width: 16),
-        Expanded(child: control),
-      ],
-    );
+    return FieldPanel(labelText: widget.labelText, child: control);
   }
 }

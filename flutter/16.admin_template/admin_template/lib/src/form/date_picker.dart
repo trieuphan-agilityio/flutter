@@ -1,3 +1,4 @@
+import 'package:admin_template/src/form/field_panel.dart';
 import 'package:admin_template_core/core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -96,6 +97,10 @@ class _DatePickerFieldState extends State<DatePickerField> {
   String _inputText;
   bool _autoSelected = false;
 
+  // key the current context of the text field to find the [renderBox] to
+  // display the dropdown DatePicker in position.
+  final textFieldKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -188,30 +193,34 @@ class _DatePickerFieldState extends State<DatePickerField> {
         (widget.decoration ?? const InputDecoration())
             .applyDefaults(Theme.of(context).inputDecorationTheme);
 
-    return TextFormField(
-      decoration: effectiveDecoration.copyWith(
-        hintText: widget.hintText ?? localizations.dateHelpText,
-        labelText: widget.labelText ?? localizations.dateInputLabel,
-        helperText: widget.helperText,
-        suffixIcon: IconButton(
-          icon: Icon(Icons.date_range, semanticLabel: 'open date picker'),
-          onPressed: showDatePicker,
+    return FieldPanel(
+      labelText: widget.labelText ?? localizations.dateInputLabel,
+      child: TextFormField(
+        key: textFieldKey,
+        decoration: effectiveDecoration.copyWith(
+          hintText: widget.hintText ?? localizations.dateHelpText,
+          helperText: widget.helperText,
+          suffixIcon: IconButton(
+            icon: Icon(Icons.date_range, semanticLabel: 'open date picker'),
+            onPressed: showDatePicker,
+          ),
         ),
+        validator: _validateDate,
+        inputFormatters: <TextInputFormatter>[
+          field_utils.DateTextInputFormatter(localizations.dateSeparator),
+        ],
+        keyboardType: TextInputType.datetime,
+        onSaved: _handleSaved,
+        onFieldSubmitted: _handleSubmitted,
+        autofocus: widget.autofocus,
+        controller: _controller,
       ),
-      validator: _validateDate,
-      inputFormatters: <TextInputFormatter>[
-        field_utils.DateTextInputFormatter(localizations.dateSeparator),
-      ],
-      keyboardType: TextInputType.datetime,
-      onSaved: _handleSaved,
-      onFieldSubmitted: _handleSubmitted,
-      autofocus: widget.autofocus,
-      controller: _controller,
     );
   }
 
   showDatePicker() async {
-    final RenderBox datePicker = context.findRenderObject() as RenderBox;
+    final RenderBox fieldBox =
+        textFieldKey.currentContext.findRenderObject() as RenderBox;
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
 
@@ -219,8 +228,8 @@ class _DatePickerFieldState extends State<DatePickerField> {
     // overlay
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
-        datePicker.localToGlobal(Offset.zero, ancestor: overlay),
-        datePicker.localToGlobal(datePicker.size.bottomRight(Offset.zero),
+        fieldBox.localToGlobal(Offset.zero, ancestor: overlay),
+        fieldBox.localToGlobal(fieldBox.size.bottomRight(Offset.zero),
             ancestor: overlay),
       ),
       Offset.zero & overlay.size,

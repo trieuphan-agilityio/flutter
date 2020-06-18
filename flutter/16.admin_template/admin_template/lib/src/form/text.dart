@@ -1,3 +1,4 @@
+import 'package:admin_template/src/form/field_panel.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,34 +56,21 @@ class _AgTextFieldState extends State<AgTextField> {
       prefixText: widget.prefixText,
     );
 
-    final textField = TextFormField(
-      onSaved: widget.onSaved,
-      initialValue: widget.initialValue,
-      decoration: decoration,
-      maxLength: widget.maxLength,
-      validator: widget.validator,
-      inputFormatters: widget.inputFormatters,
-      onChanged: widget.onChanged,
-    );
+    // give a bit more room if the text field is specified maxLength
+    final maxLines = widget.maxLength == null ? null : 2;
 
-    if (widget.labelText == null) return textField;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 150,
-          child: Padding(
-            padding: EdgeInsets.only(top: 18),
-            child: Text(
-              widget.labelText,
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
-          ),
-        ),
-        SizedBox(width: 16),
-        Expanded(child: textField),
-      ],
+    return FieldPanel(
+      labelText: widget.labelText,
+      child: TextFormField(
+        onSaved: widget.onSaved,
+        initialValue: widget.initialValue,
+        decoration: decoration,
+        maxLength: widget.maxLength,
+        maxLines: maxLines,
+        validator: widget.validator,
+        inputFormatters: widget.inputFormatters,
+        onChanged: widget.onChanged,
+      ),
     );
   }
 }
@@ -162,7 +150,7 @@ class _AgPasswordFieldState extends State<AgPasswordField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 150,
+          width: 120,
           child: Padding(
             padding: EdgeInsets.only(top: 18),
             child: Text(

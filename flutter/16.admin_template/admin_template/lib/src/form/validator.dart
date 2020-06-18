@@ -44,7 +44,9 @@ class DateRangeValidator implements Validator<DateTimeRange> {
 
   @override
   String call(DateTimeRange value) {
-    if (value.start.isBefore(start) || value.end.isAfter(end)) return error;
+    const aDay = Duration(days: 1);
+    if (value.start.isBefore(start.subtract(aDay)) ||
+        value.end.isAfter(end.add(aDay))) return error;
     return null;
   }
 }

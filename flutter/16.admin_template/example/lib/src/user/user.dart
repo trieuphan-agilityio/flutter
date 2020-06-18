@@ -41,7 +41,7 @@ abstract class User implements Built<User, UserBuilder> {
   String get phone;
 
   @AgText(
-    maxLength: 200,
+    maxLength: 150,
     hintText: 'Tell us about yourself'
         ' (e.g., write down what you do or what hobbies you have)',
     helperText: 'Keep it short, this is just a demo.',

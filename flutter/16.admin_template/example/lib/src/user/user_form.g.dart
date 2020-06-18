@@ -133,7 +133,7 @@ class _$UserForm extends UserForm {
           'Tell us about yourself (e.g., write down what you do or what hobbies you have)',
       initialValue: model.bio,
       labelText: 'Life story',
-      maxLength: 200,
+      maxLength: 150,
       onSaved: (newValue) {
         model = model.rebuild((b) => b.bio = newValue);
       },

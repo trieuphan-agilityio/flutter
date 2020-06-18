@@ -10,6 +10,7 @@ import 'user.dart';
 
 void main() {
   runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.light,
     theme: shrineTheme,
     darkTheme: rallyTheme,
@@ -85,11 +86,20 @@ class __DemoState extends State<_Demo> {
 class _WebPageFormDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final model = WebPage((b) => b
+    final newWebPage = WebPage((b) => b
       ..title = 'Flutter is awesome!'
-      ..slug = 'flutter-is-awesome'
-      ..live = true);
-    return WebPageForm(model);
+      ..slug = 'flutter-is-awesome');
+
+    return WebPageCreatingForm(
+      initialModel: newWebPage,
+      onSaved: (WebPage newValue) {
+        _notifySaveSuccess(
+          context,
+          title: newValue.title,
+          content: newValue.toString(),
+        );
+      },
+    );
   }
 }
 
@@ -97,39 +107,50 @@ class _WebPageFormDemo extends StatelessWidget {
 /// User form demo
 /// ===================================================================
 
-class _UserFormDemo extends StatefulWidget {
-  const _UserFormDemo({Key key}) : super(key: key);
-
+class _UserFormDemo extends StatelessWidget {
   @override
-  _UserFormDemoState createState() => _UserFormDemoState();
-}
-
-class _UserFormDemoState extends State<_UserFormDemo> {
-  User user;
-
-  @override
-  void initState() {
-    super.initState();
-    user = User((b) => b
-      ..username = 'johndoe'
+  Widget build(BuildContext context) {
+    final initialModel = User((b) => b
+      ..username = 'john_doe'
       ..email = 'johndoe@example.com'
       ..phone = '561111111'
       ..password = ''
       ..passwordConfirmation = ''
       ..acceptPromotionalEmail = false
       ..groups = ListBuilder());
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return UserForm.edit(user).builder(
+    return UserForm.edit(initialModel).builder(
       context,
       onSaved: (User newValue) {
-        setState(() {
-          user = newValue;
-          print(user);
-        });
+        _notifySaveSuccess(
+          context,
+          title: newValue.username,
+          content: newValue.toString(),
+        );
       },
     );
   }
+}
+
+_notifySaveSuccess(
+  BuildContext context, {
+  @required String title,
+  @required String content,
+}) {
+  Scaffold.of(context).showSnackBar(SnackBar(
+    content: Text('"$title" is saved successfully'),
+    action: SnackBarAction(
+      label: 'Show me',
+      onPressed: () {
+        showDialog(
+          context: context,
+          child: SimpleDialog(
+            title: Text(title),
+            children: [Text(content)],
+            contentPadding: const EdgeInsets.all(40),
+          ),
+        );
+      },
+    ),
+  ));
 }

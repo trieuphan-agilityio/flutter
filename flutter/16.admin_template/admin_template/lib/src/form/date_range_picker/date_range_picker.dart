@@ -22,6 +22,7 @@ class DateRangePickerField extends FormField<DateTimeRange> {
     this.fieldEndHintText,
     this.fieldStartLabelText,
     this.fieldEndLabelText,
+    this.labelText,
     this.helperText,
     this.fieldStartPrefixText,
     this.fieldEndPrefixText,
@@ -41,7 +42,7 @@ class DateRangePickerField extends FormField<DateTimeRange> {
           initialValue: initialValue,
           builder: (FormFieldState<DateTimeRange> field) {
             final state = field as _DateRangePickerFieldState;
-            return InputDateRangePicker(
+            final control = InputDateRangePicker(
               startController: state.startController,
               endController: state.endController,
               firstDate: firstDate,
@@ -56,6 +57,8 @@ class DateRangePickerField extends FormField<DateTimeRange> {
               fieldStartLabelText: fieldStartLabelText,
               fieldEndLabelText: fieldEndLabelText,
             );
+
+            return control;
           },
         );
 
@@ -110,6 +113,9 @@ class DateRangePickerField extends FormField<DateTimeRange> {
 
   /// Label used for the end date field.
   final String fieldEndLabelText;
+
+  /// The label text displayed in the front of [TextField]s.
+  final String labelText;
 
   /// The helper text displayed in the [TextField]s.
   final String helperText;

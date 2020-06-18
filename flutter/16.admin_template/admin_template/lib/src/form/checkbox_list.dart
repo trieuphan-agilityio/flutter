@@ -1,3 +1,4 @@
+import 'package:admin_template/src/form/utils.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +36,7 @@ class LabeledCheckbox extends StatelessWidget {
           tristate: tristate,
           onChanged: onChanged,
         ),
-        Text(label),
+        Text(label, style: Theme.of(context).textTheme.subtitle1),
       ],
     );
   }
@@ -88,32 +89,41 @@ class _AgCheckboxListFieldState extends State<AgCheckboxListField> {
           field.didChange(value);
         }
 
-        return InputDecorator(
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            helperText: widget.helperText,
-            errorText: field.errorText,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...widget.choices.map(
-                (String value) => LabeledCheckbox(
-                  label: value,
-                  onChanged: (bool newValue) {
-                    var currentVal = BuiltList.of([...field.value]);
-                    if (newValue)
-                      currentVal = currentVal.rebuild((b) => b.add(value));
-                    else
-                      currentVal = currentVal.rebuild((b) => b.remove(value));
-                    onChangedHandler(currentVal);
-                  },
-                  value: field.value.contains(value),
-                ),
+        final theme = Theme.of(field.context);
+        final textTheme = theme.textTheme;
+        final helperStyle = textTheme.caption.copyWith(
+          color: theme.hintColor,
+        );
+        final errorStyle = textTheme.caption.copyWith(
+          color: theme.errorColor,
+        );
+
+        final Widget helperError = HelperError(
+          helperText: widget.helperText,
+          helperStyle: helperStyle,
+          errorText: field.errorText,
+          errorStyle: errorStyle,
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...widget.choices.map(
+              (String value) => LabeledCheckbox(
+                label: value,
+                onChanged: (bool newValue) {
+                  var currentVal = BuiltList.of([...field.value]);
+                  if (newValue)
+                    currentVal = currentVal.rebuild((b) => b.add(value));
+                  else
+                    currentVal = currentVal.rebuild((b) => b.remove(value));
+                  onChangedHandler(currentVal);
+                },
+                value: field.value.contains(value),
               ),
-            ],
-          ),
+            ),
+            helperError,
+          ],
         );
       },
     );
@@ -124,14 +134,15 @@ class _AgCheckboxListFieldState extends State<AgCheckboxListField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-            width: 150,
+          width: 150,
+          child: Padding(
+            padding: EdgeInsets.only(top: 18),
             child: Text(
               widget.labelText,
-              style: Theme.of(context)
-                  .textTheme
-                  .subtitle2
-                  .copyWith(fontWeight: FontWeight.bold),
-            )),
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
+          ),
+        ),
         SizedBox(width: 16),
         Expanded(child: control),
       ],

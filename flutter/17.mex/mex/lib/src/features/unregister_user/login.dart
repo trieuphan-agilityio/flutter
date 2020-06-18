@@ -6,7 +6,6 @@ class LoginWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Container(
         child: Column(
           children: [
@@ -21,6 +20,7 @@ class LoginWidget extends StatelessWidget {
                 bloc: LoginBloc.of(context),
                 builder: (BuildContext context, LoginState state) {
                   return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       RaisedButton(
                         child: Text(state is LoginLoading

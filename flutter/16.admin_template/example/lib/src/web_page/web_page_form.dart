@@ -4,22 +4,26 @@ import 'package:flutter/services.dart';
 
 import 'web_page.dart';
 
-class WebPageForm extends StatefulWidget {
-  final WebPage model;
+class WebPageCreatingForm extends StatefulWidget {
+  final WebPage initialModel;
 
-  const WebPageForm(this.model, {Key key}) : super(key: key);
+  /// An optional method to call with the final value when the form is saved.
+  final FormFieldSetter<WebPage> onSaved;
+
+  const WebPageCreatingForm({Key key, this.initialModel, this.onSaved})
+      : super(key: key);
 
   @override
-  _WebPageFormState createState() => _WebPageFormState();
+  _WebPageCreatingFormState createState() => _WebPageCreatingFormState();
 }
 
-class _WebPageFormState extends State<WebPageForm> {
+class _WebPageCreatingFormState extends State<WebPageCreatingForm> {
   WebPage model;
 
   @override
   void initState() {
     super.initState();
-    model = widget.model;
+    model = widget.initialModel;
   }
 
   @override
@@ -43,6 +47,10 @@ class _WebPageFormState extends State<WebPageForm> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        title,
+                        const SizedBox(height: 24),
+                        slug,
+                        const SizedBox(height: 24),
                         firstPublishedAt,
                         const SizedBox(height: 24),
                         publishDateRange,
@@ -55,7 +63,7 @@ class _WebPageFormState extends State<WebPageForm> {
                               final formState = Form.of(context);
                               if (formState.validate()) {
                                 Form.of(context).save();
-                                onSaved(model);
+                                widget.onSaved(model);
                               }
                             },
                           ),
@@ -84,12 +92,32 @@ class _WebPageFormState extends State<WebPageForm> {
     ]);
   }
 
-  onSaved(WebPage newValue) {
-    print(newValue);
+  Widget get title {
+    return AgTextField(
+      initialValue: model.title,
+      labelText: 'Title',
+      helperText: 'The page title as you\'d like to be seen by the public',
+      onSaved: (newValue) {
+        model = model.rebuild((b) => b.title = newValue);
+      },
+    );
+  }
+
+  Widget get slug {
+    return AgTextField(
+      initialValue: model.slug,
+      labelText: 'Slug',
+      helperText: 'Name of the page as it will appear in URLs'
+          'e.g http://domain.com/blog/[my-slug]/',
+      onSaved: (newValue) {
+        model = model.rebuild((b) => b.slug = newValue);
+      },
+    );
   }
 
   Widget get firstPublishedAt {
     return DatePickerField(
+      labelText: 'First published at',
       initialDate: model.firstPublishedAt,
       firstDate: DateTime.now().subtract(Duration(days: 7)),
       lastDate: DateTime.now().add(Duration(days: 30)),
@@ -102,6 +130,7 @@ class _WebPageFormState extends State<WebPageForm> {
   Widget get publishDateRange {
     return DateRangePickerField(
       initialValue: model.publishDateRange,
+      labelText: 'Publish Date Range',
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(Duration(days: 90)),
       validator: Validator.dateRange(

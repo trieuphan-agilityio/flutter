@@ -72,12 +72,12 @@ class _AgTextFieldState extends State<AgTextField> {
       children: [
         SizedBox(
           width: 150,
-          child: Text(
-            widget.labelText,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle2
-                .copyWith(fontWeight: FontWeight.bold),
+          child: Padding(
+            padding: EdgeInsets.only(top: 18),
+            child: Text(
+              widget.labelText,
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
           ),
         ),
         SizedBox(width: 16),
@@ -163,12 +163,12 @@ class _AgPasswordFieldState extends State<AgPasswordField> {
       children: [
         SizedBox(
           width: 150,
-          child: Text(
-            widget.labelText,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle2
-                .copyWith(fontWeight: FontWeight.bold),
+          child: Padding(
+            padding: EdgeInsets.only(top: 18),
+            child: Text(
+              widget.labelText,
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
           ),
         ),
         SizedBox(width: 16),

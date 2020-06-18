@@ -1,3 +1,4 @@
+import 'package:admin_template/src/form/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -29,7 +30,21 @@ class AgCheckboxField extends FormField<bool> {
               field.didChange(value);
             }
 
-            final textTheme = Theme.of(field.context).textTheme;
+            final theme = Theme.of(field.context);
+            final textTheme = theme.textTheme;
+            final helperStyle = textTheme.caption.copyWith(
+              color: theme.hintColor,
+            );
+            final errorStyle = textTheme.caption.copyWith(
+              color: theme.errorColor,
+            );
+
+            final Widget helperError = HelperError(
+              helperText: helperText,
+              helperStyle: helperStyle,
+              errorText: field.errorText,
+              errorStyle: errorStyle,
+            );
 
             final control = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +54,7 @@ class AgCheckboxField extends FormField<bool> {
                   onChanged: onChangedHandler,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                Text(helperText, style: textTheme.caption),
+                helperError,
               ],
             );
 
@@ -50,10 +65,11 @@ class AgCheckboxField extends FormField<bool> {
               children: [
                 SizedBox(
                   width: 150,
-                  child: Text(
-                    labelText,
-                    style: textTheme.subtitle2.copyWith(
-                      fontWeight: FontWeight.bold,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 18),
+                    child: Text(
+                      labelText,
+                      style: Theme.of(field.context).textTheme.bodyText2,
                     ),
                   ),
                 ),

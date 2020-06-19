@@ -116,7 +116,7 @@ class _UserFormDemo extends StatelessWidget {
       ..phone = '561111111'
       ..password = ''
       ..passwordConfirmation = ''
-      ..acceptPromotionalEmail = false
+      ..acceptActivityEmail = false
       ..groups = ListBuilder());
 
     return UserForm.edit(initialModel).builder(

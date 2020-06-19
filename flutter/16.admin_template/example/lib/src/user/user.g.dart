@@ -39,7 +39,7 @@ class _$User extends User {
   @override
   final String passwordConfirmation;
   @override
-  final bool acceptPromotionalEmail;
+  final bool acceptActivityEmail;
   @override
   final BuiltList<String> groups;
 
@@ -53,7 +53,7 @@ class _$User extends User {
       this.bio,
       this.password,
       this.passwordConfirmation,
-      this.acceptPromotionalEmail,
+      this.acceptActivityEmail,
       this.groups})
       : super._() {
     if (username == null) {
@@ -68,8 +68,8 @@ class _$User extends User {
     if (passwordConfirmation == null) {
       throw new BuiltValueNullFieldError('User', 'passwordConfirmation');
     }
-    if (acceptPromotionalEmail == null) {
-      throw new BuiltValueNullFieldError('User', 'acceptPromotionalEmail');
+    if (acceptActivityEmail == null) {
+      throw new BuiltValueNullFieldError('User', 'acceptActivityEmail');
     }
     if (groups == null) {
       throw new BuiltValueNullFieldError('User', 'groups');
@@ -93,7 +93,7 @@ class _$User extends User {
         bio == other.bio &&
         password == other.password &&
         passwordConfirmation == other.passwordConfirmation &&
-        acceptPromotionalEmail == other.acceptPromotionalEmail &&
+        acceptActivityEmail == other.acceptActivityEmail &&
         groups == other.groups;
   }
 
@@ -109,7 +109,7 @@ class _$User extends User {
                         bio.hashCode),
                     password.hashCode),
                 passwordConfirmation.hashCode),
-            acceptPromotionalEmail.hashCode),
+            acceptActivityEmail.hashCode),
         groups.hashCode));
   }
 
@@ -122,7 +122,7 @@ class _$User extends User {
           ..add('bio', bio)
           ..add('password', password)
           ..add('passwordConfirmation', passwordConfirmation)
-          ..add('acceptPromotionalEmail', acceptPromotionalEmail)
+          ..add('acceptActivityEmail', acceptActivityEmail)
           ..add('groups', groups))
         .toString();
   }
@@ -156,10 +156,10 @@ class UserBuilder implements Builder<User, UserBuilder> {
   set passwordConfirmation(String passwordConfirmation) =>
       _$this._passwordConfirmation = passwordConfirmation;
 
-  bool _acceptPromotionalEmail;
-  bool get acceptPromotionalEmail => _$this._acceptPromotionalEmail;
-  set acceptPromotionalEmail(bool acceptPromotionalEmail) =>
-      _$this._acceptPromotionalEmail = acceptPromotionalEmail;
+  bool _acceptActivityEmail;
+  bool get acceptActivityEmail => _$this._acceptActivityEmail;
+  set acceptActivityEmail(bool acceptActivityEmail) =>
+      _$this._acceptActivityEmail = acceptActivityEmail;
 
   ListBuilder<String> _groups;
   ListBuilder<String> get groups =>
@@ -176,7 +176,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
       _bio = _$v.bio;
       _password = _$v.password;
       _passwordConfirmation = _$v.passwordConfirmation;
-      _acceptPromotionalEmail = _$v.acceptPromotionalEmail;
+      _acceptActivityEmail = _$v.acceptActivityEmail;
       _groups = _$v.groups?.toBuilder();
       _$v = null;
     }
@@ -208,7 +208,7 @@ class UserBuilder implements Builder<User, UserBuilder> {
               bio: bio,
               password: password,
               passwordConfirmation: passwordConfirmation,
-              acceptPromotionalEmail: acceptPromotionalEmail,
+              acceptActivityEmail: acceptActivityEmail,
               groups: groups.build());
     } catch (_) {
       String _$failedField;

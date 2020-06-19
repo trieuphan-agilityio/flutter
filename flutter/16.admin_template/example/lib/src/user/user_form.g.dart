@@ -52,7 +52,7 @@ class _$UserForm extends UserForm {
                           const SizedBox(height: 24),
                           passwordConfirmation,
                           const SizedBox(height: 24),
-                          acceptPromotionalEmail,
+                          acceptActivityEmail,
                           const SizedBox(height: 24),
                           groups,
                           const SizedBox(height: 24),
@@ -162,13 +162,14 @@ class _$UserForm extends UserForm {
     );
   }
 
-  Widget get acceptPromotionalEmail {
+  Widget get acceptActivityEmail {
     return AgCheckboxField(
-      helperText: 'I would like to receive the weekly email about new deals.',
-      initialValue: model.acceptPromotionalEmail ?? true,
-      labelText: 'Opt-in hot deals',
+      helperText:
+          'I would like to receive the notification about new activity.',
+      initialValue: model.acceptActivityEmail ?? true,
+      labelText: 'Activity Email',
       onSaved: (newValue) {
-        model = model.rebuild((b) => b.acceptPromotionalEmail = newValue);
+        model = model.rebuild((b) => b.acceptActivityEmail = newValue);
       },
     );
   }

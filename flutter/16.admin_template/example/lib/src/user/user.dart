@@ -64,10 +64,10 @@ abstract class User implements Built<User, UserBuilder> {
 
   @AgBool(
     initialValue: true,
-    helperText: 'I would like to receive the weekly email about new deals.',
-    labelText: 'Opt-in hot deals',
+    helperText: 'I would like to receive the notification about new activity.',
+    labelText: 'Activity Email',
   )
-  bool get acceptPromotionalEmail;
+  bool get acceptActivityEmail;
 
   @AgList(
     isRequired: true,

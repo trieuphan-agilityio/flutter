@@ -1,8 +1,4 @@
-This repository keep all my work/training related to Dart/Flutter.
+This repository keep all my Flutter learning.
 
-### Dart Learning
-
-Daily notes:
- - [Apr 6, 2020](daily-notes/%5Btraining%5D%2020200406%20%23dart.md)
- - [Apr 7, 2020](daily-notes/%5Btraining%5D%2020200407%20%23dart.md)
- - [Apr 8, 2020](daily-notes/%5Btraining%5D%2020200408%20%23dart.md)
+Checkout the training checklist below.
+https://docs.google.com/document/d/e/2PACX-1vSBmKStQ-FyXtPhJWHexeNQaD9lvPlLZv4-iV-DPNg6zeL_gdnrVIpZ7ElcH29HgZiUGApfggcb8ba4/pub

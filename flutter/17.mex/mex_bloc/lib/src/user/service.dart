@@ -10,7 +10,11 @@ abstract class UserServiceLocator {
 @module
 class UserService {
   @provide
-  UserRepo userRepo() => UserRepo();
+  @singleton
+  UserRepo userRepo() {
+    print('DI: Initialise UserRepo');
+    return UserRepo();
+  }
 }
 
 class UserRepo {
@@ -29,7 +33,7 @@ class UserRepo {
 
   Future<void> persistToken(String token) async {
     /// write to keystore/keychain
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(Duration(seconds: 0));
     return;
   }
 

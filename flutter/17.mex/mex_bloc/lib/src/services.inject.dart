@@ -12,6 +12,8 @@ class MexServices$Injector implements _i1.MexServices {
 
   final _i2.UserService _userService;
 
+  _i2.UserRepo _singletonUserRepo;
+
   final _i3.AuthService _authService;
 
   _i4.AuthBloc _singletonAuthBloc;
@@ -28,7 +30,8 @@ class MexServices$Injector implements _i1.MexServices {
     return injector;
   }
 
-  _i2.UserRepo _createUserRepo() => _userService.userRepo();
+  _i2.UserRepo _createUserRepo() =>
+      _singletonUserRepo ??= _userService.userRepo();
   _i4.AuthBloc _createAuthBloc() =>
       _singletonAuthBloc ??= _authService.authBloc(_createUserRepo());
   _i6.LoginBloc _createLoginBloc() => _singletonLoginBloc ??=

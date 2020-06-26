@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -9,7 +11,9 @@ import 'package:mex_bloc/src/user/service.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserRepo userRepo;
 
-  AuthBloc({this.userRepo}) : assert(userRepo != null);
+  AuthBloc({this.userRepo}) : assert(userRepo != null) {
+    log('DI: Initialise AuthBloc');
+  }
 
   @override
   AuthState get initialState => AuthUninitialized();

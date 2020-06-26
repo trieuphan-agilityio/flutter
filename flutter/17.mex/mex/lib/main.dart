@@ -34,11 +34,14 @@ class App extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(
-            pageTransitionsTheme: PageTransitionsTheme(builders: {
-          TargetPlatform.android: SharedAxisPageTransitionsBuilder(
-            transitionType: SharedAxisTransitionType.horizontal,
-          )
-        })),
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: SharedAxisPageTransitionsBuilder(
+                transitionType: SharedAxisTransitionType.scaled,
+              )
+            },
+          ),
+        ),
         routes: {
           '/': (_) => LoginWidget(),
           '/home': (_) => HomeWidget(),

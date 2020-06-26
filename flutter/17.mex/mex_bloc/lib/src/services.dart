@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inject/inject.dart';
 import 'package:mex_bloc/src/auth/service.dart';
 import 'package:mex_bloc/src/login/service.dart';

@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - pigeon_hello_plugin (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - pigeon_hello_plugin (from `.symlinks/plugins/pigeon_hello_plugin/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  pigeon_hello_plugin:
+    :path: ".symlinks/plugins/pigeon_hello_plugin/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  pigeon_hello_plugin: 5d6cb61c7c931f8292943391c62e6526be94f9e8
+
+PODFILE CHECKSUM: c34e2287a9ccaa606aeceab922830efb9a6ff69a
+
+COCOAPODS: 1.9.1

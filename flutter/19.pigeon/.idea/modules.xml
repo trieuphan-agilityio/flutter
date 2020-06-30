@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/pigeon_hello/pigeon_hello.iml" filepath="$PROJECT_DIR$/pigeon_hello/pigeon_hello.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pigeon_hello_platform_interface/pigeon_hello_platform_interface.iml" filepath="$PROJECT_DIR$/pigeon_hello_platform_interface/pigeon_hello_platform_interface.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pigeon_hello_plugin/pigeon_hello_plugin.iml" filepath="$PROJECT_DIR$/pigeon_hello_plugin/pigeon_hello_plugin.iml" />
+    </modules>
+  </component>
+</project>

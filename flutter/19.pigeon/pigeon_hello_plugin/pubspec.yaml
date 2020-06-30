@@ -1,0 +1,29 @@
+name: pigeon_hello_plugin
+description: A new flutter plugin project.
+version: 0.0.1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  pigeon_hello_platform_interface:
+    path: ../pigeon_hello_platform_interface
+
+  pigeon: 0.1.2+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.pigeon_hello_plugin
+        pluginClass: PigeonHelloPlugin
+      ios:
+        pluginClass: PigeonHelloPlugin

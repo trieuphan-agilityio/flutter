@@ -21,6 +21,6 @@ void configurePigeon(PigeonOptions opts) {
   opts.objcSourceOut = 'ios/Classes/messages.m';
   opts.objcOptions.prefix = 'FLT';
   opts.javaOut =
-  'android/src/main/java/com/example/pigeon_hello_plugin/Messages.java';
+      'android/src/main/java/com/example/pigeon_hello_plugin/Messages.java';
   opts.javaOptions.package = 'com.example.pigeon_hello_plugin';
 }

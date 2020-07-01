@@ -1,0 +1,29 @@
+name: twilio_video_call
+description: A new flutter plugin project.
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  video_call_platform_interface:
+    path: ../video_call_platform_interface
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.twilio_video_call
+        pluginClass: TwilioVideoCallPlugin
+      ios:
+        pluginClass: TwilioVideoCallPlugin

@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - twilio_video_call (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - twilio_video_call (from `.symlinks/plugins/twilio_video_call/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  twilio_video_call:
+    :path: ".symlinks/plugins/twilio_video_call/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  twilio_video_call: 3ac7e26db12dc0fd41dd3367e96db3d3a7eff051
+
+PODFILE CHECKSUM: c34e2287a9ccaa606aeceab922830efb9a6ff69a
+
+COCOAPODS: 1.9.1

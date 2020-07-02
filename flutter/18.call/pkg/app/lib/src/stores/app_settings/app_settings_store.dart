@@ -14,7 +14,7 @@ const String _kMyIdentity = 'myIdentity';
 class AppSettingsStore implements AppSettingsStoreWriting {
   final SharedPreferences prefs;
 
-  AppSettingsStore({@required this.prefs});
+  AppSettingsStore(this.prefs);
 
   @override
   String get myIdentity => prefs.getString(_kMyIdentity) ?? "";

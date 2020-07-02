@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:app/core.dart';
+import 'package:app/model.dart' as Model;
+import 'package:app/src/app_services/app_services.dart';
 
 class _UX {
   static const double bottomBarPadding = 50.0;
@@ -21,7 +23,7 @@ abstract class CallUI {
 
 class Call extends StatefulWidget {
   final VideoCallApi api;
-  final CallOptions callOptions;
+  final Model.CallOptions callOptions;
 
   const Call({
     Key key,
@@ -37,7 +39,7 @@ class _CallState extends State<Call> implements CallUI {
   @override
   void initState() {
     super.initState();
-    widget.api.call(widget.callOptions.identity);
+    widget.api.call(callOptions: widget.callOptions);
   }
 
   @override

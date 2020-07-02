@@ -226,6 +226,13 @@
             </list>
           </value>
         </entry>
+        <entry key="twilio_video_call">
+          <value>
+            <list>
+              <option value="$PROJECT_DIR$/twilio_video_call/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="typed_data">
           <value>
             <list>
@@ -240,6 +247,13 @@
             </list>
           </value>
         </entry>
+        <entry key="video_call_platform_interface">
+          <value>
+            <list>
+              <option value="$PROJECT_DIR$/video_call_platform_interface/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="xml">
           <value>
             <list>
@@ -250,6 +264,8 @@
       </option>
     </properties>
     <CLASSES>
+      <root url="file://$PROJECT_DIR$/twilio_video_call/lib" />
+      <root url="file://$PROJECT_DIR$/video_call_platform_interface/lib" />
       <root url="file:///opt/flutter/.pub-cache/hosted/pub.dartlang.org/animations-1.1.1/lib" />
       <root url="file:///opt/flutter/.pub-cache/hosted/pub.dartlang.org/archive-2.0.13/lib" />
       <root url="file:///opt/flutter/.pub-cache/hosted/pub.dartlang.org/args-1.6.0/lib" />

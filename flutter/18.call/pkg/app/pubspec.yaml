@@ -14,11 +14,8 @@ dependencies:
 
   cupertino_icons: ^0.1.3
 
-  video_call_platform_interface:
-    path: ../video_call_platform_interface
-
-  twilio_video_call:
-    path: ../twilio_video_call
+  twilio_video:
+    path: ../twilio_video
 
   # The plugin has reached a stable API.
   # They guarantee that version 1.0.0 will be backward compatible with 0.5.y+z.

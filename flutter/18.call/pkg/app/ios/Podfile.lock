@@ -1,13 +1,22 @@
 PODS:
   - Flutter (1.0.0)
-  - twilio_video_call (0.0.1):
+  - shared_preferences (0.0.1):
+    - Flutter
+  - shared_preferences_macos (0.0.1):
+    - Flutter
+  - shared_preferences_web (0.0.1):
+    - Flutter
+  - twilio_video (0.0.1):
     - Flutter
     - TwilioVideo (~> 3.3)
   - TwilioVideo (3.4.1)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - twilio_video_call (from `.symlinks/plugins/twilio_video_call/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
+  - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
+  - twilio_video (from `.symlinks/plugins/twilio_video/ios`)
 
 SPEC REPOS:
   trunk:
@@ -16,12 +25,21 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  twilio_video_call:
-    :path: ".symlinks/plugins/twilio_video_call/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
+  shared_preferences_macos:
+    :path: ".symlinks/plugins/shared_preferences_macos/ios"
+  shared_preferences_web:
+    :path: ".symlinks/plugins/shared_preferences_web/ios"
+  twilio_video:
+    :path: ".symlinks/plugins/twilio_video/ios"
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  twilio_video_call: 60fda60658e9f4757341da19818c0fe80588ce69
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
+  shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
+  twilio_video: 0cfe5634ac52b802d58280d973612de0b3a72e99
   TwilioVideo: a16a52ac4d4b2006a33f43535ebed7d6d9acd70e
 
 PODFILE CHECKSUM: 194bc761b992c9e98db0cff7e21b2af63010fc81

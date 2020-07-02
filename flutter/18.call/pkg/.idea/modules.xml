@@ -4,8 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app_preview/app_preview.iml" filepath="$PROJECT_DIR$/app_preview/app_preview.iml" />
-      <module fileurl="file://$PROJECT_DIR$/twilio_video_call/twilio_video_call.iml" filepath="$PROJECT_DIR$/twilio_video_call/twilio_video_call.iml" />
-      <module fileurl="file://$PROJECT_DIR$/video_call_platform_interface/video_call_platform_interface.iml" filepath="$PROJECT_DIR$/video_call_platform_interface/video_call_platform_interface.iml" />
+      <module fileurl="file://$PROJECT_DIR$/twilio_video/twilio_video.iml" filepath="$PROJECT_DIR$/twilio_video/twilio_video.iml" />
     </modules>
   </component>
 </project>

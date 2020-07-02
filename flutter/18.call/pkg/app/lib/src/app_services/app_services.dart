@@ -44,7 +44,7 @@ class AppServicesImpl implements AppServices {
   SharedPreferences _singletonSharedPreferences;
 
   VideoCallApi _createVideoCallApi() =>
-      _singletonVideoCallApi ??= _videoCallService.videoCallApi();
+      _singletonVideoCallApi ??= _videoCallService.videoCallApi(prefs);
 
   HelloApi _createHelloApi() => _singletonHelloApi ??= _authService.helloApi();
 

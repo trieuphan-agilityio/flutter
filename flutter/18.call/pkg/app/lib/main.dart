@@ -9,6 +9,10 @@ import 'src/auth/auth.dart';
 import 'src/home/home.dart';
 
 void main() {
+  /// Some services such as SharedPreferences need access to binary messenger
+  /// before app run. Therefore we need to initialise Flutter Binding from early.
+  WidgetsFlutterBinding.ensureInitialized();
+
   final appServices = AppServices.create(
     VideoCallService(),
     AuthService(),

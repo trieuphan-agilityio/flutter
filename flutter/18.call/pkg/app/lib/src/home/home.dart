@@ -21,19 +21,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageTransitionSwitcher(
-        duration: const Duration(milliseconds: 250),
-        reverse: isShowRecent,
-        transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
-          return SharedAxisTransition(
-            child: child,
-            animation: primaryAnimation,
-            secondaryAnimation: secondaryAnimation,
-            transitionType: SharedAxisTransitionType.horizontal,
-          );
-        },
-        child: isShowRecent ? Recent() : People(),
-      ),
+      body: isShowRecent ? Recent() : People(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         items: [

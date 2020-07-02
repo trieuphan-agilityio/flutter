@@ -3,6 +3,13 @@ part of 'home.dart';
 class Recent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final List<_RecentItemModel> recentList = [
+      _RecentItemModel('1', 'John', _RecentStatus.videoChatJustEnd),
+      _RecentItemModel('11', 'Jack', _RecentStatus.missedVideoChat),
+      _RecentItemModel('2', 'Jane', _RecentStatus.busy),
+      _RecentItemModel('3', 'Julie', _RecentStatus.available),
+    ];
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(pinned: true, title: Text('Recent')),
@@ -20,8 +27,8 @@ class Recent extends StatelessWidget {
   }
 }
 
-class RecentItem extends StatelessWidget with ChatItemMixin {
-  final RecentItemModel model;
+class RecentItem extends StatelessWidget with ChatRouteMixin {
+  final _RecentItemModel model;
 
   const RecentItem(this.model, {Key key}) : super(key: key);
 
@@ -34,38 +41,44 @@ class RecentItem extends StatelessWidget with ChatItemMixin {
         leading:
             Container(width: 50, decoration: const FlutterLogoDecoration()),
         title: Text(model.name),
-        subtitle: _getSubtitle(model.status),
+        subtitle: _buildSubtitle(model),
+        trailing: _buildTrailing(model),
         onTap: () => routeToChat(context, model.identity),
       ),
     );
   }
 
-  Widget _getSubtitle(RecentStatus status) {
-    switch (status) {
-      case RecentStatus.videoChatJustEnd:
+  Widget _buildSubtitle(_RecentItemModel model) {
+    switch (model.status) {
+      case _RecentStatus.videoChatJustEnd:
         return Text('The video chat just end');
-      case RecentStatus.busy:
+      case _RecentStatus.missedVideoChat:
+        return Text('${model.name} missed your video chat');
+      case _RecentStatus.busy:
         return Text('Busy');
-      case RecentStatus.available:
+      case _RecentStatus.available:
         return Text('Time available: 15 min');
+      default:
+        return SizedBox.shrink();
+    }
+  }
+
+  Widget _buildTrailing(_RecentItemModel model) {
+    switch (model.status) {
+      case _RecentStatus.missedVideoChat:
+        return IconButton(icon: Icon(Icons.call), onPressed: () {});
       default:
         return SizedBox.shrink();
     }
   }
 }
 
-final List<RecentItemModel> recentList = [
-  RecentItemModel('1', 'John', RecentStatus.videoChatJustEnd),
-  RecentItemModel('2', 'Jane', RecentStatus.busy),
-  RecentItemModel('3', 'Julie', RecentStatus.available),
-];
-
-class RecentItemModel {
-  RecentItemModel(this.identity, this.name, this.status);
+class _RecentItemModel {
+  _RecentItemModel(this.identity, this.name, this.status);
 
   final String identity;
   final String name;
-  final RecentStatus status;
+  final _RecentStatus status;
 }
 
-enum RecentStatus { videoChatJustEnd, busy, available }
+enum _RecentStatus { missedVideoChat, videoChatJustEnd, busy, available }

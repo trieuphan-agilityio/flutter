@@ -3,6 +3,12 @@ part of 'home.dart';
 class People extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final List<_ContactItemModel> contactList = [
+      _ContactItemModel('1', 'John'),
+      _ContactItemModel('2', 'Jane'),
+      _ContactItemModel('3', 'Julie'),
+    ];
+
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(pinned: true, title: Text('People')),
@@ -10,9 +16,9 @@ class People extends StatelessWidget {
           itemExtent: _UX.itemHeight,
           delegate: SliverChildBuilderDelegate(
             (BuildContext context, int i) {
-              return ContactItem(_contactList[i]);
+              return ContactItem(contactList[i]);
             },
-            childCount: _contactList.length,
+            childCount: contactList.length,
           ),
         )
       ],
@@ -21,7 +27,7 @@ class People extends StatelessWidget {
 }
 
 class ContactItem extends StatelessWidget {
-  final ContactItemModel model;
+  final _ContactItemModel model;
 
   const ContactItem(this.model, {Key key}) : super(key: key);
 
@@ -39,14 +45,8 @@ class ContactItem extends StatelessWidget {
   }
 }
 
-final List<ContactItemModel> _contactList = [
-  ContactItemModel('1', 'John'),
-  ContactItemModel('2', 'Jane'),
-  ContactItemModel('3', 'Julie'),
-];
-
-class ContactItemModel {
-  ContactItemModel(this.identity, this.name);
+class _ContactItemModel {
+  _ContactItemModel(this.identity, this.name);
 
   final String identity;
   final String name;

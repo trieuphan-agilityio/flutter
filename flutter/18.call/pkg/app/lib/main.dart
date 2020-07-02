@@ -1,3 +1,4 @@
+import 'package:app/core.dart';
 import 'package:app/splash.dart';
 import 'package:app/src/app_services/app_services.dart';
 import 'package:app/src/app_services/video_call_service.dart';
@@ -11,6 +12,7 @@ void main() {
   final appServices = AppServices.create(
     VideoCallService(),
     AuthService(),
+    SharedPreferencesService(),
   );
 
   runApp(App(appServices));
@@ -26,28 +28,34 @@ class App extends StatelessWidget {
     return FutureBuilder(
       future: appServices,
       builder: (context, snapshot) {
-        return MaterialApp(
-          builder: (BuildContext context, Widget child) {
-            return child;
-          },
-          home: snapshot.hasData ? Auth() : Splash(),
-          routes: {
-            '/home': (_) => Home(),
-          },
-          onGenerateRoute: (settings) {
-            switch (settings.name) {
-              case '/chat':
-                final String identity = settings.arguments;
-                return MaterialPageRoute(
-                  fullscreenDialog: true,
-                  builder: (context) {
-                    return Chat(identity: identity);
-                  },
-                );
-              default:
-                throw FlutterError('Not implemented yet');
-            }
-          },
+        return MultiProvider(
+          providers: <Provider>[
+            Provider<AppServices>.value(value: snapshot.data),
+          ],
+          child: MaterialApp(
+            builder: (BuildContext context, Widget child) {
+              return child;
+            },
+            home: snapshot.hasData ? Auth() : Splash(),
+            routes: {
+              '/home': (_) => Home(),
+            },
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/chat':
+                  final String identity = settings.arguments;
+                  return MaterialPageRoute(
+                    fullscreenDialog: true,
+                    builder: (context) {
+                      return Chat(identity: identity);
+                    },
+                  );
+
+                default:
+                  throw FlutterError('Not implemented yet');
+              }
+            },
+          ),
         );
       },
     );

@@ -1,6 +1,7 @@
+import 'package:app/src/call/start_call_mixin.dart';
 import 'package:flutter/material.dart';
 
-class Chat extends StatelessWidget {
+class Chat extends StatelessWidget with StartCallMixin {
   final String identity;
 
   const Chat({Key key, @required this.identity}) : super(key: key);
@@ -12,11 +13,11 @@ class Chat extends StatelessWidget {
         slivers: <Widget>[
           SliverAppBar(
             pinned: true,
-            title: Text('identity'),
+            title: Text(identity),
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.call),
-                onPressed: () {},
+                onPressed: () => startVoiceCall(context, identity),
               ),
               IconButton(
                 icon: Icon(Icons.videocam),

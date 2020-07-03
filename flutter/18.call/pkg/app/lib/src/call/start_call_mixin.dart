@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:app/core.dart';
 import 'package:app/model.dart' as Model;
 import 'package:app/src/app_services/app_services.dart';
@@ -21,15 +22,8 @@ mixin StartCallMixin on Widget {
   }
 
   _startCall(BuildContext context, Model.CallOptions options) {
-    final appServices = AppServices.of(context);
-    return Navigator.push(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (context) {
-          return Call(api: appServices.videoCallApi, callOptions: options);
-        },
-      ),
-    );
+    final api = AppServices.of(context).videoCallApi;
+    api.call(options);
+    showModal(context: context, builder: (context) => Call(api: api));
   }
 }

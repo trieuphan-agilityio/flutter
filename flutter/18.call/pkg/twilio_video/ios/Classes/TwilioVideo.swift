@@ -2,14 +2,8 @@ import Foundation
 import TwilioVideo
 
 public protocol TwilioVideo {
-  func call(identity: String)
-  func endCall()
-  func muteMe()
-  func unmuteMe()
-  func turnOnCamera()
-  func turnOffCamera()
-  func useFrontCamera()
-  func useBackCamera()
+  func connect(accessToken: String, roomName: String, enabledVoice: Bool, enabledVideo: Bool)
+  func disconnect()
 
   var onRoomDidConnectListener: OnRoomDidConnectListener? { get set }
   var onRoomDidDisconnectListener: OnRoomDidDisconnectListener? { get set }
@@ -34,52 +28,41 @@ public class TwilioVideoImpl: NSObject {
   static let instance = TwilioVideoImpl()
 }
 
-class NilHandler: FlutterStreamHandler {
-  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-    return nil
-  }
-
-  func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    return nil
-  }
-}
-
 // MARK: - TwilioVideo
 
 extension TwilioVideoImpl: TwilioVideo {
 
-  public func call(identity: String) {
-    let accessToken = ""
-    let options = ConnectOptions(token: accessToken)
+  public func connect(accessToken: String, roomName: String, enabledVoice: Bool, enabledVideo: Bool) {
+    let options = ConnectOptions(token: accessToken) { builder in
+      builder.roomName = roomName
+
+      let audioTrack = LocalAudioTrack(options: nil, enabled: enabledVoice, name: "mic")
+      builder.audioTracks = [audioTrack].compactMap { $0 }
+
+      // see https://github.com/twilio/twilio-video-app-ios/blob/master/VideoApp/VideoApp/Video/Tracks/Camera/CameraSourceFactory.swift
+      let options = CameraSourceOptions() { builder in
+        if #available(iOS 13, *) {
+          builder.orientationTracker = UserInterfaceTracker(scene: UIApplication.shared.keyWindow!.windowScene!)
+        }
+        // Take a best guess and remove rotation tags using hardware acceleration
+        builder.rotationTags = .remove
+      }
+      let cameraSource = CameraSource(options: options, delegate: nil)
+
+      if let cameraSource = cameraSource {
+        let videoTrack = LocalVideoTrack(source: cameraSource, enabled: enabledVideo, name: "camera")
+        builder.videoTracks = [videoTrack].compactMap { $0 }
+      } else {
+        builder.videoTracks = []
+      }
+    }
+
     room = TwilioVideoSDK.connect(options: options, delegate: self)
   }
 
-  public func endCall() {
+  public func disconnect() {
     room?.disconnect()
-  }
-
-  public func muteMe() {
-    
-  }
-
-  public func unmuteMe() {
-
-  }
-
-  public func useFrontCamera() {
-
-  }
-
-  public func useBackCamera() {
-
-  }
-
-  public func turnOnCamera() {
-
-  }
-
-  public func turnOffCamera() {
-
+    room = nil
   }
 }
 
@@ -87,26 +70,29 @@ extension TwilioVideoImpl: TwilioVideo {
 
 extension TwilioVideoImpl: RoomDelegate {
   public func roomDidConnect(room: Room) {
-    onRoomDidConnectListener?.onRoomDidConnect(room: room)
+    print("room connected")
+    onRoomDidConnectListener?.onRoomDidConnect()
   }
 
   public func roomDidDisconnect(room: Room, error: Error?) {
-    onRoomDidDisconnectListener?.onRoomDidDisconnect(room: room)
+    print("room disconnected")
+    onRoomDidDisconnectListener?.onRoomDidDisconnect()
   }
 
   public func roomDidFailToConnect(room: Room, error: Error) {
-    onRoomDidFailToConnectListener?.onRoomDidFailToConnect(room: room)
+    print("room failed to connect")
+    onRoomDidFailToConnectListener?.onRoomDidFailToConnect()
   }
 
   public func participantDidConnect(room: Room, participant: RemoteParticipant) {
-    onParticipantDidConnectListener?.onParticipantDidConnect(room: room)
+    onParticipantDidConnectListener?.onParticipantDidConnect()
 
     // Not handled participant delegate yet
     // participant.delegate = self
   }
 
   public func participantDidDisconnect(room: Room, participant: RemoteParticipant) {
-    onParticipantDidDisconnectListener?.onParticipantDidDisconnect(room: room)
+    onParticipantDidDisconnectListener?.onParticipantDidDisconnect()
   }
 }
 

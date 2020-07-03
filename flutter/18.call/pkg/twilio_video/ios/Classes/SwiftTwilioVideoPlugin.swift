@@ -34,37 +34,32 @@ public class SwiftTwilioVideoPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case "call":
-      print("handle `call` invocation")
-      twilioVideo.call(identity: "sample_identity")
+    case "connect":
+      guard let argMap = call.arguments as? [String: Any?] else {
+        return result(nil)
+      }
+      guard let accessToken = argMap["accessToken"] as? String else {
+        return missingParameter("accessToken", result)
+      }
+      guard let roomName = argMap["roomName"] as? String else {
+        return missingParameter("roomName", result)
+      }
+      guard let enabledVoice = argMap["enabledVoice"] as? Bool else {
+        return missingParameter("enabledVoice", result)
+      }
+      guard let enabledVideo = argMap["enabledVideo"] as? Bool else {
+        return missingParameter("enabledVideo", result)
+      }
+      twilioVideo.connect(
+        accessToken: accessToken,
+        roomName: roomName,
+        enabledVoice: enabledVoice,
+        enabledVideo: enabledVideo
+      )
 
-    case "end_call":
-      print("handle `end_call` invocation")
-      twilioVideo.endCall()
-
-    case "mute_me":
-      print("handle `mute_me` invocation")
-      twilioVideo.muteMe()
-
-    case "unmute_me":
-      print("handle `unmute_me` invocation")
-      twilioVideo.unmuteMe()
-
-    case "turn_on_camera":
-      print("handle `turn_on_camera` invocation")
-      twilioVideo.turnOnCamera()
-
-    case "turn_off_camera":
-      print("handle `turn_off_camera` invocation")
-      twilioVideo.turnOffCamera()
-
-    case "use_front_camera":
-      print("handle `use_front_camera` invocation")
-      twilioVideo.useFrontCamera()
-
-    case "use_back_camera":
-      print("handle `use_back_camera` invocation")
-      twilioVideo.useBackCamera()
+    case "disconnect":
+      print("handle `disconnect` invocation")
+      twilioVideo.disconnect()
 
     default:
       result(FlutterMethodNotImplemented)
@@ -148,5 +143,23 @@ public class SwiftTwilioVideoPlugin: NSObject, FlutterPlugin {
     onParticipantDidDisconnectChannel?.setStreamHandler(nil)
     onDidSubscribeToVideoTrackChannel?.setStreamHandler(nil)
     onDidUnsubscribeToVideoTrackChannel?.setStreamHandler(nil)
+  }
+
+  // MARK: Utilities
+
+  func missingParameter(_ property: String, _ result: FlutterResult) {
+    return result(FlutterError(
+      code: "method-error",
+      message: "Missing '\(property)' parameter",
+      details: nil
+    ))
+  }
+
+  func wrongType(_ property: String, _ result: FlutterResult) {
+    return result(FlutterError(
+      code: "method-error",
+      message: "'\(property) is not correct type'",
+      details: nil
+    ))
   }
 }

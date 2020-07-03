@@ -2,8 +2,10 @@ import 'package:app/core.dart';
 import 'package:app/splash.dart';
 import 'package:app/src/app_services/app_services.dart';
 import 'package:app/src/app_services/video_call_service.dart';
+import 'package:app/src/call/call_bloc.dart';
 import 'package:app/src/chat/chat.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'src/auth/auth.dart';
 import 'src/home/home.dart';
@@ -16,7 +18,7 @@ void main() {
   final appServices = AppServices.create(
     VideoCallService(),
     AuthService(),
-    SharedPreferencesService(),
+    SettingsService(),
   );
 
   runApp(App(appServices));
@@ -36,29 +38,34 @@ class App extends StatelessWidget {
           providers: <Provider>[
             Provider<AppServices>.value(value: snapshot.data),
           ],
-          child: MaterialApp(
-            builder: (BuildContext context, Widget child) {
-              return child;
-            },
-            home: snapshot.hasData ? Auth() : Splash(),
-            routes: {
-              '/home': (_) => Home(),
-            },
-            onGenerateRoute: (settings) {
-              switch (settings.name) {
-                case '/chat':
-                  final String identity = settings.arguments;
-                  return MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (context) {
-                      return Chat(identity: identity);
-                    },
-                  );
+          child: MultiBlocProvider(
+            providers: <BlocProvider>[
+              BlocProvider<CallBloc>(create: (_) => CallBloc()),
+            ],
+            child: MaterialApp(
+              builder: (BuildContext context, Widget child) {
+                return child;
+              },
+              home: snapshot.hasData ? Auth() : Splash(),
+              routes: {
+                '/home': (_) => Home(),
+              },
+              onGenerateRoute: (settings) {
+                switch (settings.name) {
+                  case '/chat':
+                    final String identity = settings.arguments;
+                    return MaterialPageRoute(
+                      fullscreenDialog: true,
+                      builder: (context) {
+                        return Chat(identity: identity);
+                      },
+                    );
 
-                default:
-                  throw FlutterError('Not implemented yet');
-              }
-            },
+                  default:
+                    throw FlutterError('Not implemented yet');
+                }
+              },
+            ),
           ),
         );
       },

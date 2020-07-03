@@ -1,26 +1,54 @@
+library twilio_video;
+
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 import 'package:twilio_video/models.dart';
 
 abstract class TwilioVideo {
-  Future<Room> connect({@required ConnectOptions options});
+  Future<Room> connect(ConnectOptions options);
   Future<void> disconnect();
 
-  Stream<bool> get roomDidConnectStream;
-  Stream<bool> get roomDidDisconnectStream;
-  Stream<bool> get roomDidFailToConnectStream;
-  Stream<bool> get participantDidConnectStream;
-  Stream<bool> get participantDidDisconnectStream;
-  Stream<bool> get didSubscribeToVideoTrackStream;
-  Stream<bool> get didUnsubscribeToVideoTrackStream;
+  Stream<void> get roomDidConnectStream;
+  Stream<void> get roomDidDisconnectStream;
+  Stream<void> get roomDidFailToConnectStream;
+  Stream<void> get participantDidConnectStream;
+  Stream<void> get participantDidDisconnectStream;
+  Stream<void> get didSubscribeToVideoTrackStream;
+  Stream<void> get didUnsubscribeToVideoTrackStream;
 }
 
-class ChannelTwilioVideo extends TwilioVideo {
+class MethodChannelTwilioVideo extends TwilioVideo {
+  factory MethodChannelTwilioVideo.shared() {
+    if (_instance == null) {
+      _instance = MethodChannelTwilioVideo._();
+    }
+    return _instance;
+  }
+  MethodChannelTwilioVideo._();
+
+  static MethodChannelTwilioVideo _instance;
+
   static const _channel = const MethodChannel('com.example/twilio_video');
 
   @override
-  Future<Room> connect({@required ConnectOptions options}) async {
-    return await _channel.invokeMethod('connect', options);
+  Future<Room> connect(ConnectOptions options) async {
+    final Map<String, dynamic> argMap = options.toJson();
+    final Map<String, dynamic> retMap =
+        await _channel.invokeMethod<Map<String, dynamic>>('connect', argMap);
+
+    if (retMap == null) {
+      throw PlatformException(
+          code: 'channel-error',
+          message: 'Unable to establish connection on channel.',
+          details: null);
+    } else if (retMap['error'] != null) {
+      final Map<dynamic, dynamic> error = retMap['error'];
+      throw PlatformException(
+          code: error['code'],
+          message: error['message'],
+          details: error['details']);
+    } else {
+      return Room.fromJson(retMap['result']);
+    }
   }
 
   @override
@@ -32,7 +60,7 @@ class ChannelTwilioVideo extends TwilioVideo {
       EventChannel('com.example/participant_did_connect');
 
   @override
-  Stream<bool> get participantDidConnectStream {
+  Stream<void> get participantDidConnectStream {
     return _participantDidConnectChannel.receiveBroadcastStream();
   }
 
@@ -40,7 +68,7 @@ class ChannelTwilioVideo extends TwilioVideo {
       EventChannel('com.example/participant_did_disconnect');
 
   @override
-  Stream<bool> get participantDidDisconnectStream {
+  Stream<void> get participantDidDisconnectStream {
     return _participantDidDisconnectChannel.receiveBroadcastStream();
   }
 
@@ -48,31 +76,33 @@ class ChannelTwilioVideo extends TwilioVideo {
       EventChannel('com.example/room_did_connect');
 
   @override
-  Stream<bool> get roomDidConnectStream {
-    return _roomDidConnectChannel.receiveBroadcastStream();
+  Stream<void> get roomDidConnectStream {
+    return _roomDidConnectChannel.receiveBroadcastStream().map((e) => true);
   }
 
   static const _roomDidDisconnectChannel =
       EventChannel('com.example/room_did_disconnect');
 
   @override
-  Stream<bool> get roomDidDisconnectStream {
-    return _roomDidDisconnectChannel.receiveBroadcastStream();
+  Stream<void> get roomDidDisconnectStream {
+    return _roomDidDisconnectChannel.receiveBroadcastStream().map((e) => true);
   }
 
   static const _roomDidFailToConnectChannel =
       EventChannel('com.example/room_did_fail_to_connect');
 
   @override
-  Stream<bool> get roomDidFailToConnectStream {
-    return _roomDidFailToConnectChannel.receiveBroadcastStream();
+  Stream<void> get roomDidFailToConnectStream {
+    return _roomDidFailToConnectChannel
+        .receiveBroadcastStream()
+        .map((e) => true);
   }
 
   static const _didSubscribeToVideoTrackChannel =
       EventChannel('com.example/did_subscribe_to_video_track');
 
   @override
-  Stream<bool> get didSubscribeToVideoTrackStream {
+  Stream<void> get didSubscribeToVideoTrackStream {
     return _didSubscribeToVideoTrackChannel.receiveBroadcastStream();
   }
 
@@ -80,7 +110,7 @@ class ChannelTwilioVideo extends TwilioVideo {
       EventChannel('com.example/did_unsubscribe_to_video_track');
 
   @override
-  Stream<bool> get didUnsubscribeToVideoTrackStream {
+  Stream<void> get didUnsubscribeToVideoTrackStream {
     return _didUnsubscribeToVideoTrackChannel.receiveBroadcastStream();
   }
 }

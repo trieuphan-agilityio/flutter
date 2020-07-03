@@ -11,7 +11,7 @@ abstract class VideoCallServiceLocator {
 class VideoCallService {
   VideoCallApi videoCallApi(SharedPreferences prefs) {
     return new TwilioVideoCallApi(
-      api: ChannelTwilioVideo(),
+      api: MethodChannelTwilioVideo.shared(),
       accessTokenStore: FixedTwilioAccessTokenStore(),
       appSettingsStore: AppSettingsStore(prefs),
     );
@@ -19,7 +19,7 @@ class VideoCallService {
 }
 
 abstract class VideoCallApi {
-  Future<void> call({@required CallOptions callOptions});
+  Future<void> call(CallOptions callOptions);
   Future<void> endCall();
   Future<void> muteMe();
   Future<void> unmuteMe();
@@ -28,8 +28,9 @@ abstract class VideoCallApi {
   Future<void> turnOffCamera();
   Future<void> turnOnCamera();
 
-  Stream<bool> get callDidStartStream;
-  Stream<bool> get callDidEndStream;
+  Stream<void> get callDidStartStream;
+  Stream<void> get callDidFailToStartStream;
+  Stream<void> get callDidEndStream;
 }
 
 class TwilioVideoCallApi implements VideoCallApi {
@@ -44,28 +45,23 @@ class TwilioVideoCallApi implements VideoCallApi {
   });
 
   @override
-  Future<void> call({CallOptions callOptions}) async {
+  Future<void> call(CallOptions callOptions) async {
     final String myIdentity = appSettingsStore.myIdentity;
+    assert(myIdentity != null);
+
+    // TODO handle HTTP exception
     final String accessToken = await accessTokenStore.fetchTwilioAccessToken(
       roomName: callOptions.identity,
     );
 
-    final ConnectOptions connectOptions = ConnectOptions(
-      roomName: _makeRoomName(
-        caller: myIdentity,
-        recipient: callOptions.identity,
-      ),
-      accessToken: accessToken,
-      audioTracks: [LocalAudioTrack(enabled: true)],
-      videoTracks: [
-        if (callOptions.type == CallType.video)
-          LocalVideoTrack(enabled: true)
-        else
-          LocalVideoTrack(enabled: false)
-      ],
-    );
+    final ConnectOptions connectOptions = ConnectOptions()
+      ..roomName =
+          _makeRoomName(caller: myIdentity, recipient: callOptions.identity)
+      ..accessToken = accessToken
+      ..enabledVoice = true
+      ..enabledVideo = callOptions.type == CallType.video;
 
-    await api.connect(options: connectOptions);
+    await api.connect(connectOptions);
   }
 
   @override
@@ -92,13 +88,19 @@ class TwilioVideoCallApi implements VideoCallApi {
   Future<void> useFrontCamera() {}
 
   @override
-  Stream<bool> get callDidStartStream {
+  Stream<void> get callDidStartStream {
     // call start when recipient joins the room
     return api.roomDidConnectStream;
   }
 
   @override
-  Stream<bool> get callDidEndStream {
+  Stream<void> get callDidFailToStartStream {
+    // call fails when the room is unable to connect
+    return api.roomDidFailToConnectStream;
+  }
+
+  @override
+  Stream<void> get callDidEndStream {
     // call end when recipient leaves the room
     return api.participantDidDisconnectStream;
   }

@@ -2,15 +2,15 @@ import Flutter
 import TwilioVideo
 
 public protocol OnRoomDidDisconnectListener: NSObjectProtocol, FlutterStreamHandler {
-  func onRoomDidDisconnect(room: Room)
+  func onRoomDidDisconnect()
 }
 
 public class OnRoomDidDisconnectListenerImpl: NSObject, OnRoomDidDisconnectListener {
   public static let CHANNEL_NAME: String = "com.example/room_did_disconnect"
   public var eventSink: FlutterEventSink?
 
-  public func onRoomDidDisconnect(room: Room) {
-    eventSink?(room)
+  public func onRoomDidDisconnect() {
+    eventSink?(nil)
   }
 
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {

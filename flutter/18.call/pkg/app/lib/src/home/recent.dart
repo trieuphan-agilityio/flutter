@@ -27,7 +27,7 @@ class Recent extends StatelessWidget {
   }
 }
 
-class RecentItem extends StatelessWidget with ChatRouteMixin {
+class RecentItem extends StatelessWidget with ChatRouteMixin, StartCallMixin {
   final _RecentItemModel model;
 
   const RecentItem(this.model, {Key key}) : super(key: key);
@@ -42,7 +42,7 @@ class RecentItem extends StatelessWidget with ChatRouteMixin {
             Container(width: 50, decoration: const FlutterLogoDecoration()),
         title: Text(model.name),
         subtitle: _buildSubtitle(model),
-        trailing: _buildTrailing(model),
+        trailing: _buildTrailing(context, model),
         onTap: () => routeToChat(context, model.identity),
       ),
     );
@@ -63,10 +63,12 @@ class RecentItem extends StatelessWidget with ChatRouteMixin {
     }
   }
 
-  Widget _buildTrailing(_RecentItemModel model) {
+  Widget _buildTrailing(BuildContext context, _RecentItemModel model) {
     switch (model.status) {
       case _RecentStatus.missedVideoChat:
-        return IconButton(icon: Icon(Icons.call), onPressed: () {});
+        return IconButton(
+            icon: Icon(Icons.call),
+            onPressed: () => startVoiceCall(context, model.identity));
       default:
         return SizedBox.shrink();
     }

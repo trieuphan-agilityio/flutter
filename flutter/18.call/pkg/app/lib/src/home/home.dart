@@ -1,4 +1,4 @@
-import 'package:animations/animations.dart';
+import 'package:app/src/call/start_call_mixin.dart';
 import 'package:app/src/chat/chat_item_mixin.dart';
 import 'package:flutter/material.dart';
 

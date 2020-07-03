@@ -2,15 +2,15 @@ import Flutter
 import TwilioVideo
 
 public protocol OnDidUnsubscribeToVideoTrackListener: NSObjectProtocol, FlutterStreamHandler {
-  func onDidUnsubscribeToVideoTrack(room: Room)
+  func onDidUnsubscribeToVideoTrack()
 }
 
 public class OnDidUnsubscribeToVideoTrackListenerImpl: NSObject, OnDidUnsubscribeToVideoTrackListener {
   public static let CHANNEL_NAME: String = "com.example/did_unsubscribe_to_video_track"
   public var eventSink: FlutterEventSink?
 
-  public func onDidUnsubscribeToVideoTrack(room: Room) {
-    eventSink?(room)
+  public func onDidUnsubscribeToVideoTrack() {
+    eventSink?(nil)
   }
 
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {

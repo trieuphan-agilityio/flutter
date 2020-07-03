@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:app/core.dart';
-import 'package:app/model.dart' as Model;
 import 'package:app/src/app_services/app_services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'call_bloc.dart';
 
 class _UX {
   static const double bottomBarPadding = 50.0;
@@ -23,23 +26,50 @@ abstract class CallUI {
 
 class Call extends StatefulWidget {
   final VideoCallApi api;
-  final Model.CallOptions callOptions;
 
-  const Call({
-    Key key,
-    @required this.api,
-    @required this.callOptions,
-  }) : super(key: key);
+  const Call({Key key, @required this.api}) : super(key: key);
 
   @override
   _CallState createState() => _CallState();
 }
 
 class _CallState extends State<Call> implements CallUI {
+  List<StreamSubscription> streamSubscriptions;
+
   @override
   void initState() {
     super.initState();
-    widget.api.call(callOptions: widget.callOptions);
+
+    streamSubscriptions = [];
+
+    streamSubscriptions.add(
+      widget.api.callDidFailToStartStream.listen((event) {
+        showDialog(
+          context: context,
+          child: AlertDialog(
+            title: Text('Couldn\'t Make Call'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Ok'),
+              )
+            ],
+          ),
+        );
+      }),
+    );
+
+    streamSubscriptions.add(
+      widget.api.callDidStartStream.listen((event) {}),
+    );
+  }
+
+  @override
+  void dispose() {
+    streamSubscriptions.forEach((subscription) {
+      return subscription.cancel();
+    });
+    super.dispose();
   }
 
   @override
@@ -69,6 +99,8 @@ class _CallState extends State<Call> implements CallUI {
                         children: <Widget>[
                           Text('Jamie Larson',
                               style: theme.textTheme.headline4),
+                          const SizedBox(height: 8),
+                          buildCallStatus(context),
                         ],
                       ),
                       const Spacer(),
@@ -96,12 +128,27 @@ class _CallState extends State<Call> implements CallUI {
     );
   }
 
+  BlocBuilder<CallBloc, CallState> buildCallStatus(BuildContext context) {
+    return BlocBuilder(
+      bloc: BlocProvider.of<CallBloc>(context),
+      builder: (context, CallState state) {
+        final textStyle = Theme.of(context).textTheme.caption;
+        if (state is Calling) {
+          return Text(state.durationSecs.toString(), style: textStyle);
+        }
+        return Text('Ringing...', style: textStyle);
+      },
+    );
+  }
+
   @override
   List<Widget> buildBottomActions() {
     return [
       FlatButton(
-        onPressed: () {},
-        child: Icon(Icons.volume_down),
+        onPressed: () {
+          widget.api.endCall();
+        },
+        child: Icon(Icons.stop),
       ),
       FlatButton(
         onPressed: onCallEndButtonPressed,

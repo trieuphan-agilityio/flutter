@@ -1,40 +1,99 @@
-enum TrackName { camera, mic }
+library twilio_video;
 
 class LocalVideoTrack {
-  final TrackName name;
-  final bool enabled;
+  String name = 'camera';
+  bool enabled;
 
-  LocalVideoTrack({this.name = TrackName.camera, this.enabled});
+  // ignore: unused_element
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = <String, dynamic>{};
+    map['name'] = name.toString();
+    map['enabled'] = enabled;
+    return map;
+  }
+
+  // ignore: unused_element
+  static LocalVideoTrack fromJson(Map<String, dynamic> map) {
+    final LocalVideoTrack result = LocalVideoTrack()
+      ..name = map['name']
+      ..enabled = map['enabled'];
+    return result;
+  }
 }
 
 class LocalAudioTrack {
-  final TrackName name;
-  final bool enabled;
+  String name = 'mic';
+  bool enabled;
 
-  LocalAudioTrack({this.name = TrackName.mic, this.enabled});
+  // ignore: unused_element
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = <String, dynamic>{};
+    map['name'] = name.toString();
+    map['enabled'] = enabled;
+    return map;
+  }
+
+  // ignore: unused_element
+  static LocalAudioTrack fromJson(Map<String, dynamic> map) {
+    final LocalAudioTrack result = LocalAudioTrack()
+      ..name = map['name']
+      ..enabled = map['enabled'];
+    return result;
+  }
 }
 
 class LocalParticipant {
-  final LocalAudioTrack audioTrack;
-  final LocalVideoTrack videoTrack;
+  List<LocalAudioTrack> audioTracks;
+  List<LocalVideoTrack> videoTracks;
 
-  LocalParticipant(this.audioTrack, this.videoTrack);
+  // ignore: unused_element
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = <String, dynamic>{};
+    map['audioTracks'] = audioTracks.map((e) => e.toJson()).toList();
+    map['videoTracks'] = videoTracks.map((e) => e.toJson()).toList();
+    return map;
+  }
+
+  // ignore: unused_element
+  static LocalParticipant fromJson(Map<String, dynamic> map) {
+    final LocalParticipant result = LocalParticipant()
+      ..audioTracks = (map['audioTracks'] as List<Map<String, dynamic>>)
+          .map((e) => LocalAudioTrack.fromJson(e))
+          .toList()
+      ..videoTracks = (map['videoTracks'] as List<Map<String, dynamic>>)
+          .map((e) => LocalVideoTrack.fromJson(e))
+          .toList();
+    return result;
+  }
 }
 
 class ConnectOptions {
-  final String accessToken;
-  final String roomName;
-  final List<LocalAudioTrack> audioTracks;
-  final List<LocalVideoTrack> videoTracks;
+  String accessToken;
+  String roomName;
+  bool enabledVoice;
+  bool enabledVideo;
 
-  ConnectOptions({
-    this.accessToken,
-    this.roomName,
-    this.audioTracks,
-    this.videoTracks,
-  });
+  // ignore: unused_element
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = <String, dynamic>{};
+    map['accessToken'] = accessToken;
+    map['roomName'] = roomName;
+    map['enabledVoice'] = enabledVoice;
+    map['enabledVideo'] = enabledVideo;
+    return map;
+  }
 }
 
 class Room {
   List<LocalParticipant> localParticipants;
+
+  // ignore: unused_element
+  static Room fromJson(Map<String, dynamic> map) {
+    final Room result = Room()
+      ..localParticipants =
+          (map['localParticipants'] as List<Map<String, dynamic>>)
+              .map((e) => LocalParticipant.fromJson(e))
+              .toList();
+    return result;
+  }
 }

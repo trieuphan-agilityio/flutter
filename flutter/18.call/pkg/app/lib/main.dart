@@ -1,6 +1,7 @@
 import 'package:app/app_services.dart';
 import 'package:app/core.dart';
 import 'package:app/src/call/call_bloc.dart';
+import 'package:app/src/member/member.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,6 +17,7 @@ void main() {
     VideoCallService(),
     AuthService(),
     SettingsService(),
+    UserService(),
   );
 
   runApp(App(appServices));
@@ -45,6 +47,7 @@ class App extends StatelessWidget {
                 routes: {
                   '/': (_) => Auth(),
                   '/home': (_) => Home(),
+                  '/member': (_) => Member(),
                 },
               )),
         );

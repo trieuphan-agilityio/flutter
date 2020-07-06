@@ -1,6 +1,8 @@
 import 'package:app/core.dart';
 import 'package:app/src/debug/access_token_settings.dart';
 
+const _kDivider = const Divider(height: 0.5, thickness: 0.5);
+
 class DebugDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -27,6 +29,14 @@ class DebugDrawer extends StatelessWidget {
                 );
               },
             ),
+            _kDivider,
+            ListTile(
+              title: Text('Simulate a call after 5s'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            _kDivider,
           ]),
         ),
       ),

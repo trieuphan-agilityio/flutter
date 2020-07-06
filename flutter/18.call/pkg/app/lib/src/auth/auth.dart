@@ -1,3 +1,4 @@
+import 'package:app/model.dart';
 import 'package:app/src/app_services/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -39,9 +40,21 @@ class Auth extends StatelessWidget {
     ];
   }
 
-  _useIdentityAndRouteToHome(BuildContext context, String identity) {
+  _useIdentityAndRouteToHome(BuildContext context, String identity) async {
     final appSettingsStore = AppServices.of(context).appSettingsStore;
     appSettingsStore.myIdentity = identity;
-    Navigator.pushReplacementNamed(context, '/home');
+
+    final userStore = AppServices.of(context).userStore;
+    final user = await userStore.getById(identity);
+
+    switch (user.role) {
+      case UserRole.captain:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+
+      default:
+        Navigator.pushReplacementNamed(context, '/member');
+        break;
+    }
   }
 }

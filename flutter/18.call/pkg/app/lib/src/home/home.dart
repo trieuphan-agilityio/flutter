@@ -25,7 +25,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: DebugDrawer(),
-      body: isShowRecent ? Recent() : People(),
+      body: isShowRecent
+          ? Recent(recentList: [
+              RecentItemModel('john', 'John', RecentStatus.videoChatJustEnd),
+              RecentItemModel('jack', 'Jack', RecentStatus.missedVideoChat),
+              RecentItemModel('jane', 'Jane', RecentStatus.busy),
+              RecentItemModel('julie', 'Julie', RecentStatus.available),
+            ])
+          : People(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         items: [

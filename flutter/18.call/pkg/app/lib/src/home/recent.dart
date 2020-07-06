@@ -1,15 +1,12 @@
 part of 'home.dart';
 
 class Recent extends StatelessWidget {
+  final List<RecentItemModel> recentList;
+
+  const Recent({Key key, this.recentList}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final List<_RecentItemModel> recentList = [
-      _RecentItemModel('john', 'John', _RecentStatus.videoChatJustEnd),
-      _RecentItemModel('jack', 'Jack', _RecentStatus.missedVideoChat),
-      _RecentItemModel('jane', 'Jane', _RecentStatus.busy),
-      _RecentItemModel('julie', 'Julie', _RecentStatus.available),
-    ];
-
     final AppSettingsStoreReading appSettings =
         AppServices.of(context).appSettingsStore;
 
@@ -32,7 +29,7 @@ class Recent extends StatelessWidget {
 }
 
 class RecentItem extends StatelessWidget with ChatRouteMixin, StartCallMixin {
-  final _RecentItemModel model;
+  final RecentItemModel model;
 
   const RecentItem(this.model, {Key key}) : super(key: key);
 
@@ -52,24 +49,24 @@ class RecentItem extends StatelessWidget with ChatRouteMixin, StartCallMixin {
     );
   }
 
-  Widget _buildSubtitle(_RecentItemModel model) {
+  Widget _buildSubtitle(RecentItemModel model) {
     switch (model.status) {
-      case _RecentStatus.videoChatJustEnd:
+      case RecentStatus.videoChatJustEnd:
         return Text('The video chat just end');
-      case _RecentStatus.missedVideoChat:
+      case RecentStatus.missedVideoChat:
         return Text('${model.name} missed your video chat');
-      case _RecentStatus.busy:
+      case RecentStatus.busy:
         return Text('Busy');
-      case _RecentStatus.available:
+      case RecentStatus.available:
         return Text('Time available: 15 min');
       default:
         return SizedBox.shrink();
     }
   }
 
-  Widget _buildTrailing(BuildContext context, _RecentItemModel model) {
+  Widget _buildTrailing(BuildContext context, RecentItemModel model) {
     switch (model.status) {
-      case _RecentStatus.missedVideoChat:
+      case RecentStatus.missedVideoChat:
         return IconButton(
             icon: Icon(Icons.call),
             onPressed: () => startVoiceCall(context, model.identity));
@@ -79,12 +76,12 @@ class RecentItem extends StatelessWidget with ChatRouteMixin, StartCallMixin {
   }
 }
 
-class _RecentItemModel {
-  _RecentItemModel(this.identity, this.name, this.status);
+class RecentItemModel {
+  RecentItemModel(this.identity, this.name, this.status);
 
   final String identity;
   final String name;
-  final _RecentStatus status;
+  final RecentStatus status;
 }
 
-enum _RecentStatus { missedVideoChat, videoChatJustEnd, busy, available }
+enum RecentStatus { missedVideoChat, videoChatJustEnd, busy, available }

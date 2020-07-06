@@ -4,10 +4,10 @@ class Recent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<_RecentItemModel> recentList = [
-      _RecentItemModel('1', 'John', _RecentStatus.videoChatJustEnd),
-      _RecentItemModel('11', 'Jack', _RecentStatus.missedVideoChat),
-      _RecentItemModel('2', 'Jane', _RecentStatus.busy),
-      _RecentItemModel('3', 'Julie', _RecentStatus.available),
+      _RecentItemModel('john', 'John', _RecentStatus.videoChatJustEnd),
+      _RecentItemModel('jack', 'Jack', _RecentStatus.missedVideoChat),
+      _RecentItemModel('jane', 'Jane', _RecentStatus.busy),
+      _RecentItemModel('julie', 'Julie', _RecentStatus.available),
     ];
 
     final AppSettingsStoreReading appSettings =

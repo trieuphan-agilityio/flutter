@@ -1,6 +1,7 @@
 import 'package:app/app_services.dart';
 import 'package:app/src/call/start_call_mixin.dart';
 import 'package:app/src/chat/chat_item_mixin.dart';
+import 'package:app/src/debug/debug_drawer.dart';
 import 'package:app/src/stores/app_settings/app_settings_store.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DebugDrawer(),
       body: isShowRecent ? Recent() : People(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

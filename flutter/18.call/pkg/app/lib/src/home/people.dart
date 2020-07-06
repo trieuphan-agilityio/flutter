@@ -4,9 +4,9 @@ class People extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<_ContactItemModel> contactList = [
-      _ContactItemModel('1', 'John'),
-      _ContactItemModel('2', 'Jane'),
-      _ContactItemModel('3', 'Julie'),
+      _ContactItemModel('john', 'John'),
+      _ContactItemModel('jane', 'Jane'),
+      _ContactItemModel('julie', 'Julie'),
     ];
 
     return CustomScrollView(

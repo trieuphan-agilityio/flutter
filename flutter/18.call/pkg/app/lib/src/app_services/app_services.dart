@@ -42,14 +42,17 @@ class AppServicesImpl implements AppServices {
   AppSettingsStore _singletonAppSettingsStore;
 
   VideoCallApi _createVideoCallApi() =>
-      _singletonVideoCallApi ??= _videoCallService.videoCallApi(prefs);
+      _singletonVideoCallApi ??= _videoCallService.videoCallApi(
+        prefs: prefs,
+        appSettingsStore: appSettingsStore,
+      );
 
   HelloApi _createHelloApi() => _singletonHelloApi ??= _authService.helloApi();
 
   SharedPreferences _createSharedPreferences() =>
       _singletonSharedPreferences ??= _settingsService.prefs();
 
-  AppSettingsStore _appSettingsStore() =>
+  AppSettingsStore _createAppSettingsStore() =>
       _singletonAppSettingsStore ??= _settingsService.appSettingsStore(prefs);
 
   @override
@@ -62,5 +65,5 @@ class AppServicesImpl implements AppServices {
   SharedPreferences get prefs => _createSharedPreferences();
 
   @override
-  AppSettingsStore get appSettingsStore => _appSettingsStore();
+  AppSettingsStore get appSettingsStore => _createAppSettingsStore();
 }

@@ -1,7 +1,7 @@
 import 'package:app/core.dart';
 import 'package:app/model.dart';
 import 'package:app/src/stores/app_settings/app_settings_store.dart';
-import 'package:app/src/stores/twilio_access_token/fixed_twilio_access_token_store.dart';
+import 'package:app/src/stores/twilio_access_token/twilio_access_token_factory.dart';
 import 'package:app/src/stores/twilio_access_token/twilio_access_token_store.dart';
 
 abstract class VideoCallServiceLocator {
@@ -9,10 +9,16 @@ abstract class VideoCallServiceLocator {
 }
 
 class VideoCallService {
-  VideoCallApi videoCallApi(SharedPreferences prefs) {
+  VideoCallApi videoCallApi({
+    SharedPreferences prefs,
+    AppSettingsStoreReading appSettingsStore,
+  }) {
     return new TwilioVideoCallApi(
       api: MethodChannelTwilioVideo.shared(),
-      accessTokenStore: FixedTwilioAccessTokenStore(),
+      accessTokenStore: TwilioAccessTokenFactory(
+        prefs: prefs,
+        appSettingsStore: appSettingsStore,
+      ).makeTwilioAccessTokenStore(),
       appSettingsStore: AppSettingsStore(prefs),
     );
   }

@@ -1,5 +1,7 @@
+import 'package:app/app_services.dart';
 import 'package:app/src/call/start_call_mixin.dart';
 import 'package:app/src/chat/chat_item_mixin.dart';
+import 'package:app/src/stores/app_settings/app_settings_store.dart';
 import 'package:flutter/material.dart';
 
 part 'people.dart';

@@ -5,7 +5,6 @@ abstract class AppSettingsStoreReading {
 }
 
 abstract class AppSettingsStoreWriting extends AppSettingsStoreReading {
-  String get myIdentity;
   set myIdentity(String newValue);
 }
 

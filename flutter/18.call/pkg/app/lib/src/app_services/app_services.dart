@@ -4,10 +4,6 @@ import 'package:app/src/app_services/settings_service.dart';
 import 'package:app/src/app_services/video_call_service.dart';
 import 'package:app/src/stores/app_settings/app_settings_store.dart';
 
-export 'package:app/src/app_services/auth_service.dart';
-export 'package:app/src/app_services/settings_service.dart';
-export 'package:app/src/app_services/video_call_service.dart';
-
 abstract class AppServices
     implements
         VideoCallServiceLocator,

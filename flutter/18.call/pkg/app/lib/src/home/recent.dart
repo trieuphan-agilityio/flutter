@@ -10,9 +10,13 @@ class Recent extends StatelessWidget {
       _RecentItemModel('3', 'Julie', _RecentStatus.available),
     ];
 
+    final AppSettingsStoreReading appSettings =
+        AppServices.of(context).appSettingsStore;
+
     return CustomScrollView(
       slivers: [
-        SliverAppBar(pinned: true, title: Text('Recent')),
+        SliverAppBar(
+            pinned: true, title: Text('Hello ${appSettings.myIdentity}')),
         SliverFixedExtentList(
           itemExtent: _UX.itemHeight,
           delegate: SliverChildBuilderDelegate(

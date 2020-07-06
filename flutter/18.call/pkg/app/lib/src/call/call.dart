@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:app/app_services.dart';
 import 'package:app/core.dart';
-import 'package:app/src/app_services/app_services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'call_bloc.dart';

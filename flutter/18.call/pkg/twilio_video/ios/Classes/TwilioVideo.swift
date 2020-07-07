@@ -1,9 +1,32 @@
 import Foundation
 import TwilioVideo
 
+public struct FLTRoom {
+  let sid: String
+  let name: String
+  let numOfRemoteParticipants: Int
+  
+  init(_ room: Room) {
+    self.sid = room.sid
+    self.name = room.name
+    self.numOfRemoteParticipants = room.remoteParticipants.count
+  }
+  
+  func toJson() -> [String: Any] {
+    return [
+      "sid": sid,
+      "name": name,
+      "numOfRemoteParticipants": numOfRemoteParticipants,
+    ]
+  }
+}
+
 public protocol TwilioVideo {
-  func connect(accessToken: String, roomName: String, enabledVoice: Bool, enabledVideo: Bool)
+  func connect(accessToken: String, roomName: String, enabledVoice: Bool, enabledVideo: Bool) -> FLTRoom
   func disconnect()
+  
+  func getLocalParticipant() -> LocalParticipant?
+  func getRemoteParticipant() -> RemoteParticipant?
 
   var onRoomDidConnectListener: OnRoomDidConnectListener? { get set }
   var onRoomDidDisconnectListener: OnRoomDidDisconnectListener? { get set }
@@ -32,7 +55,7 @@ public class TwilioVideoImpl: NSObject {
 
 extension TwilioVideoImpl: TwilioVideo {
 
-  public func connect(accessToken: String, roomName: String, enabledVoice: Bool, enabledVideo: Bool) {
+  public func connect(accessToken: String, roomName: String, enabledVoice: Bool, enabledVideo: Bool) -> FLTRoom {
     let options = ConnectOptions(token: accessToken) { builder in
       builder.roomName = roomName
 
@@ -57,12 +80,25 @@ extension TwilioVideoImpl: TwilioVideo {
       }
     }
 
-    room = TwilioVideoSDK.connect(options: options, delegate: self)
+    let mRoom = TwilioVideoSDK.connect(options: options, delegate: self)
+    // keep a reference for future use.
+    self.room = mRoom
+    
+    return FLTRoom(mRoom)
   }
 
   public func disconnect() {
     room?.disconnect()
     room = nil
+  }
+  
+  public func getLocalParticipant() -> LocalParticipant? {
+    return room?.localParticipant
+  }
+  
+  public func getRemoteParticipant() -> RemoteParticipant? {
+    // support 1-to-1 call for now.
+    return room?.remoteParticipants.first
   }
 }
 
@@ -70,29 +106,31 @@ extension TwilioVideoImpl: TwilioVideo {
 
 extension TwilioVideoImpl: RoomDelegate {
   public func roomDidConnect(room: Room) {
-    print("room connected")
-    onRoomDidConnectListener?.onRoomDidConnect()
+    let fltRoom = FLTRoom(room)
+    onRoomDidConnectListener?.onRoomDidConnect(fltRoom)
   }
 
   public func roomDidDisconnect(room: Room, error: Error?) {
-    print("room disconnected")
-    onRoomDidDisconnectListener?.onRoomDidDisconnect()
+    let fltRoom = FLTRoom(room)
+    onRoomDidDisconnectListener?.onRoomDidDisconnect(fltRoom)
   }
 
   public func roomDidFailToConnect(room: Room, error: Error) {
-    print("room failed to connect")
-    onRoomDidFailToConnectListener?.onRoomDidFailToConnect()
+    let fltRoom = FLTRoom(room)
+    onRoomDidFailToConnectListener?.onRoomDidFailToConnect(fltRoom)
   }
 
   public func participantDidConnect(room: Room, participant: RemoteParticipant) {
-    onParticipantDidConnectListener?.onParticipantDidConnect()
+    let fltRoom = FLTRoom(room)
+    onParticipantDidConnectListener?.onParticipantDidConnect(fltRoom)
 
     // Not handled participant delegate yet
     // participant.delegate = self
   }
 
   public func participantDidDisconnect(room: Room, participant: RemoteParticipant) {
-    onParticipantDidDisconnectListener?.onParticipantDidDisconnect()
+    let fltRoom = FLTRoom(room)
+    onParticipantDidDisconnectListener?.onParticipantDidDisconnect(fltRoom)
   }
 }
 

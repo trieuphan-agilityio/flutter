@@ -28,9 +28,9 @@ class _HomeState extends State<Home> {
       body: isShowRecent
           ? Recent(recentList: [
               RecentItemModel('john', 'John', RecentStatus.videoChatJustEnd),
-              RecentItemModel('jack', 'Jack', RecentStatus.missedVideoChat),
+              RecentItemModel('jack', 'Jack', RecentStatus.available),
               RecentItemModel('jane', 'Jane', RecentStatus.busy),
-              RecentItemModel('julie', 'Julie', RecentStatus.available),
+              RecentItemModel('julie', 'Julie', RecentStatus.missedVideoChat),
             ])
           : People(),
       bottomNavigationBar: BottomNavigationBar(

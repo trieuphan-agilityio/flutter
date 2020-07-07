@@ -50,15 +50,15 @@ public class SwiftTwilioVideoPlugin: NSObject, FlutterPlugin {
       guard let enabledVideo = argMap["enabledVideo"] as? Bool else {
         return missingParameter("enabledVideo", result)
       }
-      twilioVideo.connect(
+      let room = twilioVideo.connect(
         accessToken: accessToken,
         roomName: roomName,
         enabledVoice: enabledVoice,
         enabledVideo: enabledVideo
       )
+      result(room.toJson())
 
     case "disconnect":
-      print("handle `disconnect` invocation")
       twilioVideo.disconnect()
 
     default:
@@ -77,8 +77,12 @@ public class SwiftTwilioVideoPlugin: NSObject, FlutterPlugin {
     plugin.methodChannel = methodChannel
 
     registrar.addMethodCallDelegate(plugin, channel: methodChannel)
+    
+    // 2. Set up a view factory to create native view
+    let viewFactory = ParticipantViewFactory(plugin.twilioVideo)
+    registrar.register(viewFactory, withId: ParticipantViewFactory.VIEW_ID)
 
-    // 2. Set up event channels to push event from iOS to Flutter
+    // 3. Set up event channels to push event from iOS to Flutter
     // Room connected
     plugin.onRoomDidConnectChannel = FlutterEventChannel(
       name: OnRoomDidConnectListenerImpl.CHANNEL_NAME,

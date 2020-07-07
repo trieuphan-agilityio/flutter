@@ -21,9 +21,13 @@ mixin StartCallMixin on Widget {
     _startCall(context, options);
   }
 
-  _startCall(BuildContext context, Model.CallOptions options) {
+  _startCall(BuildContext context, Model.CallOptions options) async {
     final api = AppServices.of(context).videoCallApi;
-    api.call(options);
-    showModal(context: context, builder: (context) => Call(api: api));
+    await api.call(options);
+
+    Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => Call(api: api),
+    ));
   }
 }

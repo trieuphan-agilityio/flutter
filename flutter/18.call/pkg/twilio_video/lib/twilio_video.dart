@@ -7,11 +7,13 @@ abstract class TwilioVideo {
   Future<Room> connect(ConnectOptions options);
   Future<void> disconnect();
 
-  Stream<void> get roomDidConnectStream;
-  Stream<void> get roomDidDisconnectStream;
-  Stream<void> get roomDidFailToConnectStream;
-  Stream<void> get participantDidConnectStream;
-  Stream<void> get participantDidDisconnectStream;
+  Stream<Room> get roomDidConnectStream;
+  Stream<Room> get roomDidDisconnectStream;
+  Stream<Room> get roomDidFailToConnectStream;
+  Stream<Room> get participantDidConnectStream;
+  Stream<Room> get participantDidDisconnectStream;
+
+  /// For now these streams are not in use.
   Stream<void> get didSubscribeToVideoTrackStream;
   Stream<void> get didUnsubscribeToVideoTrackStream;
 }
@@ -32,23 +34,11 @@ class MethodChannelTwilioVideo extends TwilioVideo {
   @override
   Future<Room> connect(ConnectOptions options) async {
     final Map<String, dynamic> argMap = options.toJson();
-    final Map<String, dynamic> retMap =
-        await _channel.invokeMethod<Map<String, dynamic>>('connect', argMap);
 
-    if (retMap == null) {
-      throw PlatformException(
-          code: 'channel-error',
-          message: 'Unable to establish connection on channel.',
-          details: null);
-    } else if (retMap['error'] != null) {
-      final Map<dynamic, dynamic> error = retMap['error'];
-      throw PlatformException(
-          code: error['code'],
-          message: error['message'],
-          details: error['details']);
-    } else {
-      return Room.fromJson(retMap['result']);
-    }
+    final Map<String, dynamic> retMap =
+        await _channel.invokeMapMethod<String, dynamic>('connect', argMap);
+
+    return Room.fromJson(retMap);
   }
 
   @override
@@ -60,42 +50,50 @@ class MethodChannelTwilioVideo extends TwilioVideo {
       EventChannel('com.example/participant_did_connect');
 
   @override
-  Stream<void> get participantDidConnectStream {
-    return _participantDidConnectChannel.receiveBroadcastStream();
+  Stream<Room> get participantDidConnectStream {
+    return _participantDidConnectChannel
+        .receiveBroadcastStream()
+        .map(_parseRoomFromJson);
   }
 
   static const _participantDidDisconnectChannel =
       EventChannel('com.example/participant_did_disconnect');
 
   @override
-  Stream<void> get participantDidDisconnectStream {
-    return _participantDidDisconnectChannel.receiveBroadcastStream();
+  Stream<Room> get participantDidDisconnectStream {
+    return _participantDidDisconnectChannel
+        .receiveBroadcastStream()
+        .map(_parseRoomFromJson);
   }
 
   static const _roomDidConnectChannel =
       EventChannel('com.example/room_did_connect');
 
   @override
-  Stream<void> get roomDidConnectStream {
-    return _roomDidConnectChannel.receiveBroadcastStream().map((e) => true);
+  Stream<Room> get roomDidConnectStream {
+    return _roomDidConnectChannel
+        .receiveBroadcastStream()
+        .map(_parseRoomFromJson);
   }
 
   static const _roomDidDisconnectChannel =
       EventChannel('com.example/room_did_disconnect');
 
   @override
-  Stream<void> get roomDidDisconnectStream {
-    return _roomDidDisconnectChannel.receiveBroadcastStream().map((e) => true);
+  Stream<Room> get roomDidDisconnectStream {
+    return _roomDidDisconnectChannel
+        .receiveBroadcastStream()
+        .map(_parseRoomFromJson);
   }
 
   static const _roomDidFailToConnectChannel =
       EventChannel('com.example/room_did_fail_to_connect');
 
   @override
-  Stream<void> get roomDidFailToConnectStream {
+  Stream<Room> get roomDidFailToConnectStream {
     return _roomDidFailToConnectChannel
         .receiveBroadcastStream()
-        .map((e) => true);
+        .map(_parseRoomFromJson);
   }
 
   static const _didSubscribeToVideoTrackChannel =
@@ -112,5 +110,11 @@ class MethodChannelTwilioVideo extends TwilioVideo {
   @override
   Stream<void> get didUnsubscribeToVideoTrackStream {
     return _didUnsubscribeToVideoTrackChannel.receiveBroadcastStream();
+  }
+
+  static Room _parseRoomFromJson(dynamic json) {
+    final map = Map<String, dynamic>.from(json);
+    final room = Room.fromJson(map);
+    return room;
   }
 }

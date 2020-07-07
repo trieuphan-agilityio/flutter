@@ -41,5 +41,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+    <string>This lets you make voice and video call, create voice messages and more.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This lets you make voice and video call, create voice messages and more.</string>
+    <key>io.flutter.embedded_views_preview</key>
+    <true/>
 </dict>
 </plist>

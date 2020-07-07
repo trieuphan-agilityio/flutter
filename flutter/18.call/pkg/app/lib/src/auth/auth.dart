@@ -1,5 +1,7 @@
+import 'package:app/core.dart';
 import 'package:app/model.dart';
 import 'package:app/src/app_services/app_services.dart';
+import 'package:app/src/debug/debug_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -8,6 +10,7 @@ class Auth extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
+      drawer: DebugDrawer(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

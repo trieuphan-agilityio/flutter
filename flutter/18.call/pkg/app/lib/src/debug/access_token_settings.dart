@@ -13,12 +13,10 @@ class _AccessTokenSettingsState extends State<AccessTokenSettings> {
   GlobalKey _formKey = GlobalKey<FormState>();
 
   String _accessToken;
-  TextEditingController _textController;
 
   @override
   void initState() {
     _accessToken = '';
-    _textController = TextEditingController();
     super.initState();
   }
 

@@ -6,6 +6,7 @@ import 'package:app/core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'call_bloc.dart';
+import 'my_video_track.dart';
 
 class _UX {
   static const double bottomBarPadding = 50.0;
@@ -17,6 +18,9 @@ class _UX {
 
 abstract class CallUI {
   Widget buildBackdrop();
+  Widget buildRinging(BuildContext context);
+  Widget buildVideoCall(BuildContext context);
+  Widget buildVoiceCall(BuildContext context);
   Widget buildTopLeftAction();
   Widget buildTopRightAction();
   List<Widget> buildBottomActions();
@@ -36,32 +40,52 @@ class Call extends StatefulWidget {
 class _CallState extends State<Call> implements CallUI {
   List<StreamSubscription> streamSubscriptions;
 
+  bool isRinging;
+  bool isVideoCall;
+  bool isCallEnded;
+
   @override
   void initState() {
-    super.initState();
+    isRinging = true;
+    isVideoCall = true;
+    isCallEnded = false;
 
     streamSubscriptions = [];
 
-    streamSubscriptions.add(
-      widget.api.callDidFailToStartStream.listen((event) {
-        showDialog(
-          context: context,
-          child: AlertDialog(
-            title: Text('Couldn\'t Make Call'),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Ok'),
-              )
-            ],
-          ),
-        );
-      }),
-    );
+//    streamSubscriptions.add(
+//      widget.api.callDidFailToStartStream.listen((event) {
+//        showDialog(
+//          context: context,
+//          child: AlertDialog(
+//            title: Text('Couldn\'t Make Call'),
+//            actions: <Widget>[
+//              FlatButton(
+//                onPressed: () => Navigator.pop(context),
+//                child: Text('Ok'),
+//              )
+//            ],
+//          ),
+//        );
+//      }),
+//    );
+//
+//    streamSubscriptions.add(
+//      widget.api.callDidStartStream.listen((event) {
+//        setState(() {
+//          isRinging = false;
+//        });
+//      }),
+//    );
+//
+//    streamSubscriptions.add(
+//      widget.api.callDidEndStream.listen((event) {
+//        setState(() {
+//          isCallEnded = true;
+//        });
+//      }),
+//    );
 
-    streamSubscriptions.add(
-      widget.api.callDidStartStream.listen((event) {}),
-    );
+    super.initState();
   }
 
   @override
@@ -74,56 +98,21 @@ class _CallState extends State<Call> implements CallUI {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          buildBackdrop(),
-          Theme(
+    return SafeArea(
+      top: false,
+      right: false,
+      bottom: false,
+      left: false,
+      child: Scaffold(
+        body: Theme(
             data: ThemeData.dark(),
             child: Builder(
-              builder: (BuildContext context) {
-                final theme = Theme.of(context);
-                return SafeArea(
-                  bottom: false,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(children: <Widget>[
-                        buildTopLeftAction(),
-                        const Spacer(),
-                        buildTopRightAction(),
-                      ]),
-                      const SizedBox(height: _UX.avatarTopPadding),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Text('Jamie Larson',
-                              style: theme.textTheme.headline4),
-                          const SizedBox(height: 8),
-                          buildCallStatus(context),
-                        ],
-                      ),
-                      const Spacer(),
-                      Container(
-                        child: Row(
-                          children: <Widget>[
-                            const Spacer(),
-                            ...WidgetUtils.join(
-                              buildBottomActions(),
-                              const SizedBox(width: _UX.bottomBarSpacing),
-                            ),
-                            const Spacer(),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: _UX.bottomBarPadding),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+              builder: (BuildContext context) => isRinging
+                  ? buildRinging(context)
+                  : isVideoCall
+                      ? buildVideoCall(context)
+                      : buildVoiceCall(context),
+            )),
       ),
     );
   }
@@ -189,5 +178,90 @@ class _CallState extends State<Call> implements CallUI {
   @override
   onCallEndButtonPressed() {
     Navigator.pop(context);
+  }
+
+  @override
+  Widget buildVideoCall(BuildContext context) {
+    return Stack(children: <Widget>[
+      MyVideoTrack(),
+      SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(children: <Widget>[
+              buildTopLeftAction(),
+              const Spacer(),
+              buildTopRightAction(),
+            ]),
+            const Spacer(),
+            Container(
+              child: Row(
+                children: <Widget>[
+                  const Spacer(),
+                  ...WidgetUtils.join(
+                    buildBottomActions(),
+                    const SizedBox(width: _UX.bottomBarSpacing),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+            ),
+            const SizedBox(height: _UX.bottomBarPadding),
+          ],
+        ),
+      ),
+    ]);
+  }
+
+  @override
+  Widget buildVoiceCall(BuildContext context) {
+    return Container();
+  }
+
+  @override
+  Widget buildRinging(BuildContext context) {
+    final theme = Theme.of(context);
+    return Stack(
+      children: <Widget>[
+        isVideoCall ? MyVideoTrack() : buildBackdrop(),
+        SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(children: <Widget>[
+                buildTopLeftAction(),
+                const Spacer(),
+                buildTopRightAction(),
+              ]),
+              const SizedBox(height: _UX.avatarTopPadding),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text('Jamie Larson', style: theme.textTheme.headline4),
+                  const SizedBox(height: 8),
+                  buildCallStatus(context),
+                ],
+              ),
+              const Spacer(),
+              Container(
+                child: Row(
+                  children: <Widget>[
+                    const Spacer(),
+                    ...WidgetUtils.join(
+                      buildBottomActions(),
+                      const SizedBox(width: _UX.bottomBarSpacing),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+              ),
+              const SizedBox(height: _UX.bottomBarPadding),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

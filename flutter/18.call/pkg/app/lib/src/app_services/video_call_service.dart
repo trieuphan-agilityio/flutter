@@ -96,19 +96,32 @@ class TwilioVideoCallApi implements VideoCallApi {
   @override
   Stream<void> get callDidStartStream {
     // call start when recipient joins the room
-    return api.roomDidConnectStream;
+    return api.participantDidConnectStream
+        .skipWhile((room) => room.isRecipientJoined)
+        .map((room) {
+      print('Call started $room');
+      return null;
+    });
   }
 
   @override
   Stream<void> get callDidFailToStartStream {
     // call fails when the room is unable to connect
-    return api.roomDidFailToConnectStream;
+    return api.roomDidFailToConnectStream.map((room) {
+      print('Call failed to connect $room');
+      return null;
+    });
   }
 
   @override
   Stream<void> get callDidEndStream {
     // call end when recipient leaves the room
-    return api.participantDidDisconnectStream;
+    return api.participantDidDisconnectStream
+        .skipWhile((room) => room.isRecipientLeaved)
+        .map((room) {
+      print('Call ended $room');
+      return null;
+    });
   }
 
   /// Generate an unique room name based on caller & recipient identities.

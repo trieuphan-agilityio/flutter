@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:app/app_services.dart';
 import 'package:app/core.dart';
+import 'package:app/src/call/recipient_video_track.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'call_bloc.dart';
@@ -41,49 +42,62 @@ class _CallState extends State<Call> implements CallUI {
   List<StreamSubscription> streamSubscriptions;
 
   bool isRinging;
+  bool isCallStarted;
   bool isVideoCall;
   bool isCallEnded;
 
   @override
   void initState() {
-    isRinging = true;
+    isRinging = false;
+    isCallStarted = false;
     isVideoCall = true;
     isCallEnded = false;
 
     streamSubscriptions = [];
 
-//    streamSubscriptions.add(
-//      widget.api.callDidFailToStartStream.listen((event) {
-//        showDialog(
-//          context: context,
-//          child: AlertDialog(
-//            title: Text('Couldn\'t Make Call'),
-//            actions: <Widget>[
-//              FlatButton(
-//                onPressed: () => Navigator.pop(context),
-//                child: Text('Ok'),
-//              )
-//            ],
-//          ),
-//        );
-//      }),
-//    );
-//
-//    streamSubscriptions.add(
-//      widget.api.callDidStartStream.listen((event) {
-//        setState(() {
-//          isRinging = false;
-//        });
-//      }),
-//    );
-//
-//    streamSubscriptions.add(
-//      widget.api.callDidEndStream.listen((event) {
-//        setState(() {
-//          isCallEnded = true;
-//        });
-//      }),
-//    );
+    streamSubscriptions.add(
+      widget.api.callDidCreateStream.listen((event) {
+        setState(() {
+          isRinging = true;
+        });
+      }),
+    );
+
+    streamSubscriptions.add(
+      widget.api.callDidFailToStartStream.listen((event) {
+        showDialog(
+          context: context,
+          child: AlertDialog(
+            title: Text('Couldn\'t Make Call'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Ok'),
+              )
+            ],
+          ),
+        );
+      }),
+    );
+
+    streamSubscriptions.add(
+      widget.api.callDidStartStream.listen((event) {
+        print('Call started');
+        setState(() {
+          isCallStarted = true;
+          isRinging = false;
+        });
+      }),
+    );
+
+    streamSubscriptions.add(
+      widget.api.callDidEndStream.listen((event) {
+        print('Call ended');
+        setState(() {
+          isCallEnded = true;
+        });
+      }),
+    );
 
     super.initState();
   }
@@ -109,9 +123,11 @@ class _CallState extends State<Call> implements CallUI {
             child: Builder(
               builder: (BuildContext context) => isRinging
                   ? buildRinging(context)
-                  : isVideoCall
-                      ? buildVideoCall(context)
-                      : buildVoiceCall(context),
+                  : isCallStarted
+                      ? isVideoCall
+                          ? buildVideoCall(context)
+                          : buildVoiceCall(context)
+                      : Container(child: Placeholder()),
             )),
       ),
     );
@@ -134,9 +150,7 @@ class _CallState extends State<Call> implements CallUI {
   List<Widget> buildBottomActions() {
     return [
       FlatButton(
-        onPressed: () {
-          widget.api.endCall();
-        },
+        onPressed: () {},
         child: Icon(Icons.stop),
       ),
       FlatButton(
@@ -178,12 +192,13 @@ class _CallState extends State<Call> implements CallUI {
   @override
   onCallEndButtonPressed() {
     Navigator.pop(context);
+    widget.api.endCall();
   }
 
   @override
   Widget buildVideoCall(BuildContext context) {
     return Stack(children: <Widget>[
-      MyVideoTrack(),
+      RecipientVideoTrack(),
       SafeArea(
         bottom: false,
         child: Column(

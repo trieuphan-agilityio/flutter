@@ -21,7 +21,8 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
       arguments args: Any?
     ) -> FlutterPlatformView {
       guard let localParticipant = twilioVideo.getLocalParticipant() else {
-        return EmptyView()
+        print("Not found any local participant in room")
+        return EmptyView(frame: frame)
       }
       
       // default video is local participant
@@ -44,7 +45,8 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
       }
       
       guard let unwrappedVideoTrack = videoTrack else {
-        return EmptyView()
+        print("Not found any remote participant in room")
+        return EmptyView(frame: frame)
       }
       
       let videoView = VideoView(frame: frame)
@@ -56,8 +58,13 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
 }
 
 class EmptyView: NSObject, FlutterPlatformView {
+  let frame: CGRect
+  init(frame: CGRect) {
+    self.frame = frame
+  }
+  
   public func view() -> UIView {
-    let view = UIView()
+    let view = UIView(frame: frame)
     view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
     return view
   }

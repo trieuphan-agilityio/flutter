@@ -69,7 +69,7 @@ class RecentItem extends StatelessWidget with ChatRouteMixin, StartCallMixin {
       case RecentStatus.missedVideoChat:
         return IconButton(
             icon: Icon(Icons.call),
-            onPressed: () => startVoiceCall(context, model.identity));
+            onPressed: () => startVideoCall(context, model.identity));
       default:
         return SizedBox.shrink();
     }

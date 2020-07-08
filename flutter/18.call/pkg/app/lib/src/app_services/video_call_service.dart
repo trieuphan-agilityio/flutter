@@ -34,6 +34,7 @@ abstract class VideoCallApi {
   Future<void> turnOffCamera();
   Future<void> turnOnCamera();
 
+  Stream<void> get callDidCreateStream;
   Stream<void> get callDidStartStream;
   Stream<void> get callDidFailToStartStream;
   Stream<void> get callDidEndStream;
@@ -92,6 +93,15 @@ class TwilioVideoCallApi implements VideoCallApi {
 
   @override
   Future<void> useFrontCamera() {}
+
+  @override
+  Stream<void> get callDidCreateStream {
+    // call create when local participant connected to the room
+    return api.roomDidConnectStream.map((room) {
+      print('Call created $room');
+      return null;
+    });
+  }
 
   @override
   Stream<void> get callDidStartStream {

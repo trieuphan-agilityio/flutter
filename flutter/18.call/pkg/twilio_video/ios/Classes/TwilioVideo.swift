@@ -70,16 +70,22 @@ extension TwilioVideoImpl: TwilioVideo {
         // Take a best guess and remove rotation tags using hardware acceleration
         builder.rotationTags = .remove
       }
-      let cameraSource = CameraSource(options: options, delegate: nil)
-
-      if let cameraSource = cameraSource {
+      
+      let cameraDevice: AVCaptureDevice? = CameraSource.captureDevice(position: .back)
+      let cameraSource: CameraSource? = CameraSource(options: options, delegate: nil)
+      
+      if let cameraSource = cameraSource, let cameraDevice = cameraDevice {
         let videoTrack = LocalVideoTrack(source: cameraSource, enabled: enabledVideo, name: "camera")
+        
+        // video track must create before starting capture.
+        cameraSource.startCapture(device: cameraDevice)
         builder.videoTracks = [videoTrack].compactMap { $0 }
+        
       } else {
         builder.videoTracks = []
       }
     }
-
+    
     let mRoom = TwilioVideoSDK.connect(options: options, delegate: self)
     // keep a reference for future use.
     self.room = mRoom

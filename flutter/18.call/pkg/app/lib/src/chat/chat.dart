@@ -21,7 +21,7 @@ class Chat extends StatelessWidget with StartCallMixin {
               ),
               IconButton(
                 icon: Icon(Icons.videocam),
-                onPressed: () {},
+                onPressed: () => startVideoCall(context, identity),
               ),
             ],
           ),

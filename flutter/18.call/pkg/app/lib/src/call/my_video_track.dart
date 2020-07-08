@@ -10,7 +10,7 @@ class MyVideoTrack extends StatelessWidget {
   /// Recommend for front camera
   final bool shouldUseMirror;
 
-  const MyVideoTrack({Key key, this.identity, this.shouldUseMirror})
+  const MyVideoTrack({Key key, this.identity, this.shouldUseMirror = false})
       : super(key: key);
 
   @override
@@ -33,7 +33,6 @@ class MyVideoTrack extends StatelessWidget {
         viewType: 'com.example/participant_view',
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: (viewId) => print('created view'),
       );
     }
   }

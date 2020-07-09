@@ -1,0 +1,9 @@
+name: stream
+description: A playground to try Dart Stream.
+version: 0.0.1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dev_dependencies:
+  test: ^1.0.0

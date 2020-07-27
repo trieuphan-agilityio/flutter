@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ad_stream/ad_stream.iml" filepath="$PROJECT_DIR$/ad_stream/ad_stream.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ad_stream_app/ad_stream_app.iml" filepath="$PROJECT_DIR$/ad_stream_app/ad_stream_app.iml" />
+    </modules>
+  </component>
+</project>

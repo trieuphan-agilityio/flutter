@@ -1,6 +1,4 @@
-main() {
-
-}
+main() {}
 
 /// Splits a stream of consecutive strings into lines.
 ///
@@ -21,4 +19,3 @@ Stream<String> lines(Stream<String> source) async* {
   // Add final partial line to output stream, if any.
   if (partial.isNotEmpty) yield partial;
 }
-

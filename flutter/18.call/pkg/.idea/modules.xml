@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app_preview/app_preview.iml" filepath="$PROJECT_DIR$/app_preview/app_preview.iml" />
       <module fileurl="file://$PROJECT_DIR$/twilio_video/twilio_video.iml" filepath="$PROJECT_DIR$/twilio_video/twilio_video.iml" />
     </modules>
   </component>

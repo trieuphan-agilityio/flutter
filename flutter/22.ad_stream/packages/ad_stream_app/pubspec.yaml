@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.8.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -20,6 +20,9 @@ dependencies:
 
   # Request permission to access camera and microphone
   permission_handler: 5.0.1+1
+
+  animations: 1.1.1
+  provider: 4.1.3
 
 dev_dependencies:
   flutter_test:

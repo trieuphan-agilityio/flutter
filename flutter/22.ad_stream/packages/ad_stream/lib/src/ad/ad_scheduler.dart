@@ -1,6 +1,5 @@
-import 'package:ad_stream/src/creative/creative.dart';
-import 'package:ad_stream/src/creative/targeting_value.dart';
 import 'package:ad_stream/src/ad/ad_repository.dart';
+import 'package:ad_stream/src/ad/targeting_value.dart';
 
 import 'ad.dart';
 
@@ -16,7 +15,7 @@ abstract class AdScheduler {
     final ads = adRepository.getReadyList(_targetingValues);
   }
 
-  Creative getCreativeForDisplay();
+  Ad getAdForDisplay();
 
   setGender(PassengerGender gender);
   setAgeRange(PassengerAgeRange ageRange);
@@ -44,8 +43,8 @@ class AdSchedulerImpl implements AdScheduler {
   }
 
   @override
-  Creative getCreativeForDisplay() {
-    // TODO: implement getCreativeForDisplay
+  Ad getAdForDisplay() {
+    // TODO: implement getAdForDisplay
     throw UnimplementedError();
   }
 

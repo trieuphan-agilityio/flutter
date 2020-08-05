@@ -1,6 +1,5 @@
 import 'package:ad_stream/src/ad/ad.dart';
-import 'package:ad_stream/src/creative/creative.dart';
-import 'package:ad_stream/src/creative/targeting_value.dart';
+import 'package:ad_stream/src/ad/targeting_value.dart';
 
 abstract class AdRepository {
   /// All creatives had been downloaded.

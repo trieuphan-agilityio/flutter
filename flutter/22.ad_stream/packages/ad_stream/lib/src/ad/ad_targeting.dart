@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ad_stream/src/creative/targeting_value.dart';
+import 'package:ad_stream/src/ad/targeting_value.dart';
 
 abstract class AdTargeting {
   Stream<TargetingValues> get stream;

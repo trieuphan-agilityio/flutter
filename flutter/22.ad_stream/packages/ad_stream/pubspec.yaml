@@ -1,13 +1,53 @@
 name: ad_stream
-description: An ad stream package.
-version: 0.0.1
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
 
 environment:
-  sdk: ">=2.8.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
+
+  # BASE
   quiver: 2.1.3
   equatable: 1.2.3
   bloc: 6.0.1
   meta: 1.1.8
   stream_transform: 1.2.0
+  async: 2.4.2
+
+  # DI
+  #
+  # An utility provides a Dependency Injection library.
+  # see more at google/inject.dart
+  inject:
+    path: ../vendor/inject
+
+  # DEVICE PLUGINS
+  #
+  # The plugin has reached a stable API.
+  # They guarantee that version 1.0.0 will be backward compatible with 0.5.y+z.
+  # Use below dependency constraint to allow a smoother ecosystem migration.
+  shared_preferences: ">=0.5.7+3 <2.0.0"
+
+  # Request permission to access camera and microphone
+  permission_handler: 5.0.1+1
+
+  # UI ENHANCEMENT
+  animations: 1.1.1
+
+  # STATE MANAGEMENT
+  provider: 4.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner: 1.7.3
+  inject_generator:
+    path: ../vendor/inject_generator
+
+flutter:
+  uses-material-design: true

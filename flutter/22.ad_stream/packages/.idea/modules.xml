@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ad_stream/ad_stream.iml" filepath="$PROJECT_DIR$/ad_stream/ad_stream.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ad_stream_app/ad_stream_app.iml" filepath="$PROJECT_DIR$/ad_stream_app/ad_stream_app.iml" />
       <module fileurl="file://$PROJECT_DIR$/vendor/inject/inject.iml" filepath="$PROJECT_DIR$/vendor/inject/inject.iml" />
       <module fileurl="file://$PROJECT_DIR$/vendor/inject_generator/inject_generator.iml" filepath="$PROJECT_DIR$/vendor/inject_generator/inject_generator.iml" />
     </modules>

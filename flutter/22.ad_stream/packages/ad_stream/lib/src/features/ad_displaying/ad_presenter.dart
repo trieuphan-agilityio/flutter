@@ -75,7 +75,6 @@ class AdPresenter with PresenterMixin<AdViewable> implements AdPresentable {
   Stream<Ad> get skipStream => skipStreamController.stream;
   Stream<AdDisplayError> get failStream => failStreamController.stream;
 
-  @override
   attemptToDisplay(Ad ad) {
     /// Ad to DisplayableCreative
     view.display(DisplayableCreative(
@@ -86,19 +85,16 @@ class AdPresenter with PresenterMixin<AdViewable> implements AdPresentable {
     ));
   }
 
-  @override
   fail(Ad ad, Error err) {
     failStreamController.add(AdDisplayError(ad, err));
     _attemptToDisplayNewAd();
   }
 
-  @override
   finish(Ad ad) {
     finishStreamController.add(ad);
     _attemptToDisplayNewAd();
   }
 
-  @override
   skip(Ad ad) {
     skipStreamController.add(ad);
     _attemptToDisplayNewAd();

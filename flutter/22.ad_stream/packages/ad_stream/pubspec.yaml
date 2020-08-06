@@ -15,8 +15,7 @@ dependencies:
   equatable: 1.2.3
   bloc: 6.0.1
   meta: 1.1.8
-  stream_transform: 1.2.0
-  async: 2.4.2
+  rxdart: ">=0.24.1 <2.0.0"
 
   # DI
   #
@@ -45,9 +44,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: 1.7.3
   inject_generator:
     path: ../vendor/inject_generator
+
+  build_runner: 1.7.3
+  test: 1.15.2
 
 flutter:
   uses-material-design: true

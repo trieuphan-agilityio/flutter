@@ -2,23 +2,23 @@ import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:flutter/material.dart';
 
-class AdDisplaying extends StatelessWidget {
+class AdViewContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return AdViewerUI(presenter: DI.of(context).adPresenter);
+    return AdView(presenter: DI.of(context).adPresenter);
   }
 }
 
-class AdViewerUI extends StatefulWidget {
+class AdView extends StatefulWidget {
   final AdPresentable presenter;
 
-  const AdViewerUI({Key key, this.presenter}) : super(key: key);
+  const AdView({Key key, this.presenter}) : super(key: key);
 
   @override
-  _AdViewerUIState createState() => _AdViewerUIState();
+  _AdViewState createState() => _AdViewState();
 }
 
-class _AdViewerUIState extends State<AdViewerUI> implements AdViewable {
+class _AdViewState extends State<AdView> implements AdViewable {
   DisplayableCreative model;
 
   @override
@@ -35,6 +35,9 @@ class _AdViewerUIState extends State<AdViewerUI> implements AdViewable {
 
   @override
   Widget build(BuildContext context) {
+    /// no display
+    if (model == null) return Container();
+
     return Container(
       child: Stack(
         children: [

@@ -2,13 +2,9 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
-import 'package:inject/inject.dart';
 
-/// Declare public interface that an AdService should expose
+/// Declare public interface that an AdServices should expose
 abstract class AdServiceLocator {
-  @provide
-  ConfigFactory get configFactory;
-
   @provide
   AdPresentable get adPresenter;
 
@@ -17,8 +13,13 @@ abstract class AdServiceLocator {
 
   @provide
   AdRepository get adRepository;
+
+  @provide
+  Config get config;
 }
 
+/// A source of dependency provider for the injector.
+/// It contains Ad related services.
 @module
 class AdServices {
   @provide
@@ -29,14 +30,20 @@ class AdServices {
 
   @provide
   @singleton
+  Config config(ConfigFactory factory) {
+    return factory.createConfig();
+  }
+
+  @provide
+  @singleton
   AdPresentable adPresenter(AdScheduler adScheduler) {
     return AdPresenter(adScheduler);
   }
 
   @provide
   @singleton
-  AdScheduler adScheduler(AdRepository adRepository) {
-    return AdSchedulerImpl(adRepository);
+  AdScheduler adScheduler(AdRepository adRepository, Config config) {
+    return AdSchedulerImpl(adRepository, config);
   }
 
   @provide

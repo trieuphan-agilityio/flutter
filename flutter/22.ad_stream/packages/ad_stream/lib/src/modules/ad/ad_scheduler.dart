@@ -1,9 +1,11 @@
-import 'package:ad_stream/src/models/targeting_value.dart';
+import 'package:ad_stream/base.dart';
+import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
+import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
 
-import '../../models/ad.dart';
+const String _kAdSchedulerIdentifier = 'AD_SCHEDULER';
 
-abstract class AdScheduler {
+abstract class AdScheduler implements ManageableService {
   /// Choose one of available Ads are buffered.
   Ad getAdForDisplay();
 
@@ -17,15 +19,21 @@ abstract class AdScheduler {
 
 class AdSchedulerImpl implements AdScheduler {
   final AdRepository adRepository;
-
-  final TargetingValues targetingValues;
+  final Config config;
 
   Duration refreshInterval = Duration(seconds: 30);
 
-  AdSchedulerImpl(this.adRepository) : targetingValues = TargetingValues();
+  Ad adToDisplay;
+
+  TargetingValues targetingValues;
+
+  AdSchedulerImpl(this.adRepository, this.config)
+      : targetingValues = TargetingValues();
+
+  /// AdScheduler
 
   Ad getAdForDisplay() {
-    return null;
+    return adToDisplay ?? config.defaultAd;
   }
 
   setAgeRange(PassengerAgeRange ageRange) => targetingValues.add(ageRange);
@@ -35,5 +43,19 @@ class AdSchedulerImpl implements AdScheduler {
 
   setCollectTargetValuesInterval(Duration duration) {
     refreshInterval = duration;
+  }
+
+  /// ManageableService
+
+  String get identifier => _kAdSchedulerIdentifier;
+
+  Future<void> start() {
+    print('AdSchedule starting');
+    return Future.sync(() => null);
+  }
+
+  Future<void> stop() {
+    print('AdSchedule stopping');
+    return Future.sync(() => null);
   }
 }

@@ -1,7 +1,11 @@
+import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
+import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
 
-abstract class AdRepository {
+const String _kAdRepositoryIdentifier = 'AD_REPOSITORY';
+
+abstract class AdRepository implements ManageableService {
   /// returns downloaded Ads that match the given Targeting Values
   List<Ad> getReadyList(TargetingValues values);
 
@@ -11,7 +15,7 @@ abstract class AdRepository {
   /// returns Ads that match the given Targeting Values
   List<Ad> getAds(TargetingValues values);
 
-  /// List of keywords associated to the ads.
+  /// List of keywords were associated to the ads.
   List<Keywords> getKeywords();
 
   /// Ads that has Creative has just been downloaded.
@@ -24,7 +28,7 @@ abstract class AdRepository {
   Stream<Ad> adsStream();
 
   /// Keywords that has just collected.
-  Stream<Keywords> keywordStream();
+  Stream<Keywords> keywordsStream();
 }
 
 class AdRepositoryImpl implements AdRepository {
@@ -47,6 +51,12 @@ class AdRepositoryImpl implements AdRepository {
   }
 
   @override
+  List<Keywords> getKeywords() {
+    // TODO: implement getKeywords
+    return [];
+  }
+
+  @override
   Stream<Ad> adsStream() {
     // TODO: implement adsStream
     return Stream.empty();
@@ -65,14 +75,24 @@ class AdRepositoryImpl implements AdRepository {
   }
 
   @override
-  List<Keywords> getKeywords() {
-    // TODO: implement getKeywords
-    throw UnimplementedError();
+  Stream<Keywords> keywordsStream() {
+    // TODO: implement keywordsStream
+    return Stream.empty();
   }
 
-  @override
-  Stream<Keywords> keywordStream() {
-    // TODO: implement keywordStream
-    throw UnimplementedError();
+  /// ==========================================================================
+  /// ManageableService
+  /// ==========================================================================
+
+  String get identifier => _kAdRepositoryIdentifier;
+
+  Future<void> start() {
+    Log.info('AdRepository is starting');
+    return null;
+  }
+
+  Future<void> stop() {
+    Log.info('AdRepository is stopping');
+    return null;
   }
 }

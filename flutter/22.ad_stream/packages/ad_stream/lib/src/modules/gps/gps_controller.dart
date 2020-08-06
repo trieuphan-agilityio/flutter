@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
+import 'package:rxdart/rxdart.dart';
 
 const String _kGpsControllerIdentifier = 'GPS_CONTROLLER';
 
@@ -13,11 +14,11 @@ abstract class GpsController implements ManageableService {
 }
 
 class FixedGpsController implements GpsController {
-  final StreamController<LatLng> controller;
+  final BehaviorSubject<LatLng> subject;
 
-  FixedGpsController() : controller = StreamController<LatLng>.broadcast();
+  FixedGpsController() : subject = BehaviorSubject<LatLng>();
 
-  Stream<LatLng> get latLng => controller.stream;
+  Stream<LatLng> get latLng => subject.stream;
 
   /// ==========================================================================
   /// ManageableService
@@ -28,7 +29,7 @@ class FixedGpsController implements GpsController {
   Future<void> start() {
     Log.info('FixedGpsController is starting');
     timer = Timer.periodic(Duration(seconds: 1), (_) {
-      controller.add(LatLng(76.0, 106.0));
+      subject.add(LatLng(76.0, 106.0));
     });
     return null;
   }

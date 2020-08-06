@@ -3,8 +3,8 @@ import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 
-/// Declare public interface that an AdServices should expose
-abstract class AdServiceLocator {
+/// Declare public interface that an AdModule should expose
+abstract class AdModuleLocator {
   @provide
   AdPresentable get adPresenter;
 
@@ -21,7 +21,7 @@ abstract class AdServiceLocator {
 /// A source of dependency provider for the injector.
 /// It contains Ad related services.
 @module
-class AdServices {
+class AdModule {
   @provide
   @singleton
   ConfigFactory configFactory() {

@@ -1,24 +1,24 @@
 import 'di.dart' as _i1;
-import '../ad/ad_services.dart' as _i2;
+import '../ad/ad_module.dart' as _i2;
 import '../ad/ad_repository.dart' as _i3;
 import '../../base/config.dart' as _i4;
 import '../ad/ad_scheduler.dart' as _i5;
 import '../../features/ad_displaying/ad_presenter.dart' as _i6;
-import '../power/power_services.dart' as _i7;
+import '../power/power_module.dart' as _i7;
 import '../power/power_provider.dart' as _i8;
-import '../permission/permission_services.dart' as _i9;
+import '../permission/permission_module.dart' as _i9;
 import '../permission/permission_controller.dart' as _i10;
-import '../supervisor/supervisor_services.dart' as _i11;
-import '../gps/gps_services.dart' as _i12;
+import '../supervisor/supervisor_module.dart' as _i11;
+import '../gps/gps_module.dart' as _i12;
 import '../gps/gps_controller.dart' as _i13;
 import '../supervisor/supervisor.dart' as _i14;
 import 'dart:async' as _i15;
 
 class DI$Injector implements _i1.DI {
-  DI$Injector._(this._adServices, this._powerServices, this._permissionServices,
-      this._supervisorServices, this._gpsServices);
+  DI$Injector._(this._adModule, this._powerModule, this._permissionModule,
+      this._supervisorModule, this._gpsModule);
 
-  final _i2.AdServices _adServices;
+  final _i2.AdModule _adModule;
 
   _i3.AdRepository _singletonAdRepository;
 
@@ -30,57 +30,58 @@ class DI$Injector implements _i1.DI {
 
   _i6.AdPresentable _singletonAdPresentable;
 
-  final _i7.PowerServices _powerServices;
+  final _i7.PowerModule _powerModule;
 
   _i8.PowerProvider _singletonPowerProvider;
 
-  final _i9.PermissionServices _permissionServices;
+  final _i9.PermissionModule _permissionModule;
 
   _i10.PermissionController _singletonPermissionController;
 
-  final _i11.SupervisorServices _supervisorServices;
+  final _i11.SupervisorModule _supervisorModule;
 
-  final _i12.GpsServices _gpsServices;
+  final _i12.GpsModule _gpsModule;
 
   _i13.GpsController _singletonGpsController;
 
   _i14.Supervisor _singletonSupervisor;
 
   static _i15.Future<_i1.DI> create(
-      _i2.AdServices adServices,
-      _i7.PowerServices powerServices,
-      _i9.PermissionServices permissionServices,
-      _i11.SupervisorServices supervisorServices,
-      _i12.GpsServices gpsServices) async {
-    final injector = DI$Injector._(adServices, powerServices,
-        permissionServices, supervisorServices, gpsServices);
+      _i2.AdModule adModule,
+      _i7.PowerModule powerModule,
+      _i9.PermissionModule permissionModule,
+      _i11.SupervisorModule supervisorModule,
+      _i12.GpsModule gpsModule) async {
+    final injector = DI$Injector._(
+        adModule, powerModule, permissionModule, supervisorModule, gpsModule);
 
     return injector;
   }
 
   _i6.AdPresentable _createAdPresentable() =>
-      _singletonAdPresentable ??= _adServices.adPresenter(_createAdScheduler());
+      _singletonAdPresentable ??= _adModule.adPresenter(_createAdScheduler());
   _i5.AdScheduler _createAdScheduler() => _singletonAdScheduler ??=
-      _adServices.adScheduler(_createAdRepository(), _createConfig());
+      _adModule.adScheduler(_createAdRepository(), _createConfig());
   _i3.AdRepository _createAdRepository() =>
-      _singletonAdRepository ??= _adServices.adRepository();
+      _singletonAdRepository ??= _adModule.adRepository();
   _i4.Config _createConfig() =>
-      _singletonConfig ??= _adServices.config(_createConfigFactory());
+      _singletonConfig ??= _adModule.config(_createConfigFactory());
   _i4.ConfigFactory _createConfigFactory() =>
-      _singletonConfigFactory ??= _adServices.configFactory();
+      _singletonConfigFactory ??= _adModule.configFactory();
   _i8.PowerProvider _createPowerProvider() =>
-      _singletonPowerProvider ??= _powerServices.powerProvider();
+      _singletonPowerProvider ??= _powerModule.powerProvider();
   _i10.PermissionController _createPermissionController() =>
       _singletonPermissionController ??=
-          _permissionServices.permissionController();
+          _permissionModule.permissionController();
   _i14.Supervisor _createSupervisor() =>
-      _singletonSupervisor ??= _supervisorServices.supervisor(
+      _singletonSupervisor ??= _supervisorModule.supervisor(
           _createPowerProvider(),
           _createPermissionController(),
           _createGpsController(),
-          _createAdScheduler());
+          _createAdScheduler(),
+          _createAdRepository());
   _i13.GpsController _createGpsController() =>
-      _singletonGpsController ??= _gpsServices.gpsController();
+      _singletonGpsController ??= _gpsModule.gpsController();
   @override
   _i6.AdPresentable get adPresenter => _createAdPresentable();
   @override

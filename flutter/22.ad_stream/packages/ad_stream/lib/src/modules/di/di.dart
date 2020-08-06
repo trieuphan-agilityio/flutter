@@ -1,8 +1,8 @@
-import 'package:ad_stream/src/modules/ad/ad_services.dart';
-import 'package:ad_stream/src/modules/gps/gps_services.dart';
-import 'package:ad_stream/src/modules/permission/permission_services.dart';
-import 'package:ad_stream/src/modules/power/power_services.dart';
-import 'package:ad_stream/src/modules/supervisor/supervisor_services.dart';
+import 'package:ad_stream/src/modules/ad/ad_module.dart';
+import 'package:ad_stream/src/modules/gps/gps_module.dart';
+import 'package:ad_stream/src/modules/permission/permission_module.dart';
+import 'package:ad_stream/src/modules/power/power_module.dart';
+import 'package:ad_stream/src/modules/supervisor/supervisor_module.dart';
 import 'package:flutter/widgets.dart';
 import 'package:inject/inject.dart';
 import 'package:provider/provider.dart';
@@ -11,30 +11,30 @@ import 'di.inject.dart' as g;
 
 /// Used as a blueprint to generate an injector
 @Injector(const [
-  AdServices,
-  PowerServices,
-  PermissionServices,
-  SupervisorServices,
-  GpsServices,
+  AdModule,
+  PowerModule,
+  PermissionModule,
+  SupervisorModule,
+  GpsModule,
 ])
 abstract class DI
     implements
-        AdServiceLocator,
-        PowerServiceLocator,
-        PermissionServiceLocator,
-        SupervisorServiceLocator,
-        GpsServiceLocator {
+        AdModuleLocator,
+        PowerModuleLocator,
+        PermissionModuleLocator,
+        SupervisorModuleLocator,
+        GpsModuleLocator {
   static DI of(BuildContext context) {
     return Provider.of<DI>(context);
   }
 
   /// Boilerplate code to wire Inject's things together.
   static Future<DI> create(
-    AdServices adModule,
-    PowerServices powerModule,
-    PermissionServices permissionModule,
-    SupervisorServices supervisorModule,
-    GpsServices gpsModule,
+    AdModule adModule,
+    PowerModule powerModule,
+    PermissionModule permissionModule,
+    SupervisorModule supervisorModule,
+    GpsModule gpsModule,
   ) async {
     return await g.DI$Injector.create(
       adModule,
@@ -61,10 +61,10 @@ abstract class DI
 /// }
 Future<DI> createDI() {
   return DI.create(
-    AdServices(),
-    PowerServices(),
-    PermissionServices(),
-    SupervisorServices(),
-    GpsServices(),
+    AdModule(),
+    PowerModule(),
+    PermissionModule(),
+    SupervisorModule(),
+    GpsModule(),
   );
 }

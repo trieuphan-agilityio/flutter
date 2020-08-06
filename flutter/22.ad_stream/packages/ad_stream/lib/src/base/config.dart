@@ -10,12 +10,14 @@ class Config {
   /// Ad that should be displayed when the app is fetching from Ad Server.
   final Ad defaultAd;
 
-  ///
+  /// Time in seconds indicates when AdScheduler will refresh its content.
+  final int defaultAdSchedulerRefreshInterval;
 
   Config({
     this.timeBlockToSeconds = 15,
     this.defaultCanSkipAfter = 6,
     this.defaultAd,
+    this.defaultAdSchedulerRefreshInterval = 30,
   });
 }
 

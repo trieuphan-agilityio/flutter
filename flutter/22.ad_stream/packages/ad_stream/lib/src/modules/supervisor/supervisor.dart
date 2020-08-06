@@ -22,56 +22,17 @@ abstract class Supervisor {
   addService(ManageableService service);
   removeService(String identifier);
 
-  /// Start it.
+  /// Initialise subscriptions.
   ///
   /// Typically, it should be hooked to the root view lifecycle.
   /// Service should be started when the app is ready to serve.
-  start();
+  init();
 
   /// All managed services also be stopped until another components resume this.
-  stop();
+  dispose();
 }
 
-/// SupervisorMixin contains common methods/properties that a Supervisor should have.
-mixin SupervisorMixin on Supervisor {
-  final List<ManageableService> managingServices = [];
-
-  addService(ManageableService service) {
-    managingServices.add(service);
-  }
-
-  removeService(String identifier) {
-    managingServices.removeWhere((srv) => srv.identifier == identifier);
-  }
-
-  start() {
-    for (final srv in managingServices) {
-      // ignore: cancel_subscriptions
-      final subscription = status.listen((s) {
-        if (s == ServiceStatus.START)
-          srv.start();
-        else
-          srv.stop();
-      });
-      serviceDisposables.putIfAbsent(srv.identifier, () => subscription);
-    }
-  }
-
-  stop() {
-    for (final srv in managingServices) {
-      srv.stop();
-    }
-
-    for (final entry in serviceDisposables.entries) {
-      entry.value.cancel();
-    }
-    serviceDisposables.clear();
-  }
-
-  final Map<String, StreamSubscription<ServiceStatus>> serviceDisposables = {};
-}
-
-class SupervisorImpl extends Supervisor with SupervisorMixin {
+class SupervisorImpl implements Supervisor {
   SupervisorImpl(
     this.powerProvider,
     this.permissionController,
@@ -82,6 +43,8 @@ class SupervisorImpl extends Supervisor with SupervisorMixin {
 
   final StreamController<ServiceStatus> statusStreamController;
 
+  final List<ManageableService> managingServices = [];
+
   /// Check if supervisor has ever started yet?
   /// It's useful for dismissing STOP event if it haven't started yet.
   bool _hasStartedOnce = false;
@@ -90,6 +53,14 @@ class SupervisorImpl extends Supervisor with SupervisorMixin {
   Stream<ServiceStatus> get status {
     //  Skips if service status is equal to the previous.
     return statusStreamController.stream.distinct();
+  }
+
+  addService(ManageableService service) {
+    managingServices.add(service);
+  }
+
+  removeService(String identifier) {
+    managingServices.removeWhere((srv) => srv.identifier == identifier);
   }
 
   PowerStatus _powerStatus;
@@ -111,9 +82,17 @@ class SupervisorImpl extends Supervisor with SupervisorMixin {
     }
   }
 
-  @override
-  start() {
-    super.start();
+  init() {
+    for (final srv in managingServices) {
+      // ignore: cancel_subscriptions
+      final subscription = status.listen((s) {
+        if (s == ServiceStatus.START)
+          srv.start();
+        else
+          srv.stop();
+      });
+      serviceDisposables.putIfAbsent(srv.identifier, () => subscription);
+    }
 
     // start monitoring the status of Power Provider
     // TODO manage pause, resume, cancel events along with upstream streams.
@@ -131,9 +110,15 @@ class SupervisorImpl extends Supervisor with SupervisorMixin {
     }));
   }
 
-  @override
-  stop() {
-    super.stop();
+  dispose() {
+    for (final srv in managingServices) {
+      srv.stop();
+    }
+
+    for (final entry in serviceDisposables.entries) {
+      entry.value.cancel();
+    }
+    serviceDisposables.clear();
 
     for (final disposable in disposables) {
       disposable.cancel();
@@ -145,9 +130,15 @@ class SupervisorImpl extends Supervisor with SupervisorMixin {
   /// It will dismiss STOP event if it haven't started yet.
   _emitServiceStatusIfNeeds() {
     final _status = getServiceStatus();
-    if (!_hasStartedOnce && _status == ServiceStatus.STOP) return;
+    if (!_hasStartedOnce && _status == ServiceStatus.STOP) {
+      return;
+    }
+    if (!_hasStartedOnce && _status == ServiceStatus.START) {
+      _hasStartedOnce = true;
+    }
     statusStreamController.add(getServiceStatus());
   }
 
-  List<StreamSubscription> disposables = [];
+  final List<StreamSubscription> disposables = [];
+  final Map<String, StreamSubscription<ServiceStatus>> serviceDisposables = {};
 }

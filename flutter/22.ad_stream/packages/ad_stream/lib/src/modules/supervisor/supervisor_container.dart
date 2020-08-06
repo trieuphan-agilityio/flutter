@@ -32,12 +32,12 @@ class __SupervisorLifecycleState extends State<_SupervisorLifecycle> {
   @override
   void initState() {
     super.initState();
-    widget.supervisor.start();
+    widget.supervisor.init();
   }
 
   @override
   void dispose() {
-    widget.supervisor.stop();
+    widget.supervisor.dispose();
     super.dispose();
   }
 

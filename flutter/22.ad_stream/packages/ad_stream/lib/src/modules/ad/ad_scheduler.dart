@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
@@ -21,24 +23,33 @@ class AdSchedulerImpl implements AdScheduler {
   final AdRepository adRepository;
   final Config config;
 
-  Duration refreshInterval = Duration(seconds: 30);
+  /// Amount of time that must elapse before AdSchedule can refresh its content.
+  Duration refreshInterval;
 
-  Ad adToDisplay;
+  /// Ad that matched targeting values and place here to wait for displaying.
+  Ad _adToDisplay;
 
+  /// A set of targeting value that helps narrows who sees ads and helps
+  /// advertisers reach an intended audience with their campaigns.
   TargetingValues targetingValues;
 
   AdSchedulerImpl(this.adRepository, this.config)
-      : targetingValues = TargetingValues();
+      : targetingValues = TargetingValues(),
+        refreshInterval =
+            Duration(seconds: config.defaultAdSchedulerRefreshInterval);
 
   /// AdScheduler
 
   Ad getAdForDisplay() {
-    return adToDisplay ?? config.defaultAd;
+    return _adToDisplay ?? config.defaultAd;
   }
 
   setAgeRange(PassengerAgeRange ageRange) => targetingValues.add(ageRange);
+
   setArea(Area area) => targetingValues.add(area);
+
   setGender(PassengerGender gender) => targetingValues.add(gender);
+
   setKeywords(Keywords keywords) => targetingValues.add(keywords);
 
   setCollectTargetValuesInterval(Duration duration) {
@@ -50,12 +61,14 @@ class AdSchedulerImpl implements AdScheduler {
   String get identifier => _kAdSchedulerIdentifier;
 
   Future<void> start() {
-    print('AdSchedule starting');
-    return Future.sync(() => null);
+    Log.info('AdSchedule is starting');
+    return null;
   }
 
   Future<void> stop() {
-    print('AdSchedule stopping');
-    return Future.sync(() => null);
+    Log.info('AdSchedule is stopping');
+    return null;
   }
+
+  Timer timer;
 }

@@ -14,10 +14,10 @@ main() {
       final mockService = _MockService();
       supervisor.addService(mockService);
 
-      supervisor.start();
+      supervisor.init();
       await flushMicrotasks();
 
-      supervisor.stop();
+      supervisor.dispose();
       await flushMicrotasks();
 
       expect(mockService.startCalled, equals(1));

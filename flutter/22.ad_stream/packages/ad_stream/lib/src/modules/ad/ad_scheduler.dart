@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
-import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 const String _kAdSchedulerIdentifier = 'AD_SCHEDULER';
 

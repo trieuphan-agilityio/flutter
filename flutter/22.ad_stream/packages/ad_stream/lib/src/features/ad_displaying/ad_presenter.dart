@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
+import 'package:ad_stream/src/features/ad_displaying/ad_display_error.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 import 'package:meta/meta.dart';
 
@@ -49,15 +50,6 @@ abstract class AdPresentable implements Presentable<AdViewable> {
   /// fail is called when View has error on displaying Ad.
   /// for example: Files on storage is damaged.
   fail(Ad ad, Error err);
-}
-
-/// Error happens while displaying a creative
-@immutable
-class AdDisplayError {
-  final Ad ad;
-  final Error error;
-
-  AdDisplayError(this.ad, this.error);
 }
 
 class AdPresenter with PresenterMixin<AdViewable> implements AdPresentable {

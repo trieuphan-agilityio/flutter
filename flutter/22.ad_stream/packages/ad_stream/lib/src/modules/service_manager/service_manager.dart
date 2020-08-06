@@ -6,7 +6,7 @@ import 'package:ad_stream/src/modules/power/power_provider.dart';
 
 enum ServiceStatus { START, STOP }
 
-/// Services that are managed by [Supervisor].
+/// Services that are managed by [ServiceManager].
 /// Checkout [SupervisorServices] to see how they are hooked together.
 abstract class ManageableService {
   String get identifier;
@@ -16,7 +16,7 @@ abstract class ManageableService {
 
 /// A central service manager that propagate START, STOP events to all services
 /// it's managing.
-abstract class Supervisor {
+abstract class ServiceManager {
   Stream<ServiceStatus> get status;
 
   addService(ManageableService service);
@@ -32,8 +32,8 @@ abstract class Supervisor {
   dispose();
 }
 
-class SupervisorImpl implements Supervisor {
-  SupervisorImpl(
+class ServiceManagerImpl implements ServiceManager {
+  ServiceManagerImpl(
     this.powerStatusStream,
     this.permissionStatusStream,
   ) : statusStreamController = StreamController<ServiceStatus>.broadcast();

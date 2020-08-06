@@ -1,7 +1,7 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 
-import 'supervisor.dart';
+import 'service_manager.dart';
 
 class SupervisorContainer extends StatelessWidget {
   final Widget child;
@@ -10,25 +10,26 @@ class SupervisorContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SupervisorLifecycle(
-      supervisor: DI.of(context).supervisor,
+    return _ServiceManagerLifecycle(
+      supervisor: DI.of(context).serviceManager,
       child: child,
     );
   }
 }
 
-class _SupervisorLifecycle extends StatefulWidget {
-  final Supervisor supervisor;
+class _ServiceManagerLifecycle extends StatefulWidget {
+  final ServiceManager supervisor;
   final Widget child;
 
-  const _SupervisorLifecycle({Key key, this.child, this.supervisor})
+  const _ServiceManagerLifecycle({Key key, this.child, this.supervisor})
       : super(key: key);
 
   @override
-  __SupervisorLifecycleState createState() => __SupervisorLifecycleState();
+  __ServiceManagerLifecycleState createState() =>
+      __ServiceManagerLifecycleState();
 }
 
-class __SupervisorLifecycleState extends State<_SupervisorLifecycle> {
+class __ServiceManagerLifecycleState extends State<_ServiceManagerLifecycle> {
   @override
   void initState() {
     super.initState();

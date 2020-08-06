@@ -4,34 +4,34 @@ import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
-import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 /// Declare public interface that an SupervisorModule should expose
-abstract class SupervisorModuleLocator {
+abstract class ServiceManagerModuleLocator {
   @provide
-  Supervisor get supervisor;
+  ServiceManager get serviceManager;
 }
 
 /// A source of dependency provider for the injector.
 @module
-class SupervisorModule {
+class ServiceManagerModule {
   @provide
   @singleton
-  Supervisor supervisor(
+  ServiceManager serviceManager(
     PowerProvider powerProvider,
     PermissionController permissionController,
     GpsController gpsController,
     AdScheduler adScheduler,
     AdRepository adRepository,
   ) {
-    final Supervisor supervisor =
-        SupervisorImpl(powerProvider.status, permissionController.status);
+    final ServiceManager serviceManager =
+        ServiceManagerImpl(powerProvider.status, permissionController.status);
 
-    // tell supervisor services it should manage.
-    supervisor.addService(gpsController);
-    supervisor.addService(adScheduler);
-    supervisor.addService(adRepository);
+    // tell service manager services it should manage.
+    serviceManager.addService(gpsController);
+    serviceManager.addService(adScheduler);
+    serviceManager.addService(adRepository);
 
-    return supervisor;
+    return serviceManager;
   }
 }

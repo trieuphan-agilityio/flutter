@@ -1,8 +1,8 @@
-import 'package:ad_stream/src/features/ad_displaying/ad_displaying.dart';
+import 'package:ad_stream/src/features/ad_displaying/ad_view.dart';
 import 'package:ad_stream/src/modules/debugger/debug_drawer.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:ad_stream/src/modules/permission/permission_container.dart';
-import 'package:ad_stream/src/modules/supervisor/supervisor_container.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

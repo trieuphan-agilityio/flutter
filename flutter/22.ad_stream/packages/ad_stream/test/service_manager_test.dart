@@ -1,25 +1,25 @@
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
-import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 import 'package:test/test.dart';
 
 import 'utils.dart';
 
 main() {
-  group('Supervisor', () {
-    final supervisor = SupervisorImpl(
+  group('Service Manager', () {
+    final serviceManager = ServiceManagerImpl(
       AlwaysStrongPowerProvider().status,
       AlwaysAllowPermissionController().status,
     );
 
     test('can start/stop services it manages', () async {
       final mockService = _MockService();
-      supervisor.addService(mockService);
+      serviceManager.addService(mockService);
 
-      supervisor.init();
+      serviceManager.init();
       await flushMicrotasks();
 
-      supervisor.dispose();
+      serviceManager.dispose();
       await flushMicrotasks();
 
       expect(mockService.startCalled, equals(1));

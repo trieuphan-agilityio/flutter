@@ -8,15 +8,15 @@ import '../power/power_module.dart' as _i7;
 import '../power/power_provider.dart' as _i8;
 import '../permission/permission_module.dart' as _i9;
 import '../permission/permission_controller.dart' as _i10;
-import '../supervisor/supervisor_module.dart' as _i11;
+import '../service_manager/service_manager_module.dart' as _i11;
 import '../gps/gps_module.dart' as _i12;
 import '../gps/gps_controller.dart' as _i13;
-import '../supervisor/supervisor.dart' as _i14;
+import '../service_manager/service_manager.dart' as _i14;
 import 'dart:async' as _i15;
 
 class DI$Injector implements _i1.DI {
   DI$Injector._(this._adModule, this._powerModule, this._permissionModule,
-      this._supervisorModule, this._gpsModule);
+      this._serviceManagerModule, this._gpsModule);
 
   final _i2.AdModule _adModule;
 
@@ -38,22 +38,22 @@ class DI$Injector implements _i1.DI {
 
   _i10.PermissionController _singletonPermissionController;
 
-  final _i11.SupervisorModule _supervisorModule;
+  final _i11.ServiceManagerModule _serviceManagerModule;
 
   final _i12.GpsModule _gpsModule;
 
   _i13.GpsController _singletonGpsController;
 
-  _i14.Supervisor _singletonSupervisor;
+  _i14.ServiceManager _singletonServiceManager;
 
   static _i15.Future<_i1.DI> create(
       _i2.AdModule adModule,
       _i7.PowerModule powerModule,
       _i9.PermissionModule permissionModule,
-      _i11.SupervisorModule supervisorModule,
+      _i11.ServiceManagerModule serviceManagerModule,
       _i12.GpsModule gpsModule) async {
-    final injector = DI$Injector._(
-        adModule, powerModule, permissionModule, supervisorModule, gpsModule);
+    final injector = DI$Injector._(adModule, powerModule, permissionModule,
+        serviceManagerModule, gpsModule);
 
     return injector;
   }
@@ -73,8 +73,8 @@ class DI$Injector implements _i1.DI {
   _i10.PermissionController _createPermissionController() =>
       _singletonPermissionController ??=
           _permissionModule.permissionController();
-  _i14.Supervisor _createSupervisor() =>
-      _singletonSupervisor ??= _supervisorModule.supervisor(
+  _i14.ServiceManager _createServiceManager() =>
+      _singletonServiceManager ??= _serviceManagerModule.serviceManager(
           _createPowerProvider(),
           _createPermissionController(),
           _createGpsController(),
@@ -96,7 +96,7 @@ class DI$Injector implements _i1.DI {
   _i10.PermissionController get permissionController =>
       _createPermissionController();
   @override
-  _i14.Supervisor get supervisor => _createSupervisor();
+  _i14.ServiceManager get serviceManager => _createServiceManager();
   @override
   _i13.GpsController get gpsController => _createGpsController();
 }

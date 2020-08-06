@@ -1,7 +1,7 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
-import 'package:ad_stream/src/modules/supervisor/supervisor.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 const String _kAdRepositoryIdentifier = 'AD_REPOSITORY';
 

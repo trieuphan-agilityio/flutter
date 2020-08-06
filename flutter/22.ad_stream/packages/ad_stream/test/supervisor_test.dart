@@ -8,7 +8,9 @@ import 'utils.dart';
 main() {
   group('Supervisor', () {
     final supervisor = SupervisorImpl(
-        AlwaysStrongPowerProvider(), AlwaysAllowPermissionController());
+      AlwaysStrongPowerProvider().status,
+      AlwaysAllowPermissionController().status,
+    );
 
     test('can start/stop services it manages', () async {
       final mockService = _MockService();

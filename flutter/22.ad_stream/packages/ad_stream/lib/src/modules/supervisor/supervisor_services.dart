@@ -23,7 +23,7 @@ class SupervisorServices {
     AdScheduler adScheduler,
   ) {
     final Supervisor supervisor =
-        SupervisorImpl(powerProvider, permissionController);
+        SupervisorImpl(powerProvider.status, permissionController.status);
 
     // tell supervisor services it should manage.
     supervisor.addService(gpsController);

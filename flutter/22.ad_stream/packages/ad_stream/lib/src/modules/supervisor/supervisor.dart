@@ -34,12 +34,12 @@ abstract class Supervisor {
 
 class SupervisorImpl implements Supervisor {
   SupervisorImpl(
-    this.powerProvider,
-    this.permissionController,
+    this.powerStatusStream,
+    this.permissionStatusStream,
   ) : statusStreamController = StreamController<ServiceStatus>.broadcast();
 
-  final PowerProvider powerProvider;
-  final PermissionController permissionController;
+  final Stream<PowerStatus> powerStatusStream;
+  final Stream<PermissionStatus> permissionStatusStream;
 
   final StreamController<ServiceStatus> statusStreamController;
 
@@ -96,14 +96,14 @@ class SupervisorImpl implements Supervisor {
 
     // start monitoring the status of Power Provider
     // TODO manage pause, resume, cancel events along with upstream streams.
-    disposables.add(powerProvider.status.listen((status) {
+    disposables.add(powerStatusStream.listen((status) {
       Log.debug('Supervisor observed a change, PowerProvider: $status');
       setPowerStatus(status);
       _emitServiceStatusIfNeeds();
     }));
 
     // start monitoring the status of Permission Controller
-    disposables.add(permissionController.status.listen((status) {
+    disposables.add(permissionStatusStream.listen((status) {
       Log.debug('Supervisor observed a change, PermissionController: $status');
       setPermissionStatus(status);
       _emitServiceStatusIfNeeds();

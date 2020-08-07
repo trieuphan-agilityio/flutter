@@ -38,6 +38,23 @@ main() {
 
       expect(mockService.stopCalled, equals(0));
     });
+
+    test('should work properly with multiple services', () async {
+      final anotherMockService = _MockService();
+      anotherMockService.listen(serviceManager.status$);
+
+      serviceManager.start();
+      await flushMicrotasks();
+
+      serviceManager.stop();
+      await flushMicrotasks();
+
+      expect(mockService.startCalled, equals(1));
+      expect(mockService.stopCalled, equals(1));
+
+      expect(anotherMockService.startCalled, equals(1));
+      expect(anotherMockService.stopCalled, equals(1));
+    });
   });
 }
 

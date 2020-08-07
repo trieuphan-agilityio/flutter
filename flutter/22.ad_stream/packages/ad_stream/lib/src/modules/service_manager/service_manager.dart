@@ -39,9 +39,17 @@ class ServiceManagerImpl extends DisposableController
 
   /// Exposes the services's status via a stream.
   Stream<ServiceStatus> get status$ {
-    // Skips if service status is equal to the previous.
-    return status$Controller.stream.distinct().skipInitialStopped();
+    /// Ensure that the stream transformation only execute once.
+    /// TODO write a test for this logic
+    if (_status$ == null)
+      // Skips if service status is equal to the previous.
+      _status$ = status$Controller.stream.distinct().skipInitialStopped();
+
+    return _status$;
   }
+
+  /// A cache of the stream transformation result.
+  Stream<ServiceStatus> _status$;
 
   start() {
     final subscription = powerStatus$.combineLatest(

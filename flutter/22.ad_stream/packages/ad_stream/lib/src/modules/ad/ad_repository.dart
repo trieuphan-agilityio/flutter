@@ -1,11 +1,9 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
-import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
+import 'package:ad_stream/src/modules/service_manager/service.dart';
 
-const String _kAdRepositoryIdentifier = 'AD_REPOSITORY';
-
-abstract class AdRepository implements ManageableService {
+abstract class AdRepository {
   /// returns downloaded Ads that match the given Targeting Values
   List<Ad> getReadyList(TargetingValues values);
 
@@ -31,7 +29,9 @@ abstract class AdRepository implements ManageableService {
   Stream<Keywords> keywordsStream();
 }
 
-class AdRepositoryImpl implements AdRepository {
+class AdRepositoryImpl extends Service
+    with ServiceMixin
+    implements AdRepository {
   @override
   List<Ad> getAds(TargetingValues values) {
     return [];
@@ -73,10 +73,8 @@ class AdRepositoryImpl implements AdRepository {
   }
 
   /// ==========================================================================
-  /// ManageableService
+  /// Service
   /// ==========================================================================
-
-  String get identifier => _kAdRepositoryIdentifier;
 
   Future<void> start() {
     Log.info('AdRepository is starting');

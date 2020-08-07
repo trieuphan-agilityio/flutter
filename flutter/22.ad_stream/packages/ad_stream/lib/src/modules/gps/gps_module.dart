@@ -1,4 +1,5 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'gps_controller.dart';
 
@@ -14,7 +15,9 @@ abstract class GpsModuleLocator {
 class GpsModule {
   @provide
   @singleton
-  GpsController gpsController() {
-    return FixedGpsController();
+  GpsController gpsController(ServiceManager serviceManager) {
+    final gpsController = FixedGpsController();
+    gpsController.listen(serviceManager.status$);
+    return gpsController;
   }
 }

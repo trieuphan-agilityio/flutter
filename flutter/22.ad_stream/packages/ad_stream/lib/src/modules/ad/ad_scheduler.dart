@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
-import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
+import 'package:ad_stream/src/modules/service_manager/service.dart';
 
-const String _kAdSchedulerIdentifier = 'AD_SCHEDULER';
-
-abstract class AdScheduler implements ManageableService {
+abstract class AdScheduler {
   /// Choose one of available Ads are buffered.
   Ad getAdForDisplay();
 
@@ -19,7 +17,7 @@ abstract class AdScheduler implements ManageableService {
   setCollectTargetValuesInterval(Duration duration);
 }
 
-class AdSchedulerImpl implements AdScheduler {
+class AdSchedulerImpl extends Service with ServiceMixin implements AdScheduler {
   final AdRepository adRepository;
   final Config config;
 
@@ -56,9 +54,9 @@ class AdSchedulerImpl implements AdScheduler {
     refreshInterval = duration;
   }
 
-  /// ManageableService
+  Timer _timer;
 
-  String get identifier => _kAdSchedulerIdentifier;
+  /// Service
 
   Future<void> start() {
     Log.info('AdSchedule is starting');
@@ -69,6 +67,4 @@ class AdSchedulerImpl implements AdScheduler {
     Log.info('AdSchedule is stopping');
     return null;
   }
-
-  Timer timer;
 }

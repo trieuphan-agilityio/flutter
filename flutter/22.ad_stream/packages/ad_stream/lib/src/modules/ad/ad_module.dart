@@ -2,11 +2,12 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 /// Declare public interface that an AdModule should expose
 abstract class AdModuleLocator {
   @provide
-  AdPresentable get adPresenter;
+  AdPresenter get adPresenter;
 
   @provide
   AdScheduler get adScheduler;
@@ -36,19 +37,27 @@ class AdModule {
 
   @provide
   @singleton
-  AdPresentable adPresenter(AdScheduler adScheduler) {
-    return AdPresenter(adScheduler);
+  AdPresenter adPresenter(AdScheduler adScheduler) {
+    return AdPresenterImpl(adScheduler);
   }
 
   @provide
   @singleton
-  AdScheduler adScheduler(AdRepository adRepository, Config config) {
-    return AdSchedulerImpl(adRepository, config);
+  AdScheduler adScheduler(
+    ServiceManager serviceManager,
+    AdRepository adRepository,
+    Config config,
+  ) {
+    final adScheduler = AdSchedulerImpl(adRepository, config);
+    adScheduler.listen(serviceManager.status$);
+    return adScheduler;
   }
 
   @provide
   @singleton
-  AdRepository adRepository() {
-    return AdRepositoryImpl();
+  AdRepository adRepository(ServiceManager serviceManager) {
+    final adRepository = AdRepositoryImpl();
+    adRepository.listen(serviceManager.status$);
+    return adRepository;
   }
 }

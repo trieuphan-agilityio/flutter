@@ -7,20 +7,20 @@ import 'package:flutter/material.dart';
 class AdViewContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return AdView(presenter: DI.of(context).adPresenter);
+    return AdViewImpl(presenter: DI.of(context).adPresenter);
   }
 }
 
-class AdView extends StatefulWidget {
-  final AdPresentable presenter;
+class AdViewImpl extends StatefulWidget {
+  final AdPresenter presenter;
 
-  const AdView({Key key, this.presenter}) : super(key: key);
+  const AdViewImpl({Key key, this.presenter}) : super(key: key);
 
   @override
-  _AdViewState createState() => _AdViewState();
+  _AdViewImplState createState() => _AdViewImplState();
 }
 
-class _AdViewState extends State<AdView> implements AdViewable {
+class _AdViewImplState extends State<AdViewImpl> implements AdView {
   DisplayableCreative model;
 
   @override
@@ -53,7 +53,7 @@ class _AdViewState extends State<AdView> implements AdViewable {
     return model.isSkippable
         ? SkipButton(
             canSkipAfter: model.canSkipAfter,
-            onSkip: () => widget.presenter.skip(model.ad),
+            onSkip: () => widget.presenter.skip(),
           )
         : SizedBox.shrink();
   }

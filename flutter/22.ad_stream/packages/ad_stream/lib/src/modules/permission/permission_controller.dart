@@ -11,20 +11,20 @@ enum PermissionStatus {
 }
 
 abstract class PermissionController {
-  Stream<PermissionStatus> get status;
+  Stream<PermissionStatus> get status$;
 }
 
 class PermissionControllerImpl implements PermissionController {
   @override
   // TODO: implement status
-  Stream<PermissionStatus> get status => throw UnimplementedError();
+  Stream<PermissionStatus> get status$ => throw UnimplementedError();
 }
 
 class AlwaysAllowPermissionController implements PermissionController {
-  final BehaviorSubject<PermissionStatus> subject;
+  final StreamController<PermissionStatus> status$Controller;
 
   AlwaysAllowPermissionController()
-      : subject = BehaviorSubject.seeded(PermissionStatus.ALLOWED);
+      : status$Controller = BehaviorSubject.seeded(PermissionStatus.ALLOWED);
 
-  Stream<PermissionStatus> get status => subject.stream;
+  Stream<PermissionStatus> get status$ => status$Controller.stream;
 }

@@ -4,7 +4,7 @@
 /// View can consume and display.
 ///
 /// It also maps UI events to business logic method, invoked to its listener.
-abstract class Presentable<ViewType> {
+abstract class Presenter<ViewType> {
   /// View component is attached to this presenter.
   /// It could be nullable when the View is disposed by View engine.
   ViewType get view;

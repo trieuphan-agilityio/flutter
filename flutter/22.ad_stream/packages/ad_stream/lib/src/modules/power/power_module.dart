@@ -1,4 +1,5 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'power_provider.dart';
 

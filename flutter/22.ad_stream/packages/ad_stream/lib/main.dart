@@ -39,7 +39,7 @@ class App extends StatelessWidget {
               drawer: DebugDrawer(),
               body: Stack(children: <Widget>[
                 Expanded(child: SupervisorContainer(child: AdViewContainer())),
-                SizedBox.shrink(child: PermissionContainer()),
+                PermissionContainer(),
               ]),
             );
           },

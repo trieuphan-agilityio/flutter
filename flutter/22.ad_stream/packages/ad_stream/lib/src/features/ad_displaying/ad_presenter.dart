@@ -2,37 +2,20 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
-import 'package:ad_stream/src/features/ad_displaying/ad_display_error.dart';
+import 'package:ad_stream/src/features/ad_displaying/models/displayable_creative.dart';
+import 'package:ad_stream/src/models/ad_display_error.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
-import 'package:meta/meta.dart';
 
 /// View component of AdPresentable
 abstract class AdViewable {
   display(DisplayableCreative creative);
 }
 
-@immutable
-class DisplayableCreative {
-  /// Original ad object uses for reference
-  final Ad ad;
-
-  /// duration indicates how long the ad should be displayed
-  final Duration duration;
-
-  /// allow viewers to skip ads after 5 seconds if they wish
-  final int canSkipAfter;
-
-  /// indicates whether ad is skippable
-  final bool isSkippable;
-
-  DisplayableCreative({
-    @required this.ad,
-    @required this.duration,
-    @required this.canSkipAfter,
-    @required this.isSkippable,
-  });
-}
-
+/// A Presenter of Ad, it helps to de-couple the view's lifecycle to other
+/// component like [AdScheduler].
+///
+/// While the UI engine is preparing for showing the [AdView], [AdScheduler] already
+/// run in another isolate to get the Ad ready.
 abstract class AdPresentable implements Presentable<AdViewable> {
   Stream<Ad> get finishStream;
   Stream<Ad> get skipStream;

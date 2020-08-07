@@ -15,7 +15,7 @@ abstract class AdRepository implements ManageableService {
   /// returns Ads that match the given Targeting Values
   List<Ad> getAds(TargetingValues values);
 
-  /// List of keywords were associated to the ads.
+  /// List of keywords are associated to the ads in this repository.
   List<Keywords> getKeywords();
 
   /// Ads that has Creative has just been downloaded.
@@ -34,49 +34,41 @@ abstract class AdRepository implements ManageableService {
 class AdRepositoryImpl implements AdRepository {
   @override
   List<Ad> getAds(TargetingValues values) {
-    // TODO: implement getAds
     return [];
   }
 
   @override
   List<Ad> getDownloadingAds(TargetingValues values) {
-    // TODO: implement getDownloadingAds
     return [];
   }
 
   @override
   List<Ad> getReadyList(TargetingValues values) {
-    // TODO: implement getReadyList
-    throw [];
+    return [];
   }
 
   @override
   List<Keywords> getKeywords() {
-    // TODO: implement getKeywords
     return [];
   }
 
   @override
   Stream<Ad> adsStream() {
-    // TODO: implement adsStream
     return Stream.empty();
   }
 
   @override
   Stream<Ad> readyAdsStream() {
-    // TODO: implement readyAdsStream
-    throw UnimplementedError();
+    return Stream.empty();
   }
 
   @override
   Stream<Ad> downloadingAdsStream() {
-    // TODO: implement downloadingAdsStream
     return Stream.empty();
   }
 
   @override
   Stream<Keywords> keywordsStream() {
-    // TODO: implement keywordsStream
     return Stream.empty();
   }
 

@@ -9,17 +9,30 @@ enum ServiceStatus { START, STOP }
 /// Services that are managed by [ServiceManager].
 /// Checkout [SupervisorServices] to see how they are hooked together.
 abstract class ManageableService {
+  /// A unique string that identify a service.
   String get identifier;
+
+  /// Concrete class should implement this method to init its background jobs
+  /// such as Timer and Subscription.
   Future<void> start();
+
+  /// Concrete class should implement this method to release subscription or pause
+  /// a timer.
   Future<void> stop();
 }
 
 /// A central service manager that propagate START, STOP events to all services
 /// it's managing.
 abstract class ServiceManager {
+  /// Expose a service status stream. Typically, service doesn't need to access
+  /// this stream directly, instead, it can implement [ManageableService] interface
+  /// and be added to the managing list via [addService] method.
   Stream<ServiceStatus> get status;
 
+  /// Add a service to the managing list.
   addService(ManageableService service);
+
+  /// Remove a service from the managing list.
   removeService(String identifier);
 
   /// Initialise subscriptions.
@@ -44,10 +57,6 @@ class ServiceManagerImpl implements ServiceManager {
   final StreamController<ServiceStatus> statusStreamController;
 
   final List<ManageableService> managingServices = [];
-
-  /// Check if supervisor has ever started yet?
-  /// It's useful for dismissing STOP event if it haven't started yet.
-  bool _hasStartedOnce = false;
 
   /// Exposes the services's status via a stream.
   Stream<ServiceStatus> get status {
@@ -125,6 +134,10 @@ class ServiceManagerImpl implements ServiceManager {
     }
     disposables.clear();
   }
+
+  /// Check if supervisor has ever started yet?
+  /// It's useful for dismissing STOP event if it haven't started yet.
+  bool _hasStartedOnce = false;
 
   /// Added START/STOP event to the status stream.
   /// It will dismiss STOP event if it haven't started yet.

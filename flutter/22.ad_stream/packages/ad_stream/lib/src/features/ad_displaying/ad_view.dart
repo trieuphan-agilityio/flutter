@@ -1,4 +1,5 @@
 import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
+import 'package:ad_stream/src/features/ad_displaying/models/displayable_creative.dart';
 import 'package:ad_stream/src/features/ad_displaying/skip_button.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,6 @@ class AdViewContainer extends StatelessWidget {
   }
 }
 
-///
 class AdView extends StatefulWidget {
   final AdPresentable presenter;
 

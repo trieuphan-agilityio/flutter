@@ -38,7 +38,8 @@ class App extends StatelessWidget {
             return Scaffold(
               drawer: DebugDrawer(),
               body: Stack(children: <Widget>[
-                Expanded(child: SupervisorContainer(child: AdViewContainer())),
+                Expanded(
+                    child: ServiceManagerContainer(child: AdViewContainer())),
                 PermissionContainer(),
               ]),
             );

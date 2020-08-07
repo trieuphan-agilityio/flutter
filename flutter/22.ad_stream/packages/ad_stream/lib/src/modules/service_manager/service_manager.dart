@@ -7,7 +7,7 @@ import 'package:ad_stream/src/modules/power/power_provider.dart';
 enum ServiceStatus { START, STOP }
 
 /// Services that are managed by [ServiceManager].
-/// Checkout [SupervisorServices] to see how they are hooked together.
+/// Checkout [ServiceManager] to see how they are hooked together.
 abstract class ManageableService {
   /// A unique string that identify a service.
   String get identifier;
@@ -106,14 +106,15 @@ class ServiceManagerImpl implements ServiceManager {
     // start monitoring the status of Power Provider
     // TODO manage pause, resume, cancel events along with upstream streams.
     disposables.add(powerStatusStream.listen((status) {
-      Log.debug('Supervisor observed a change, PowerProvider: $status');
+      Log.debug('ServiceManager observed a change, PowerProvider: $status');
       setPowerStatus(status);
       _emitServiceStatusIfNeeds();
     }));
 
     // start monitoring the status of Permission Controller
     disposables.add(permissionStatusStream.listen((status) {
-      Log.debug('Supervisor observed a change, PermissionController: $status');
+      Log.debug(
+          'ServiceManager observed a change, PermissionController: $status');
       setPermissionStatus(status);
       _emitServiceStatusIfNeeds();
     }));
@@ -135,7 +136,7 @@ class ServiceManagerImpl implements ServiceManager {
     disposables.clear();
   }
 
-  /// Check if supervisor has ever started yet?
+  /// Check if service manager has ever started yet?
   /// It's useful for dismissing STOP event if it haven't started yet.
   bool _hasStartedOnce = false;
 

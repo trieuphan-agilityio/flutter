@@ -33,14 +33,14 @@ abstract class DI
     AdModule adModule,
     PowerModule powerModule,
     PermissionModule permissionModule,
-    ServiceManagerModule supervisorModule,
+    ServiceManagerModule serviceManagerModule,
     GpsModule gpsModule,
   ) async {
     return await g.DI$Injector.create(
       adModule,
       powerModule,
       permissionModule,
-      supervisorModule,
+      serviceManagerModule,
       gpsModule,
     );
   }

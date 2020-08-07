@@ -6,7 +6,7 @@ import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
-/// Declare public interface that an SupervisorModule should expose
+/// Declare public interface that an ServiceManagerModule should expose
 abstract class ServiceManagerModuleLocator {
   @provide
   ServiceManager get serviceManager;

@@ -37,7 +37,7 @@ class App extends StatelessWidget {
           '/': (_) {
             return Scaffold(
               drawer: DebugDrawer(),
-              body: Stack(children: <Widget>[
+              body: Column(children: <Widget>[
                 Expanded(
                     child: ServiceManagerContainer(child: AdViewContainer())),
                 PermissionContainer(),

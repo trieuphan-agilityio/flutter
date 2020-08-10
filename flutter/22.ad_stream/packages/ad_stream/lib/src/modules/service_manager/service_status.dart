@@ -1,6 +1,6 @@
 import 'dart:async';
 
-enum ServiceStatus { STARTED, STOPPED }
+enum ServiceStatus { START, STOP }
 
 extension ServiceStatus$ on Stream<ServiceStatus> {
   /// Prevent emit STOPPED if service haven't started yet.
@@ -8,7 +8,7 @@ extension ServiceStatus$ on Stream<ServiceStatus> {
     bool hasStartOnce = false;
 
     return transform(StreamTransformer.fromHandlers(handleData: (s, sink) {
-      if (s == ServiceStatus.STARTED) {
+      if (s == ServiceStatus.START) {
         if (!hasStartOnce) hasStartOnce = true;
         sink.add(s);
       } else {
@@ -18,10 +18,10 @@ extension ServiceStatus$ on Stream<ServiceStatus> {
   }
 
   Stream<void> startedOnly() {
-    return where((status) => status == ServiceStatus.STARTED);
+    return where((status) => status == ServiceStatus.START);
   }
 
   Stream<void> stoppedOnly() {
-    return where((status) => status == ServiceStatus.STOPPED);
+    return where((status) => status == ServiceStatus.STOP);
   }
 }

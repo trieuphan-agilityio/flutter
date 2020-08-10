@@ -1,3 +1,4 @@
+import 'package:ad_stream/src/modules/permission/mock/permission_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';

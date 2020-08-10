@@ -2,6 +2,7 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
+import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 /// Declare public interface that an AdModule should expose
@@ -55,8 +56,13 @@ class AdModule {
 
   @provide
   @singleton
-  AdRepository adRepository(ServiceManager serviceManager) {
-    final adRepository = AdRepositoryImpl();
+  AdRepository adRepository(
+    ServiceManager serviceManager,
+    GpsController gpsController,
+    Config config,
+  ) {
+    final adRepository = AdRepositoryImpl(config);
+    adRepository.keepWatching(gpsController.latLng$);
     adRepository.listen(serviceManager.status$);
     return adRepository;
   }

@@ -75,6 +75,11 @@ class LatLng with EquatableMixin implements TargetingValue {
   List<Object> get props => [lat, lng];
 
   TargetingType get type => TargetingType.latLng;
+
+  @override
+  String toString() {
+    return 'LatLng{lat: $lat, lng: $lng}';
+  }
 }
 
 class Area with EquatableMixin implements TargetingValue {

@@ -14,15 +14,13 @@ abstract class AdScheduler {
   setAgeRange(PassengerAgeRange ageRange);
   setKeywords(Keywords keywords);
   setArea(Area area);
-  setCollectTargetValuesInterval(Duration duration);
 }
 
-class AdSchedulerImpl extends Service with ServiceMixin implements AdScheduler {
-  final AdRepository adRepository;
-  final Config config;
-
-  /// Amount of time that must elapse before AdSchedule can refresh its content.
-  Duration refreshInterval;
+class AdSchedulerImpl extends TaskService
+    with ServiceMixin, TaskServiceMixin
+    implements AdScheduler {
+  final AdRepository _adRepository;
+  final Config _config;
 
   /// Ad that matched targeting values and place here to wait for displaying.
   Ad _adToDisplay;
@@ -31,15 +29,13 @@ class AdSchedulerImpl extends Service with ServiceMixin implements AdScheduler {
   /// advertisers reach an intended audience with their campaigns.
   TargetingValues targetingValues;
 
-  AdSchedulerImpl(this.adRepository, this.config)
-      : targetingValues = TargetingValues(),
-        refreshInterval =
-            Duration(seconds: config.defaultAdSchedulerRefreshInterval);
+  AdSchedulerImpl(this._adRepository, this._config)
+      : targetingValues = TargetingValues();
 
   /// AdScheduler
 
   Ad getAdForDisplay() {
-    return _adToDisplay ?? config.defaultAd;
+    return _adToDisplay ?? _config.defaultAd;
   }
 
   setAgeRange(PassengerAgeRange ageRange) => targetingValues.add(ageRange);
@@ -50,21 +46,26 @@ class AdSchedulerImpl extends Service with ServiceMixin implements AdScheduler {
 
   setKeywords(Keywords keywords) => targetingValues.add(keywords);
 
-  setCollectTargetValuesInterval(Duration duration) {
-    refreshInterval = duration;
-  }
+  /// TaskService
 
-  Timer _timer;
-
-  /// Service
+  /// Default time in seconds that must elapse before [AdScheduler] starts
+  /// collecting Targeting Values and filter the latest [Ad] from AdRepository.
+  int get defaultRefreshInterval => _config.defaultAdSchedulerRefreshInterval;
 
   Future<void> start() {
-    Log.info('AdSchedule is starting');
+    super.start();
+    Log.info('AdScheduler is starting');
     return null;
   }
 
   Future<void> stop() {
-    Log.info('AdSchedule is stopping');
+    super.stop();
+    Log.info('AdScheduler is stopping');
+    return null;
+  }
+
+  Future<void> runTask() {
+    Log.info('AdScheduler is preparing Ads for displaying');
     return null;
   }
 }

@@ -27,7 +27,10 @@ class DebugDrawer extends StatelessWidget {
       ListTile(
         title: Text('Open Debugger'),
         onTap: () {
+          // close drawer
           Navigator.pop(context);
+
+          // open debugger dashboard
           Navigator.push(
             context,
             MaterialPageRoute(

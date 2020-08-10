@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
-import 'package:ad_stream/src/modules/permission/permission_controller.dart';
+import 'package:ad_stream/src/modules/permission/permission_status.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:ad_stream/src/modules/service_manager/service_status.dart';
 import 'package:rxdart/rxdart.dart';
@@ -32,24 +32,17 @@ class ServiceManagerImpl extends DisposableController
     this.permissionStatus$,
   ) : status$Controller = BehaviorSubject<ServiceStatus>();
 
+  final StreamController<ServiceStatus> status$Controller;
   final Stream<PowerStatus> powerStatus$;
   final Stream<PermissionStatus> permissionStatus$;
 
-  final StreamController<ServiceStatus> status$Controller;
-
   /// Exposes the services's status via a stream.
   Stream<ServiceStatus> get status$ {
-    /// Ensure that the stream transformation only execute once.
-    /// TODO write a test for this logic
-    if (_status$ == null)
-      // Skips if service status is equal to the previous.
-      _status$ = status$Controller.stream.distinct().skipInitialStopped();
-
-    return _status$;
+    // 1. Skips if service status is same as the previous.
+    // 2. Ensure that the stream transformation only execute once.
+    return _status$ ??=
+        status$Controller.stream.distinct().skipInitialStopped();
   }
-
-  /// A cache of the stream transformation result.
-  Stream<ServiceStatus> _status$;
 
   start() {
     final subscription = powerStatus$.combineLatest(
@@ -57,9 +50,9 @@ class ServiceManagerImpl extends DisposableController
       (powerStatus, permissionStatus) {
         if (powerStatus == PowerStatus.STRONG &&
             permissionStatus == PermissionStatus.ALLOWED) {
-          return ServiceStatus.STARTED;
+          return ServiceStatus.START;
         } else {
-          return ServiceStatus.STOPPED;
+          return ServiceStatus.STOP;
         }
       },
     ).listen(status$Controller.add);
@@ -68,7 +61,10 @@ class ServiceManagerImpl extends DisposableController
   }
 
   stop() {
-    status$Controller.add(ServiceStatus.STOPPED);
+    status$Controller.add(ServiceStatus.STOP);
     dispose();
   }
+
+  /// A cache of the stream transformation result.
+  Stream<ServiceStatus> _status$;
 }

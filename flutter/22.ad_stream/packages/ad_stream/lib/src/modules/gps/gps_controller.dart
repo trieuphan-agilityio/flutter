@@ -20,13 +20,12 @@ class FixedGpsController extends Service
 
   Stream<LatLng> get latLng$ => latLng$Controller.stream;
 
-  Timer _timer;
-
   /// Service
 
   @override
   Future<void> start() {
     Log.info('FixedGpsController is starting');
+    _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       latLng$Controller.add(LatLng(76.0, 106.0));
     });
@@ -36,8 +35,10 @@ class FixedGpsController extends Service
   @override
   Future<void> stop() {
     Log.info('FixedGpsController is stopping');
-    _timer.cancel();
+    _timer?.cancel();
     _timer = null;
     return null;
   }
+
+  Timer _timer;
 }

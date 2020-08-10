@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/service_manager/service_status.dart';
 
+/// [Service] that is bind its lifecycle to [ServiceManager]'s status stream.
 abstract class Service {
   Future<void> start();
   Future<void> stop();
+
+  /// [listen] to the status of [ServiceManager].
   listen(Stream<ServiceStatus> serviceStatus$);
 }
 
+/// Declare common methods of [Service]
 mixin ServiceMixin on Service {
   listen(Stream<ServiceStatus> status$) {
     status$.startedOnly().listen((_) => start());
@@ -16,8 +20,12 @@ mixin ServiceMixin on Service {
   }
 }
 
+/// [Service] that has task is executed periodically with given [defaultRefreshInterval].
 abstract class TaskService extends Service {
+  /// Default elapse time, typically it should come from [Config].
   int get defaultRefreshInterval;
+
+  /// Background task of the [Service]
   Future<void> runTask();
 }
 

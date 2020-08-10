@@ -1,5 +1,5 @@
 import 'package:ad_stream/base.dart';
-import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
+import 'package:ad_stream/src/modules/power/debugger/power_debugger.dart';
 
 import 'power_provider.dart';
 
@@ -15,7 +15,13 @@ abstract class PowerModuleLocator {
 class PowerModule {
   @provide
   @singleton
-  PowerProvider powerProvider() {
-    return AlwaysStrongPowerProvider();
+  PowerProvider powerProvider(PowerDebugger powerDebugger) {
+    return powerDebugger;
+  }
+
+  @provide
+  @singleton
+  PowerDebugger powerDebugger() {
+    return PowerDebuggerImpl(delegate: PowerProviderImpl());
   }
 }

@@ -103,6 +103,7 @@ class AdRepositoryImpl extends TaskService
 
   Future<void> runTask() async {
     await _getAds();
+    Log.info('AdRepository is fetching ads with $_currentLatLng');
     return null;
   }
 

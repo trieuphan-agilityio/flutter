@@ -38,7 +38,7 @@ class PermissionDebuggerImpl implements PermissionDebugger {
     );
   }
 
-  bool isEnabled = false;
+  bool isEnabled = true;
 
   allow() {
     _controller.add(PermissionStatus.ALLOWED);

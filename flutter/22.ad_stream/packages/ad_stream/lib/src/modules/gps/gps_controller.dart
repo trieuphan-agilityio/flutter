@@ -11,8 +11,8 @@ abstract class GpsController {
   Stream<LatLng> get latLng$;
 }
 
-class FixedGpsController extends Service
-    with ServiceMixin
+class FixedGpsController extends TaskService
+    with ServiceMixin, TaskServiceMixin
     implements GpsController {
   final StreamController<LatLng> latLng$Controller;
 
@@ -22,23 +22,26 @@ class FixedGpsController extends Service
 
   /// Service
 
+  // TODO inject config
+  int get defaultRefreshInterval => 30;
+
   @override
   Future<void> start() {
+    super.start();
     Log.info('FixedGpsController is starting');
-    _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      latLng$Controller.add(LatLng(76.0, 106.0));
-    });
     return null;
   }
 
   @override
   Future<void> stop() {
+    super.stop();
     Log.info('FixedGpsController is stopping');
-    _timer?.cancel();
-    _timer = null;
     return null;
   }
 
-  Timer _timer;
+  @override
+  Future<void> runTask() {
+    latLng$Controller.add(LatLng(76.0, 106.0));
+    return null;
+  }
 }

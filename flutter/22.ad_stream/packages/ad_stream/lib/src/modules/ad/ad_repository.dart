@@ -101,7 +101,7 @@ class AdRepositoryImpl extends TaskService
     super.start();
     Log.info('AdRepository is starting');
 
-    _creativeDownloader.downloadedCreative$.listen((creative) {});
+    //_creativeDownloader.downloadedCreative$.listen((creative) {});
 
     return null;
   }

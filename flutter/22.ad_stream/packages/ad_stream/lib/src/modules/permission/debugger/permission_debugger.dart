@@ -25,16 +25,17 @@ class PermissionDebuggerImpl implements PermissionDebugger {
 
   PermissionDebuggerImpl({PermissionController delegate})
       : _delegate = delegate,
-        _controller = BehaviorSubject<PermissionStatus>();
+        _controller =
+            BehaviorSubject<PermissionStatus>.seeded(PermissionStatus.ALLOWED);
+
+  /// A cache instance of status stream.
+  Stream<PermissionStatus> _status$;
 
   @override
   Stream<PermissionStatus> get status$ {
-    Stream<PermissionStatus> delegateStatus$ =
-        _delegate == null ? Stream.empty() : _delegate.status$;
-
-    return delegateStatus$.combineLatest(
-      _controller.stream,
-      (status, debugStatus) => isEnabled ? debugStatus : status,
+    return _status$ ??= _controller.stream.combineLatest(
+      _delegate?.status$ ?? Stream.empty(),
+      (debugStatus, status) => isEnabled ? debugStatus : status,
     );
   }
 

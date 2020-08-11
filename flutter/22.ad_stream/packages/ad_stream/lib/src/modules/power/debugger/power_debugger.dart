@@ -24,16 +24,16 @@ class PowerDebuggerImpl implements PowerDebugger {
 
   PowerDebuggerImpl({PowerProvider delegate})
       : _delegate = delegate,
-        _controller = BehaviorSubject<PowerStatus>();
+        _controller = BehaviorSubject<PowerStatus>.seeded(PowerStatus.STRONG);
+
+  /// A cache instance of status stream.
+  Stream<PowerStatus> _status$;
 
   @override
   Stream<PowerStatus> get status$ {
-    Stream<PowerStatus> delegateStatus$ =
-        _delegate == null ? Stream.empty() : _delegate.status$;
-
-    return delegateStatus$.combineLatest(
-      _controller.stream,
-      (status, debugStatus) => isEnabled ? debugStatus : status,
+    return _status$ ??= _controller.stream.combineLatest(
+      _delegate?.status$ ?? Stream.empty(),
+      (debugStatus, status) => isEnabled ? debugStatus : status,
     );
   }
 

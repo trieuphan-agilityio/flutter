@@ -2,11 +2,19 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
+import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
+import 'package:ad_stream/src/modules/common/file_path_resolver.dart';
+import 'package:ad_stream/src/modules/common/file_url_resolver.dart';
+import 'package:ad_stream/src/modules/downloader/download_options.dart';
+import 'package:ad_stream/src/modules/downloader/file_downloader.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 /// Declare public interface that an AdModule should expose
 abstract class AdModuleLocator {
+  @provide
+  Config get config;
+
   @provide
   AdPresenter get adPresenter;
 
@@ -17,7 +25,7 @@ abstract class AdModuleLocator {
   AdRepository get adRepository;
 
   @provide
-  Config get config;
+  CreativeDownloader get creativeDownloader;
 }
 
 /// A source of dependency provider for the injector.
@@ -57,13 +65,38 @@ class AdModule {
   @provide
   @singleton
   AdRepository adRepository(
+    CreativeDownloader creativeDownloader,
+    Config config,
     ServiceManager serviceManager,
     GpsController gpsController,
-    Config config,
   ) {
-    final adRepository = AdRepositoryImpl(config);
+    final adRepository = AdRepositoryImpl(creativeDownloader, config);
     adRepository.keepWatching(gpsController.latLng$);
     adRepository.listen(serviceManager.status$);
     return adRepository;
+  }
+
+  @provide
+  @singleton
+  CreativeDownloader creativeDownloader(
+    FileUrlResolver fileUrlResolver,
+    FilePathResolver filePathResolver,
+    Config config,
+  ) {
+    final fileDownloader = FileDownloaderImpl(
+        fileUrlResolver: fileUrlResolver,
+        options: DownloadOptions(
+            numOfParallelTasks: config.creativeDownloadParallelTasks,
+            timeoutSecs: config.creativeDownloadTimeout));
+
+    final videoDownloader = FileDownloaderImpl(
+      fileUrlResolver: fileUrlResolver,
+      options: DownloadOptions(
+          numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
+          timeoutSecs: config.videoCreativeDownloadTimeout),
+    );
+
+    return CreativeDownloaderImpl(
+        downloader: fileDownloader, videoDownloader: videoDownloader);
   }
 }

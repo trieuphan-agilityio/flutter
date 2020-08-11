@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 enum TargetingType {
   passengerGender,
   passengerAgeRange,
-  keywords,
+  keyword,
   area,
   latLng,
   power,
@@ -56,14 +56,14 @@ class PassengerGender with EquatableMixin implements TargetingValue {
   TargetingType get type => TargetingType.passengerGender;
 }
 
-class Keywords with EquatableMixin implements TargetingValue {
-  final List<String> keywords;
+class Keyword with EquatableMixin implements TargetingValue {
+  final String keyword;
 
-  Keywords(this.keywords);
+  Keyword(this.keyword);
 
-  List<Object> get props => [keywords];
+  List<Object> get props => [keyword];
 
-  TargetingType get type => TargetingType.keywords;
+  TargetingType get type => TargetingType.keyword;
 }
 
 class LatLng with EquatableMixin implements TargetingValue {

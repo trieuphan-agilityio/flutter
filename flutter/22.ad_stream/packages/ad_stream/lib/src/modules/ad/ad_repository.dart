@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
+import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 
 abstract class AdRepository {
@@ -16,19 +17,19 @@ abstract class AdRepository {
   List<Ad> getDownloadingAds(TargetingValues values);
 
   /// List of keywords are associated to the ads in this repository.
-  List<Keywords> getKeywords();
+  List<Keyword> getKeywords();
 
   /// Ads that has Creative has just been downloaded.
-  Stream<Ad> readyAd$();
+  Stream<Ad> get readyAd$;
 
   /// Ads that has Creative is downloading.
-  Stream<Ad> downloadingAd$();
+  Stream<Ad> get downloadingAd$;
 
   /// Ads that has just added to repository.
-  Stream<Ad> ad$();
+  Stream<Ad> get ad$;
 
   /// Keywords that has just collected.
-  Stream<Keywords> keywords$();
+  Stream<Keyword> get keywords$;
 
   /// [AdRepository] react to the change of Latitude, Longitude values.
   keepWatching(Stream<LatLng> latLng$);
@@ -37,9 +38,16 @@ abstract class AdRepository {
 class AdRepositoryImpl extends TaskService
     with ServiceMixin, TaskServiceMixin
     implements AdRepository {
-  AdRepositoryImpl(this._config);
+  AdRepositoryImpl(this._creativeDownloader, this._config)
+      : _ad$Controller = StreamController<Ad>(),
+        _downloadingAd$Controller = StreamController<Ad>(),
+        _readyAd$Controller = StreamController<Ad>();
 
-  Config _config;
+  final CreativeDownloader _creativeDownloader;
+  final Config _config;
+  final StreamController<Ad> _ad$Controller;
+  final StreamController<Ad> _downloadingAd$Controller;
+  final StreamController<Ad> _readyAd$Controller;
 
   List<Ad> getAds(TargetingValues values) {
     return [];
@@ -53,23 +61,23 @@ class AdRepositoryImpl extends TaskService
     return [];
   }
 
-  List<Keywords> getKeywords() {
+  List<Keyword> getKeywords() {
     return [];
   }
 
-  Stream<Ad> ad$() {
-    return Stream.empty();
+  Stream<Ad> get ad$ {
+    return _ad$Controller.stream;
   }
 
-  Stream<Ad> readyAd$() {
-    return Stream.empty();
+  Stream<Ad> get readyAd$ {
+    return _readyAd$Controller.stream;
   }
 
-  Stream<Ad> downloadingAd$() {
-    return Stream.empty();
+  Stream<Ad> get downloadingAd$ {
+    return _downloadingAd$Controller.stream;
   }
 
-  Stream<Keywords> keywords$() {
+  Stream<Keyword> get keywords$ {
     return Stream.empty();
   }
 
@@ -92,6 +100,9 @@ class AdRepositoryImpl extends TaskService
   Future<void> start() {
     super.start();
     Log.info('AdRepository is starting');
+
+    _creativeDownloader.downloadedCreative$.listen((creative) {});
+
     return null;
   }
 

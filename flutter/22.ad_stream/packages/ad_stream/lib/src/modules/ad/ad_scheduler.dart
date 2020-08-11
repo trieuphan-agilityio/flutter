@@ -12,7 +12,7 @@ abstract class AdScheduler {
   /// Targeting
   setGender(PassengerGender gender);
   setAgeRange(PassengerAgeRange ageRange);
-  setKeywords(Keywords keywords);
+  setKeywords(List<Keyword> keywords);
   setArea(Area area);
 }
 
@@ -44,7 +44,7 @@ class AdSchedulerImpl extends TaskService
 
   setGender(PassengerGender gender) => targetingValues.add(gender);
 
-  setKeywords(Keywords keywords) => targetingValues.add(keywords);
+  setKeywords(List<Keyword> keywords) => keywords.forEach(targetingValues.add);
 
   /// TaskService
 

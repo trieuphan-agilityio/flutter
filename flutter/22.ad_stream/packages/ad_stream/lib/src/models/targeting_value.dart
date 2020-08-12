@@ -35,7 +35,7 @@ class PassengerAgeRange with EquatableMixin implements TargetingValue {
   final int from;
   final int to;
 
-  PassengerAgeRange(this.from, this.to);
+  const PassengerAgeRange(this.from, this.to);
 
   List<Object> get props => [from, to];
 
@@ -59,7 +59,7 @@ class PassengerGender with EquatableMixin implements TargetingValue {
 class Keyword with EquatableMixin implements TargetingValue {
   final String keyword;
 
-  Keyword(this.keyword);
+  const Keyword(this.keyword);
 
   List<Object> get props => [keyword];
 
@@ -70,7 +70,7 @@ class LatLng with EquatableMixin implements TargetingValue {
   final double lat;
   final double lng;
 
-  LatLng(this.lat, this.lng);
+  const LatLng(this.lat, this.lng);
 
   List<Object> get props => [lat, lng];
 
@@ -85,7 +85,7 @@ class LatLng with EquatableMixin implements TargetingValue {
 class Area with EquatableMixin implements TargetingValue {
   final String name;
 
-  Area(this.name);
+  const Area(this.name);
 
   List<Object> get props => [name];
 

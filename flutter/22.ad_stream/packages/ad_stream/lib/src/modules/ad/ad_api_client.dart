@@ -1,12 +1,13 @@
 import 'package:ad_stream/models.dart';
 
-/// Client library that help to communicate
+/// Client library that help to communicate with Ad Server
 abstract class AdApiClient {
-  List<Ad> getAds(int lat, int lng, {int page = 0, int pageSize = 10});
+  /// Get all the ads that are targeting to this [LatLng] value.
+  Future<List<Ad>> getAds(LatLng latLng);
 }
 
 class AdApiClientImpl implements AdApiClient {
-  List<Ad> getAds(int lat, int lng, {int page = 0, int pageSize = 10}) {
+  Future<List<Ad>> getAds(LatLng latLng) async {
     return [];
   }
 }

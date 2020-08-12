@@ -1,8 +1,12 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
+import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
+import 'package:ad_stream/src/modules/ad/ad_database.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
+import 'package:ad_stream/src/modules/ad/mock/ad_api_client.dart';
+import 'package:ad_stream/src/modules/ad/mock/ad_database.dart';
 import 'package:ad_stream/src/modules/common/file_path_resolver.dart';
 import 'package:ad_stream/src/modules/common/file_url_resolver.dart';
 import 'package:ad_stream/src/modules/downloader/download_options.dart';
@@ -65,12 +69,19 @@ class AdModule {
   @provide
   @singleton
   AdRepository adRepository(
+    AdApiClient adApiClient,
+    AdDatabase adDatabase,
     CreativeDownloader creativeDownloader,
     Config config,
     ServiceManager serviceManager,
     GpsController gpsController,
   ) {
-    final adRepository = AdRepositoryImpl(creativeDownloader, config);
+    final adRepository = AdRepositoryImpl(
+      adApiClient,
+      adDatabase,
+      creativeDownloader,
+      config,
+    );
     adRepository.keepWatching(gpsController.latLng$);
     adRepository.listen(serviceManager.status$);
     return adRepository;
@@ -83,20 +94,38 @@ class AdModule {
     FilePathResolver filePathResolver,
     Config config,
   ) {
-    final fileDownloader = FileDownloaderImpl(
+    final image = ImageCreativeDownloader(FileDownloaderImpl(
         fileUrlResolver: fileUrlResolver,
         options: DownloadOptions(
             numOfParallelTasks: config.creativeDownloadParallelTasks,
-            timeoutSecs: config.creativeDownloadTimeout));
+            timeoutSecs: config.creativeDownloadTimeout)));
 
-    final videoDownloader = FileDownloaderImpl(
-      fileUrlResolver: fileUrlResolver,
-      options: DownloadOptions(
-          numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
-          timeoutSecs: config.videoCreativeDownloadTimeout),
-    );
+    final video = VideoCreativeDownloader(FileDownloaderImpl(
+        fileUrlResolver: fileUrlResolver,
+        options: DownloadOptions(
+            numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
+            timeoutSecs: config.videoCreativeDownloadTimeout)));
 
-    return CreativeDownloaderImpl(
-        downloader: fileDownloader, videoDownloader: videoDownloader);
+    final html = HtmlCreativeDownloader(FileDownloaderImpl(
+        fileUrlResolver: fileUrlResolver,
+        options: DownloadOptions(
+            numOfParallelTasks: config.creativeDownloadParallelTasks,
+            timeoutSecs: config.creativeDownloadTimeout)));
+
+    final youtube = YoutubeCreativeDownloader();
+
+    return ChainDownloaderImpl([image, video, html, youtube]);
+  }
+
+  @provide
+  @singleton
+  AdApiClient adApiClient() {
+    return MockAdApiClient();
+  }
+
+  @provide
+  @singleton
+  AdDatabase adDatabase() {
+    return MockAdDatabase();
   }
 }

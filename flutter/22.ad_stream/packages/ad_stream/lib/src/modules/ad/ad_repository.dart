@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
+import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
+import 'package:ad_stream/src/modules/ad/ad_database.dart';
 import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 
@@ -38,11 +41,17 @@ abstract class AdRepository {
 class AdRepositoryImpl extends TaskService
     with ServiceMixin, TaskServiceMixin
     implements AdRepository {
-  AdRepositoryImpl(this._creativeDownloader, this._config)
-      : _ad$Controller = StreamController<Ad>(),
+  AdRepositoryImpl(
+    this._adApiClient,
+    this._adDatabase,
+    this._creativeDownloader,
+    this._config,
+  )   : _ad$Controller = StreamController<Ad>(),
         _downloadingAd$Controller = StreamController<Ad>(),
         _readyAd$Controller = StreamController<Ad>();
 
+  final AdApiClient _adApiClient;
+  final AdDatabase _adDatabase;
   final CreativeDownloader _creativeDownloader;
   final Config _config;
   final StreamController<Ad> _ad$Controller;
@@ -101,7 +110,15 @@ class AdRepositoryImpl extends TaskService
     super.start();
     Log.info('AdRepository is starting');
 
-    //_creativeDownloader.downloadedCreative$.listen((creative) {});
+    // The subscription need to maintain after stopping the service.
+    _creativeDownloader.downloaded$.listen((creative) async {
+      // Ad after downloading creative will be pushed to ready stream.
+      final ad = await _adDatabase.save(creative);
+
+      // TODO handle error while saving to database failed.
+
+      _readyAd$Controller.add(ad);
+    });
 
     return null;
   }
@@ -113,8 +130,18 @@ class AdRepositoryImpl extends TaskService
   }
 
   Future<void> runTask() async {
-    await _getAds();
-    Log.info('AdRepository is fetching ads with $_currentLatLng');
+    Log.info('AdRepository is pulling ads with $_currentLatLng');
+
+    final localAds = await _adDatabase.getAds();
+
+    await _adApiClient.getAds(_currentLatLng).then((List<Ad> res) {
+      final changeSet = AdDiff.diff(localAds, res);
+      Log.info('AdRepository pulled ${res.length} ads'
+          ', ${changeSet.numOfNewAds} new'
+          ', ${changeSet.numOfUpdatedAds} updated'
+          ', ${changeSet.numOfRemovedAds} removed.');
+    });
+
     return null;
   }
 

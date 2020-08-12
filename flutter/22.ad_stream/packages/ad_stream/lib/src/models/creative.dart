@@ -24,7 +24,23 @@ class ImageCreative implements Creative {
   final String urlPath;
   final String filePath;
 
-  ImageCreative(this.id, this.urlPath, this.filePath);
+  ImageCreative({
+    @required this.id,
+    @required this.urlPath,
+    @required this.filePath,
+  });
+
+  ImageCreative copyWith({
+    String id,
+    String urlPath,
+    String filePath,
+  }) {
+    return ImageCreative(
+      id: id ?? this.id,
+      urlPath: urlPath ?? this.urlPath,
+      filePath: filePath ?? this.filePath,
+    );
+  }
 }
 
 class YoutubeCreative implements Creative {
@@ -35,29 +51,65 @@ class YoutubeCreative implements Creative {
   /// Video length in seconds
   final int videoLength;
 
-  YoutubeCreative(this.id, this.urlPath, this.videoLength) : filePath = urlPath;
+  YoutubeCreative({
+    @required this.id,
+    @required this.urlPath,
+    @required this.videoLength,
+  }) : filePath = urlPath;
+
+  YoutubeCreative copyWith({
+    String id,
+    String urlPath,
+    String videoLength,
+  }) {
+    return YoutubeCreative(
+      id: id ?? this.id,
+      urlPath: urlPath ?? this.urlPath,
+      videoLength: videoLength ?? this.videoLength,
+    );
+  }
 }
 
 class VideoCreative implements Creative {
   final String id;
   final String urlPath;
   final String filePath;
+
+  /// .mp4, .avi.
   final String format;
 
   /// Video length in seconds.
   final int videoLength;
 
-  /// Estimated size of the video.
+  /// Estimated size of the video (kB)
   final int fileSize;
 
-  VideoCreative(
-    this.id,
-    this.urlPath,
-    this.format,
-    this.filePath,
-    this.videoLength,
-    this.fileSize,
-  );
+  VideoCreative({
+    @required this.id,
+    @required this.urlPath,
+    @required this.filePath,
+    @required this.format,
+    @required this.videoLength,
+    @required this.fileSize,
+  });
+
+  VideoCreative copyWith({
+    String id,
+    String urlPath,
+    String filePath,
+    String format,
+    int videoLength,
+    int fileSize,
+  }) {
+    return VideoCreative(
+      id: id ?? this.id,
+      urlPath: urlPath ?? this.urlPath,
+      filePath: filePath ?? this.filePath,
+      format: format ?? this.format,
+      videoLength: videoLength ?? this.videoLength,
+      fileSize: fileSize ?? this.fileSize,
+    );
+  }
 }
 
 class HtmlCreative implements Creative {
@@ -74,5 +126,24 @@ class HtmlCreative implements Creative {
   /// Estimated size of the Zip file bundle.
   final int fileSize;
 
-  HtmlCreative(this.id, this.urlPath, this.filePath, this.fileSize);
+  HtmlCreative({
+    @required this.id,
+    @required this.urlPath,
+    @required this.filePath,
+    @required this.fileSize,
+  });
+
+  HtmlCreative copyWith({
+    String id,
+    String urlPath,
+    String filePath,
+    int fileSize,
+  }) {
+    return HtmlCreative(
+      id: id ?? this.id,
+      urlPath: urlPath ?? this.urlPath,
+      filePath: filePath ?? this.filePath,
+      fileSize: fileSize ?? this.fileSize,
+    );
+  }
 }

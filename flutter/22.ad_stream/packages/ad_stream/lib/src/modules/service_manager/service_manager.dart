@@ -45,9 +45,11 @@ class ServiceManagerImpl extends DisposableController
   }
 
   start() {
+    Log.info('ServiceManager is starting...');
     final subscription = powerStatus$.combineLatest(
       permissionStatus$,
       (powerStatus, permissionStatus) {
+        Log.info('ServiceManager observed $powerStatus, $permissionStatus');
         if (powerStatus == PowerStatus.STRONG &&
             permissionStatus == PermissionStatus.ALLOWED) {
           return ServiceStatus.START;
@@ -55,7 +57,13 @@ class ServiceManagerImpl extends DisposableController
           return ServiceStatus.STOP;
         }
       },
-    ).listen(status$Controller.add);
+    ).listen(status$Controller.add, onDone: () {
+      Log.info('ServiceManager received Done event from'
+          'PowerProvider or PermissionController');
+    }, onError: (_) {
+      Log.info('ServiceManager received Error event from'
+          'PowerProvider or PermissionController');
+    });
 
     autoDispose(subscription);
   }

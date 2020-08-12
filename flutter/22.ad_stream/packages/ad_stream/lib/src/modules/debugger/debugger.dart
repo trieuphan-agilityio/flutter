@@ -32,26 +32,28 @@ class __DebuggerState extends State<_Debugger> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Form(
-          child: Column(
-            children: [
-              Switch.adaptive(
-                  value: isPermissionDebuggerEnabled,
-                  onChanged: (newValue) {
-                    setState(() {
-                      isPermissionDebuggerEnabled = newValue;
-                    });
-                  }),
-              FlatButton(
-                onPressed: () {
-                  widget.permissionDebugger.isEnabled =
-                      isPermissionDebuggerEnabled;
-                  Navigator.of(context).pop();
-                },
-                child: Text('Done'),
-              )
-            ],
+      body: SafeArea(
+        child: Container(
+          child: Form(
+            child: Column(
+              children: [
+                Switch.adaptive(
+                    value: isPermissionDebuggerEnabled,
+                    onChanged: (newValue) {
+                      setState(() {
+                        isPermissionDebuggerEnabled = newValue;
+                      });
+                    }),
+                FlatButton(
+                  onPressed: () {
+                    widget.permissionDebugger.isEnabled =
+                        isPermissionDebuggerEnabled;
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Done'),
+                )
+              ],
+            ),
           ),
         ),
       ),

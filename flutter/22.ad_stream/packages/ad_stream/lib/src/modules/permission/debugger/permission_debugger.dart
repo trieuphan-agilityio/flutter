@@ -7,6 +7,8 @@ import 'package:rxdart/rxdart.dart';
 
 abstract class PermissionDebugger implements PermissionController {
   /// Allow toggling debugger on the flight.
+  /// While enabled, the debugger will drive the status stream for the controller.
+  /// By invoking [allow] or [deny] the status would be updated accordingly.
   bool isEnabled;
 
   /// Set ALLOWED status
@@ -17,35 +19,48 @@ abstract class PermissionDebugger implements PermissionController {
 }
 
 class PermissionDebuggerImpl implements PermissionDebugger {
-  final StreamController<PermissionStatus> _controller;
+  final StreamController<PermissionStatus> _status$Controller;
+
+  /// Use this controller to switch to the corresponding status stream when
+  /// toggle [isEnabled] flag.
+  final StreamController<Stream<PermissionStatus>> _status$Switcher;
 
   /// Allow using a fallback [PermissionController] when disable debugger.
   /// If null, the status stream is empty.
   final PermissionController _delegate;
 
-  PermissionDebuggerImpl({PermissionController delegate})
-      : _delegate = delegate,
-        _controller =
-            BehaviorSubject<PermissionStatus>.seeded(PermissionStatus.ALLOWED);
-
-  /// A cache instance of status stream.
-  Stream<PermissionStatus> _status$;
-
-  @override
-  Stream<PermissionStatus> get status$ {
-    return _status$ ??= _controller.stream.combineLatest(
-      _delegate?.status$ ?? Stream.empty(),
-      (debugStatus, status) => isEnabled ? debugStatus : status,
-    );
+  PermissionDebuggerImpl(this._delegate)
+      : _status$Controller =
+            BehaviorSubject<PermissionStatus>.seeded(PermissionStatus.ALLOWED),
+        _status$Switcher = StreamController<Stream<PermissionStatus>>() {
+    isEnabled = true;
   }
 
-  bool isEnabled = true;
+  Stream<PermissionStatus> get status$ {
+    return _status$ ??= _status$Switcher.stream.switchLatest();
+  }
+
+  bool get isEnabled => _isEnabled;
+
+  set isEnabled(bool newValue) {
+    _isEnabled = newValue;
+    if (_isEnabled)
+      _status$Switcher.add(_status$Controller.stream);
+    else
+      _status$Switcher.add(_delegate.status$);
+  }
 
   allow() {
-    _controller.add(PermissionStatus.ALLOWED);
+    _status$Controller.add(PermissionStatus.ALLOWED);
   }
 
   deny() {
-    _controller.add(PermissionStatus.DENIED);
+    _status$Controller.add(PermissionStatus.DENIED);
   }
+
+  /// Keep the enabled status of the debugger.
+  bool _isEnabled;
+
+  /// A cache instance of status stream.
+  Stream<PermissionStatus> _status$;
 }

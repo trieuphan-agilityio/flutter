@@ -23,6 +23,6 @@ class PermissionModule {
   @provide
   @singleton
   PermissionDebugger permissionDebugger() {
-    return PermissionDebuggerImpl(delegate: PermissionControllerImpl());
+    return PermissionDebuggerImpl(PermissionControllerImpl());
   }
 }

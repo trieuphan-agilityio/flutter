@@ -22,6 +22,6 @@ class PowerModule {
   @provide
   @singleton
   PowerDebugger powerDebugger() {
-    return PowerDebuggerImpl(delegate: PowerProviderImpl());
+    return PowerDebuggerImpl(PowerProviderImpl());
   }
 }

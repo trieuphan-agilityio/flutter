@@ -56,10 +56,8 @@ class AdPresenterImpl extends TaskService
   final StreamController<Ad> skip$Controller;
   final StreamController<AdDisplayError> fail$Controller;
 
-  // Picked Ad that is ready for display.
-  Ad _adToDisplay;
-
-  // Keep tracking the current displaying Ad for reporting.
+  /// Keep tracking the current displaying Ad for reporting.
+  /// Null means that there is no candidate.
   Ad _displayingAd;
 
   fail(Error err) {
@@ -84,34 +82,31 @@ class AdPresenterImpl extends TaskService
   }
 
   _displayNewAdIfNeeds() {
-    // reset the previous state of displaying Ad.
-    _displayingAd = null;
-
     // stop displaying if service is stopped.
     if (!_isStart) return;
 
-    _adToDisplay = adScheduler.getAdForDisplay();
+    _displayingAd = adScheduler.getAdForDisplay();
 
     // no ad, no display
-    if (_adToDisplay == null) {
+    if (_displayingAd == null) {
       Log.info('AdPresenter is waiting for Ad...');
+      // FIXME it should prepare a null displayable object instead.
+      view.display(null);
       return;
     }
 
     /// Ad to DisplayableCreative
     view.display(DisplayableCreative(
-      ad: _adToDisplay,
-      canSkipAfter: _adToDisplay.canSkipAfter,
-      isSkippable: _adToDisplay.isSkippable,
+      ad: _displayingAd,
+      canSkipAfter: _displayingAd.canSkipAfter,
+      isSkippable: _displayingAd.isSkippable,
       duration:
-          Duration(seconds: _adToDisplay.timeBlocks * config.timeBlockToSecs),
+          Duration(seconds: _displayingAd.timeBlocks * config.timeBlockToSecs),
     ));
 
-    _displayingAd = _adToDisplay;
-
-    Log.info('AdPresenter is displaying Ad{id: ${_displayingAd.id}'
-        ', version: ${_displayingAd.version}'
-        ', creativeId: ${_displayingAd.creative.id}}');
+    Log.info('AdPresenter is displaying Ad{id: ${_displayingAd.shortId}'
+        ', creativeId: ${_displayingAd.creative.shortId}'
+        ', version: ${_displayingAd.version}}');
   }
 
   /// TaskService

@@ -23,7 +23,7 @@ class ChainDownloaderImpl implements CreativeDownloader {
   download(Creative creative) {
     // send creative to the downloaders on chain.
     // once of these would be able to download it.
-    _chain.forEach((d) => d.download);
+    _chain.forEach((d) => d.download(creative));
   }
 
   cancelDownload(Creative creative) {

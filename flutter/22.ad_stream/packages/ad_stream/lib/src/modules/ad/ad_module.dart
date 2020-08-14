@@ -11,6 +11,7 @@ import 'package:ad_stream/src/modules/common/file_path_resolver.dart';
 import 'package:ad_stream/src/modules/common/file_url_resolver.dart';
 import 'package:ad_stream/src/modules/downloader/download_options.dart';
 import 'package:ad_stream/src/modules/downloader/file_downloader.dart';
+import 'package:ad_stream/src/modules/downloader/mock/file_downloader.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
@@ -76,7 +77,6 @@ class AdModule {
   @singleton
   AdRepository adRepository(
     AdApiClient adApiClient,
-    AdDatabase adDatabase,
     CreativeDownloader creativeDownloader,
     Config config,
     ServiceManager serviceManager,
@@ -84,7 +84,6 @@ class AdModule {
   ) {
     final adRepository = AdRepositoryImpl(
       adApiClient,
-      adDatabase,
       creativeDownloader,
       config,
     );
@@ -100,22 +99,22 @@ class AdModule {
     FilePathResolver filePathResolver,
     Config config,
   ) {
+    final mockFileDownloader = MockFileDownloader();
+
     final commonFileDownloader = FileDownloaderImpl(
         fileUrlResolver: fileUrlResolver,
         options: DownloadOptions(
             numOfParallelTasks: config.creativeDownloadParallelTasks,
             timeoutSecs: config.creativeDownloadTimeout));
-
-    final image = ImageCreativeDownloader(commonFileDownloader);
-
-    final video = VideoCreativeDownloader(FileDownloaderImpl(
+    final videoFileDownloader = FileDownloaderImpl(
         fileUrlResolver: fileUrlResolver,
         options: DownloadOptions(
             numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
-            timeoutSecs: config.videoCreativeDownloadTimeout)));
+            timeoutSecs: config.videoCreativeDownloadTimeout));
 
-    final html = HtmlCreativeDownloader(commonFileDownloader);
-
+    final image = ImageCreativeDownloader(mockFileDownloader);
+    final video = VideoCreativeDownloader(mockFileDownloader);
+    final html = HtmlCreativeDownloader(mockFileDownloader);
     final youtube = YoutubeCreativeDownloader();
 
     return ChainDownloaderImpl([image, video, html, youtube]);

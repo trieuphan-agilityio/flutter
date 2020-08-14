@@ -10,7 +10,7 @@ import 'package:ad_stream/src/modules/downloader/downloaded_file.dart';
 abstract class FileDownloader {
   /// - [metadata] an optional data object that is bring along with downloader,
   ///   and it will be included in the result [file$] stream.
-  enqueue(String filePath, String saveToPath, Object metadata);
+  enqueue(String fileUrl, String saveToPath, Object metadata);
 
   /// Remove a [filePath] from the queue.
   unqueue(String filePath);

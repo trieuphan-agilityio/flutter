@@ -1,11 +1,11 @@
-import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:test/test.dart';
 
+import 'base.dart';
+
 main() {
   group('GpsControllerImpl', () {
-    final gpsController =
-        FixedGpsController(ConfigFactoryImpl().createConfig());
+    final gpsController = FixedGpsController(config);
 
     test('can start', () async {
       gpsController.latLng$.listen(print);

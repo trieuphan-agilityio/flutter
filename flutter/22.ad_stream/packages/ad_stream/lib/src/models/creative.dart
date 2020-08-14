@@ -6,6 +6,9 @@ import 'package:meta/meta.dart';
 abstract class Creative {
   String get id;
 
+  /// First 6 chars of Id, useful for displaying on debugging.
+  String get shortId;
+
   /// Location of the file in local filesystem. Its presentation indicates that
   /// the creative have been downloaded and ready to serve.
   ///
@@ -23,6 +26,8 @@ class ImageCreative implements Creative {
   final String id;
   final String urlPath;
   final String filePath;
+
+  String get shortId => id.substring(0, 5);
 
   ImageCreative({
     @required this.id,
@@ -55,6 +60,8 @@ class YoutubeCreative implements Creative {
 
   /// Video length in seconds
   final int videoLength;
+
+  String get shortId => id.substring(0, 5);
 
   YoutubeCreative({
     @required this.id,
@@ -96,6 +103,8 @@ class VideoCreative implements Creative {
 
   /// Estimated size of the video (kB)
   final int fileSize;
+
+  String get shortId => id.substring(0, 5);
 
   VideoCreative({
     @required this.id,
@@ -148,6 +157,8 @@ class HtmlCreative implements Creative {
 
   /// Estimated size of the Zip file bundle.
   final int fileSize;
+
+  String get shortId => id.substring(0, 5);
 
   HtmlCreative({
     @required this.id,

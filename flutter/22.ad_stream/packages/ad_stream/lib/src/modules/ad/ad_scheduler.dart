@@ -68,18 +68,29 @@ class AdSchedulerImpl extends TaskService
   }
 
   Future<void> runTask() async {
+    /// going to pick an Ad from the "ready" stream Ads.
     final readyAds = await _adRepository.getReadyList(targetingValues);
 
-    if (readyAds.length == 0 || _adToDisplay == readyAds.first) {
+    if (readyAds.length == 0) {
+      // unload if there is no candidate
+      _adToDisplay = null;
+      Log.info('AdScheduler beating');
+      return null;
+    }
+
+    // FIXME It supposes to figure out which ad is best for displaying.
+    final pickedAd = readyAds[_random.nextInt(readyAds.length - 1)];
+
+    if (_adToDisplay == pickedAd) {
       Log.info('AdScheduler beating');
       return null;
     }
 
     // schedule an Ad for displaying
-    // Random for now. It supposes to figure out which ad is best for displaying.
-    _adToDisplay = readyAds[_random.nextInt(readyAds.length - 1)];
+    _adToDisplay = pickedAd;
 
-    Log.info('AdScheduler picked Ad{id: ${_adToDisplay.id}'
+    Log.info('AdScheduler picked Ad{id: ${_adToDisplay.shortId}'
+        ', creativeId: ${_adToDisplay.creative.shortId}'
         ', version: ${_adToDisplay.version}}');
 
     return null;

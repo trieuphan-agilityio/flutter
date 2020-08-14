@@ -7,6 +7,7 @@ import 'package:ad_stream/src/features/ad_displaying/skip_button.dart';
 import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
 class AdViewContainer extends StatelessWidget {
   @override
@@ -69,16 +70,40 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
   Widget _buildAdInfo() {
     return Container(
       width: 400,
-      height: 200,
+      height: 250,
       padding: EdgeInsets.all(16),
-      child: Container(
-        child: Text('${model.wellFormatString()}'),
-        padding: EdgeInsets.all(16),
-        color: _chooseColorForAd(),
-        alignment: Alignment.topLeft,
-      ),
+      child: Stack(children: [
+        Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${model.ad.creative.shortId}',
+                style: Theme.of(context).textTheme.headline5,
+              ),
+              SizedBox(height: 8),
+              Text('${model.wellFormatString}'),
+            ],
+          ),
+          padding: EdgeInsets.all(16),
+          color: _chooseColorForAd(),
+          alignment: Alignment.topLeft,
+        ),
+      ]),
     );
   }
+
+  /*
+  Align(child: _buildDebugCountdown(), alignment: Alignment.bottomRight),
+  Widget _buildDebugCountdown() {
+    return finishTimer == null
+        ? SizedBox.shrink()
+        : Padding(
+            child: Text('${model.duration.inSeconds - finishTimer.tick}s'),
+            padding: EdgeInsets.all(8),
+          );
+  }
+  */
 
   _skip() {
     finishTimer?.cancel();

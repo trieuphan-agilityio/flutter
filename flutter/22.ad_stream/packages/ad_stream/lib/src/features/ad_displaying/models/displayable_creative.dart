@@ -22,10 +22,10 @@ class DisplayableCreative {
     @required this.isSkippable,
   });
 
-  String wellFormatString() {
-    return 'DisplayableCreative{\n  id: ${ad.creative.id}'
-        ',\n  duration: $duration'
-        ',\n  canSkipAfter: $canSkipAfter'
+  String get wellFormatString {
+    return 'DisplayableCreative{\n  id: ${ad.creative.shortId}'
+        ',\n  duration: ${duration.inSeconds}s'
+        ',\n  canSkipAfter: ${canSkipAfter}s'
         ',\n  isSkippable: $isSkippable\n}';
   }
 }

@@ -57,6 +57,45 @@ class Config {
     @required this.defaultAd,
     @required this.creativeBaseUrl,
   });
+
+  Config copyWith({
+    int timeBlockToSecs,
+    int defaultCanSkipAfter,
+    int defaultGpsControllerRefreshInterval,
+    int defaultAdSchedulerRefreshInterval,
+    int defaultAdRepositoryRefreshInterval,
+    int defaultAdPresenterRefreshInterval,
+    int creativeDownloadParallelTasks,
+    int creativeDownloadTimeout,
+    int videoCreativeDownloadParallelTasks,
+    int videoCreativeDownloadTimeout,
+    Ad defaultAd,
+    String creativeBaseUrl,
+  }) {
+    return Config(
+      timeBlockToSecs: timeBlockToSecs ?? this.timeBlockToSecs,
+      defaultCanSkipAfter: defaultCanSkipAfter ?? this.defaultCanSkipAfter,
+      defaultGpsControllerRefreshInterval:
+          defaultGpsControllerRefreshInterval ??
+              this.defaultGpsControllerRefreshInterval,
+      defaultAdSchedulerRefreshInterval: defaultAdSchedulerRefreshInterval ??
+          this.defaultAdSchedulerRefreshInterval,
+      defaultAdRepositoryRefreshInterval: defaultAdRepositoryRefreshInterval ??
+          this.defaultAdRepositoryRefreshInterval,
+      defaultAdPresenterRefreshInterval: defaultAdPresenterRefreshInterval ??
+          this.defaultAdPresenterRefreshInterval,
+      creativeDownloadParallelTasks:
+          creativeDownloadParallelTasks ?? this.creativeDownloadParallelTasks,
+      creativeDownloadTimeout:
+          creativeDownloadTimeout ?? this.creativeDownloadTimeout,
+      videoCreativeDownloadParallelTasks: videoCreativeDownloadParallelTasks ??
+          this.videoCreativeDownloadParallelTasks,
+      videoCreativeDownloadTimeout:
+          videoCreativeDownloadTimeout ?? this.videoCreativeDownloadTimeout,
+      defaultAd: defaultAd ?? this.defaultAd,
+      creativeBaseUrl: creativeBaseUrl ?? this.creativeBaseUrl,
+    );
+  }
 }
 
 abstract class ConfigFactory {

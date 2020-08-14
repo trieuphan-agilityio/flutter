@@ -49,6 +49,9 @@ class Ad {
   final DateTime createdAt;
   final DateTime lastModifiedAt;
 
+  /// First 6 chars of Id, useful for displaying on debugging.
+  String get shortId => id.substring(0, 5);
+
   Ad({
     @required this.id,
     @required this.creative,
@@ -85,6 +88,12 @@ class Ad {
     );
   }
 
+  /// True indicates that [Ad] match with the targeting [values].
+  bool isMatch(TargetingValues values) {
+    // FIXME
+    return true;
+  }
+
   @override
   String toString() {
     return 'Ad{id: $id'
@@ -118,9 +127,9 @@ class AdVersion {
   AdVersion(this.id, this.version);
 }
 
+/// An utility that helps to compare two list of ads to figure out which
+/// ads have been added new, updated and removed.
 class AdDiff {
-  /// Compare two list of ads to figure out which ads have been added new,
-  /// which one have been update and which one have been removed.
   static AdChangeSet diff(List<Ad> source, List<Ad> other) {
     List<Ad> newAds = [];
     List<Ad> updatedAds = [];
@@ -160,6 +169,8 @@ class AdDiff {
   }
 }
 
+/// A data class that describes the different between two Ads list.
+/// Check out [AdDiff] to see how [AdChangeSet] is computed.
 class AdChangeSet {
   final List<Ad> newAds;
   final List<Ad> updatedAds;
@@ -170,4 +181,15 @@ class AdChangeSet {
   int get numOfRemovedAds => removedAds.length;
 
   AdChangeSet({this.newAds, this.updatedAds, this.removedAds});
+}
+
+extension AdToKeywordExtension on List<Ad> {
+  /// Derive the targeting keywords that are associated to Ad in the list.
+  List<Keyword> get targetingKeywords {
+    final List<Keyword> keywords = [];
+    for (final ad in this) {
+      keywords.addAll(ad.targetingKeywords);
+    }
+    return keywords;
+  }
 }

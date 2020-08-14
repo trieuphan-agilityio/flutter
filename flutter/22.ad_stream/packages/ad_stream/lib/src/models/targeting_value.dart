@@ -29,6 +29,13 @@ enum TargetingType {
 ///
 abstract class TargetingValue {
   TargetingType get type;
+
+  /// If value is not stackable, new value would causes previous one is removed
+  /// from the list when adding.
+  ///
+  /// Some values that are stackable such as [Keyword] which mean that on an trip
+  /// [Keyword]s are collecting until passenger is dropped off.
+  bool get isStackable;
 }
 
 class PassengerAgeRange with EquatableMixin implements TargetingValue {
@@ -40,6 +47,13 @@ class PassengerAgeRange with EquatableMixin implements TargetingValue {
   List<Object> get props => [from, to];
 
   TargetingType get type => TargetingType.passengerAgeRange;
+
+  bool get isStackable => false;
+
+  @override
+  String toString() {
+    return 'PassengerAgeRange{from: $from, to: $to}';
+  }
 }
 
 class PassengerGender with EquatableMixin implements TargetingValue {
@@ -54,6 +68,13 @@ class PassengerGender with EquatableMixin implements TargetingValue {
   List<Object> get props => [gender];
 
   TargetingType get type => TargetingType.passengerGender;
+
+  bool get isStackable => false;
+
+  @override
+  String toString() {
+    return 'PassengerGender{gender: $gender}';
+  }
 }
 
 class Keyword with EquatableMixin implements TargetingValue {
@@ -64,6 +85,13 @@ class Keyword with EquatableMixin implements TargetingValue {
   List<Object> get props => [keyword];
 
   TargetingType get type => TargetingType.keyword;
+
+  bool get isStackable => true;
+
+  @override
+  String toString() {
+    return 'Keyword{keyword: $keyword}';
+  }
 }
 
 class LatLng with EquatableMixin implements TargetingValue {
@@ -75,6 +103,8 @@ class LatLng with EquatableMixin implements TargetingValue {
   List<Object> get props => [lat, lng];
 
   TargetingType get type => TargetingType.latLng;
+
+  bool get isStackable => false;
 
   @override
   String toString() {
@@ -90,6 +120,13 @@ class Area with EquatableMixin implements TargetingValue {
   List<Object> get props => [name];
 
   TargetingType get type => TargetingType.area;
+
+  bool get isStackable => false;
+
+  @override
+  String toString() {
+    return 'Area{name: $name}';
+  }
 }
 
 /// TargetingValues is the abstraction of the collection of TargetingValue
@@ -99,14 +136,14 @@ class TargetingValues {
   Map<TargetingType, List<TargetingValue>> valuesMap;
 
   add(TargetingValue value) {
-    if (valuesMap.containsKey(value.type)) {
+    if (valuesMap.containsKey(value.type) && value.isStackable) {
       valuesMap[value.type].add(value);
     } else {
       valuesMap[value.type] = [value];
     }
   }
 
-  addAll(TargetingType type, List<TargetingValue> values) {
+  addAll(List<TargetingValue> values) {
     for (final value in values) {
       add(value);
     }

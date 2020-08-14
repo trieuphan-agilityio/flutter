@@ -14,34 +14,41 @@ abstract class GpsController {
 class FixedGpsController extends TaskService
     with ServiceMixin, TaskServiceMixin
     implements GpsController {
-  final StreamController<LatLng> latLng$Controller;
+  final Config _config;
+  final StreamController<LatLng> _latLng$Controller;
 
-  FixedGpsController() : latLng$Controller = BehaviorSubject<LatLng>();
+  FixedGpsController(this._config)
+      : _latLng$Controller = BehaviorSubject<LatLng>();
 
-  Stream<LatLng> get latLng$ => latLng$Controller.stream;
+  Stream<LatLng> get latLng$ => _latLng$Controller.stream;
 
   /// Service
 
-  // TODO inject config
-  int get defaultRefreshInterval => 30;
+  int get defaultRefreshInterval => _config.defaultGpsControllerRefreshInterval;
 
-  @override
   Future<void> start() {
     super.start();
-    Log.info('FixedGpsController is starting');
+
+    // this essential service should start as soon as it can
+    // so that other service can consume its value on starting.
+    _refreshLocation();
+
+    Log.info('FixedGpsController started.');
     return null;
   }
 
-  @override
   Future<void> stop() {
     super.stop();
-    Log.info('FixedGpsController is stopping');
+    Log.info('FixedGpsController stopped.');
     return null;
   }
 
-  @override
   Future<void> runTask() {
-    latLng$Controller.add(LatLng(76.0, 106.0));
+    _refreshLocation();
     return null;
+  }
+
+  _refreshLocation() {
+    _latLng$Controller.add(LatLng(76.0, 106.0));
   }
 }

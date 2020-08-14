@@ -61,6 +61,30 @@ class Ad {
     @required this.lastModifiedAt,
   });
 
+  Ad copyWith({
+    String id,
+    Creative creative,
+    int timeBlocks,
+    int canSkipAfter,
+    List<Keyword> targetingKeywords,
+    List<Area> targetingAreas,
+    int version,
+    DateTime createdAt,
+    DateTime lastModifiedAt,
+  }) {
+    return Ad(
+      id: id ?? this.id,
+      creative: creative ?? this.creative,
+      timeBlocks: timeBlocks ?? this.timeBlocks,
+      canSkipAfter: canSkipAfter ?? this.canSkipAfter,
+      targetingKeywords: targetingKeywords ?? this.targetingKeywords,
+      targetingAreas: targetingAreas ?? this.targetingAreas,
+      version: version ?? this.version,
+      createdAt: createdAt ?? this.createdAt,
+      lastModifiedAt: lastModifiedAt ?? this.lastModifiedAt,
+    );
+  }
+
   @override
   String toString() {
     return 'Ad{id: $id'
@@ -73,6 +97,17 @@ class Ad {
         ', createdAt: $createdAt'
         ', lastModifiedAt: $lastModifiedAt}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Ad &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          version == other.version;
+
+  @override
+  int get hashCode => id.hashCode ^ version.hashCode;
 }
 
 /// A excerpt of [Ad] contains id and version.
@@ -87,9 +122,9 @@ class AdDiff {
   /// Compare two list of ads to figure out which ads have been added new,
   /// which one have been update and which one have been removed.
   static AdChangeSet diff(List<Ad> source, List<Ad> other) {
-    List<Ad> newAds;
+    List<Ad> newAds = [];
     List<Ad> updatedAds = [];
-    List<String> removedAds = [];
+    List<Ad> removedAds = [];
 
     for (final ad in source) {
       // indicates whether ad has been removed from the list or not.
@@ -106,11 +141,16 @@ class AdDiff {
       }
 
       if (isRemoved) {
-        removedAds.add(ad.id);
+        removedAds.add(ad);
       }
     }
 
-    newAds = other.toSet().difference(source.toSet()).toList();
+    /// new ads from the other list and it must not be in updated list.
+    for (final ad in other) {
+      if (!source.contains(ad) && !updatedAds.contains(ad)) {
+        newAds.add(ad);
+      }
+    }
 
     return AdChangeSet(
       newAds: newAds,
@@ -123,7 +163,7 @@ class AdDiff {
 class AdChangeSet {
   final List<Ad> newAds;
   final List<Ad> updatedAds;
-  final List<String> removedAds;
+  final List<Ad> removedAds;
 
   int get numOfNewAds => newAds.length;
   int get numOfUpdatedAds => updatedAds.length;

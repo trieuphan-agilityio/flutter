@@ -1,7 +1,7 @@
 import 'package:ad_stream/base.dart';
-import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
 import 'package:ad_stream/src/modules/ad/ad_database.dart';
+import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
@@ -50,8 +50,14 @@ class AdModule {
 
   @provide
   @singleton
-  AdPresenter adPresenter(AdScheduler adScheduler) {
-    return AdPresenterImpl(adScheduler);
+  AdPresenter adPresenter(
+    ServiceManager serviceManager,
+    AdScheduler adScheduler,
+    Config config,
+  ) {
+    final adPresenter = AdPresenterImpl(adScheduler, config);
+    adPresenter.listen(serviceManager.status$);
+    return adPresenter;
   }
 
   @provide
@@ -94,11 +100,13 @@ class AdModule {
     FilePathResolver filePathResolver,
     Config config,
   ) {
-    final image = ImageCreativeDownloader(FileDownloaderImpl(
+    final commonFileDownloader = FileDownloaderImpl(
         fileUrlResolver: fileUrlResolver,
         options: DownloadOptions(
             numOfParallelTasks: config.creativeDownloadParallelTasks,
-            timeoutSecs: config.creativeDownloadTimeout)));
+            timeoutSecs: config.creativeDownloadTimeout));
+
+    final image = ImageCreativeDownloader(commonFileDownloader);
 
     final video = VideoCreativeDownloader(FileDownloaderImpl(
         fileUrlResolver: fileUrlResolver,
@@ -106,11 +114,7 @@ class AdModule {
             numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
             timeoutSecs: config.videoCreativeDownloadTimeout)));
 
-    final html = HtmlCreativeDownloader(FileDownloaderImpl(
-        fileUrlResolver: fileUrlResolver,
-        options: DownloadOptions(
-            numOfParallelTasks: config.creativeDownloadParallelTasks,
-            timeoutSecs: config.creativeDownloadTimeout)));
+    final html = HtmlCreativeDownloader(commonFileDownloader);
 
     final youtube = YoutubeCreativeDownloader();
 

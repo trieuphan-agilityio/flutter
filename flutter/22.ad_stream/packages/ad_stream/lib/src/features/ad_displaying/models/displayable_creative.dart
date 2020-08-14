@@ -21,4 +21,11 @@ class DisplayableCreative {
     @required this.canSkipAfter,
     @required this.isSkippable,
   });
+
+  String wellFormatString() {
+    return 'DisplayableCreative{\n  id: ${ad.creative.id}'
+        ',\n  duration: $duration'
+        ',\n  canSkipAfter: $canSkipAfter'
+        ',\n  isSkippable: $isSkippable\n}';
+  }
 }

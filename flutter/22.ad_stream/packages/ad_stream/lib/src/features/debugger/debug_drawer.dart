@@ -1,4 +1,4 @@
-import 'package:ad_stream/src/modules/debugger/debugger.dart';
+import 'package:ad_stream/src/features/debugger/debug_dashboard.dart';
 import 'package:flutter/material.dart';
 
 const _kDivider = const Divider(height: 0.5, thickness: 0.5);
@@ -25,18 +25,18 @@ class DebugDrawer extends StatelessWidget {
   List<Widget> buildOptions(BuildContext context) {
     return [
       ListTile(
-        title: Text('Open Debugger'),
+        title: Text('Open Debug Dashboard'),
         onTap: () {
           // close drawer
           Navigator.pop(context);
 
-          // open debugger dashboard
+          // open debug dashboard
           Navigator.push(
             context,
             MaterialPageRoute(
               fullscreenDialog: true,
               builder: (BuildContext context) {
-                return Debugger();
+                return DebugDashboard();
               },
             ),
           );

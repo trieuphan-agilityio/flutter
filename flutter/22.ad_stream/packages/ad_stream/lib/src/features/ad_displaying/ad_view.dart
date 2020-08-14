@@ -1,6 +1,10 @@
-import 'package:ad_stream/src/features/ad_displaying/ad_presenter.dart';
+import 'dart:async';
+import 'dart:math';
+
+import 'package:ad_stream/src/base/color.dart';
 import 'package:ad_stream/src/features/ad_displaying/models/displayable_creative.dart';
 import 'package:ad_stream/src/features/ad_displaying/skip_button.dart';
+import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +27,9 @@ class AdViewImpl extends StatefulWidget {
 class _AdViewImplState extends State<AdViewImpl> implements AdView {
   DisplayableCreative model;
 
+  /// [finishTimer] fires when required time block of the Ad elapsed.
+  Timer finishTimer;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +50,7 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
     return Container(
       child: Stack(
         children: [
+          _buildAdInfo(),
           _buildSkipButton(),
         ],
       ),
@@ -50,16 +58,61 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
   }
 
   Widget _buildSkipButton() {
-    return model.isSkippable
-        ? SkipButton(
-            canSkipAfter: model.canSkipAfter,
-            onSkip: () => widget.presenter.skip(),
-          )
-        : SizedBox.shrink();
+    return Align(
+      child: model.isSkippable
+          ? SkipButton(canSkipAfter: model.canSkipAfter, onSkip: _skip)
+          : SizedBox.shrink(),
+      alignment: Alignment.bottomRight,
+    );
   }
 
-  @override
-  display(DisplayableCreative model) {
-    setState(() => this.model = model);
+  Widget _buildAdInfo() {
+    return Container(
+      width: 400,
+      height: 200,
+      padding: EdgeInsets.all(16),
+      child: Container(
+        child: Text('${model.wellFormatString()}'),
+        padding: EdgeInsets.all(16),
+        color: _chooseColorForAd(),
+        alignment: Alignment.topLeft,
+      ),
+    );
   }
+
+  _skip() {
+    finishTimer?.cancel();
+    finishTimer = null;
+    widget.presenter.skip();
+  }
+
+  display(DisplayableCreative model) {
+    setState(() {
+      this.model = model;
+
+      if (model != null) {
+        // when timer elapsed, Ad impression can be finished.
+        finishTimer = Timer(model.duration, () {
+          widget.presenter.finish();
+        });
+      }
+    });
+  }
+
+  Color _chooseColorForAd() {
+    return _adInfoBgColors[_random.nextInt(_adInfoBgColors.length - 1)];
+  }
+
+  Random _random = Random();
+
+  List<Color> _adInfoBgColors = [
+    SolarizedColor.yellow.withAlpha(100),
+    SolarizedColor.orange.withAlpha(100),
+    SolarizedColor.red.withAlpha(100),
+    SolarizedColor.magenta.withAlpha(100),
+    SolarizedColor.violet.withAlpha(100),
+    SolarizedColor.blue.withAlpha(100),
+    SolarizedColor.cyan.withAlpha(100),
+    SolarizedColor.green.withAlpha(100),
+  ];
 }

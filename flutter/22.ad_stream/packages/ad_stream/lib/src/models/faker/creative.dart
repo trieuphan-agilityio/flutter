@@ -10,7 +10,7 @@ class CreativeFaker {
   final faker = Faker();
   ImageCreative image() {
     return ImageCreative(
-      id: faker.guid.guid(),
+      id: faker.guid.guid().substring(0, 7),
       urlPath: faker.urlPath.image,
       filePath: null,
     );
@@ -18,7 +18,7 @@ class CreativeFaker {
 
   VideoCreative video() {
     return VideoCreative(
-      id: faker.guid.guid(),
+      id: faker.guid.guid().substring(0, 7),
       urlPath: faker.urlPath.video,
       filePath: null,
       format: 'mp4',
@@ -29,7 +29,7 @@ class CreativeFaker {
 
   HtmlCreative html() {
     return HtmlCreative(
-      id: faker.guid.guid(),
+      id: faker.guid.guid().substring(0, 7),
       urlPath: faker.urlPath.html,
       filePath: null,
       fileSize: faker.randomGenerator.integer(60000, min: 1),
@@ -38,7 +38,7 @@ class CreativeFaker {
 
   YoutubeCreative youtube() {
     return YoutubeCreative(
-      id: faker.guid.guid(),
+      id: faker.guid.guid().substring(0, 7),
       urlPath: faker.urlPath.youtube,
       videoLength: faker.randomGenerator.integer(40, min: 15),
     );

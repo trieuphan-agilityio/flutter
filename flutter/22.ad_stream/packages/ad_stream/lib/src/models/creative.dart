@@ -41,6 +41,11 @@ class ImageCreative implements Creative {
       filePath: filePath ?? this.filePath,
     );
   }
+
+  @override
+  String toString() {
+    return 'ImageCreative{id: $id, urlPath: $urlPath, filePath: $filePath}';
+  }
 }
 
 class YoutubeCreative implements Creative {
@@ -67,6 +72,14 @@ class YoutubeCreative implements Creative {
       urlPath: urlPath ?? this.urlPath,
       videoLength: videoLength ?? this.videoLength,
     );
+  }
+
+  @override
+  String toString() {
+    return 'YoutubeCreative{id: $id'
+        ', urlPath: $urlPath'
+        ', filePath: $filePath'
+        ', videoLength: $videoLength}';
   }
 }
 
@@ -110,6 +123,16 @@ class VideoCreative implements Creative {
       fileSize: fileSize ?? this.fileSize,
     );
   }
+
+  @override
+  String toString() {
+    return 'VideoCreative{id: $id'
+        ', urlPath: $urlPath'
+        ', filePath: $filePath'
+        ', format: $format'
+        ', videoLength: $videoLength'
+        ', fileSize: $fileSize}';
+  }
 }
 
 class HtmlCreative implements Creative {
@@ -145,5 +168,13 @@ class HtmlCreative implements Creative {
       filePath: filePath ?? this.filePath,
       fileSize: fileSize ?? this.fileSize,
     );
+  }
+
+  @override
+  String toString() {
+    return 'HtmlCreative{id: $id'
+        ', urlPath: $urlPath'
+        ', filePath: $filePath'
+        ', fileSize: $fileSize}';
   }
 }

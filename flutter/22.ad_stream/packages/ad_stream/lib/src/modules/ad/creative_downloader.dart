@@ -5,19 +5,30 @@ import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/downloader/file_downloader.dart';
 
 abstract class CreativeDownloader {
+  /// Schedule to download
   download(Creative creative);
+
+  /// Allow cancel a downloading.
+  cancelDownload(Creative creative);
+
+  /// Creative has been downloaded and persisted on file storage.
   Stream<Creative> get downloaded$;
 }
 
 class ChainDownloaderImpl implements CreativeDownloader {
-  final List<CreativeDownloader> _downloaders;
+  final List<CreativeDownloader> _chain;
 
-  ChainDownloaderImpl(this._downloaders);
+  ChainDownloaderImpl(this._chain);
 
   download(Creative creative) {
-    // send creative for each downloader.
-    // once of these would be able to process it.
-    _downloaders.forEach((d) => d.download);
+    // send creative to the downloaders on chain.
+    // once of these would be able to download it.
+    _chain.forEach((d) => d.download);
+  }
+
+  cancelDownload(Creative creative) {
+    // one of downloaders in chain would be able to cancel the downloading.
+    _chain.forEach((d) => d.cancelDownload(creative));
   }
 
   Stream<Creative> get downloaded$ {
@@ -27,7 +38,7 @@ class ChainDownloaderImpl implements CreativeDownloader {
     /// 3. Video.
     return _downloaded$ ??= StreamController<Creative>()
         .stream
-        .mergeAll(_downloaders.map((d) => d.downloaded$));
+        .mergeAll(_chain.map((d) => d.downloaded$));
   }
 
   /// A cache instance of downloaded stream.
@@ -52,11 +63,12 @@ class ImageCreativeDownloader implements CreativeDownloader {
   download(Creative creative) {
     if (creative is ImageCreative) {
       _downloader.enqueue(
-        fileUrl: creative.urlPath,
-        saveToPath: '/image/${creative.urlPath}',
-        metadata: creative,
-      );
+          creative.urlPath, '/image/${creative.urlPath}', creative);
     }
+  }
+
+  cancelDownload(Creative creative) {
+    _downloader.unqueue(creative.filePath);
   }
 
   Stream<Creative> get downloaded$ => _controller.stream;
@@ -80,10 +92,13 @@ class VideoCreativeDownloader implements CreativeDownloader {
   download(Creative creative) {
     if (creative is VideoCreative) {
       _downloader.enqueue(
-        fileUrl: creative.urlPath,
-        saveToPath: '/video/${creative.urlPath}',
-        metadata: creative,
-      );
+          creative.urlPath, '/video/${creative.urlPath}', creative);
+    }
+  }
+
+  cancelDownload(Creative creative) {
+    if (creative is VideoCreative) {
+      _downloader.unqueue(creative.filePath);
     }
   }
 
@@ -116,10 +131,13 @@ class HtmlCreativeDownloader implements CreativeDownloader {
   download(Creative creative) {
     if (creative is HtmlCreative) {
       _downloader.enqueue(
-        fileUrl: creative.urlPath,
-        saveToPath: '/html/${creative.urlPath}',
-        metadata: creative,
-      );
+          creative.urlPath, '/html/${creative.urlPath}', creative);
+    }
+  }
+
+  cancelDownload(Creative creative) {
+    if (creative is HtmlCreative) {
+      _downloader.unqueue(creative.filePath);
     }
   }
 
@@ -138,6 +156,10 @@ class YoutubeCreativeDownloader implements CreativeDownloader {
       // just forward it.
       _controller.add(creative);
     }
+  }
+
+  cancelDownload(Creative creative) {
+    // do nothing.
   }
 
   Stream<Creative> get downloaded$ => _controller.stream;

@@ -10,11 +10,10 @@ import 'package:ad_stream/src/modules/downloader/downloaded_file.dart';
 abstract class FileDownloader {
   /// - [metadata] an optional data object that is bring along with downloader,
   ///   and it will be included in the result [file$] stream.
-  enqueue({
-    @required String fileUrl,
-    @required String saveToPath,
-    Object metadata,
-  });
+  enqueue(String filePath, String saveToPath, Object metadata);
+
+  /// Remove a [filePath] from the queue.
+  unqueue(String filePath);
 
   /// File that has just been downloaded.
   Stream<DownloadedFile> get file$;
@@ -39,15 +38,11 @@ class FileDownloaderImpl implements FileDownloader {
           Duration(seconds: options?.timeoutSecs ?? _kTimeoutSecs),
         );
 
-  enqueue({
-    @required String fileUrl,
-    @required String saveToPath,
-    Object metadata,
-  }) {
+  enqueue(String filePath, String saveToPath, Object metadata) {
     final filePathOnDownloading = '$saveToPath.part';
-    final resolvedFileUrl = fileUrlResolver?.resolve(fileUrl) ?? fileUrl;
+    final resolvedFileUrl = fileUrlResolver?.resolve(filePath) ?? filePath;
 
-    _taskQueue.add(fileUrl, () {
+    _taskQueue.add(filePath, () {
       final completer = Completer();
       _http
           .getUrl(Uri.parse(resolvedFileUrl))
@@ -61,7 +56,7 @@ class FileDownloaderImpl implements FileDownloader {
 
         // inform status stream
         _downloadedFile$Controller.add(DownloadedFile(
-          fileUrl: fileUrl,
+          fileUrl: filePath,
           filePath: saveToPath,
           metadata: metadata,
           createdAt: DateTime.now(),
@@ -76,6 +71,10 @@ class FileDownloaderImpl implements FileDownloader {
       });
       return completer.future;
     });
+  }
+
+  unqueue(String filePath) {
+    _taskQueue.remove(filePath);
   }
 
   Stream<DownloadedFile> get file$ => _downloadedFile$Controller.stream;
@@ -102,6 +101,12 @@ class _TaskQueue {
 
     // start the work after adding a new task.
     Future(work);
+  }
+
+  /// Remove by task id.
+  remove(String id) {
+    // TODO find out if task is working or in queue.
+    queue.removeWhere((task) => task.id == id);
   }
 
   /// execute next task if any

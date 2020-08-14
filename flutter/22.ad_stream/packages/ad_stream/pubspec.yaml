@@ -55,3 +55,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # sample background for ads
+  assets:
+    - assets/p1.jpg
+    - assets/p2.jpg
+    - assets/p3.jpg

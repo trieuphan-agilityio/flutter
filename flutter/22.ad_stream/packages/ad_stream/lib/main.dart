@@ -1,12 +1,15 @@
 import 'package:ad_stream/src/features/ad_displaying/ad_view.dart';
-import 'package:ad_stream/src/modules/debugger/debug_drawer.dart';
+import 'package:ad_stream/src/features/debugger/debug_button.dart';
+import 'package:ad_stream/src/features/debugger/debug_drawer.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:ad_stream/src/modules/permission/permission_container.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Future<DI> _diFuture = createDI();
+/// Asynchronously create Dependency Injection tree.
+/// While the object is constructing the app will display [Splash] screen.
+Future<DI> _diFuture = Future(createDI);
 
 void main() {
   runApp(App());
@@ -21,7 +24,7 @@ class App extends StatelessWidget {
       builder: (_, snapshot) {
         if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
-          return buildWithDI(snapshot.data);
+          return buildWithDI(context, snapshot.data);
         } else {
           return SplashScreen();
         }
@@ -29,22 +32,22 @@ class App extends StatelessWidget {
     );
   }
 
-  Widget buildWithDI(DI di) {
+  Widget buildWithDI(BuildContext context, DI di) {
     return Provider.value(
       value: di,
       child: MaterialApp(
-        routes: {
-          '/': (_) {
-            return Scaffold(
-              drawer: DebugDrawer(),
-              body: Column(children: <Widget>[
-                Expanded(
-                    child: ServiceManagerContainer(child: AdViewContainer())),
+        home: Scaffold(
+          drawer: DebugDrawer(),
+          body: SafeArea(
+            child: Stack(
+              children: <Widget>[
+                ServiceManagerContainer(child: AdViewContainer()),
                 PermissionContainer(),
-              ]),
-            );
-          },
-        },
+                Align(child: DebugButton(), alignment: Alignment.bottomCenter),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -67,7 +70,7 @@ class SplashScreen extends StatelessWidget {
             SizedBox(height: 20),
             Text(
               'Ad Stream Practice',
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.headline5,
             ),
           ],
         ),

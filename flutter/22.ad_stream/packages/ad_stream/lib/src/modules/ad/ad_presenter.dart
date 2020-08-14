@@ -23,7 +23,7 @@ abstract class AdPresenter implements Presenter<AdView> {
   Stream<AdDisplayError> get fail$;
   Stream<Ad> get displaying$;
 
-  /// Some Ads is shippable,
+  /// Some Ads is skippable,
   skip();
 
   /// finish is called when the Ad finished its display Time Block.
@@ -34,16 +34,17 @@ abstract class AdPresenter implements Presenter<AdView> {
   fail(Error err);
 }
 
-class AdPresenterImpl extends Service
-    with ServiceMixin, PresenterMixin<AdView>
+class AdPresenterImpl extends TaskService
+    with TaskServiceMixin, ServiceMixin, PresenterMixin<AdView>
     implements AdPresenter {
-  AdPresenterImpl(this.adScheduler)
+  AdPresenterImpl(this.adScheduler, this.config)
       : displaying$Controller = StreamController<Ad>.broadcast(),
         finish$Controller = StreamController<Ad>.broadcast(),
         skip$Controller = StreamController<Ad>.broadcast(),
         fail$Controller = StreamController<AdDisplayError>.broadcast();
 
   final AdScheduler adScheduler;
+  final Config config;
 
   Stream<Ad> get displaying$ => displaying$Controller.stream;
   Stream<Ad> get finish$ => finish$Controller.stream;
@@ -55,43 +56,90 @@ class AdPresenterImpl extends Service
   final StreamController<Ad> skip$Controller;
   final StreamController<AdDisplayError> fail$Controller;
 
+  // Picked Ad that is ready for display.
   Ad _adToDisplay;
 
+  // Keep tracking the current displaying Ad for reporting.
+  Ad _displayingAd;
+
   fail(Error err) {
-    fail$Controller.add(AdDisplayError(_adToDisplay, err));
-    _attemptToDisplayNewAd();
+    if (_displayingAd != null) {
+      fail$Controller.add(AdDisplayError(_displayingAd, err));
+    }
+    _displayNewAdIfNeeds();
   }
 
   finish() {
-    finish$Controller.add(_adToDisplay);
-    _attemptToDisplayNewAd();
+    if (_displayingAd != null) {
+      finish$Controller.add(_displayingAd);
+    }
+    _displayNewAdIfNeeds();
   }
 
   skip() {
-    skip$Controller.add(_adToDisplay);
-    _attemptToDisplayNewAd();
+    if (_displayingAd != null) {
+      skip$Controller.add(_displayingAd);
+    }
+    _displayNewAdIfNeeds();
   }
 
-  _attemptToDisplayNewAd() {
+  _displayNewAdIfNeeds() {
+    // reset the previous state of displaying Ad.
+    _displayingAd = null;
+
+    // stop displaying if service is stopped.
+    if (!_isStart) return;
+
     _adToDisplay = adScheduler.getAdForDisplay();
-    if (_adToDisplay == null) return;
+
+    // no ad, no display
+    if (_adToDisplay == null) {
+      Log.info('AdPresenter is waiting for Ad...');
+      return;
+    }
 
     /// Ad to DisplayableCreative
     view.display(DisplayableCreative(
       ad: _adToDisplay,
       canSkipAfter: _adToDisplay.canSkipAfter,
       isSkippable: _adToDisplay.isSkippable,
-      duration: Duration(seconds: _adToDisplay.timeBlocks),
+      duration:
+          Duration(seconds: _adToDisplay.timeBlocks * config.timeBlockToSecs),
     ));
+
+    _displayingAd = _adToDisplay;
+
+    Log.info('AdPresenter is displaying Ad{id: ${_displayingAd.id}'
+        ', version: ${_displayingAd.version}'
+        ', creativeId: ${_displayingAd.creative.id}}');
   }
 
-  @override
+  /// TaskService
+
+  /// intercept start/stop lifecycle to verify before triggering next displaying.
+  bool _isStart = false;
+
   Future<void> start() {
+    super.start();
+    _isStart = true;
+    Log.info('AdPresenter started.');
     return null;
   }
 
-  @override
   Future<void> stop() {
+    super.stop();
+    _isStart = false;
+    Log.info('AdPresenter stopped.');
+    return null;
+  }
+
+  int get defaultRefreshInterval => config.defaultAdPresenterRefreshInterval;
+
+  Future<void> runTask() {
+    // wake it up if find out that it's waiting for new Ad to display
+    if (_displayingAd == null) {
+      _displayNewAdIfNeeds();
+    }
     return null;
   }
 }

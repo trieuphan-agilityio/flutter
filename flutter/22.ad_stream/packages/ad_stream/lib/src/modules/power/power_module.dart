@@ -7,6 +7,9 @@ import 'power_provider.dart';
 abstract class PowerModuleLocator {
   @provide
   PowerProvider get powerProvider;
+
+  @provide
+  PowerDebugger get powerDebugger;
 }
 
 /// A source of dependency provider for the injector.

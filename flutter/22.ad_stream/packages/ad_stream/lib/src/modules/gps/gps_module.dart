@@ -15,8 +15,8 @@ abstract class GpsModuleLocator {
 class GpsModule {
   @provide
   @singleton
-  GpsController gpsController(ServiceManager serviceManager) {
-    final gpsController = FixedGpsController();
+  GpsController gpsController(ServiceManager serviceManager, Config config) {
+    final gpsController = FixedGpsController(config);
     gpsController.listen(serviceManager.status$);
     return gpsController;
   }

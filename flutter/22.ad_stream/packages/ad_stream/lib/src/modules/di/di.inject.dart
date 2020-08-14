@@ -19,7 +19,7 @@ import '../gps/gps_module.dart' as _i18;
 import '../gps/gps_controller.dart' as _i19;
 import '../ad/ad_repository.dart' as _i20;
 import '../ad/ad_scheduler.dart' as _i21;
-import '../../features/ad_displaying/ad_presenter.dart' as _i22;
+import '../ad/ad_presenter.dart' as _i22;
 import 'dart:async' as _i23;
 
 class DI$Injector implements _i1.DI {
@@ -88,10 +88,8 @@ class DI$Injector implements _i1.DI {
   _i3.ConfigFactory _createConfigFactory() =>
       _singletonConfigFactory ??= _adModule.configFactory();
   _i22.AdPresenter _createAdPresenter() =>
-      _singletonAdPresenter ??= _adModule.adPresenter(_createAdScheduler());
-  _i21.AdScheduler _createAdScheduler() =>
-      _singletonAdScheduler ??= _adModule.adScheduler(
-          _createServiceManager(), _createAdRepository(), _createConfig());
+      _singletonAdPresenter ??= _adModule.adPresenter(
+          _createServiceManager(), _createAdScheduler(), _createConfig());
   _i11.ServiceManager _createServiceManager() =>
       _singletonServiceManager ??= _serviceManagerModule.serviceManager(
           _createPowerProvider(), _createPermissionController());
@@ -104,6 +102,9 @@ class DI$Injector implements _i1.DI {
           _permissionModule.permissionController(_createPermissionDebugger());
   _i9.PermissionDebugger _createPermissionDebugger() =>
       _singletonPermissionDebugger ??= _permissionModule.permissionDebugger();
+  _i21.AdScheduler _createAdScheduler() =>
+      _singletonAdScheduler ??= _adModule.adScheduler(
+          _createServiceManager(), _createAdRepository(), _createConfig());
   _i20.AdRepository _createAdRepository() =>
       _singletonAdRepository ??= _adModule.adRepository(
           _createAdApiClient(),
@@ -125,7 +126,7 @@ class DI$Injector implements _i1.DI {
       _singletonFilePathResolver ??=
           _commonModule.filePathResolver(_createConfig());
   _i19.GpsController _createGpsController() => _singletonGpsController ??=
-      _gpsModule.gpsController(_createServiceManager());
+      _gpsModule.gpsController(_createServiceManager(), _createConfig());
   @override
   _i3.Config get config => _createConfig();
   @override
@@ -142,6 +143,8 @@ class DI$Injector implements _i1.DI {
   _i16.FilePathResolver get filePathResolver => _createFilePathResolver();
   @override
   _i7.PowerProvider get powerProvider => _createPowerProvider();
+  @override
+  _i6.PowerDebugger get powerDebugger => _createPowerDebugger();
   @override
   _i10.PermissionController get permissionController =>
       _createPermissionController();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
@@ -13,7 +14,7 @@ abstract class AdScheduler {
   setGender(PassengerGender gender);
   setAgeRange(PassengerAgeRange ageRange);
   setKeywords(List<Keyword> keywords);
-  setArea(Area area);
+  setAreas(List<Area> area);
 }
 
 class AdSchedulerImpl extends TaskService
@@ -40,11 +41,11 @@ class AdSchedulerImpl extends TaskService
 
   setAgeRange(PassengerAgeRange ageRange) => targetingValues.add(ageRange);
 
-  setArea(Area area) => targetingValues.add(area);
+  setAreas(List<Area> areas) => targetingValues.addAll(areas);
 
   setGender(PassengerGender gender) => targetingValues.add(gender);
 
-  setKeywords(List<Keyword> keywords) => keywords.forEach(targetingValues.add);
+  setKeywords(List<Keyword> keywords) => targetingValues.addAll(keywords);
 
   /// TaskService
 
@@ -52,20 +53,37 @@ class AdSchedulerImpl extends TaskService
   /// collecting Targeting Values and filter the latest [Ad] from AdRepository.
   int get defaultRefreshInterval => _config.defaultAdSchedulerRefreshInterval;
 
+  @override
   Future<void> start() {
     super.start();
-    Log.info('AdScheduler is starting');
+    Log.info('AdScheduler started.');
     return null;
   }
 
+  @override
   Future<void> stop() {
     super.stop();
-    Log.info('AdScheduler is stopping');
+    Log.info('AdScheduler stopped.');
     return null;
   }
 
-  Future<void> runTask() {
-    Log.info('AdScheduler is preparing Ads for displaying');
+  Future<void> runTask() async {
+    final readyAds = await _adRepository.getReadyList(targetingValues);
+
+    if (readyAds.length == 0 || _adToDisplay == readyAds.first) {
+      Log.info('AdScheduler beating');
+      return null;
+    }
+
+    // schedule an Ad for displaying
+    // Random for now. It supposes to figure out which ad is best for displaying.
+    _adToDisplay = readyAds[_random.nextInt(readyAds.length - 1)];
+
+    Log.info('AdScheduler picked Ad{id: ${_adToDisplay.id}'
+        ', version: ${_adToDisplay.version}}');
+
     return null;
   }
+
+  Random _random = Random();
 }

@@ -3,16 +3,26 @@ import 'package:meta/meta.dart';
 
 class Config {
   /// Indicates how long a time block take. Duration in seconds.
-  final int timeBlockToSeconds;
+  final int timeBlockToSecs;
 
   /// User must want the ad before he/she can skip ad. Duration in seconds.
   final int defaultCanSkipAfter;
 
-  /// Time in seconds must elapse before [AdScheduler] repeatedly refresh its content.
+  /// Time in seconds must elapse before [GpsController] repeatedly
+  /// refresh its content.
+  final int defaultGpsControllerRefreshInterval;
+
+  /// Time in seconds must elapse before [AdScheduler] repeatedly
+  /// refresh its content.
   final int defaultAdSchedulerRefreshInterval;
 
-  /// Time in seconds must elapse before [AdRepository] repeatedly refresh its content.
+  /// Time in seconds must elapse before [AdRepository] repeatedly
+  /// refresh its content.
   final int defaultAdRepositoryRefreshInterval;
+
+  /// Time in seconds must elapse before [AdPresenter] repeatedly
+  /// refresh its content.
+  final int defaultAdPresenterRefreshInterval;
 
   /// Number of downloading tasks are executed in parallel.
   final int creativeDownloadParallelTasks;
@@ -34,10 +44,12 @@ class Config {
   final String creativeBaseUrl;
 
   Config({
-    this.timeBlockToSeconds = 15,
+    this.timeBlockToSecs = 15,
     this.defaultCanSkipAfter = 2,
+    this.defaultGpsControllerRefreshInterval = 30,
     this.defaultAdSchedulerRefreshInterval = 10,
     this.defaultAdRepositoryRefreshInterval = 30,
+    this.defaultAdPresenterRefreshInterval = 15,
     this.creativeDownloadParallelTasks = 3,
     this.creativeDownloadTimeout = 15,
     this.videoCreativeDownloadParallelTasks = 1,

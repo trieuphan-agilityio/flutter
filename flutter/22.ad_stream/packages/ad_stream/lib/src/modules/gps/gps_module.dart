@@ -1,4 +1,5 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'gps_controller.dart';
@@ -7,6 +8,9 @@ import 'gps_controller.dart';
 abstract class GpsModuleLocator {
   @provide
   GpsController get gpsController;
+
+  @provide
+  MovementDetector get movementDetector;
 }
 
 /// A source of dependency provider for the injector.
@@ -19,5 +23,11 @@ class GpsModule {
     final gpsController = FixedGpsController(config);
     gpsController.listen(serviceManager.status$);
     return gpsController;
+  }
+
+  @provide
+  @singleton
+  MovementDetector movementDetector(GpsController gpsController) {
+    return MovementDetectorImpl(gpsController.latLng$);
   }
 }

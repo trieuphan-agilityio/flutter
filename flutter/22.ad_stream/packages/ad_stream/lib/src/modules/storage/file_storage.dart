@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
 abstract class FileReader {
-  /// Read a file in bytes at [filePath]
+  /// Read a file in bytes at [filePath].
+  ///
+  /// Throws
   Uint8List read(String filePath);
 }
 

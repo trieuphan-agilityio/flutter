@@ -30,7 +30,7 @@ class PowerDebuggerImpl implements PowerDebugger {
 
   PowerDebuggerImpl(this._delegate)
       : _status$Controller =
-            BehaviorSubject<PowerStatus>.seeded(PowerStatus.STRONG),
+            BehaviorSubject<PowerStatus>.seeded(PowerStatus.strong),
         _status$Switcher = StreamController<Stream<PowerStatus>>() {
     isEnabled = true;
   }
@@ -51,11 +51,11 @@ class PowerDebuggerImpl implements PowerDebugger {
   }
 
   weak() {
-    _status$Controller.add(PowerStatus.WEAK);
+    _status$Controller.add(PowerStatus.weak);
   }
 
   strong() {
-    _status$Controller.add(PowerStatus.STRONG);
+    _status$Controller.add(PowerStatus.strong);
   }
 
   /// Keep the enabled status of the debugger.

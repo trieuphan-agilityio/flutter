@@ -50,7 +50,7 @@ class ServiceManagerImpl extends DisposableController
       permissionStatus$,
       (powerStatus, permissionStatus) {
         Log.info('ServiceManager observed $powerStatus, $permissionStatus');
-        if (powerStatus == PowerStatus.STRONG &&
+        if (powerStatus == PowerStatus.strong &&
             permissionStatus == PermissionStatus.ALLOWED) {
           return ServiceStatus.START;
         } else {

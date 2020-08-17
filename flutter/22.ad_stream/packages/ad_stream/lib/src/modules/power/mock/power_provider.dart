@@ -9,7 +9,7 @@ class AlwaysStrongPowerProvider implements PowerProvider {
   final StreamController<PowerStatus> _controller;
 
   AlwaysStrongPowerProvider()
-      : _controller = BehaviorSubject.seeded(PowerStatus.STRONG);
+      : _controller = BehaviorSubject.seeded(PowerStatus.strong);
 
   Stream<PowerStatus> get status$ => _controller.stream;
 }

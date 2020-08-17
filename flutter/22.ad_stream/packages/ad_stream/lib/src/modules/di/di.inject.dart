@@ -19,7 +19,8 @@ import '../gps/gps_controller.dart' as _i18;
 import '../ad/ad_repository.dart' as _i19;
 import '../ad/ad_scheduler.dart' as _i20;
 import '../ad/ad_presenter.dart' as _i21;
-import 'dart:async' as _i22;
+import '../gps/movement_detector.dart' as _i22;
+import 'dart:async' as _i23;
 
 class DI$Injector implements _i1.DI {
   DI$Injector._(this._adModule, this._serviceManagerModule, this._powerModule,
@@ -67,7 +68,9 @@ class DI$Injector implements _i1.DI {
 
   _i21.AdPresenter _singletonAdPresenter;
 
-  static _i22.Future<_i1.DI> create(
+  _i22.MovementDetector _singletonMovementDetector;
+
+  static _i23.Future<_i1.DI> create(
       _i2.AdModule adModule,
       _i13.CommonModule commonModule,
       _i5.PowerModule powerModule,
@@ -121,6 +124,9 @@ class DI$Injector implements _i1.DI {
           _commonModule.filePathResolver(_createConfig());
   _i18.GpsController _createGpsController() => _singletonGpsController ??=
       _gpsModule.gpsController(_createServiceManager(), _createConfig());
+  _i22.MovementDetector _createMovementDetector() =>
+      _singletonMovementDetector ??=
+          _gpsModule.movementDetector(_createGpsController());
   @override
   _i3.Config get config => _createConfig();
   @override
@@ -148,4 +154,6 @@ class DI$Injector implements _i1.DI {
   _i11.ServiceManager get serviceManager => _createServiceManager();
   @override
   _i18.GpsController get gpsController => _createGpsController();
+  @override
+  _i22.MovementDetector get movementDetector => _createMovementDetector();
 }

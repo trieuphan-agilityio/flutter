@@ -7,20 +7,20 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 main() {
-  ServiceManager serviceManager;
-  _MockService mockService;
-
-  setUp(() {
-    serviceManager = ServiceManagerImpl(
-      AlwaysStrongPowerProvider().status$,
-      AlwaysAllowPermissionController().status$,
-    );
-
-    mockService = _MockService();
-    mockService.listen(serviceManager.status$);
-  });
-
   group('Service Manager', () {
+    ServiceManager serviceManager;
+    _MockService mockService;
+
+    setUp(() {
+      serviceManager = ServiceManagerImpl(
+        AlwaysStrongPowerProvider().status$,
+        AlwaysAllowPermissionController().status$,
+      );
+
+      mockService = _MockService();
+      mockService.listen(serviceManager.status$);
+    });
+
     test('can start/stop services it manages', () async {
       serviceManager.start();
       await flushMicrotasks();

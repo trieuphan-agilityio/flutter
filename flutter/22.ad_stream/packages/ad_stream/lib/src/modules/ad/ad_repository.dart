@@ -181,10 +181,14 @@ class AdRepositoryImpl extends TaskService
       return _creativeDownloader.cancelDownload(ad.creative);
     });
 
-    // Inform the ready stream to exclude these removed ads from the list.
+    // Inform the ready stream to exclude the removed ads from the list.
     final readyAds = _readyAds$Controller.value;
-    final newReadyAds =
-        readyAds.where((ad) => !changeSet.removedAds.contains(ad.id)).toList();
+    final newReadyAds = readyAds.where((ad) {
+      for (final removed in changeSet.removedAds) {
+        if (removed.id == ad.id) return false;
+      }
+      return true;
+    }).toList();
     _readyAds$Controller.add(newReadyAds);
 
     // download new/updated ads

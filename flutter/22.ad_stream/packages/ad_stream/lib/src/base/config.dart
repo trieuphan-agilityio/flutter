@@ -48,7 +48,7 @@ class Config {
     this.defaultCanSkipAfter = 2,
     this.defaultGpsControllerRefreshInterval = 30,
     this.defaultAdSchedulerRefreshInterval = 10,
-    this.defaultAdRepositoryRefreshInterval = 30,
+    this.defaultAdRepositoryRefreshInterval = 60,
     this.defaultAdPresenterRefreshInterval = 15,
     this.creativeDownloadParallelTasks = 3,
     this.creativeDownloadTimeout = 15,

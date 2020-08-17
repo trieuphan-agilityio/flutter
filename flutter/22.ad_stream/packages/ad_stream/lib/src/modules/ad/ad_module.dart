@@ -1,12 +1,10 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
-import 'package:ad_stream/src/modules/ad/ad_database.dart';
 import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
 import 'package:ad_stream/src/modules/ad/mock/ad_api_client.dart';
-import 'package:ad_stream/src/modules/ad/mock/ad_database.dart';
 import 'package:ad_stream/src/modules/common/file_path_resolver.dart';
 import 'package:ad_stream/src/modules/common/file_url_resolver.dart';
 import 'package:ad_stream/src/modules/downloader/download_options.dart';
@@ -124,11 +122,5 @@ class AdModule {
   @singleton
   AdApiClient adApiClient() {
     return MockAdApiClient();
-  }
-
-  @provide
-  @singleton
-  AdDatabase adDatabase() {
-    return MockAdDatabase();
   }
 }

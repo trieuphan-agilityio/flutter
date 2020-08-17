@@ -78,8 +78,14 @@ class AdSchedulerImpl extends TaskService
       return null;
     }
 
-    // FIXME It supposes to figure out which ad is best for displaying.
-    final pickedAd = readyAds[_random.nextInt(readyAds.length - 1)];
+    Ad pickedAd;
+
+    if (readyAds.length == 1) {
+      pickedAd = readyAds.first;
+    } else {
+      // FIXME It supposes to figure out which ad is best for displaying.
+      pickedAd = readyAds[_random.nextInt(readyAds.length - 1)];
+    }
 
     if (_adToDisplay == pickedAd) {
       Log.info('AdScheduler beating');

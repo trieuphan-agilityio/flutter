@@ -38,9 +38,7 @@ abstract class AdRepository {
   keepWatching(Stream<LatLng> latLng$);
 }
 
-class AdRepositoryImpl extends TaskService
-    with ServiceMixin, TaskServiceMixin
-    implements AdRepository {
+class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
   /// Produces [ads$] stream.
   final BehaviorSubject<List<Ad>> _ads$Controller;
 
@@ -51,7 +49,7 @@ class AdRepositoryImpl extends TaskService
   final BehaviorSubject<List<Ad>> _readyAds$Controller;
 
   /// A client helps to pull ads from Ads Server.
-  /// It will be called repeatedly according to the [defaultRefreshInterval].
+  /// It will be called repeatedly according to the [backgroundTask]'s refresh interval.
   final AdApiClient _adApiClient;
 
   /// A delegate to download [Creative]
@@ -86,6 +84,11 @@ class AdRepositoryImpl extends TaskService
         _readyAds$Controller.add(readyAds);
       }
     });
+
+    backgroundTask = ServiceTask(
+      _getAds,
+      _config.defaultAdRepositoryRefreshInterval,
+    );
   }
 
   Future<List<Ad>> getAds(TargetingValues values) async {
@@ -139,8 +142,7 @@ class AdRepositoryImpl extends TaskService
   /// TaskService
   /// ==========================================================================
 
-  int get defaultRefreshInterval => _config.defaultAdRepositoryRefreshInterval;
-
+  @override
   Future<void> start() {
     super.start();
     // get ads from AdServer right after starting.
@@ -150,14 +152,11 @@ class AdRepositoryImpl extends TaskService
     return null;
   }
 
+  @override
   Future<void> stop() {
     super.stop();
     Log.info('AdRepository stopped.');
     return null;
-  }
-
-  Future<void> runTask() async {
-    return _getAds();
   }
 
   Future<void> _getAds() async {

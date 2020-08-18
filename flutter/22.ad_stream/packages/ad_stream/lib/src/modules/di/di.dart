@@ -1,6 +1,7 @@
 import 'package:ad_stream/src/modules/ad/ad_module.dart';
 import 'package:ad_stream/src/modules/common/common_module.dart';
 import 'package:ad_stream/src/modules/gps/gps_module.dart';
+import 'package:ad_stream/src/modules/on_trip/on_trip_module.dart';
 import 'package:ad_stream/src/modules/permission/permission_module.dart';
 import 'package:ad_stream/src/modules/power/power_module.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_module.dart';
@@ -18,6 +19,7 @@ import 'di.inject.dart' as g;
   PermissionModule,
   ServiceManagerModule,
   GpsModule,
+  OnTripModule,
 ])
 abstract class DI
     implements
@@ -26,7 +28,8 @@ abstract class DI
         PowerModuleLocator,
         PermissionModuleLocator,
         ServiceManagerModuleLocator,
-        GpsModuleLocator {
+        GpsModuleLocator,
+        OnTripModuleLocator {
   static DI of(BuildContext context) {
     return Provider.of<DI>(context);
   }
@@ -39,6 +42,7 @@ abstract class DI
     PermissionModule permissionModule,
     ServiceManagerModule serviceManagerModule,
     GpsModule gpsModule,
+    OnTripModule onTripModule,
   ) async {
     return await g.DI$Injector.create(
       adModule,
@@ -47,6 +51,7 @@ abstract class DI
       permissionModule,
       serviceManagerModule,
       gpsModule,
+      onTripModule,
     );
   }
 }
@@ -72,5 +77,6 @@ Future<DI> createDI() {
     PermissionModule(),
     ServiceManagerModule(),
     GpsModule(),
+    OnTripModule(),
   );
 }

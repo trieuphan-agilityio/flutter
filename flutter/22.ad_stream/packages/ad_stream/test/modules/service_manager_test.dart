@@ -4,7 +4,7 @@ import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 import 'package:test/test.dart';
 
-import 'utils.dart';
+import '../common/utils.dart';
 
 main() {
   group('Service Manager', () {
@@ -13,8 +13,8 @@ main() {
 
     setUp(() {
       serviceManager = ServiceManagerImpl(
-        AlwaysStrongPowerProvider().status$,
-        AlwaysAllowPermissionController().status$,
+        AlwaysStrongPowerProvider().state$,
+        AlwaysAllowPermissionController().state$,
       );
 
       mockService = _MockService();
@@ -62,12 +62,16 @@ class _MockService extends Service with ServiceMixin {
   int startCalled = 0;
   int stopCalled = 0;
 
+  @override
   Future<void> start() {
+    super.start();
     startCalled++;
     return null;
   }
 
+  @override
   Future<void> stop() {
+    super.stop();
     stopCalled++;
     return null;
   }

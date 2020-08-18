@@ -28,6 +28,8 @@ class GpsModule {
   @provide
   @singleton
   MovementDetector movementDetector(GpsController gpsController) {
-    return MovementDetectorImpl(gpsController.latLng$);
+    final movementDetector = MovementDetectorImpl(gpsController.latLng$);
+    movementDetector.listen(gpsController.status$);
+    return movementDetector;
   }
 }

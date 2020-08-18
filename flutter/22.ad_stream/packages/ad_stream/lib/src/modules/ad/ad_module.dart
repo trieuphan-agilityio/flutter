@@ -11,6 +11,10 @@ import 'package:ad_stream/src/modules/downloader/download_options.dart';
 import 'package:ad_stream/src/modules/downloader/file_downloader.dart';
 import 'package:ad_stream/src/modules/downloader/mock/file_downloader.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
+import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/area_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/gender_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/keyword_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 /// Declare public interface that an AdModule should expose
@@ -65,8 +69,19 @@ class AdModule {
     ServiceManager serviceManager,
     AdRepository adRepository,
     Config config,
+    GenderDetector genderDetector,
+    AgeDetector ageDetector,
+    KeywordDetector keywordDetector,
+    AreaDetector areaDetector,
   ) {
-    final adScheduler = AdSchedulerImpl(adRepository, config);
+    final adScheduler = AdSchedulerImpl(
+      adRepository,
+      config,
+      genderDetector.gender$,
+      ageDetector.age$,
+      keywordDetector.keywords$,
+      areaDetector.areas$,
+    );
     adScheduler.listen(serviceManager.status$);
     return adScheduler;
   }

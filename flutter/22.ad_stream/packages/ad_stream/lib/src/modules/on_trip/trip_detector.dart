@@ -5,54 +5,50 @@ import 'package:ad_stream/src/modules/on_trip/face_detector.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum TripStatus {
-  /// Device is considered on trip when Power is [PowerStatus.strong],
+enum TripState {
+  /// Device is considered on trip when Power is [PowerState.strong],
   /// face is found and there is movement.
   onTrip,
 
-  /// [TripStatus] is initial set to [TripStatus.offTrip], in order to change from
-  /// [onTrip] Power must be [PowerStatus.weak], face not found, no movement.
+  /// [TripState] is initial set to [TripState.offTrip], in order to change from
+  /// [onTrip] Power must be [PowerState.weak], face not found, no movement.
   offTrip,
 }
 
 abstract class TripDetector {
-  Stream<TripStatus> get status$;
+  Stream<TripState> get state$;
 }
 
 class TripDetectorImpl implements TripDetector {
-  final StreamController<TripStatus> _controller;
-  final Stream<PowerStatus> powerStatus$;
-  final Stream<MovementStatus> movementStatus$;
+  final StreamController<TripState> _controller;
+  final Stream<PowerState> power$;
+  final Stream<MovementState> movement$;
   final Stream<List<Face>> faces$;
 
-  TripDetectorImpl(this.powerStatus$, this.movementStatus$, this.faces$)
-      : _controller = StreamController<TripStatus>.broadcast()
-          ..add(TripStatus.offTrip) {
+  TripDetectorImpl(this.power$, this.movement$, this.faces$)
+      : _controller = StreamController<TripState>.broadcast()
+          ..add(TripState.offTrip) {
     _detectTrip();
   }
 
-  Stream<TripStatus> get status$ => _status$ ??= _controller.stream.distinct();
+  Stream<TripState> get state$ => _trip$ ??= _controller.stream.distinct();
 
   _detectTrip() {
-    CombineLatestStream.combine3(
-      powerStatus$,
-      movementStatus$,
-      faces$,
-      (PowerStatus power, MovementStatus movement, List<Face> faces) {
-        if (power == PowerStatus.strong &&
-            movement == MovementStatus.moving &&
-            faces.isEmpty) return TripStatus.onTrip;
+    CombineLatestStream.combine3(power$, movement$, faces$,
+        (PowerState power, MovementState movement, List<Face> faces) {
+      if (power == PowerState.strong &&
+          movement == MovementState.moving &&
+          faces.isEmpty) return TripState.onTrip;
 
-        if (power == PowerStatus.weak &&
-            movement != MovementStatus.notMoving &&
-            faces.isEmpty) return TripStatus.offTrip;
+      if (power == PowerState.weak &&
+          movement == MovementState.notMoving &&
+          faces.isEmpty) return TripState.offTrip;
 
-        return null;
-      },
-    ).where((e) => e != null).listen(_controller.add);
+      return null;
+    }).where((e) => e != null).listen(_controller.add);
   }
 
-  /// A cache instance of [status$]. It help to prevent re-computing
+  /// A cache instance of [state$]. It help to prevent re-computing
   /// stream transformation.
-  Stream<TripStatus> _status$;
+  Stream<TripState> _trip$;
 }

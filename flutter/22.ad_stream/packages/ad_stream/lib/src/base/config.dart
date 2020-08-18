@@ -20,9 +20,9 @@ class Config {
   /// refresh its content.
   final int defaultAdRepositoryRefreshInterval;
 
-  /// Time in seconds must elapse before [AdPresenter] repeatedly
-  /// refresh its content.
-  final int defaultAdPresenterRefreshInterval;
+  /// Time in seconds must elapse before [AdPresenter] do health check on
+  /// its content.
+  final int defaultAdPresenterHealthCheckInterval;
 
   /// Number of downloading tasks are executed in parallel.
   final int creativeDownloadParallelTasks;
@@ -49,7 +49,7 @@ class Config {
     this.defaultGpsControllerRefreshInterval = 30,
     this.defaultAdSchedulerRefreshInterval = 10,
     this.defaultAdRepositoryRefreshInterval = 60,
-    this.defaultAdPresenterRefreshInterval = 15,
+    this.defaultAdPresenterHealthCheckInterval = 15,
     this.creativeDownloadParallelTasks = 3,
     this.creativeDownloadTimeout = 15,
     this.videoCreativeDownloadParallelTasks = 1,
@@ -64,7 +64,7 @@ class Config {
     int defaultGpsControllerRefreshInterval,
     int defaultAdSchedulerRefreshInterval,
     int defaultAdRepositoryRefreshInterval,
-    int defaultAdPresenterRefreshInterval,
+    int defaultAdPresenterHealthCheckInterval,
     int creativeDownloadParallelTasks,
     int creativeDownloadTimeout,
     int videoCreativeDownloadParallelTasks,
@@ -82,8 +82,9 @@ class Config {
           this.defaultAdSchedulerRefreshInterval,
       defaultAdRepositoryRefreshInterval: defaultAdRepositoryRefreshInterval ??
           this.defaultAdRepositoryRefreshInterval,
-      defaultAdPresenterRefreshInterval: defaultAdPresenterRefreshInterval ??
-          this.defaultAdPresenterRefreshInterval,
+      defaultAdPresenterHealthCheckInterval:
+          defaultAdPresenterHealthCheckInterval ??
+              this.defaultAdPresenterHealthCheckInterval,
       creativeDownloadParallelTasks:
           creativeDownloadParallelTasks ?? this.creativeDownloadParallelTasks,
       creativeDownloadTimeout:

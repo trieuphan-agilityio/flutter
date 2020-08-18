@@ -18,26 +18,26 @@ abstract class PowerDebugger implements PowerProvider {
 }
 
 class PowerDebuggerImpl implements PowerDebugger {
-  final StreamController<PowerStatus> _status$Controller;
+  final StreamController<PowerState> _state$Controller;
 
   /// Use this controller to switch to the corresponding status stream when
   /// toggle [isEnabled] flag.
-  final StreamController<Stream<PowerStatus>> _status$Switcher;
+  final StreamController<Stream<PowerState>> _state$Switcher;
 
   /// Allow using a fallback [PowerProvider] when disable debugger.
   /// If null, the status stream is empty.
   final PowerProvider _delegate;
 
   PowerDebuggerImpl(this._delegate)
-      : _status$Controller =
-            BehaviorSubject<PowerStatus>.seeded(PowerStatus.strong),
-        _status$Switcher = StreamController<Stream<PowerStatus>>() {
+      : _state$Controller =
+            BehaviorSubject<PowerState>.seeded(PowerState.strong),
+        _state$Switcher = StreamController<Stream<PowerState>>() {
     isEnabled = true;
   }
 
   @override
-  Stream<PowerStatus> get status$ {
-    return _status$ ??= _status$Switcher.stream.switchLatest();
+  Stream<PowerState> get state$ {
+    return _state$ ??= _state$Switcher.stream.switchLatest();
   }
 
   bool get isEnabled => _isEnabled;
@@ -45,22 +45,22 @@ class PowerDebuggerImpl implements PowerDebugger {
   set isEnabled(bool newValue) {
     _isEnabled = newValue;
     if (_isEnabled)
-      _status$Switcher.add(_status$Controller.stream);
+      _state$Switcher.add(_state$Controller.stream);
     else
-      _status$Switcher.add(_delegate.status$);
+      _state$Switcher.add(_delegate.state$);
   }
 
   weak() {
-    _status$Controller.add(PowerStatus.weak);
+    _state$Controller.add(PowerState.weak);
   }
 
   strong() {
-    _status$Controller.add(PowerStatus.strong);
+    _state$Controller.add(PowerState.strong);
   }
 
   /// Keep the enabled status of the debugger.
   bool _isEnabled;
 
-  /// A cache instance of status stream.
-  Stream<PowerStatus> _status$;
+  /// A cache instance of [status$] stream.
+  Stream<PowerState> _state$;
 }

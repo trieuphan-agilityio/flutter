@@ -2,68 +2,102 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/service_manager/service_status.dart';
+import 'package:rxdart/rxdart.dart';
 
-/// [Service] that is bind its lifecycle to [ServiceManager]'s status stream.
+/// [Service] that is bind its lifecycle to other [Service]'s status$ stream.
+/// Typically, class that implements this interface should use [ServiceMixin].
 abstract class Service {
+  /// Service has its own status stream. Other service can bind to this status
+  /// via [listen] method.
+  Stream<ServiceStatus> get status$;
+
   Future<void> start();
   Future<void> stop();
+
+  bool get isStarted;
+  bool get isStopped;
 
   /// [listen] to the status of [ServiceManager].
   listen(Stream<ServiceStatus> serviceStatus$);
 }
 
 /// Declare common methods of [Service]
-mixin ServiceMixin on Service {
-  listen(Stream<ServiceStatus> status$) {
-    status$.startedOnly().listen((_) => start());
-    status$.stoppedOnly().listen((_) => stop());
-  }
-}
+mixin ServiceMixin {
+  final StreamController<ServiceStatus> _status$Controller =
+      BehaviorSubject<ServiceStatus>();
 
-/// [Service] that has task is executed periodically with given [defaultRefreshInterval].
-abstract class TaskService extends Service {
-  /// Default elapse time, typically it should come from [Config].
-  int get defaultRefreshInterval;
-
-  /// Background task of the [Service]
-  Future<void> runTask();
-}
-
-mixin TaskServiceMixin on TaskService {
-  Duration get refreshInterval =>
-      _refreshInterval ?? Duration(seconds: defaultRefreshInterval);
-
-  set refreshInterval(Duration newValue) {
-    _refreshInterval = newValue;
-    if (_isStart) {
-      runTask();
-    }
-  }
+  ServiceTask backgroundTask;
 
   @mustCallSuper
   Future<void> start() {
-    _isStart = true;
-    _timer?.cancel();
-    _timer = Timer.periodic(refreshInterval, (_) {
-      runTask();
-    });
+    _isStarted = true;
+    _status$Controller.add(ServiceStatus.started);
+
+    // schedule background task if needs
+    backgroundTask?.start();
+
     return null;
   }
 
   @mustCallSuper
   Future<void> stop() {
-    _isStart = false;
+    _isStarted = false;
+    _status$Controller.add(ServiceStatus.stopped);
+
+    // stop background task if needs
+    backgroundTask?.stop();
+
+    return null;
+  }
+
+  bool get isStarted => _isStarted;
+  bool get isStopped => !_isStarted;
+
+  listen(Stream<ServiceStatus> status$) {
+    status$.startedOnly().listen((_) => start());
+    status$.stoppedOnly().listen((_) => stop());
+  }
+
+  /// Exposes the services's status via a stream.
+  Stream<ServiceStatus> get status$ {
+    // 1. Skips if service status is same as the previous.
+    // 2. Ensure that the stream transformation only execute once.
+    // 3. Dismiss initial stopped event.
+    return _status$ ??=
+        _status$Controller.stream.distinct().skipInitialStopped();
+  }
+
+  /// A cache of the stream transformation result.
+  Stream<ServiceStatus> _status$;
+
+  /// persist start state.
+  bool _isStarted = false;
+}
+
+class ServiceTask {
+  /// Time in seconds that must elapse before the service executes its task again.
+  /// Typically it should come from [ConfigFactory].
+  final int refreshIntervalSecs;
+
+  /// Background task of the [Service]
+  final Function runTask;
+
+  ServiceTask(this.runTask, this.refreshIntervalSecs);
+
+  Future<void> start() {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: refreshIntervalSecs), (_) {
+      runTask();
+    });
+    return null;
+  }
+
+  Future<void> stop() {
     _timer?.cancel();
     _timer = null;
     return null;
   }
 
-  /// persist start state.
-  bool _isStart = false;
-
   /// A timer to periodically refresh ads.
   Timer _timer;
-
-  /// Configurable refresh duration.
-  Duration _refreshInterval;
 }

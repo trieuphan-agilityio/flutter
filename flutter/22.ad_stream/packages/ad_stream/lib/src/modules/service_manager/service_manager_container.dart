@@ -33,12 +33,12 @@ class __ServiceManagerLifecycleState extends State<_ServiceManagerLifecycle> {
   @override
   void initState() {
     super.initState();
-    widget.serviceManager.start();
+    widget.serviceManager.init();
   }
 
   @override
   void dispose() {
-    widget.serviceManager.stop();
+    widget.serviceManager.dispose();
     super.dispose();
   }
 

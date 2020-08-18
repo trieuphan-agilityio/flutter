@@ -6,10 +6,10 @@ import 'package:rxdart/rxdart.dart';
 
 @visibleForTesting
 class AlwaysStrongPowerProvider implements PowerProvider {
-  final StreamController<PowerStatus> _controller;
+  final StreamController<PowerState> _controller;
 
   AlwaysStrongPowerProvider()
-      : _controller = BehaviorSubject.seeded(PowerStatus.strong);
+      : _controller = BehaviorSubject.seeded(PowerState.strong);
 
-  Stream<PowerStatus> get status$ => _controller.stream;
+  Stream<PowerState> get state$ => _controller.stream;
 }

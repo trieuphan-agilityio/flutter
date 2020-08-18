@@ -1,4 +1,4 @@
-enum MovementStatus {
+enum MovementState {
   moving,
   notMoving,
 }

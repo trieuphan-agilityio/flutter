@@ -1,4 +1,4 @@
-enum PermissionStatus {
+enum PermissionState {
   // all permissions were granted
   ALLOWED,
 

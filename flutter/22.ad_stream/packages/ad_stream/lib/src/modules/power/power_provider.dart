@@ -2,18 +2,18 @@ import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
 
-enum PowerStatus { weak, strong }
+enum PowerState { weak, strong }
 
 abstract class PowerProvider {
-  Stream<PowerStatus> get status$;
+  Stream<PowerState> get state$;
 }
 
 class PowerProviderImpl implements PowerProvider {
-  final StreamController<PowerStatus> _status$Controller;
+  final StreamController<PowerState> _state$Controller;
 
   PowerProviderImpl()
-      : _status$Controller = BehaviorSubject.seeded(PowerStatus.weak);
+      : _state$Controller = BehaviorSubject.seeded(PowerState.weak);
 
   @override
-  Stream<PowerStatus> get status$ => _status$Controller.stream;
+  Stream<PowerState> get state$ => _state$Controller.stream;
 }

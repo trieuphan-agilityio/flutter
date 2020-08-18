@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
-import 'package:ad_stream/src/modules/permission/permission_status.dart';
+import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 @visibleForTesting
 class AlwaysAllowPermissionController implements PermissionController {
-  final StreamController<PermissionStatus> status$Controller;
+  final StreamController<PermissionState> state$Controller;
 
   AlwaysAllowPermissionController()
-      : status$Controller = BehaviorSubject.seeded(PermissionStatus.ALLOWED);
+      : state$Controller = BehaviorSubject.seeded(PermissionState.ALLOWED);
 
-  Stream<PermissionStatus> get status$ => status$Controller.stream;
+  Stream<PermissionState> get state$ => state$Controller.stream;
 }

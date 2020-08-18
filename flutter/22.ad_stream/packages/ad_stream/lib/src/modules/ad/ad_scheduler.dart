@@ -5,57 +5,73 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:rxdart/rxdart.dart';
 
 abstract class AdScheduler {
-  /// Choose one of available Ads are buffered.
-  Ad getAdForDisplay();
+  /// Ad that is ready for displaying.
+  Ad get adForDisplay;
 
   /// Targeting
-  setGender(PassengerGender gender);
-  setAgeRange(PassengerAgeRange ageRange);
-  setKeywords(List<Keyword> keywords);
-  setAreas(List<Area> area);
+  Stream<PassengerGender> gender$;
+  Stream<PassengerAgeRange> ageRange$;
+  Stream<List<Keyword>> keywords$;
+  Stream<List<Area>> areas$;
 }
 
-class AdSchedulerImpl extends TaskService
-    with ServiceMixin, TaskServiceMixin
-    implements AdScheduler {
-  final AdRepository _adRepository;
-  final Config _config;
+class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
+  final AdRepository adRepository;
+  final Config config;
+  Stream<PassengerGender> gender$;
+  Stream<PassengerAgeRange> ageRange$;
+  Stream<List<Keyword>> keywords$;
+  Stream<List<Area>> areas$;
 
-  /// Ad that matched targeting values and place here to wait for displaying.
-  Ad _adToDisplay;
+  AdSchedulerImpl(
+    this.adRepository,
+    this.config,
+    this.gender$,
+    this.ageRange$,
+    this.keywords$,
+    this.areas$,
+  ) : targetingValues = TargetingValues() {
+    backgroundTask = ServiceTask(
+      _pullAds,
+      config.defaultAdSchedulerRefreshInterval,
+    );
+  }
+
+  /// Ad that matched targeting values and is placed here to wait for displaying.
+  Ad _pickedAd;
 
   /// A set of targeting value that helps narrows who sees ads and helps
   /// advertisers reach an intended audience with their campaigns.
   TargetingValues targetingValues;
 
-  AdSchedulerImpl(this._adRepository, this._config)
-      : targetingValues = TargetingValues();
-
   /// AdScheduler
 
-  Ad getAdForDisplay() {
-    return _adToDisplay ?? _config.defaultAd;
-  }
+  Ad get adForDisplay => _pickedAd ?? config.defaultAd;
 
-  setAgeRange(PassengerAgeRange ageRange) => targetingValues.add(ageRange);
-
-  setAreas(List<Area> areas) => targetingValues.addAll(areas);
-
-  setGender(PassengerGender gender) => targetingValues.add(gender);
-
-  setKeywords(List<Keyword> keywords) => targetingValues.addAll(keywords);
-
-  /// TaskService
-
-  /// Default time in seconds that must elapse before [AdScheduler] starts
-  /// collecting Targeting Values and filter the latest [Ad] from AdRepository.
-  int get defaultRefreshInterval => _config.defaultAdSchedulerRefreshInterval;
+  /// Service
 
   @override
   Future<void> start() {
     super.start();
+
+    final subscription =
+        CombineLatestStream.combine4(gender$, ageRange$, keywords$, areas$,
+            (gender, ageRange, keywords, areas) {
+      TargetingValues values = TargetingValues();
+      values.add(gender);
+      values.add(ageRange);
+      values.addAll(keywords);
+      values.addAll(areas);
+      return values;
+    }).listen((value) {
+      targetingValues = value;
+    });
+
+    _disposer.autoDispose(subscription);
+
     Log.info('AdScheduler started.');
     return null;
   }
@@ -63,17 +79,18 @@ class AdSchedulerImpl extends TaskService
   @override
   Future<void> stop() {
     super.stop();
+    _disposer.cancel();
     Log.info('AdScheduler stopped.');
     return null;
   }
 
-  Future<void> runTask() async {
+  Future<void> _pullAds() async {
     /// going to pick an Ad from the "ready" stream Ads.
-    final readyAds = await _adRepository.getReadyList(targetingValues);
+    final readyAds = await adRepository.getReadyList(targetingValues);
 
     if (readyAds.length == 0) {
       // unload if there is no candidate
-      _adToDisplay = null;
+      _pickedAd = null;
       Log.info('AdScheduler beating');
       return null;
     }
@@ -87,20 +104,22 @@ class AdSchedulerImpl extends TaskService
       pickedAd = readyAds[_random.nextInt(readyAds.length - 1)];
     }
 
-    if (_adToDisplay == pickedAd) {
+    if (_pickedAd == pickedAd) {
       Log.info('AdScheduler beating');
       return null;
     }
 
-    // schedule an Ad for displaying
-    _adToDisplay = pickedAd;
+    // choose this Ad for displaying
+    _pickedAd = pickedAd;
 
-    Log.info('AdScheduler picked Ad{id: ${_adToDisplay.shortId}'
-        ', creativeId: ${_adToDisplay.creative.shortId}'
-        ', version: ${_adToDisplay.version}}');
+    Log.info('AdScheduler picked Ad{id: ${_pickedAd.shortId}'
+        ', creativeId: ${_pickedAd.creative.shortId}'
+        ', version: ${_pickedAd.version}}');
 
     return null;
   }
 
-  Random _random = Random();
+  final Random _random = Random();
+
+  final Disposer _disposer = Disposer();
 }

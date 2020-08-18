@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:ad_stream/src/modules/permission/permission_status.dart';
+import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class PermissionController {
-  Stream<PermissionStatus> get status$;
+  Stream<PermissionState> get state$;
 }
 
 class PermissionControllerImpl implements PermissionController {
-  final StreamController<PermissionStatus> _status$Controller;
+  final StreamController<PermissionState> _status$Controller;
 
   PermissionControllerImpl()
-      : _status$Controller = BehaviorSubject.seeded(PermissionStatus.DENIED);
+      : _status$Controller = BehaviorSubject.seeded(PermissionState.DENIED);
 
-  Stream<PermissionStatus> get status$ => _status$Controller.stream;
+  Stream<PermissionState> get state$ => _status$Controller.stream;
 }

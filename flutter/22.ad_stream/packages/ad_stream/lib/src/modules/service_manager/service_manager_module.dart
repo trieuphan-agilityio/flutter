@@ -19,8 +19,8 @@ class ServiceManagerModule {
     PermissionController permissionController,
   ) {
     return ServiceManagerImpl(
-      powerProvider.status$,
-      permissionController.status$,
+      powerProvider.state$,
+      permissionController.state$,
     );
   }
 }

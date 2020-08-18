@@ -34,14 +34,19 @@ abstract class AdPresenter implements Presenter<AdView> {
   fail(Error err);
 }
 
-class AdPresenterImpl extends TaskService
-    with TaskServiceMixin, ServiceMixin, PresenterMixin<AdView>
-    implements AdPresenter {
+class AdPresenterImpl
+    with PresenterMixin<AdView>, ServiceMixin
+    implements AdPresenter, Service {
   AdPresenterImpl(this.adScheduler, this.config)
       : displaying$Controller = StreamController<Ad>.broadcast(),
         finish$Controller = StreamController<Ad>.broadcast(),
         skip$Controller = StreamController<Ad>.broadcast(),
-        fail$Controller = StreamController<AdDisplayError>.broadcast();
+        fail$Controller = StreamController<AdDisplayError>.broadcast() {
+    backgroundTask = ServiceTask(
+      _runTask,
+      config.defaultAdPresenterHealthCheckInterval,
+    );
+  }
 
   final AdScheduler adScheduler;
   final Config config;
@@ -83,9 +88,9 @@ class AdPresenterImpl extends TaskService
 
   _displayNewAdIfNeeds() {
     // stop displaying if service is stopped.
-    if (!_isStart) return;
+    if (!isStarted) return;
 
-    _displayingAd = adScheduler.getAdForDisplay();
+    _displayingAd = adScheduler.adForDisplay;
 
     // no ad, no display
     if (_displayingAd == null) {
@@ -111,26 +116,21 @@ class AdPresenterImpl extends TaskService
 
   /// TaskService
 
-  /// intercept start/stop lifecycle to verify before triggering next displaying.
-  bool _isStart = false;
-
+  @override
   Future<void> start() {
     super.start();
-    _isStart = true;
     Log.info('AdPresenter started.');
     return null;
   }
 
+  @override
   Future<void> stop() {
     super.stop();
-    _isStart = false;
     Log.info('AdPresenter stopped.');
     return null;
   }
 
-  int get defaultRefreshInterval => config.defaultAdPresenterRefreshInterval;
-
-  Future<void> runTask() {
+  Future<void> _runTask() {
     // wake it up if find out that it's waiting for new Ad to display
     if (_displayingAd == null) {
       _displayNewAdIfNeeds();

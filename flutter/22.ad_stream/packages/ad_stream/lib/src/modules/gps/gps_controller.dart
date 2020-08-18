@@ -5,27 +5,29 @@ import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class GpsController {
+abstract class GpsController implements Service {
   /// Provider a pair of Latitude & Longitude, is updated corresponding to
   /// the current Location of the device.
   Stream<LatLng> get latLng$;
 }
 
-class FixedGpsController extends TaskService
-    with ServiceMixin, TaskServiceMixin
-    implements GpsController {
+class FixedGpsController with ServiceMixin implements GpsController {
   final Config _config;
   final StreamController<LatLng> _latLng$Controller;
 
   FixedGpsController(this._config)
-      : _latLng$Controller = BehaviorSubject<LatLng>();
+      : _latLng$Controller = BehaviorSubject<LatLng>() {
+    backgroundTask = ServiceTask(
+      _refreshLocation,
+      _config.defaultGpsControllerRefreshInterval,
+    );
+  }
 
   Stream<LatLng> get latLng$ => _latLng$Controller.stream;
 
   /// Service
 
-  int get defaultRefreshInterval => _config.defaultGpsControllerRefreshInterval;
-
+  @override
   Future<void> start() {
     super.start();
 
@@ -37,14 +39,10 @@ class FixedGpsController extends TaskService
     return null;
   }
 
+  @override
   Future<void> stop() {
     super.stop();
     Log.info('FixedGpsController stopped.');
-    return null;
-  }
-
-  Future<void> runTask() {
-    _refreshLocation();
     return null;
   }
 

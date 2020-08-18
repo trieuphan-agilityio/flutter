@@ -1,7 +1,7 @@
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:test/test.dart';
 
-import 'base.dart';
+import '../common/base.dart';
 
 main() {
   group('GpsControllerImpl', () {

@@ -71,7 +71,7 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
       // Ad after downloading creative success it will be pushed to ready stream.
       final ads = _ads$Controller.value;
       final downloadedAd =
-          ads.firstWhere((ad) => ad.creative.id == downloadedCreative.id);
+          ads.where((ad) => ad.creative.id == downloadedCreative.id).first;
 
       if (downloadedAd != null) {
         // Updated the ad with new downloaded creative,

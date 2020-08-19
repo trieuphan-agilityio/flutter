@@ -34,7 +34,7 @@ class _DebugDashboard extends StatelessWidget {
           child: Column(
             children: [
               _buildHeader('Permission'),
-              _buildForPermission(),
+              _buildForPermission(context),
               _buildForPower(),
               _buildDivider(),
               _buildHeader('Log'),
@@ -58,11 +58,53 @@ class _DebugDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildForPermission() {
-    return SettingItem(
-      title: 'Permission Debugger',
-      value: permissionDebugger.isOn,
-      onChanged: permissionDebugger.toggle,
+  Widget _buildForPermission(BuildContext context) {
+    return ValueListenableBuilder<PermissionDebuggerState>(
+      valueListenable: permissionDebugger.debugState,
+      builder: (context, currentDebugState, _) => ListTile(
+        title: Text('Permission Debugger'),
+        subtitle: Text(currentDebugState.name),
+        leading: SizedBox.shrink(),
+        onTap: () async {
+          final chose = await showModalBottomSheet<PermissionDebuggerState>(
+            context: context,
+            builder: (context) {
+              return Container(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ...PermissionDebuggerState.values.map((state) {
+                      return ListTile(
+                        leading: Radio<int>(
+                          value: state.value,
+                          groupValue:
+                              currentDebugState == state ? state.value : null,
+                          onChanged: (_) {},
+                        ),
+                        title: Text(state.name),
+                        onTap: () => Navigator.of(context).pop(state),
+                      );
+                    }).toList(),
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: FlatButton(
+                          textColor: Theme.of(context).colorScheme.primary,
+                          child: Text('Cancel'),
+                          onPressed: () => Navigator.of(context).pop()),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+
+          if (chose == null) return;
+
+          permissionDebugger.setDebugState(chose);
+        },
+      ),
     );
   }
 
@@ -70,7 +112,7 @@ class _DebugDashboard extends StatelessWidget {
     return SettingItem(
       title: 'Power Debugger',
       value: powerDebugger.isOn,
-      onChanged: powerDebugger.toggle,
+      onTap: powerDebugger.toggle,
     );
   }
 

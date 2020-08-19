@@ -1,11 +1,11 @@
 import 'dart:developer' as dart_dev;
 
 import 'package:ad_stream/base.dart';
-import 'package:ad_stream/src/features/ad_displaying/ad_view.dart';
 import 'package:ad_stream/src/features/debugger/debug_button.dart';
 import 'package:ad_stream/src/features/debugger/drawer.dart';
+import 'package:ad_stream/src/features/display_ad/ad_view.dart';
+import 'package:ad_stream/src/features/request_permission/permission_container.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
-import 'package:ad_stream/src/modules/permission/permission_container.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +39,7 @@ class App extends StatelessWidget {
   }
 
   Widget buildWithDI(BuildContext context, DI di) {
-    return Provider.value(
+    return Provider<DI>.value(
       value: di,
       child: MaterialApp(
         home: Scaffold(

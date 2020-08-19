@@ -28,7 +28,7 @@ class PowerDebuggerImpl implements PowerDebugger {
 
   PowerDebuggerImpl(this._delegate)
       : _state$Controller = BehaviorSubject<PowerState>(),
-        _state$Switcher = StreamController<Stream<PowerState>>() {
+        _state$Switcher = BehaviorSubject<Stream<PowerState>>() {
     // set up listeners for the notifier
     _isOn.addListener(() {
       if (_isOn.value)
@@ -51,11 +51,11 @@ class PowerDebuggerImpl implements PowerDebugger {
     _isOn.value = newValue ?? !_isOn.value;
   }
 
-  final StreamController<PowerState> _state$Controller;
+  final BehaviorSubject<PowerState> _state$Controller;
 
   /// Use this controller to switch to the corresponding status stream when
   /// toggle [isOn] flag.
-  final StreamController<Stream<PowerState>> _state$Switcher;
+  final BehaviorSubject<Stream<PowerState>> _state$Switcher;
 
   /// A cache instance of [status$] stream.
   Stream<PowerState> _state$;

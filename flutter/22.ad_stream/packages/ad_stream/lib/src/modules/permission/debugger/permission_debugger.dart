@@ -22,7 +22,7 @@ class PermissionDebuggerImpl implements PermissionDebugger {
 
   PermissionDebuggerImpl(this._delegate)
       : _state$Controller = BehaviorSubject<PermissionState>(),
-        _state$Switcher = StreamController<Stream<PermissionState>>() {
+        _state$Switcher = BehaviorSubject<Stream<PermissionState>>() {
     // set up listeners of notifier
     debugState.addListener(() {
       if (debugState.value == PermissionDebuggerState.off) {
@@ -55,9 +55,8 @@ class PermissionDebuggerImpl implements PermissionDebugger {
 
   final BehaviorSubject<PermissionState> _state$Controller;
 
-  /// Use this controller to switch to the corresponding status stream when
-  /// toggle [isOn] flag.
-  final StreamController<Stream<PermissionState>> _state$Switcher;
+  /// Use this controller to switch to the corresponding status stream
+  final BehaviorSubject<Stream<PermissionState>> _state$Switcher;
 
   Stream<PermissionState> get state$ {
     return _state$ ??= _state$Switcher.stream.switchLatest();

@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ad_stream/src/base/color.dart';
-import 'package:ad_stream/src/features/ad_displaying/models/displayable_creative.dart';
-import 'package:ad_stream/src/features/ad_displaying/skip_button.dart';
+import 'package:ad_stream/src/features/display_ad/skip_button.dart';
 import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:flutter/material.dart';

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
-import 'package:ad_stream/src/features/ad_displaying/models/displayable_creative.dart';
 import 'package:ad_stream/src/models/ad_display_error.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
@@ -136,5 +135,34 @@ class AdPresenterImpl
       _displayNewAdIfNeeds();
     }
     return null;
+  }
+}
+
+@immutable
+class DisplayableCreative {
+  /// Original ad object uses for reference
+  final Ad ad;
+
+  /// duration indicates how long the ad should be displayed
+  final Duration duration;
+
+  /// allow viewers to skip ads after 5 seconds if they wish
+  final int canSkipAfter;
+
+  /// indicates whether ad is skippable
+  final bool isSkippable;
+
+  DisplayableCreative({
+    @required this.ad,
+    @required this.duration,
+    @required this.canSkipAfter,
+    @required this.isSkippable,
+  });
+
+  String get wellFormatString {
+    return 'DisplayableCreative{\n  id: ${ad.creative.shortId}'
+        ',\n  duration: ${duration.inSeconds}s'
+        ',\n  canSkipAfter: ${canSkipAfter}s'
+        ',\n  isSkippable: $isSkippable\n}';
   }
 }

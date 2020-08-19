@@ -17,7 +17,7 @@ abstract class Service {
   bool get isStarted;
   bool get isStopped;
 
-  /// [listen] to the status of [ServiceManager].
+  /// Using [listen] method, a service can bind its lifecycle to other service.
   listen(Stream<ServiceStatus> serviceStatus$);
 }
 

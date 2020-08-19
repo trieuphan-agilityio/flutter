@@ -37,7 +37,7 @@ class _DebugDashboard extends StatelessWidget {
               _buildForPermission(context),
               _buildForPower(),
               _buildDivider(),
-              _buildHeader('Log'),
+              _buildHeader('Others'),
               _buildForLog(context),
             ],
           ),

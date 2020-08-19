@@ -1,4 +1,4 @@
-import 'package:ad_stream/src/features/debugger/debug_dashboard.dart';
+import 'package:ad_stream/src/features/debugger/dashboard.dart';
 import 'package:flutter/material.dart';
 
 class DebugButton extends StatelessWidget {

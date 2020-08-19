@@ -1,7 +1,7 @@
 enum PermissionState {
   // all permissions were granted
-  ALLOWED,
+  allowed,
 
   // one or more permissions were denied
-  DENIED
+  denied
 }

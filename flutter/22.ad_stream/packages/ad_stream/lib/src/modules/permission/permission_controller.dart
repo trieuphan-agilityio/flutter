@@ -11,7 +11,7 @@ class PermissionControllerImpl implements PermissionController {
   final StreamController<PermissionState> _status$Controller;
 
   PermissionControllerImpl()
-      : _status$Controller = BehaviorSubject.seeded(PermissionState.DENIED);
+      : _status$Controller = BehaviorSubject.seeded(PermissionState.denied);
 
   Stream<PermissionState> get state$ => _status$Controller.stream;
 }

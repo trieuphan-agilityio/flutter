@@ -10,7 +10,7 @@ class AlwaysAllowPermissionController implements PermissionController {
   final StreamController<PermissionState> state$Controller;
 
   AlwaysAllowPermissionController()
-      : state$Controller = BehaviorSubject.seeded(PermissionState.ALLOWED);
+      : state$Controller = BehaviorSubject.seeded(PermissionState.allowed);
 
   Stream<PermissionState> get state$ => state$Controller.stream;
 }

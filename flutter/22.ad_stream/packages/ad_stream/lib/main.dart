@@ -1,6 +1,9 @@
+import 'dart:developer' as dart_dev;
+
+import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/ad_displaying/ad_view.dart';
 import 'package:ad_stream/src/features/debugger/debug_button.dart';
-import 'package:ad_stream/src/features/debugger/debug_drawer.dart';
+import 'package:ad_stream/src/features/debugger/drawer.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:ad_stream/src/modules/permission/permission_container.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_container.dart';
@@ -12,6 +15,9 @@ import 'package:provider/provider.dart';
 Future<DI> _diFuture = Future(createDI);
 
 void main() {
+  /// log to console
+  Log.log$.listen(dart_dev.log);
+
   runApp(App());
 }
 

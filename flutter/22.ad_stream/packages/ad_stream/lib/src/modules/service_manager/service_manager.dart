@@ -29,7 +29,7 @@ class ServiceManagerImpl with ServiceMixin implements ServiceManager {
   init() {
     final subscription = power$.combineLatest(permission$, (power, permission) {
       Log.info('ServiceManager observed $power, $permission');
-      if (power == PowerState.strong && permission == PermissionState.ALLOWED) {
+      if (power == PowerState.strong && permission == PermissionState.allowed) {
         return true;
       } else {
         return false;

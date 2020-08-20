@@ -4,7 +4,6 @@ import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../common.dart';
 import '../common/permission_plugin.dart';
 
 main() {
@@ -30,37 +29,35 @@ main() {
     });
 
     test(
-        'is started when all permissions were granted'
+        'is started when all permissions were granted '
         'then it should emit allowed event and stop its timer', () async {
       permissionPluginAllAllowed();
 
       fakeAsync((async) {
         permissionController.start();
 
-        flushMicrotasks();
-        expect(permissionController.isTimerStopped, true);
-
         async.elapse(Duration(seconds: 3));
+
         expect(errors, []);
         expect(emittedValues, [PermissionState.allowed]);
+        expect(permissionController.isTimerStopped, true);
         expect(isDone, true);
       });
     });
 
     test(
-        'is started when permission was denied'
+        'is started when permission was denied '
         'then it should emit denied event and start its timer', () async {
       permissionPluginAllDenied();
 
       fakeAsync((async) {
         permissionController.start();
 
-        flushMicrotasks();
-        expect(permissionController.isTimerStopped, false);
-
         async.elapse(Duration(seconds: 3));
+
         expect(errors, []);
         expect(emittedValues, [PermissionState.denied]);
+        expect(permissionController.isTimerStopped, false);
         expect(isDone, false);
       });
     });

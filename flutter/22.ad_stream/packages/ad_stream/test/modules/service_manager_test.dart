@@ -7,8 +7,8 @@ import 'package:test/test.dart';
 import '../common/utils.dart';
 
 main() {
-  group('Service Manager', () {
-    ServiceManager serviceManager;
+  group('ServiceManagerImpl', () {
+    ServiceManagerImpl serviceManager;
     _MockService mockService;
 
     setUp(() {

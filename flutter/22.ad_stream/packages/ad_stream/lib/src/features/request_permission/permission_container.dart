@@ -8,25 +8,56 @@ import 'package:flutter/material.dart';
 class PermissionContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return PermissionRequesterUI(
+    return _PermissionLifecycle(
       permissionController: DI.of(context).permissionController,
     );
   }
 }
 
-class PermissionRequesterUI extends StatefulWidget {
+class _PermissionLifecycle extends StatefulWidget {
   final PermissionController permissionController;
 
-  const PermissionRequesterUI({
+  const _PermissionLifecycle({Key key, this.permissionController})
+      : super(key: key);
+
+  @override
+  __PermissionLifecycleState createState() => __PermissionLifecycleState();
+}
+
+class __PermissionLifecycleState extends State<_PermissionLifecycle> {
+  @override
+  void initState() {
+    widget.permissionController.start();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.permissionController.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _PermissionRequesterUI(
+      permissionController: widget.permissionController,
+    );
+  }
+}
+
+class _PermissionRequesterUI extends StatefulWidget {
+  final PermissionController permissionController;
+
+  const _PermissionRequesterUI({
     Key key,
     @required this.permissionController,
   }) : super(key: key);
 
   @override
-  _PermissionRequesterUIState createState() => _PermissionRequesterUIState();
+  __PermissionRequesterUIState createState() => __PermissionRequesterUIState();
 }
 
-class _PermissionRequesterUIState extends State<PermissionRequesterUI> {
+class __PermissionRequesterUIState extends State<_PermissionRequesterUI> {
   final Disposer _disposer = Disposer();
   bool showGrantPermissionButton = true;
 
@@ -64,7 +95,9 @@ class _PermissionRequesterUIState extends State<PermissionRequesterUI> {
   showRequestUI() {
     Navigator.of(context).push(MaterialPageRoute(
       fullscreenDialog: true,
-      builder: (context) => PermissionList(),
+      builder: (context) => PermissionList(
+        permissions: widget.permissionController.permissions,
+      ),
     ));
   }
 }

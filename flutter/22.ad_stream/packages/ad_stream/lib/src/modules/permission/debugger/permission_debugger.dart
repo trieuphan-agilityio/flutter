@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
+import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class PermissionDebugger implements PermissionController {
@@ -15,7 +17,7 @@ abstract class PermissionDebugger implements PermissionController {
   setDebugState(PermissionDebuggerState newValue);
 }
 
-class PermissionDebuggerImpl implements PermissionDebugger {
+class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   /// Allow using a fallback [PermissionController] when disable debugger.
   /// If null, the status stream is empty.
   final PermissionController _delegate;
@@ -47,7 +49,6 @@ class PermissionDebuggerImpl implements PermissionDebugger {
   final ValueNotifier<PermissionDebuggerState> debugState =
       ValueNotifier(PermissionDebuggerState.allow);
 
-  @override
   setDebugState(PermissionDebuggerState newValue) {
     assert(newValue != null, 'newValue must not be null.');
     debugState.value = newValue;
@@ -60,6 +61,22 @@ class PermissionDebuggerImpl implements PermissionDebugger {
 
   Stream<PermissionState> get state$ {
     return _state$ ??= _state$Switcher.stream.switchLatest();
+  }
+
+  List<Permission> get permissions => _delegate.permissions;
+
+  @override
+  Future<void> start() {
+    super.start();
+    _delegate.start();
+    return null;
+  }
+
+  @override
+  Future<void> stop() {
+    super.stop();
+    _delegate.stop();
+    return null;
   }
 
   /// A cache instance of [state$] stream.

@@ -35,14 +35,14 @@ class FixedGpsController with ServiceMixin implements GpsController {
     // so that other service can consume its value on starting.
     _refreshLocation();
 
-    Log.info('FixedGpsController started.');
+    Log.info('GpsController started.');
     return null;
   }
 
   @override
   Future<void> stop() {
     super.stop();
-    Log.info('FixedGpsController stopped.');
+    Log.info('GpsController stopped.');
     return null;
   }
 

@@ -53,6 +53,10 @@ dev_dependencies:
   build_runner: 1.7.3
   test: ^1.15.2
 
+  # FakeAsync fires all asynchronous events that are scheduled for that time period without
+  #  actually needing the test to wait for real time to elapse.
+  fake_async: ^1.1.0
+
 flutter:
   uses-material-design: true
 

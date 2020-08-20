@@ -12,79 +12,103 @@ main() {
   List<PermissionState> emittedValues;
   List<String> errors;
   bool isDone;
-  PermissionControllerImpl permissionController;
+  PermissionController permissionController;
 
-  group('PermissionControllerImpl', () {
-    setUp(() {
-      emittedValues = [];
-      errors = [];
-      isDone = false;
-      permissionController = PermissionControllerImpl();
-
-      permissionController.state$.listen(
-        emittedValues.add,
-        onError: errors.add,
-        onDone: () => isDone = true,
+  // Utility to test stream's state of Permission Controller's implementations.
+  expectDone(bool expected) {
+    if (permissionController is PermissionControllerImpl) {
+      expect(isDone, expected);
+      expect(
+        (permissionController as PermissionControllerImpl).isTimerStopped,
+        expected,
       );
-    });
+    }
 
-    test(
-        'is started when all permissions were granted '
-        'then it should emit allowed event and stop its timer', () async {
-      permissionPluginAllAllowed();
+    // debugger must keep the stream open to be able to resume via debug dashboard.
+    if (permissionController is PermissionDebuggerImpl) {
+      expect(isDone, false);
+    }
+  }
 
-      fakeAsync((async) {
-        permissionController.start();
+  [
+    // Test real implementation of [PermissionController]
+    () => PermissionControllerImpl(),
 
-        async.elapse(Duration(seconds: 3));
+    // When wrapped in a debugger, real implementation of [PermissionController]
+    // must not change.
+    () {
+      return PermissionDebuggerImpl(PermissionControllerImpl())
+        ..setDebugState(PermissionDebuggerState.off);
+    },
+  ].forEach((impl) {
+    group(impl, () {
+      setUp(() {
+        emittedValues = [];
+        errors = [];
+        isDone = false;
+        permissionController = impl();
 
-        expect(errors, []);
-        expect(emittedValues, [PermissionState.allowed]);
-        expect(permissionController.isTimerStopped, true);
-        expect(isDone, true);
+        permissionController.state$.listen(
+          emittedValues.add,
+          onError: errors.add,
+          onDone: () => isDone = true,
+        );
       });
-    });
 
-    test(
-        'is started when permission was denied '
-        'then it should emit denied event and start its timer', () async {
-      permissionPluginAllDenied();
-
-      fakeAsync((async) {
-        permissionController.start();
-
-        async.elapse(Duration(seconds: 3));
-
-        expect(errors, []);
-        expect(emittedValues, [PermissionState.denied]);
-        expect(permissionController.isTimerStopped, false);
-        expect(isDone, false);
-      });
-    });
-
-    test('can be granted permission after being denied', () async {
-      permissionPluginAllDenied();
-
-      fakeAsync((async) {
-        permissionController.start();
-
-        async.elapse(Duration(seconds: 3));
-        expect(errors, []);
-        expect(emittedValues, [PermissionState.denied]);
-        expect(permissionController.isTimerStopped, false);
-        expect(isDone, false);
-
-        // then allow permissions
+      test(
+          'is started when all permissions were granted '
+          'then it should emit allowed event and stop its timer', () async {
         permissionPluginAllAllowed();
 
-        async.elapse(Duration(seconds: 3));
-        expect(errors, []);
-        expect(emittedValues, [
-          PermissionState.denied,
-          PermissionState.allowed,
-        ]);
-        expect(permissionController.isTimerStopped, true);
-        expect(isDone, true);
+        fakeAsync((async) {
+          permissionController.start();
+
+          async.elapse(Duration(seconds: 3));
+
+          expect(errors, []);
+          expect(emittedValues, [PermissionState.allowed]);
+          expectDone(true);
+        });
+      });
+
+      test(
+          'is started when permission was denied '
+          'then it should emit denied event and start its timer', () async {
+        permissionPluginAllDenied();
+
+        fakeAsync((async) {
+          permissionController.start();
+
+          async.elapse(Duration(seconds: 3));
+
+          expect(errors, []);
+          expect(emittedValues, [PermissionState.denied]);
+          expectDone(false);
+        });
+      });
+
+      test('can be granted permission after being denied', () async {
+        permissionPluginAllDenied();
+
+        fakeAsync((async) {
+          permissionController.start();
+
+          async.elapse(Duration(seconds: 3));
+          expect(errors, []);
+          expect(emittedValues, [PermissionState.denied]);
+          expectDone(false);
+
+          // then allow permissions
+          permissionPluginAllAllowed();
+
+          async.elapse(Duration(seconds: 3));
+          expect(errors, []);
+          expect(emittedValues, [
+            PermissionState.denied,
+            PermissionState.allowed,
+          ]);
+          expectDone(true);
+        });
       });
     });
   });

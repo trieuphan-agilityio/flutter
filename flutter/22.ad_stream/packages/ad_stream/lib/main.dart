@@ -41,21 +41,59 @@ class App extends StatelessWidget {
   Widget buildWithDI(BuildContext context, DI di) {
     return Provider<DI>.value(
       value: di,
-      child: MaterialApp(
-        home: Scaffold(
-          drawer: DebugDrawer(),
-          body: SafeArea(
-            child: Stack(
-              children: <Widget>[
-                ServiceManagerContainer(child: AdViewContainer()),
-                PermissionContainer(),
-                Align(child: DebugButton(), alignment: Alignment.bottomCenter),
-              ],
+      child: AppLifecycle(
+        child: MaterialApp(
+          home: Scaffold(
+            drawer: DebugDrawer(),
+            body: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  ServiceManagerContainer(child: AdViewContainer()),
+                  PermissionContainer(),
+                  Align(
+                      child: DebugButton(), alignment: Alignment.bottomCenter),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// Keep track the status of App's lifecycle
+class AppLifecycle extends StatefulWidget {
+  final Widget child;
+
+  const AppLifecycle({Key key, @required this.child}) : super(key: key);
+
+  @override
+  _AppLifecycleState createState() => _AppLifecycleState();
+}
+
+class _AppLifecycleState extends State<AppLifecycle>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    Log.info('AppLifecycle $state.');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 

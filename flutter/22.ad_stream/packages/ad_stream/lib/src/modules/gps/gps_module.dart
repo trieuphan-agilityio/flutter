@@ -31,7 +31,12 @@ class GpsModule {
     GpsDebugger gpsDebugger,
   ) {
     final geolocator = Geolocator();
+
+    // The GpsOptions is passed to a stream so that it can be changed depend on
+    // the current state of other component. E.g On trip and off trip may cause
+    // different GpsOptions.
     final defaultGpsOptions = GpsOptions(accuracy: GpsAccuracy.best);
+    // ignore: close_sinks
     final gpsOptions$Controller =
         BehaviorSubject<GpsOptions>.seeded(defaultGpsOptions);
 
@@ -40,15 +45,8 @@ class GpsModule {
       geolocator,
       debugger: GpsDebuggerImpl(),
     );
+
     gpsController.listen(serviceManager.status$);
-
-    Stopwatch stopwatch = Stopwatch();
-    stopwatch.start();
-
-    gpsController.latLng$.listen((latLng) {
-      return Log.info(
-          'GpsController ${stopwatch.elapsedMilliseconds}: $latLng');
-    });
 
     return gpsController;
   }

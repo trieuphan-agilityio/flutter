@@ -1,4 +1,5 @@
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
+import 'package:ad_stream/src/modules/gps/mock/fixed_gps_controller.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:test/test.dart';
 

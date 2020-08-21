@@ -1,19 +1,12 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/base/debugger.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class PowerDebugger implements PowerProvider {
-  /// Allow toggling debugger on the flight.
-  /// While enabled, the debugger will drive the status stream for the controller.
-  /// By invoking [weak] or [strong] the status would be updated accordingly.
-  ValueListenable<bool> get isOn;
-
-  /// Turn on/off debugger
-  toggle([bool newValue]);
-
+abstract class PowerDebugger implements Debugger, PowerProvider {
   /// Set WEAK status
   weak();
 
@@ -45,8 +38,11 @@ class PowerDebuggerImpl implements PowerDebugger {
   /// Keep the enabled status of the debugger.
   final ValueNotifier<bool> _isOn = ValueNotifier(true);
 
+  /// While enabled, the debugger will drive the status stream for the controller.
+  /// By invoking [weak] or [strong] the status would be updated accordingly.
   ValueListenable<bool> get isOn => _isOn;
 
+  /// Allow turning on/off debugger on the flight.
   toggle([bool newValue]) {
     _isOn.value = newValue ?? !_isOn.value;
   }

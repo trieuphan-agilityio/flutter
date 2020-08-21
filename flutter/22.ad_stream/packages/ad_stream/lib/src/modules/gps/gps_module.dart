@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
+import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'gps_controller.dart';
 
@@ -8,6 +13,9 @@ import 'gps_controller.dart';
 abstract class GpsModuleLocator {
   @provide
   GpsController get gpsController;
+
+  @provide
+  GpsDebugger get gpsDebugger;
 
   @provide
   MovementDetector get movementDetector;
@@ -19,10 +27,35 @@ abstract class GpsModuleLocator {
 class GpsModule {
   @provide
   @singleton
-  GpsController gpsController(ServiceManager serviceManager, Config config) {
-    final gpsController = FixedGpsController(config);
+  GpsController gpsController(
+    ServiceManager serviceManager,
+    GpsDebugger gpsDebugger,
+  ) {
+    final geolocator = Geolocator();
+    final gpsOptions$Controller = StreamController<GpsOptions>()
+      ..add(GpsOptions(accuracy: GpsAccuracy.best));
+    final gpsController = GpsControllerImpl(
+      gpsOptions$Controller.stream,
+      geolocator,
+      debugger: GpsDebuggerImpl(),
+    );
     gpsController.listen(serviceManager.status$);
+
+    Stopwatch stopwatch = Stopwatch();
+    stopwatch.start();
+
+    gpsController.latLng$.listen((latLng) {
+      return Log.info(
+          'GpsController ${stopwatch.elapsedMilliseconds}: $latLng');
+    });
+
     return gpsController;
+  }
+
+  @provide
+  @singleton
+  GpsDebugger gpsDebugger() {
+    return GpsDebuggerImpl();
   }
 
   @provide

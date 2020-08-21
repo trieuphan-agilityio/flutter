@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
+import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
+import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class GpsController implements Service {
@@ -11,19 +14,29 @@ abstract class GpsController implements Service {
   Stream<LatLng> get latLng$;
 }
 
-class FixedGpsController with ServiceMixin implements GpsController {
-  final Config _config;
-  final StreamController<LatLng> _latLng$Controller;
+class GpsControllerImpl with ServiceMixin implements GpsController {
+  GpsControllerImpl(
+    this._gpsOptions$,
+    this._geolocator, {
+    GpsDebugger debugger,
+  })  : _$switcher = BehaviorSubject<Stream<LatLng>>(),
+        gpsDebugger = debugger;
 
-  FixedGpsController(this._config)
-      : _latLng$Controller = BehaviorSubject<LatLng>() {
-    backgroundTask = ServiceTask(
-      _refreshLocation,
-      _config.defaultGpsControllerRefreshInterval,
-    );
-  }
+  final GpsDebugger gpsDebugger;
 
-  Stream<LatLng> get latLng$ => _latLng$Controller.stream;
+  // Accept options as a stream to allow changing it on the flight.
+  final Stream<GpsOptions> _gpsOptions$;
+
+  final Geolocator _geolocator;
+  final BehaviorSubject<Stream<LatLng>> _$switcher;
+
+  /// Backing field of [latLng$].
+  /// It helps to cache the stream transformation result.
+  Stream<LatLng> _latLng$;
+
+  /// Emits values from the most recently emitted Stream was built with latest
+  /// [GpsOptions] derived from [_gpsOptions$]
+  Stream<LatLng> get latLng$ => _latLng$ ??= _$switcher.switchLatest();
 
   /// Service
 
@@ -31,9 +44,20 @@ class FixedGpsController with ServiceMixin implements GpsController {
   Future<void> start() {
     super.start();
 
-    // this essential service should start as soon as it can
-    // so that other service can consume its value on starting.
-    _refreshLocation();
+    // listen to the gpsOptions$ stream to create new gps stream with new options.
+    final sub = _gpsOptions$.listen((gpsOptions) {
+      final Stream<LatLng> newStream = _geolocator
+          .getPositionStream(_gpsOptionsToLocationOptions(gpsOptions))
+          .flatMap((p) {
+        return p == null
+            ? Stream.empty()
+            : Stream.value(LatLng(p.latitude, p.longitude));
+      });
+
+      _$switcher.add(newStream);
+    });
+
+    _disposer.autoDispose(sub);
 
     Log.info('GpsController started.');
     return null;
@@ -42,11 +66,31 @@ class FixedGpsController with ServiceMixin implements GpsController {
   @override
   Future<void> stop() {
     super.stop();
+    _disposer.cancel();
     Log.info('GpsController stopped.');
     return null;
   }
 
-  _refreshLocation() {
-    _latLng$Controller.add(LatLng(76.0, 106.0));
+  final Disposer _disposer = Disposer();
+
+  LocationOptions _gpsOptionsToLocationOptions(GpsOptions gpsOptions) {
+    assert(gpsOptions.accuracy != null, 'GpsAccuracy must not be null.');
+
+    LocationAccuracy locationAccuracy;
+    if (_gpsLocationMap.containsKey(gpsOptions.accuracy)) {
+      locationAccuracy = _gpsLocationMap[gpsOptions.accuracy];
+    }
+
+    assert(locationAccuracy != null, 'LocationAccuracy must not be null');
+
+    return LocationOptions(
+        accuracy: locationAccuracy, distanceFilter: gpsOptions.distanceFilter);
   }
+
+  /// A map that indicates according value between GpsAccuracy and LocationAccuracy.
+  final Map<GpsAccuracy, LocationAccuracy> _gpsLocationMap = {
+    GpsAccuracy.best: LocationAccuracy.best,
+    GpsAccuracy.high: LocationAccuracy.high,
+    GpsAccuracy.low: LocationAccuracy.low,
+  };
 }

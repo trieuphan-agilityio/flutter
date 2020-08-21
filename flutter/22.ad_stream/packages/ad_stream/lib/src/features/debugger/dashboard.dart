@@ -1,5 +1,6 @@
 import 'package:ad_stream/di.dart';
 import 'package:ad_stream/src/features/debugger/log_view.dart';
+import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
 import 'package:ad_stream/src/modules/power/debugger/power_debugger.dart';
 import 'package:ad_stream/src/ui/setting_item.dart';
@@ -18,11 +19,13 @@ class DebugDashboard extends StatelessWidget {
 class _DebugDashboard extends StatelessWidget {
   final PermissionDebugger permissionDebugger;
   final PowerDebugger powerDebugger;
+  final GpsDebugger gpsDebugger;
 
   const _DebugDashboard({
     Key key,
     this.permissionDebugger,
     this.powerDebugger,
+    this.gpsDebugger,
   }) : super(key: key);
 
   @override
@@ -33,9 +36,13 @@ class _DebugDashboard extends StatelessWidget {
         child: Form(
           child: Column(
             children: [
-              _buildHeader('Permission'),
+              _buildHeader('Service Manager'),
               _buildForPermission(context),
               _buildForPower(),
+              _buildDivider(),
+              _buildHeader('Gps'),
+              _buildForGps(context),
+              _buildForSimulateRoute(context),
               _buildDivider(),
               _buildHeader('Others'),
               _buildForLog(context),
@@ -47,7 +54,10 @@ class _DebugDashboard extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return Divider(thickness: 1, height: 1);
+    return Padding(
+      child: Divider(thickness: 1, height: 1),
+      padding: EdgeInsets.symmetric(vertical: 3),
+    );
   }
 
   Widget _buildHeader(String text) {
@@ -110,9 +120,23 @@ class _DebugDashboard extends StatelessWidget {
 
   Widget _buildForPower() {
     return SettingItem(
-      title: 'Power Debugger',
-      value: powerDebugger.isOn,
-      onTap: powerDebugger.toggle,
+        title: 'Power Debugger',
+        value: powerDebugger.isOn,
+        onTap: powerDebugger.toggle);
+  }
+
+  Widget _buildForGps(BuildContext context) {
+    return SettingItem(
+        title: 'Gps Debugger',
+        value: gpsDebugger.isOn,
+        onTap: gpsDebugger.toggle);
+  }
+
+  Widget _buildForSimulateRoute(BuildContext context) {
+    return ListTile(
+      title: Text('Simulate Route'),
+      leading: SizedBox.shrink(),
+      onTap: () {},
     );
   }
 

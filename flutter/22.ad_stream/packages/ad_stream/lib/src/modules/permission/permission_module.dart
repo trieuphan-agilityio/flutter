@@ -1,5 +1,6 @@
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
+import 'package:ad_stream/src/modules/storage/pref_storage.dart';
 import 'package:inject/inject.dart';
 
 /// Declare public interface that an PermissionServices should expose
@@ -22,7 +23,7 @@ class PermissionModule {
 
   @provide
   @singleton
-  PermissionDebugger permissionDebugger() {
-    return PermissionDebuggerImpl(PermissionControllerImpl());
+  PermissionDebugger permissionDebugger(PrefStoreWriting prefStoreWriting) {
+    return PermissionDebuggerImpl(PermissionControllerImpl(), prefStoreWriting);
   }
 }

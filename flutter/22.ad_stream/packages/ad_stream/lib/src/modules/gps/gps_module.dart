@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'gps_controller.dart';
 
@@ -32,8 +31,10 @@ class GpsModule {
     GpsDebugger gpsDebugger,
   ) {
     final geolocator = Geolocator();
-    final gpsOptions$Controller = StreamController<GpsOptions>()
-      ..add(GpsOptions(accuracy: GpsAccuracy.best));
+    final defaultGpsOptions = GpsOptions(accuracy: GpsAccuracy.best);
+    final gpsOptions$Controller =
+        BehaviorSubject<GpsOptions>.seeded(defaultGpsOptions);
+
     final gpsController = GpsControllerImpl(
       gpsOptions$Controller.stream,
       geolocator,

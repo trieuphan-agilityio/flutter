@@ -2,6 +2,7 @@ import 'package:ad_stream/di.dart';
 import 'package:ad_stream/src/features/debugger/log_view.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
+import 'package:ad_stream/src/modules/permission/debugger/permission_debugger_state.dart';
 import 'package:ad_stream/src/modules/power/debugger/power_debugger.dart';
 import 'package:ad_stream/src/ui/setting_item.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class DebugDashboard extends StatelessWidget {
     return _DebugDashboard(
       permissionDebugger: DI.of(context).permissionDebugger,
       powerDebugger: DI.of(context).powerDebugger,
+      gpsDebugger: DI.of(context).gpsDebugger,
     );
   }
 }
@@ -23,9 +25,9 @@ class _DebugDashboard extends StatelessWidget {
 
   const _DebugDashboard({
     Key key,
-    this.permissionDebugger,
-    this.powerDebugger,
-    this.gpsDebugger,
+    @required this.permissionDebugger,
+    @required this.powerDebugger,
+    @required this.gpsDebugger,
   }) : super(key: key);
 
   @override

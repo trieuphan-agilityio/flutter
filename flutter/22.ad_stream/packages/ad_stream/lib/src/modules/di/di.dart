@@ -5,6 +5,7 @@ import 'package:ad_stream/src/modules/on_trip/on_trip_module.dart';
 import 'package:ad_stream/src/modules/permission/permission_module.dart';
 import 'package:ad_stream/src/modules/power/power_module.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_module.dart';
+import 'package:ad_stream/src/modules/storage/storage_module.dart';
 import 'package:flutter/widgets.dart';
 import 'package:inject/inject.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import 'di.inject.dart' as g;
 @Injector(const [
   AdModule,
   CommonModule,
+  StorageModule,
   PowerModule,
   PermissionModule,
   ServiceManagerModule,
@@ -25,6 +27,7 @@ abstract class DI
     implements
         AdModuleLocator,
         CommonModuleLocator,
+        StorageModuleLocator,
         PowerModuleLocator,
         PermissionModuleLocator,
         ServiceManagerModuleLocator,
@@ -38,6 +41,7 @@ abstract class DI
   static Future<DI> create(
     AdModule adModule,
     CommonModule commonModule,
+    StorageModule storageModule,
     PowerModule powerModule,
     PermissionModule permissionModule,
     ServiceManagerModule serviceManagerModule,
@@ -47,6 +51,7 @@ abstract class DI
     return await g.DI$Injector.create(
       adModule,
       commonModule,
+      storageModule,
       powerModule,
       permissionModule,
       serviceManagerModule,
@@ -73,6 +78,7 @@ Future<DI> createDI() {
   return DI.create(
     AdModule(),
     CommonModule(),
+    StorageModule(),
     PowerModule(),
     PermissionModule(),
     ServiceManagerModule(),

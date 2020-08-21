@@ -1,9 +1,12 @@
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
+import 'package:ad_stream/src/modules/permission/debugger/permission_debugger_state.dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
+import 'package:ad_stream/src/modules/storage/pref_storage.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../common.dart';
 import '../common/permission_plugin.dart';
 
 main() {
@@ -13,6 +16,7 @@ main() {
   List<String> errors;
   bool isDone;
   PermissionController permissionController;
+  PrefStoreWriting mockPrefStore;
 
   // Utility to test stream's state of Permission Controller's implementations.
   expectDone(bool expected) {
@@ -37,7 +41,8 @@ main() {
     // When wrapped in a debugger, real implementation of [PermissionController]
     // must not change.
     () {
-      return PermissionDebuggerImpl(PermissionControllerImpl())
+      mockPrefStore = MockPrefStoreWriting();
+      return PermissionDebuggerImpl(PermissionControllerImpl(), mockPrefStore)
         ..setDebugState(PermissionDebuggerState.off);
     },
   ].forEach((impl) {
@@ -119,7 +124,11 @@ main() {
 
     setUp(() {
       permissionController = PermissionControllerImpl();
-      permissionDebugger = PermissionDebuggerImpl(permissionController);
+      mockPrefStore = MockPrefStoreWriting();
+      permissionDebugger = PermissionDebuggerImpl(
+        permissionController,
+        mockPrefStore,
+      );
     });
 
     test('can start', () async {

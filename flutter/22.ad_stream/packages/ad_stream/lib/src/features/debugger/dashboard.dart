@@ -1,5 +1,7 @@
 import 'package:ad_stream/di.dart';
 import 'package:ad_stream/src/features/debugger/log_view.dart';
+import 'package:ad_stream/src/features/debugger/simulate_route.dart';
+import 'package:ad_stream/src/modules/gps/debugger/debug_route.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger_state.dart';
@@ -65,7 +67,6 @@ class _DebugDashboard extends StatelessWidget {
   Widget _buildHeader(String text) {
     return ListTile(
       dense: true,
-      leading: SizedBox.shrink(),
       title: Text(text.toUpperCase()),
     );
   }
@@ -76,7 +77,6 @@ class _DebugDashboard extends StatelessWidget {
       builder: (context, currentDebugState, _) => ListTile(
         title: Text('Permission Debugger'),
         subtitle: Text(currentDebugState.name),
-        leading: SizedBox.shrink(),
         onTap: () async {
           final chose = await showModalBottomSheet<PermissionDebuggerState>(
             context: context,
@@ -137,15 +137,20 @@ class _DebugDashboard extends StatelessWidget {
   Widget _buildForSimulateRoute(BuildContext context) {
     return ListTile(
       title: Text('Simulate Route'),
-      leading: SizedBox.shrink(),
-      onTap: () {},
+      onTap: () async {
+        final DebugRoute chose = await Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (context) => SimulateRoute(gpsDebugger: gpsDebugger)),
+        );
+
+        if (chose != null) gpsDebugger.simulate(chose);
+      },
     );
   }
 
   Widget _buildForLog(BuildContext context) {
     return ListTile(
       title: Text('Log'),
-      leading: SizedBox.shrink(),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
           fullscreenDialog: true,

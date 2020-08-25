@@ -43,7 +43,7 @@ class GpsModule {
     final gpsController = GpsControllerImpl(
       gpsOptions$Controller.stream,
       geolocator,
-      debugger: GpsDebuggerImpl(),
+      debugger: gpsDebugger,
     );
 
     gpsController.listen(serviceManager.status$);

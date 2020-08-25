@@ -25,7 +25,6 @@ class _SettingItemState extends State<SettingItem> {
       builder: (context, value, _) => ListTile(
         title: Text(widget.title),
         subtitle: Text(value ? 'On' : 'Off'),
-        leading: SizedBox.shrink(),
         trailing: AbsorbPointer(
           child: Switch.adaptive(value: value, onChanged: (_) {}),
         ),

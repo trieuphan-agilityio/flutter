@@ -15,20 +15,30 @@ abstract class GpsController implements Service {
 }
 
 class GpsControllerImpl with ServiceMixin implements GpsController {
-  GpsControllerImpl(
-    this._gpsOptions$,
-    this._geolocator, {
-    GpsDebugger debugger,
-  })  : _$switcher = BehaviorSubject<Stream<LatLng>>(),
-        gpsDebugger = debugger;
+  GpsControllerImpl(this._gpsOptions$, this._geolocator, {GpsDebugger debugger})
+      : _$switcher = BehaviorSubject<Stream<LatLng>>(),
+        _gpsDebugger = debugger {
+    _gpsDebugger.isOn.addListener(() {
+      // depends on the state of Gps Debugger, the switcher will choose to use
+      // the stream from debugger or it could the latest stream that was built
+      // with the latest GpsOptions if needs.
+      if (_gpsDebugger.isOn.value) {
+        _$switcher.add(_gpsDebugger.latLng$);
+      } else if (_latest$WithOptions != null) {
+        _$switcher.add(_latest$WithOptions);
+      }
+    });
+  }
 
-  final GpsDebugger gpsDebugger;
+  final GpsDebugger _gpsDebugger;
 
   // Accept options as a stream to allow changing it on the flight.
   final Stream<GpsOptions> _gpsOptions$;
 
   final Geolocator _geolocator;
   final BehaviorSubject<Stream<LatLng>> _$switcher;
+
+  Stream<LatLng> _latest$WithOptions;
 
   /// Backing field of [latLng$].
   /// It helps to cache the stream transformation result.
@@ -46,15 +56,15 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
 
     // listen to the gpsOptions$ stream to create new gps stream with new options.
     final sub = _gpsOptions$.listen((gpsOptions) {
-      final Stream<LatLng> newStream = _geolocator
+      _latest$WithOptions = _geolocator
           .getPositionStream(_gpsOptionsToLocationOptions(gpsOptions))
           .flatMap((p) {
         return p == null
-            ? Stream.empty()
-            : Stream.value(LatLng(p.latitude, p.longitude));
-      });
+            ? Stream<LatLng>.empty()
+            : Stream<LatLng>.value(LatLng(p.latitude, p.longitude));
+      }).asBroadcastStream();
 
-      _$switcher.add(newStream);
+      _$switcher.add(_latest$WithOptions);
     });
 
     _disposer.autoDispose(sub);

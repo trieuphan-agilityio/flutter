@@ -11,7 +11,7 @@ abstract class Debugger {
 
 mixin DebuggerMixin {
   /// Get notification about the status of the debugger.
-  final ValueNotifier<bool> _isOn = ValueNotifier(true);
+  final ValueNotifier<bool> _isOn = ValueNotifier(false);
 
   ValueListenable<bool> get isOn => _isOn;
 

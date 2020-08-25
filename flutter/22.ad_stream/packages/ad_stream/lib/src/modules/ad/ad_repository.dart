@@ -170,7 +170,7 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     final changeSet = AdDiff.diff(localAds, ads);
 
     Log.info('');
-    Log.info('AdRepository pulled ${ads.length} ads'
+    Log.info('AdRepository pulled ${ads.length} ads at $_currentLatLng'
         ', ${changeSet.numOfNewAds} new'
         ', ${changeSet.numOfUpdatedAds} updated'
         ', ${changeSet.numOfRemovedAds} removed.');

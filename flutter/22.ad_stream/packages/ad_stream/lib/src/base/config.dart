@@ -1,4 +1,5 @@
 import 'package:ad_stream/models.dart';
+import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:meta/meta.dart';
 
 class Config {
@@ -43,6 +44,8 @@ class Config {
   /// e.g: https://s3.awscloud.com/stag/creative/
   final String creativeBaseUrl;
 
+  final GpsOptions defaultGpsOptions;
+
   Config({
     this.timeBlockToSecs = 15,
     this.defaultCanSkipAfter = 2,
@@ -54,6 +57,7 @@ class Config {
     this.creativeDownloadTimeout = 15,
     this.videoCreativeDownloadParallelTasks = 1,
     this.videoCreativeDownloadTimeout = 240,
+    @required this.defaultGpsOptions,
     @required this.defaultAd,
     @required this.creativeBaseUrl,
   });
@@ -69,6 +73,7 @@ class Config {
     int creativeDownloadTimeout,
     int videoCreativeDownloadParallelTasks,
     int videoCreativeDownloadTimeout,
+    GpsOptions defaultGpsOptions,
     Ad defaultAd,
     String creativeBaseUrl,
   }) {
@@ -93,6 +98,7 @@ class Config {
           this.videoCreativeDownloadParallelTasks,
       videoCreativeDownloadTimeout:
           videoCreativeDownloadTimeout ?? this.videoCreativeDownloadTimeout,
+      defaultGpsOptions: defaultGpsOptions ?? this.defaultGpsOptions,
       defaultAd: defaultAd ?? this.defaultAd,
       creativeBaseUrl: creativeBaseUrl ?? this.creativeBaseUrl,
     );
@@ -105,6 +111,7 @@ abstract class ConfigFactory {
 
 class ConfigFactoryImpl implements ConfigFactory {
   Config createConfig() => Config(
+        defaultGpsOptions: GpsOptions(accuracy: GpsAccuracy.best),
         defaultAd: null,
         creativeBaseUrl: 'http://localhost:8080/public/creatives/',
       );

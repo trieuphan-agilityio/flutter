@@ -70,8 +70,16 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     _creativeDownloader.downloaded$.listen((downloadedCreative) async {
       // Ad after downloading creative success it will be pushed to ready stream.
       final ads = _ads$Controller.value;
-      final downloadedAd =
-          ads.where((ad) => ad.creative.id == downloadedCreative.id).first;
+
+      Ad downloadedAd;
+
+      try {
+        downloadedAd = ads.firstWhere(
+          (ad) => ad.creative.id == downloadedCreative.id,
+        );
+      } catch (_) {
+        // not found error
+      }
 
       if (downloadedAd != null) {
         // Updated the ad with new downloaded creative,
@@ -170,7 +178,8 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     final changeSet = AdDiff.diff(localAds, ads);
 
     Log.info('');
-    Log.info('AdRepository pulled ${ads.length} ads at $_currentLatLng'
+    Log.info('AdRepository pulled ${ads.length} ads'
+        '${_currentLatLng == null ? "" : " at $_currentLatLng"}'
         ', ${changeSet.numOfNewAds} new'
         ', ${changeSet.numOfUpdatedAds} updated'
         ', ${changeSet.numOfRemovedAds} removed.');

@@ -18,10 +18,12 @@ class _SimulateRouteState extends State<SimulateRoute> {
 
   @override
   void initState() {
-    widget.gpsDebugger.loadRoutes().then((_) {
+    // it supposes to renew routes list so that the route stream can be renew
+    // after being consumer all events.
+    widget.gpsDebugger.loadRoutes().then((newRoutes) {
       setState(() {
         isLoading = false;
-        routes = widget.gpsDebugger.routesToSimulate;
+        routes = newRoutes;
       });
     });
 

@@ -29,16 +29,17 @@ class GpsModule {
   GpsController gpsController(
     ServiceManager serviceManager,
     GpsDebugger gpsDebugger,
+    Config config,
   ) {
     final geolocator = Geolocator();
 
     // The GpsOptions is passed to a stream so that it can be changed depend on
     // the current state of other component. E.g On trip and off trip may cause
     // different GpsOptions.
-    final defaultGpsOptions = GpsOptions(accuracy: GpsAccuracy.best);
+
     // ignore: close_sinks
     final gpsOptions$Controller =
-        BehaviorSubject<GpsOptions>.seeded(defaultGpsOptions);
+        BehaviorSubject<GpsOptions>.seeded(config.defaultGpsOptions);
 
     final gpsController = GpsControllerImpl(
       gpsOptions$Controller.stream,

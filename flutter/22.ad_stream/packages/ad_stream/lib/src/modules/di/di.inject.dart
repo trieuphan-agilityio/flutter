@@ -187,8 +187,9 @@ class DI$Injector implements _i1.DI {
   _i18.FilePathResolver _createFilePathResolver() =>
       _singletonFilePathResolver ??=
           _commonModule.filePathResolver(_createConfig());
-  _i22.GpsController _createGpsController() => _singletonGpsController ??=
-      _gpsModule.gpsController(_createServiceManager(), _createGpsDebugger());
+  _i22.GpsController _createGpsController() =>
+      _singletonGpsController ??= _gpsModule.gpsController(
+          _createServiceManager(), _createGpsDebugger(), _createConfig());
   _i21.GpsDebugger _createGpsDebugger() =>
       _singletonGpsDebugger ??= _gpsModule.gpsDebugger();
   _i27.GenderDetector _createGenderDetector() => _singletonGenderDetector ??=

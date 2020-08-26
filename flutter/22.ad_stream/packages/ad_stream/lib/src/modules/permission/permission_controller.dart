@@ -69,11 +69,16 @@ class PermissionControllerImpl
     _timer?.cancel();
     _timer = null;
 
-    // Once the permissions all granted, the stream must be closed.
-    // Because once user revokes the permission, the app would be restarted
-    // and the controller would be initialized again.
-    _status$Controller.add(PermissionState.allowed);
-    _status$Controller.close();
+    // even timer was canceled above, sometimes its callback still running on another
+    // isolate and it canceled the stream. If so we need to double check before
+    // closing the stream.
+    if (!_status$Controller.isClosed) {
+      // Once the permissions all granted, the stream must be closed.
+      // Because once user revokes the permission, the app would be restarted
+      // and the controller would be initialized again.
+      _status$Controller.add(PermissionState.allowed);
+      _status$Controller.close();
+    }
   }
 
   @override

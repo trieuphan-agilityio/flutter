@@ -37,6 +37,7 @@ class GpsModule {
     // the current state of other component. E.g On trip and off trip may cause
     // different GpsOptions.
 
+    // FIXME This causes many frames are skipped on initialization.
     // ignore: close_sinks
     final gpsOptions$Controller =
         BehaviorSubject<GpsOptions>.seeded(config.defaultGpsOptions);

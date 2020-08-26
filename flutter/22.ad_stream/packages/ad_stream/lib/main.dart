@@ -1,4 +1,4 @@
-import 'dart:developer' as dart_dev;
+import 'dart:developer' as dartDev;
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/debugger/debug_button.dart';
@@ -16,7 +16,7 @@ Future<DI> _diFuture = Future(createDI);
 
 void main() {
   /// log to console
-  Log.log$.listen(dart_dev.log);
+  Log.log$.listen(dartDev.log);
 
   runApp(App());
 }

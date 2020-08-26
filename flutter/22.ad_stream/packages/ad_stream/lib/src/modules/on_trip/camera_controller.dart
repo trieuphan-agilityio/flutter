@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/service_manager/service.dart';
+
 class Photo {
   /// Sometimes the photo is saved at cache folder so that it can be clean up by
   /// system's file manager.
@@ -11,15 +14,39 @@ class Photo {
   Photo(this.filePath);
 }
 
-abstract class CameraController {
+abstract class CameraController implements Service {
   Stream<Photo> get photo$;
 }
 
-class CameraControllerImpl implements CameraController {
+class CameraControllerImpl with ServiceMixin implements CameraController {
   /// A broadcast controller
   final StreamController<Photo> _controller;
 
   Stream<Photo> get photo$ => _controller.stream;
 
-  CameraControllerImpl() : _controller = StreamController.broadcast();
+  CameraControllerImpl(this._config)
+      : _controller = StreamController.broadcast() {
+    backgroundTask = ServiceTask(() {
+      // FIXME
+      _controller.add(Photo('sample/file.path'));
+    }, _config.cameraCaptureInterval);
+  }
+
+  @override
+  Future<void> start() {
+    super.start();
+
+    Log.info('CameraController started.');
+    return null;
+  }
+
+  @override
+  Future<void> stop() {
+    super.stop();
+
+    Log.info('CameraController stopped.');
+    return null;
+  }
+
+  final Config _config;
 }

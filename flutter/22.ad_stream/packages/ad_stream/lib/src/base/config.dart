@@ -25,6 +25,14 @@ class Config {
   /// its content.
   final int defaultAdPresenterHealthCheckInterval;
 
+  /// Time in seconds indicates how frequently [CameraController] captures the
+  /// photo of passenger on the trip.
+  final int cameraCaptureInterval;
+
+  /// Time in seconds indicates how frequently [MicController] records the
+  /// conversation of passenger on the trip.
+  final int micRecordInterval;
+
   /// Number of downloading tasks are executed in parallel.
   final int creativeDownloadParallelTasks;
 
@@ -53,6 +61,8 @@ class Config {
     this.defaultAdSchedulerRefreshInterval = 10,
     this.defaultAdRepositoryRefreshInterval = 60,
     this.defaultAdPresenterHealthCheckInterval = 15,
+    this.cameraCaptureInterval = 10,
+    this.micRecordInterval = 10,
     this.creativeDownloadParallelTasks = 3,
     this.creativeDownloadTimeout = 15,
     this.videoCreativeDownloadParallelTasks = 1,
@@ -69,6 +79,8 @@ class Config {
     int defaultAdSchedulerRefreshInterval,
     int defaultAdRepositoryRefreshInterval,
     int defaultAdPresenterHealthCheckInterval,
+    int cameraCaptureInterval,
+    int micRecordInterval,
     int creativeDownloadParallelTasks,
     int creativeDownloadTimeout,
     int videoCreativeDownloadParallelTasks,
@@ -90,6 +102,9 @@ class Config {
       defaultAdPresenterHealthCheckInterval:
           defaultAdPresenterHealthCheckInterval ??
               this.defaultAdPresenterHealthCheckInterval,
+      cameraCaptureInterval:
+          cameraCaptureInterval ?? this.cameraCaptureInterval,
+      micRecordInterval: cameraCaptureInterval ?? this.cameraCaptureInterval,
       creativeDownloadParallelTasks:
           creativeDownloadParallelTasks ?? this.creativeDownloadParallelTasks,
       creativeDownloadTimeout:

@@ -18,7 +18,7 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
   GpsControllerImpl(
     this._gpsOptions$,
     this._geolocator, {
-    GpsDebugger debugger,
+    @required GpsDebugger debugger,
   })  : _$switcher = BehaviorSubject<Stream<LatLng>>(),
         _gpsDebugger = debugger {
     _gpsDebugger.isOn.addListener(() {
@@ -42,12 +42,12 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
 
   final GpsDebugger _gpsDebugger;
 
-  // Accept options as a stream to allow changing it on the flight.
+  /// Accept options as a stream to allow changing it on the flight.
   final Stream<GpsOptions> _gpsOptions$;
-  final Geolocator _geolocator;
 
   final BehaviorSubject<Stream<LatLng>> _$switcher;
 
+  /// Stream that was built with latest [GpsOptions] from [_gpsOptions$]
   Stream<LatLng> _latest$WithOptions;
 
   /// Backing field of [latLng$].
@@ -58,6 +58,17 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
   /// [GpsOptions] derived from [_gpsOptions$]
   Stream<LatLng> get latLng$ {
     return _latLng$ ??= _$switcher.stream.switchLatest();
+  }
+
+  /// Build new [latLng$] stream with the given [GpsOptions]
+  Stream<LatLng> _build$WithOptions(GpsOptions options) {
+    return _geolocator
+        .getPositionStream(_gpsOptionsToLocationOptions(options))
+        .flatMap((p) {
+      return p == null
+          ? Stream<LatLng>.empty()
+          : Stream<LatLng>.value(LatLng(p.latitude, p.longitude));
+    }).asBroadcastStream();
   }
 
   /// Service
@@ -90,17 +101,9 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
     return null;
   }
 
-  final Disposer _disposer = Disposer();
+  final Geolocator _geolocator;
 
-  Stream<LatLng> _build$WithOptions(GpsOptions options) {
-    return _geolocator
-        .getPositionStream(_gpsOptionsToLocationOptions(options))
-        .flatMap((p) {
-      return p == null
-          ? Stream<LatLng>.empty()
-          : Stream<LatLng>.value(LatLng(p.latitude, p.longitude));
-    }).asBroadcastStream();
-  }
+  final Disposer _disposer = Disposer();
 
   LocationOptions _gpsOptionsToLocationOptions(GpsOptions gpsOptions) {
     assert(gpsOptions.accuracy != null, 'GpsAccuracy must not be null.');

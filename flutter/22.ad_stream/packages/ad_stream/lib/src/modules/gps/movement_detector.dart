@@ -4,6 +4,7 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 abstract class MovementDetector implements Service {
@@ -49,20 +50,20 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
 
   Stream<MovementState> get state$ => _state$ ??= _controller.stream.distinct();
 
-  _detectMovement(List<LatLng> listOfLatLng) {
+  _detectMovement(List<LatLng> listOfLatLng) async {
     // there is no movement during last [_kLocationRefreshInterval] seconds
     if (listOfLatLng.length <= 1) return MovementState.notMoving;
 
-    int distance = 0;
+    double distance = 0;
     LatLng a = listOfLatLng.first;
 
-    listOfLatLng.skip(1).forEach((b) {
-      distance += _DistanceCalculator.distance(a, b);
+    listOfLatLng.skip(1).forEach((b) async {
+      distance += await _DistanceCalculator.distance(a, b);
       a = b;
     });
 
-    final velocity =
-        _VelocityCalculator.velocity(distance, _kLocationRefreshInterval);
+    final time = _kLocationRefreshInterval;
+    final velocity = _VelocityCalculator.velocity(distance, time);
 
     if (velocity >= _kVelocityThreshold) {
       _controller.add(MovementState.moving);
@@ -79,15 +80,17 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
 }
 
 class _DistanceCalculator {
+  static final _geoLocator = Geolocator();
+
   // FIXME calculate distance between two points [previous] and [latLng]
-  static int distance(LatLng a, LatLng b) {
-    return 10;
+  static Future<double> distance(LatLng a, LatLng b) {
+    return _geoLocator.distanceBetween(a.lat, a.lng, b.lat, b.lng);
   }
 }
 
 class _VelocityCalculator {
   /// m/s
-  static int velocity(int distanceMeter, int timeSecs) {
-    return distanceMeter ~/ timeSecs;
+  static double velocity(double distanceMeter, int timeSecs) {
+    return distanceMeter / timeSecs.toDouble();
   }
 }

@@ -27,38 +27,39 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   /// If null, the status stream is empty.
   final PermissionController _delegate;
 
+  /// Persist and restore debugger state from preference storage.
   final PrefStoreWriting _prefStore;
 
   PermissionDebuggerImpl(this._delegate, this._prefStore)
       : _state$Controller = BehaviorSubject<PermissionState>(),
         _state$Switcher = BehaviorSubject<Stream<PermissionState>>() {
-    // Set up initial values
-    // 1. If debugger is enabled, it will produce Allowed event
-    _state$Controller.add(PermissionState.allowed);
-
-    // 2. Turn off debugger by default
-    _state$Switcher.add(_delegate.state$);
-
-    final persistedDebugState = PermissionDebuggerState.stateByValue(
-      _prefStore.getInt(_kPermissionDebuggerState),
-    );
-    // 3. Set turn off state
-    debugState.value = persistedDebugState ?? PermissionDebuggerState.off;
+    // Turn off debugger by default
+    _changeForOffState();
 
     // set up listeners of notifier
     debugState.addListener(() {
       if (debugState.value == PermissionDebuggerState.off) {
-        _state$Switcher.add(_delegate.state$);
-      } else {
-        _state$Switcher.add(_state$Controller.stream);
-        if (debugState.value == PermissionDebuggerState.allow) {
-          _state$Controller.add(PermissionState.allowed);
-        }
-        if (debugState.value == PermissionDebuggerState.deny) {
-          _state$Controller.add(PermissionState.denied);
-        }
+        _changeForOffState();
+      } else if (debugState.value == PermissionDebuggerState.allow) {
+        _changeForAllowedState();
+      } else if (debugState.value == PermissionDebuggerState.deny) {
+        _changeForDeniedState();
       }
     });
+  }
+
+  _changeForAllowedState() {
+    _state$Switcher.add(_state$Controller.stream);
+    _state$Controller.add(PermissionState.allowed);
+  }
+
+  _changeForOffState() {
+    _state$Switcher.add(_delegate.state$);
+  }
+
+  _changeForDeniedState() {
+    _state$Switcher.add(_state$Controller.stream);
+    _state$Controller.add(PermissionState.denied);
   }
 
   /// Get notification about the state of the debugger.
@@ -91,7 +92,18 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   @override
   Future<void> start() {
     super.start();
+
+    // Restore debugger state from storage
+    final persistedDebugState = PermissionDebuggerState.stateByValue(
+      _prefStore.getInt(_kPermissionDebuggerState),
+    );
+    if (persistedDebugState != null) {
+      debugState.value = persistedDebugState;
+    }
+
     _delegate.start();
+
+    Log.info('PermissionDebugger started.');
     return null;
   }
 
@@ -99,6 +111,8 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   Future<void> stop() {
     super.stop();
     _delegate.stop();
+
+    Log.info('PermissionDebugger stopped.');
     return null;
   }
 

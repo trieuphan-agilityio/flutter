@@ -197,7 +197,8 @@ class DI$Injector implements _i1.DI {
   _i26.FaceDetector _createFaceDetector() => _singletonFaceDetector ??=
       _onTripModule.faceDetector(_createCameraController());
   _i25.CameraController _createCameraController() =>
-      _singletonCameraController ??= _onTripModule.cameraController();
+      _singletonCameraController ??= _onTripModule.cameraController(
+          _createServiceManager(), _createConfig());
   _i28.AgeDetector _createAgeDetector() => _singletonAgeDetector ??=
       _onTripModule.ageDetector(_createFaceDetector());
   _i31.KeywordDetector _createKeywordDetector() => _singletonKeywordDetector ??=

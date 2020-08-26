@@ -10,6 +10,7 @@ import 'package:ad_stream/src/modules/on_trip/mic_controller.dart';
 import 'package:ad_stream/src/modules/on_trip/speech_to_text.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
+import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'camera_controller.dart';
 
@@ -53,17 +54,27 @@ class OnTripModule {
     MovementDetector movementDetector,
     FaceDetector faceDetector,
   ) {
-    return TripDetectorImpl(
+    final tripDetector = TripDetectorImpl(
       powerProvider.state$,
       movementDetector.state$,
       faceDetector.faces$,
     );
+
+    // bind lifecycle of [TripDetector] to [MovementDetector].
+    tripDetector.listen(movementDetector.status$);
+
+    return tripDetector;
   }
 
   @provide
   @singleton
-  CameraController cameraController() {
-    return CameraControllerImpl();
+  CameraController cameraController(
+    ServiceManager serviceManager,
+    Config config,
+  ) {
+    final cameraController = CameraControllerImpl(config);
+    cameraController.listen(serviceManager.status$);
+    return cameraController;
   }
 
   @provide
@@ -87,7 +98,9 @@ class OnTripModule {
   @provide
   @singleton
   FaceDetector faceDetector(CameraController cameraController) {
-    return FaceDetectorImpl(cameraController.photo$);
+    final faceDetector = FaceDetectorImpl(cameraController.photo$);
+    faceDetector.listen(cameraController.status$);
+    return faceDetector;
   }
 
   @provide

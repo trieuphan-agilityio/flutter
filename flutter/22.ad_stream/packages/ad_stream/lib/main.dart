@@ -2,7 +2,6 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/debugger/debug_button.dart';
-import 'package:ad_stream/src/features/debugger/drawer.dart';
 import 'package:ad_stream/src/features/display_ad/ad_view.dart';
 import 'package:ad_stream/src/features/request_permission/permission_container.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
@@ -25,35 +24,34 @@ void main() {
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DI>(
-      future: _diFuture,
-      builder: (_, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          return buildWithDI(context, snapshot.data);
-        } else {
-          return SplashScreen();
-        }
-      },
+    return AppLifecycle(
+      child: FutureBuilder<DI>(
+        future: _diFuture,
+        builder: (_, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData) {
+            return buildWithDI(context, snapshot.data);
+          } else {
+            return SplashScreen();
+          }
+        },
+      ),
     );
   }
 
   Widget buildWithDI(BuildContext context, DI di) {
     return Provider<DI>.value(
       value: di,
-      child: AppLifecycle(
-        child: MaterialApp(
-          home: Scaffold(
-            drawer: DebugDrawer(),
-            body: SafeArea(
-              child: Stack(
-                children: <Widget>[
-                  ServiceManagerContainer(child: AdViewContainer()),
-                  PermissionContainer(),
-                  Align(
-                      child: DebugButton(), alignment: Alignment.bottomCenter),
-                ],
-              ),
+      child: MaterialApp(
+        home: Scaffold(
+          body: SafeArea(
+            child: Stack(
+              children: <Widget>[
+                ServiceManagerContainer(),
+                AdViewContainer(),
+                PermissionContainer(),
+                Align(child: DebugButton(), alignment: Alignment.bottomCenter),
+              ],
             ),
           ),
         ),

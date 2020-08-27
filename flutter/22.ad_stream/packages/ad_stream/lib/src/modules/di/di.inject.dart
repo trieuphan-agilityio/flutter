@@ -195,26 +195,27 @@ class DI$Injector implements _i1.DI {
   _i35.TargetingValueCollector _createTargetingValueCollector() =>
       _singletonTargetingValueCollector ??= _adModule.targetingValueCollector(
           _createServiceManager(),
+          _createTripDetector(),
           _createGenderDetector(),
           _createAgeDetector(),
           _createKeywordDetector(),
           _createAreaDetector());
-  _i29.GenderDetector _createGenderDetector() =>
-      _singletonGenderDetector ??= _onTripModule.genderDetector(
-          _createTripDetector(), _createFaceDetector());
   _i28.TripDetector _createTripDetector() =>
       _singletonTripDetector ??= _onTripModule.tripDetector(
-          _createPowerProvider(),
+          _createServiceManager(),
           _createMovementDetector(),
           _createFaceDetector());
   _i25.MovementDetector _createMovementDetector() =>
-      _singletonMovementDetector ??=
-          _gpsModule.movementDetector(_createGpsController());
+      _singletonMovementDetector ??= _gpsModule.movementDetector(
+          _createServiceManager(), _createGpsController());
   _i27.FaceDetector _createFaceDetector() => _singletonFaceDetector ??=
       _onTripModule.faceDetector(_createCameraController());
   _i26.CameraController _createCameraController() =>
       _singletonCameraController ??= _onTripModule.cameraController(
           _createServiceManager(), _createConfig());
+  _i29.GenderDetector _createGenderDetector() =>
+      _singletonGenderDetector ??= _onTripModule.genderDetector(
+          _createTripDetector(), _createFaceDetector());
   _i30.AgeDetector _createAgeDetector() => _singletonAgeDetector ??=
       _onTripModule.ageDetector(_createTripDetector(), _createFaceDetector());
   _i33.KeywordDetector _createKeywordDetector() => _singletonKeywordDetector ??=
@@ -224,7 +225,7 @@ class DI$Injector implements _i1.DI {
   _i31.MicController _createMicController() =>
       _singletonMicController ??= _onTripModule.micController();
   _i34.AreaDetector _createAreaDetector() => _singletonAreaDetector ??=
-      _onTripModule.areaDetector(_createGpsController());
+      _onTripModule.areaDetector(_createGpsController(), _createConfig());
   _i11.PrefStoreReading _createPrefStoreReading() =>
       _singletonPrefStoreReading ??= _storageModule.prefStoreReading(null);
   @override

@@ -18,7 +18,7 @@ main() {
       );
 
       mockService = _MockService();
-      mockService.listen(serviceManager.status$);
+      mockService.listenTo(serviceManager.status$);
     });
 
     test('can start/stop services it manages', () async {
@@ -41,7 +41,7 @@ main() {
 
     test('should work properly with multiple services', () async {
       final anotherMockService = _MockService();
-      anotherMockService.listen(serviceManager.status$);
+      anotherMockService.listenTo(serviceManager.status$);
 
       serviceManager.start();
       await flushMicrotasks();

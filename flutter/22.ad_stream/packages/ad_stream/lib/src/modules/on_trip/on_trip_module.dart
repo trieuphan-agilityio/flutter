@@ -50,19 +50,15 @@ class OnTripModule {
   @provide
   @singleton
   TripDetector tripDetector(
-    PowerProvider powerProvider,
+    ServiceManager serviceManager,
     MovementDetector movementDetector,
     FaceDetector faceDetector,
   ) {
     final tripDetector = TripDetectorImpl(
-      powerProvider.state$,
       movementDetector.state$,
       faceDetector.faces$,
     );
-
-    // bind lifecycle of [TripDetector] to [MovementDetector].
-    tripDetector.listen(movementDetector.status$);
-
+    tripDetector.listenTo(serviceManager.status$);
     return tripDetector;
   }
 
@@ -73,7 +69,7 @@ class OnTripModule {
     Config config,
   ) {
     final cameraController = CameraControllerImpl(config);
-    cameraController.listen(serviceManager.status$);
+    cameraController.listenTo(serviceManager.status$);
     return cameraController;
   }
 
@@ -99,7 +95,7 @@ class OnTripModule {
   @singleton
   FaceDetector faceDetector(CameraController cameraController) {
     final faceDetector = FaceDetectorImpl(cameraController.photo$);
-    faceDetector.listen(cameraController.status$);
+    faceDetector.listenTo(cameraController.status$);
     return faceDetector;
   }
 
@@ -127,7 +123,9 @@ class OnTripModule {
 
   @provide
   @singleton
-  AreaDetector areaDetector(GpsController gpsController) {
-    return AreaDetectorImpl(gpsController.latLng$);
+  AreaDetector areaDetector(GpsController gpsController, Config config) {
+    final areaDetector = AreaDetectorImpl(gpsController.latLng$, config);
+    areaDetector.listenTo(gpsController.status$);
+    return areaDetector;
   }
 }

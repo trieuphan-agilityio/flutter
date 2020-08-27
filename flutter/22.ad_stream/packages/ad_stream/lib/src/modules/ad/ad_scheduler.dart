@@ -92,7 +92,8 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
 
     Log.info('AdScheduler picked Ad{id: ${_pickedAd.shortId}'
         ', creativeId: ${_pickedAd.creative.shortId}'
-        ', version: ${_pickedAd.version}}, targeted with $targetingValues');
+        ', version: ${_pickedAd.version}'
+        '${targetingValues == null ? "}." : ", targeted with $targetingValues"}.');
 
     return null;
   }

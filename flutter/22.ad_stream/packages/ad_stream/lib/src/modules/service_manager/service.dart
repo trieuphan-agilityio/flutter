@@ -8,7 +8,7 @@ import 'package:rxdart/rxdart.dart';
 /// Typically, class that implements this interface should use [ServiceMixin].
 abstract class Service {
   /// Service has its own status stream. Other service can bind to this status
-  /// via [listen] method.
+  /// via [listenTo] method.
   Stream<ServiceStatus> get status$;
 
   Future<void> start();
@@ -17,8 +17,8 @@ abstract class Service {
   bool get isStarted;
   bool get isStopped;
 
-  /// Using [listen] method, a service can bind its lifecycle to other service.
-  listen(Stream<ServiceStatus> serviceStatus$);
+  /// Using [listenTo] method, a service can bind its lifecycle to other service.
+  listenTo(Stream<ServiceStatus> serviceStatus$);
 }
 
 /// Declare common methods of [Service]
@@ -53,7 +53,7 @@ mixin ServiceMixin {
   bool get isStarted => _isStarted;
   bool get isStopped => !_isStarted;
 
-  listen(Stream<ServiceStatus> status$) {
+  listenTo(Stream<ServiceStatus> status$) {
     status$.startedOnly().listen((_) => start());
     status$.stoppedOnly().listen((_) => stop());
   }

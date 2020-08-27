@@ -48,7 +48,7 @@ class GpsModule {
       debugger: gpsDebugger,
     );
 
-    gpsController.listen(serviceManager.status$);
+    gpsController.listenTo(serviceManager.status$);
 
     return gpsController;
   }
@@ -61,9 +61,12 @@ class GpsModule {
 
   @provide
   @singleton
-  MovementDetector movementDetector(GpsController gpsController) {
+  MovementDetector movementDetector(
+    ServiceManager serviceManager,
+    GpsController gpsController,
+  ) {
     final movementDetector = MovementDetectorImpl(gpsController.latLng$);
-    movementDetector.listen(gpsController.status$);
+    movementDetector.listenTo(serviceManager.status$);
     return movementDetector;
   }
 }

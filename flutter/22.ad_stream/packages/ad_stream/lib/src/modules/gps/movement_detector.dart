@@ -5,6 +5,7 @@ import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 abstract class MovementDetector implements Service {
@@ -15,15 +16,16 @@ abstract class MovementDetector implements Service {
 const int _kLocationRefreshInterval = 5; // 5 seconds
 
 /// Lower than or equal this value, the vehicle is considered not moving.
-const int _kVelocityThreshold = 3; // 3 m/s
+const int _kVelocityThreshold = 1; // 1 m/s
 
 class MovementDetectorImpl with ServiceMixin implements MovementDetector {
-  final StreamController<MovementState> _controller;
+  final BehaviorSubject<MovementState> _controller;
   final Stream<LatLng> _latLng$;
 
   MovementDetectorImpl(this._latLng$)
-      : _controller = StreamController<MovementState>.broadcast()
-          ..add(MovementState.notMoving);
+      : _controller = BehaviorSubject<MovementState>.seeded(
+          MovementState.notMoving,
+        );
 
   start() {
     super.start();
@@ -57,10 +59,10 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
     double distance = 0;
     LatLng a = listOfLatLng.first;
 
-    listOfLatLng.skip(1).forEach((b) async {
+    for (final b in listOfLatLng.skip(1)) {
       distance += await _DistanceCalculator.distance(a, b);
       a = b;
-    });
+    }
 
     final time = _kLocationRefreshInterval;
     final velocity = _VelocityCalculator.velocity(distance, time);
@@ -82,7 +84,7 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
 class _DistanceCalculator {
   static final _geoLocator = Geolocator();
 
-  // FIXME calculate distance between two points [previous] and [latLng]
+  // calculate distance between two points.
   static Future<double> distance(LatLng a, LatLng b) {
     return _geoLocator.distanceBetween(a.lat, a.lng, b.lat, b.lng);
   }

@@ -14,6 +14,11 @@ class Face {
   final Photo photo;
 
   Face(this.id, this.photo);
+
+  @override
+  String toString() {
+    return 'Face{id: $id, photo: $photo}';
+  }
 }
 
 abstract class FaceDetector implements Service {
@@ -25,7 +30,12 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
 
   final Stream<Photo> _photo$;
 
-  FaceDetectorImpl(this._photo$) : _controller = StreamController.broadcast();
+  FaceDetectorImpl(this._photo$)
+      : assert(
+          !_photo$.isBroadcast,
+          '_photo\$ must be single-subscription stream.',
+        ),
+        _controller = StreamController.broadcast();
 
   Stream<List<Face>> get faces$ => _controller.stream;
 
@@ -34,7 +44,7 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
     final faces = [Face('face-id', photo)];
     _controller.add(faces);
 
-    Log.debug('FaceDetected got '
+    Log.debug('FaceDetected detected '
         '${faces.length} ${faces.length > 1 ? "faces" : "face"}.');
   }
 
@@ -42,8 +52,11 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   Future<void> start() {
     super.start();
 
-    final subscription = _photo$.listen(_detectFaces);
-    _disposer.autoDispose(subscription);
+    if (_photo$Subscription == null) {
+      _photo$Subscription = _photo$.listen(_detectFaces);
+    } else if (_photo$Subscription.isPaused) {
+      _photo$Subscription.resume();
+    }
 
     Log.info('FaceDetector started.');
     return null;
@@ -52,11 +65,11 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   @override
   Future<void> stop() {
     super.stop();
-    _disposer.cancel();
+    _photo$Subscription?.pause();
 
     Log.info('FaceDetector stopped.');
     return null;
   }
 
-  final Disposer _disposer = Disposer();
+  StreamSubscription _photo$Subscription;
 }

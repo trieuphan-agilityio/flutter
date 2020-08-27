@@ -30,6 +30,8 @@ class AgeDetectorImpl with ServiceMixin implements AgeDetector {
 
   @override
   listenToTripState(Stream<TripState> tripState$) {
+    Log.debug('AgeDetector listened to Trip\'s state.');
+
     tripState$.listen((tripState) {
       if (tripState == TripState.onTrip) {
         start();

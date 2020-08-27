@@ -37,29 +37,42 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
 
   CameraControllerImpl(this._config) : _controller = StreamController() {
     backgroundTask = ServiceTask(
-      () {
+      () async {
         // not capture image if the service is instructed to not do so.
         if (!shouldCapture) {
           Log.debug('CameraController beating');
           return;
         }
-        _capturePhoto();
+
+        final photo = await _capturePhoto();
+        _controller.add(photo);
+
+        Log.info('CameraController captured $photo.');
       },
       _config.cameraCaptureInterval,
     );
 
-    _controller.onListen = () => shouldCapture = true;
-    _controller.onPause = () => shouldCapture = false;
-    _controller.onResume = () => shouldCapture = true;
-    _controller.onCancel = () => shouldCapture = false;
+    _controller.onListen = () {
+      Log.debug('CameraController was subscribed.');
+      return shouldCapture = true;
+    };
+    _controller.onPause = () {
+      Log.debug('CameraController paused subscription.');
+      return shouldCapture = false;
+    };
+    _controller.onResume = () {
+      Log.debug('CameraController resumed subscription.');
+      return shouldCapture = true;
+    };
+    _controller.onCancel = () {
+      Log.debug('CameraController canceled subscription.');
+      return shouldCapture = false;
+    };
   }
 
-  _capturePhoto() {
+  Future<Photo> _capturePhoto() async {
     // FIXME
-    final photo = Photo('sample/file.path');
-    _controller.add(photo);
-
-    Log.info('CameraController captured $photo.');
+    return Photo('sample/file.path');
   }
 
   @override

@@ -15,6 +15,7 @@ import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/area_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/gender_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/keyword_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'targeting_value_collector.dart';
@@ -49,8 +50,8 @@ class AdModule {
 
   @provide
   @singleton
-  Config config(ConfigFactory factory) {
-    return factory.createConfig();
+  Config config(ConfigFactory configFactory) {
+    return configFactory.createConfig();
   }
 
   @provide
@@ -61,7 +62,7 @@ class AdModule {
     Config config,
   ) {
     final adPresenter = AdPresenterImpl(adScheduler, config);
-    adPresenter.listen(serviceManager.status$);
+    adPresenter.listenTo(serviceManager.status$);
     return adPresenter;
   }
 
@@ -69,18 +70,20 @@ class AdModule {
   @singleton
   TargetingValueCollector targetingValueCollector(
     ServiceManager serviceManager,
+    TripDetector tripDetector,
     GenderDetector genderDetector,
     AgeDetector ageDetector,
     KeywordDetector keywordDetector,
     AreaDetector areaDetector,
   ) {
     final targetingValueCollector = TargetingValueCollectorImpl(
+      tripDetector.state$,
       genderDetector.gender$,
       ageDetector.ageRange$,
       keywordDetector.keywords$,
       areaDetector.areas$,
     );
-    targetingValueCollector.listen(serviceManager.status$);
+    targetingValueCollector.listenTo(serviceManager.status$);
     return targetingValueCollector;
   }
 
@@ -97,7 +100,7 @@ class AdModule {
       config,
       targetingValueCollector.targetingValues$,
     );
-    adScheduler.listen(serviceManager.status$);
+    adScheduler.listenTo(serviceManager.status$);
     return adScheduler;
   }
 
@@ -116,7 +119,7 @@ class AdModule {
       config,
     );
     adRepository.keepWatching(gpsController.latLng$);
-    adRepository.listen(serviceManager.status$);
+    adRepository.listenTo(serviceManager.status$);
     return adRepository;
   }
 

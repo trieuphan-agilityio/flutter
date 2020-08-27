@@ -33,6 +33,10 @@ class Config {
   /// conversation of passenger on the trip.
   final int micRecordInterval;
 
+  /// Time in seconds must elapse before [AreaDetector] updating with latest
+  /// [LatLng] value.
+  final int areaRefreshInterval;
+
   /// Number of downloading tasks are executed in parallel.
   final int creativeDownloadParallelTasks;
 
@@ -63,6 +67,7 @@ class Config {
     this.defaultAdPresenterHealthCheckInterval = 15,
     this.cameraCaptureInterval = 10,
     this.micRecordInterval = 10,
+    this.areaRefreshInterval = 30,
     this.creativeDownloadParallelTasks = 3,
     this.creativeDownloadTimeout = 15,
     this.videoCreativeDownloadParallelTasks = 1,
@@ -81,6 +86,7 @@ class Config {
     int defaultAdPresenterHealthCheckInterval,
     int cameraCaptureInterval,
     int micRecordInterval,
+    int areaRefreshInterval,
     int creativeDownloadParallelTasks,
     int creativeDownloadTimeout,
     int videoCreativeDownloadParallelTasks,
@@ -105,6 +111,7 @@ class Config {
       cameraCaptureInterval:
           cameraCaptureInterval ?? this.cameraCaptureInterval,
       micRecordInterval: cameraCaptureInterval ?? this.cameraCaptureInterval,
+      areaRefreshInterval: areaRefreshInterval ?? this.areaRefreshInterval,
       creativeDownloadParallelTasks:
           creativeDownloadParallelTasks ?? this.creativeDownloadParallelTasks,
       creativeDownloadTimeout:

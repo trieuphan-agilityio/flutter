@@ -5,7 +5,7 @@ import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/on_trip/face_detector.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 
 enum TripState {
   /// Device is considered on trip when Power is [PowerState.strong],
@@ -22,41 +22,49 @@ abstract class TripDetector implements Service {
 }
 
 class TripDetectorImpl with ServiceMixin implements TripDetector {
-  final StreamController<TripState> _controller;
-  final Stream<PowerState> power$;
+  final BehaviorSubject<TripState> _controller;
   final Stream<MovementState> movement$;
   final Stream<List<Face>> faces$;
 
-  TripDetectorImpl(this.power$, this.movement$, this.faces$)
-      : _controller = StreamController<TripState>.broadcast()
-          ..add(TripState.offTrip);
+  TripDetectorImpl(this.movement$, this.faces$)
+      : _controller = BehaviorSubject<TripState>.seeded(TripState.offTrip);
 
   Stream<TripState> get state$ => _trip$ ??= _controller.stream.distinct();
+
+  MovementState _movement;
+  List<Face> _faces;
+
+  /// There are three values can be returned here:
+  ///  - OnTrip
+  ///  - OffTrip
+  ///  - Undetermined
+  _checkState() {
+    Log.debug('TripDetector observed $_movement, $_faces.');
+
+    if (_movement == null || _faces == null) return;
+
+    if (_movement == MovementState.moving && _faces.isNotEmpty) {
+      _controller.add(TripState.onTrip);
+    }
+
+    if (_movement == MovementState.notMoving && _faces.isEmpty) {
+      _controller.add(TripState.offTrip);
+    }
+  }
 
   @override
   Future<void> start() {
     super.start();
 
-    final subscription = CombineLatestStream.combine3(power$, movement$, faces$,
-        (PowerState power, MovementState movement, List<Face> faces) {
-      if (power == PowerState.strong &&
-          movement == MovementState.moving &&
-          faces.isEmpty) {
-        Log.debug('TripDetector changed to $TripState.onTrip');
-        return TripState.onTrip;
-      }
+    _disposer.autoDispose(movement$.listen((newValue) {
+      _movement = newValue;
+      _checkState();
+    }));
 
-      if (power == PowerState.weak &&
-          movement == MovementState.notMoving &&
-          faces.isEmpty) {
-        Log.debug('TripDetector changed to $TripState.offTrip');
-        return TripState.offTrip;
-      }
-
-      return null;
-    }).where((e) => e != null).listen(_controller.add);
-
-    _disposer.autoDispose(subscription);
+    _disposer.autoDispose(faces$.listen((newValue) {
+      _faces = newValue;
+      _checkState();
+    }));
 
     Log.info('TripDetector started.');
     return null;
@@ -68,8 +76,6 @@ class TripDetectorImpl with ServiceMixin implements TripDetector {
 
     // Trip is considered as dropped off if service has stopped.
     _controller.add(TripState.offTrip);
-
-    _disposer.cancel();
 
     Log.info('TripDetector stopped.');
     return null;

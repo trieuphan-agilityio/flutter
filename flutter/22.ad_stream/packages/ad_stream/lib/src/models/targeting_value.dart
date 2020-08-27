@@ -141,7 +141,7 @@ class Area with EquatableMixin implements TargetingValue {
 /// A targeting type can have more than one TargetingValue,
 /// for example: Advertiser want to target to multiple areas.
 class TargetingValues {
-  Map<TargetingType, List<TargetingValue>> valuesMap;
+  final Map<TargetingType, List<TargetingValue>> valuesMap = {};
 
   add(TargetingValue value) {
     if (valuesMap.containsKey(value.type) && value.isStackable) {
@@ -155,5 +155,15 @@ class TargetingValues {
     for (final value in values) {
       add(value);
     }
+  }
+
+  /// Remove all targeting values.
+  clear() {
+    valuesMap.clear();
+  }
+
+  @override
+  String toString() {
+    return 'TargetingValues{valuesMap: $valuesMap}';
   }
 }

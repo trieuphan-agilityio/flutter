@@ -31,7 +31,11 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
 
   _detectFaces(Photo photo) {
     // FIXME
-    _controller.add([Face('face-id', photo)]);
+    final faces = [Face('face-id', photo)];
+    _controller.add(faces);
+
+    Log.debug('FaceDetected got '
+        '${faces.length} ${faces.length > 1 ? "faces" : "face"}.');
   }
 
   @override

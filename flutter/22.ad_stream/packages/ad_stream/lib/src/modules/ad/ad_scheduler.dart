@@ -5,35 +5,25 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
-import 'package:rxdart/rxdart.dart';
 
 abstract class AdScheduler {
   /// Ad that is ready for displaying.
   Ad get adForDisplay;
-
-  /// Targeting
-  Stream<PassengerGender> gender$;
-  Stream<PassengerAgeRange> ageRange$;
-  Stream<List<Keyword>> keywords$;
-  Stream<List<Area>> areas$;
 }
 
 class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   final AdRepository adRepository;
   final Config config;
-  Stream<PassengerGender> gender$;
-  Stream<PassengerAgeRange> ageRange$;
-  Stream<List<Keyword>> keywords$;
-  Stream<List<Area>> areas$;
+
+  /// Collect a set of targeting value that helps narrows who sees ads and helps
+  /// advertisers reach an intended audience with their campaigns.
+  final Stream<TargetingValues> targetingValues$;
 
   AdSchedulerImpl(
     this.adRepository,
     this.config,
-    this.gender$,
-    this.ageRange$,
-    this.keywords$,
-    this.areas$,
-  ) : targetingValues = TargetingValues() {
+    this.targetingValues$,
+  ) {
     backgroundTask = ServiceTask(
       _pullAds,
       config.defaultAdSchedulerRefreshInterval,
@@ -43,8 +33,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   /// Ad that matched targeting values and is placed here to wait for displaying.
   Ad _pickedAd;
 
-  /// A set of targeting value that helps narrows who sees ads and helps
-  /// advertisers reach an intended audience with their campaigns.
+  /// Current collected targeting values that are observed from [targetingValues$].
   TargetingValues targetingValues;
 
   /// AdScheduler
@@ -57,19 +46,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   Future<void> start() {
     super.start();
 
-    final subscription =
-        CombineLatestStream.combine4(gender$, ageRange$, keywords$, areas$,
-            (gender, ageRange, keywords, areas) {
-      TargetingValues values = TargetingValues();
-      values.add(gender);
-      values.add(ageRange);
-      values.addAll(keywords);
-      values.addAll(areas);
-      return values;
-    }).listen((value) {
-      targetingValues = value;
-    });
-
+    final subscription = targetingValues$.listen((v) => targetingValues = v);
     _disposer.autoDispose(subscription);
 
     Log.info('AdScheduler started.');
@@ -80,6 +57,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   Future<void> stop() {
     super.stop();
     _disposer.cancel();
+
     Log.info('AdScheduler stopped.');
     return null;
   }
@@ -91,7 +69,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
     if (readyAds.length == 0) {
       // unload if there is no candidate
       _pickedAd = null;
-      Log.info('AdScheduler beating');
+      Log.debug('AdScheduler beating');
       return null;
     }
 
@@ -105,7 +83,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
     }
 
     if (_pickedAd == pickedAd) {
-      Log.info('AdScheduler beating');
+      Log.debug('AdScheduler beating');
       return null;
     }
 
@@ -114,7 +92,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
 
     Log.info('AdScheduler picked Ad{id: ${_pickedAd.shortId}'
         ', creativeId: ${_pickedAd.creative.shortId}'
-        ', version: ${_pickedAd.version}}');
+        ', version: ${_pickedAd.version}}, targeted with $targetingValues');
 
     return null;
   }

@@ -105,14 +105,24 @@ class OnTripModule {
 
   @provide
   @singleton
-  AgeDetector ageDetector(FaceDetector faceDetector) {
-    return AgeDetectorImpl(faceDetector.faces$);
+  AgeDetector ageDetector(
+    TripDetector tripDetector,
+    FaceDetector faceDetector,
+  ) {
+    final ageDetector = AgeDetectorImpl(faceDetector.faces$);
+    ageDetector.listenToTripState(tripDetector.state$);
+    return ageDetector;
   }
 
   @provide
   @singleton
-  GenderDetector genderDetector(FaceDetector faceDetector) {
-    return GenderDetectorImpl(faceDetector.faces$);
+  GenderDetector genderDetector(
+    TripDetector tripDetector,
+    FaceDetector faceDetector,
+  ) {
+    final genderDetector = GenderDetectorImpl(faceDetector.faces$);
+    genderDetector.listenToTripState(tripDetector.state$);
+    return genderDetector;
   }
 
   @provide

@@ -17,6 +17,8 @@ import 'package:ad_stream/src/modules/on_trip/gender_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/keyword_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
+import 'targeting_value_collector.dart';
+
 /// Declare public interface that an AdModule should expose
 abstract class AdModuleLocator {
   @provide
@@ -65,22 +67,35 @@ class AdModule {
 
   @provide
   @singleton
-  AdScheduler adScheduler(
+  TargetingValueCollector targetingValueCollector(
     ServiceManager serviceManager,
-    AdRepository adRepository,
-    Config config,
     GenderDetector genderDetector,
     AgeDetector ageDetector,
     KeywordDetector keywordDetector,
     AreaDetector areaDetector,
   ) {
+    final targetingValueCollector = TargetingValueCollectorImpl(
+      genderDetector.gender$,
+      ageDetector.ageRange$,
+      keywordDetector.keywords$,
+      areaDetector.areas$,
+    );
+    targetingValueCollector.listen(serviceManager.status$);
+    return targetingValueCollector;
+  }
+
+  @provide
+  @singleton
+  AdScheduler adScheduler(
+    ServiceManager serviceManager,
+    AdRepository adRepository,
+    Config config,
+    TargetingValueCollector targetingValueCollector,
+  ) {
     final adScheduler = AdSchedulerImpl(
       adRepository,
       config,
-      genderDetector.gender$,
-      ageDetector.age$,
-      keywordDetector.keywords$,
-      areaDetector.areas$,
+      targetingValueCollector.targetingValues$,
     );
     adScheduler.listen(serviceManager.status$);
     return adScheduler;

@@ -41,11 +41,17 @@ class TripDetectorImpl with ServiceMixin implements TripDetector {
         (PowerState power, MovementState movement, List<Face> faces) {
       if (power == PowerState.strong &&
           movement == MovementState.moving &&
-          faces.isEmpty) return TripState.onTrip;
+          faces.isEmpty) {
+        Log.debug('TripDetector changed to $TripState.onTrip');
+        return TripState.onTrip;
+      }
 
       if (power == PowerState.weak &&
           movement == MovementState.notMoving &&
-          faces.isEmpty) return TripState.offTrip;
+          faces.isEmpty) {
+        Log.debug('TripDetector changed to $TripState.offTrip');
+        return TripState.offTrip;
+      }
 
       return null;
     }).where((e) => e != null).listen(_controller.add);

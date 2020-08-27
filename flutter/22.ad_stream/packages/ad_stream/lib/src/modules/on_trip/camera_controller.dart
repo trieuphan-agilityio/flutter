@@ -12,6 +12,11 @@ class Photo {
   final String filePath;
 
   Photo(this.filePath);
+
+  @override
+  String toString() {
+    return 'Photo{filePath: $filePath}';
+  }
 }
 
 abstract class CameraController implements Service {
@@ -19,17 +24,42 @@ abstract class CameraController implements Service {
 }
 
 class CameraControllerImpl with ServiceMixin implements CameraController {
-  /// A broadcast controller
+  /// A single-subscription stream controller.
+  /// It will capture image only when there is a subscriber.
   final StreamController<Photo> _controller;
 
   Stream<Photo> get photo$ => _controller.stream;
 
-  CameraControllerImpl(this._config)
-      : _controller = StreamController.broadcast() {
-    backgroundTask = ServiceTask(() {
-      // FIXME
-      _controller.add(Photo('sample/file.path'));
-    }, _config.cameraCaptureInterval);
+  /// A flag to indicate whether the controller should capture image or not.
+  /// When there is no subscriber or the subscription is paused, the controller
+  /// should not do anything to prevent leaking resources.
+  bool shouldCapture = false;
+
+  CameraControllerImpl(this._config) : _controller = StreamController() {
+    backgroundTask = ServiceTask(
+      () {
+        // not capture image if the service is instructed to not do so.
+        if (!shouldCapture) {
+          Log.debug('CameraController beating');
+          return;
+        }
+        _capturePhoto();
+      },
+      _config.cameraCaptureInterval,
+    );
+
+    _controller.onListen = () => shouldCapture = true;
+    _controller.onPause = () => shouldCapture = false;
+    _controller.onResume = () => shouldCapture = true;
+    _controller.onCancel = () => shouldCapture = false;
+  }
+
+  _capturePhoto() {
+    // FIXME
+    final photo = Photo('sample/file.path');
+    _controller.add(photo);
+
+    Log.info('CameraController captured $photo.');
   }
 
   @override

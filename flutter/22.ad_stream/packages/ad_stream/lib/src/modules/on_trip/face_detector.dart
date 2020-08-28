@@ -79,7 +79,7 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   _verifyState() {
     // Stop face detection once on trip. During the trip, use one FaceId was
     // detected from the start.
-    if (_tripState.isOnTrip) {
+    if (_tripState != null && _tripState.isOnTrip) {
       if (!isStopped) stop();
       return;
     }

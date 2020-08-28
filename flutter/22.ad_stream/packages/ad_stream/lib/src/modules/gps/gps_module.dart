@@ -1,5 +1,6 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
+import 'package:ad_stream/src/modules/gps/gps_adapter.dart';
 import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
@@ -32,7 +33,7 @@ class GpsModule {
     GpsDebugger gpsDebugger,
     Config config,
   ) async {
-    final geolocator = Geolocator();
+    final gpsAdapter = GpsAdapterForGeolocator();
 
     // The GpsOptions is passed to a stream so that it can be changed depend on
     // the current state of other component. E.g On trip and off trip may cause
@@ -46,7 +47,7 @@ class GpsModule {
 
     final gpsController = GpsControllerImpl(
       gpsOptions$Controller.stream,
-      geolocator,
+      gpsAdapter,
       debugger: gpsDebugger,
     );
 

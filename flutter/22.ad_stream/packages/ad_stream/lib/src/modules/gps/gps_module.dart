@@ -4,7 +4,6 @@ import 'package:ad_stream/src/modules/gps/gps_adapter.dart';
 import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'gps_controller.dart';

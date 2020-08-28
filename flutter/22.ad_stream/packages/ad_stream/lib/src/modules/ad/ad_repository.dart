@@ -155,15 +155,6 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     super.start();
     // get ads from AdServer right after starting.
     _getAds();
-
-    Log.info('AdRepository started.');
-    return null;
-  }
-
-  @override
-  Future<void> stop() {
-    super.stop();
-    Log.info('AdRepository stopped.');
     return null;
   }
 

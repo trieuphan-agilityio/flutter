@@ -47,18 +47,8 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
     super.start();
 
     final subscription = targetingValues$.listen((v) => targetingValues = v);
-    _disposer.autoDispose(subscription);
+    disposer.autoDispose(subscription);
 
-    Log.info('AdScheduler started.');
-    return null;
-  }
-
-  @override
-  Future<void> stop() {
-    super.stop();
-    _disposer.cancel();
-
-    Log.info('AdScheduler stopped.');
     return null;
   }
 
@@ -92,13 +82,11 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
 
     Log.info('AdScheduler picked Ad{id: ${_pickedAd.shortId}'
         ', creativeId: ${_pickedAd.creative.shortId}'
-        ', version: ${_pickedAd.version}'
-        '${targetingValues == null ? "}." : ", targeted with $targetingValues"}.');
+        ', version: ${_pickedAd.version}}'
+        '${targetingValues == null ? "." : ", with $targetingValues."}');
 
     return null;
   }
 
   final Random _random = Random();
-
-  final Disposer _disposer = Disposer();
 }

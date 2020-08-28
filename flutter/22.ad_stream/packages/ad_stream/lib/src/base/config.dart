@@ -128,11 +128,11 @@ class Config {
 }
 
 abstract class ConfigFactory {
-  Config createConfig();
+  Future<Config> createConfig();
 }
 
 class ConfigFactoryImpl implements ConfigFactory {
-  Config createConfig() => Config(
+  Future<Config> createConfig() async => Config(
         defaultGpsOptions: GpsOptions(accuracy: GpsAccuracy.best),
         defaultAd: null,
         creativeBaseUrl: 'http://localhost:8080/public/creatives/',

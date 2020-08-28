@@ -9,7 +9,6 @@ import 'package:ad_stream/src/modules/on_trip/keyword_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/mic_controller.dart';
 import 'package:ad_stream/src/modules/on_trip/speech_to_text.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
-import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'camera_controller.dart';
@@ -59,18 +58,14 @@ class OnTripModule {
       faceDetector.faces$,
     );
     tripDetector.listenTo(serviceManager.status$);
+    faceDetector.attachTripState(tripDetector.state$);
     return tripDetector;
   }
 
   @provide
   @singleton
-  CameraController cameraController(
-    ServiceManager serviceManager,
-    Config config,
-  ) {
-    final cameraController = CameraControllerImpl(config);
-    cameraController.listenTo(serviceManager.status$);
-    return cameraController;
+  CameraController cameraController(Config config) {
+    return CameraControllerImpl(config);
   }
 
   @provide
@@ -93,32 +88,23 @@ class OnTripModule {
 
   @provide
   @singleton
-  FaceDetector faceDetector(CameraController cameraController) {
-    final faceDetector = FaceDetectorImpl(cameraController.photo$);
-    faceDetector.listenTo(cameraController.status$);
-    return faceDetector;
+  FaceDetector faceDetector(
+    MovementDetector movementDetector,
+    CameraController cameraController,
+  ) {
+    return FaceDetectorImpl(movementDetector.state$, cameraController.photo$);
   }
 
   @provide
   @singleton
-  AgeDetector ageDetector(
-    TripDetector tripDetector,
-    FaceDetector faceDetector,
-  ) {
-    final ageDetector = AgeDetectorImpl(faceDetector.faces$);
-    ageDetector.listenToTripState(tripDetector.state$);
-    return ageDetector;
+  AgeDetector ageDetector() {
+    return AgeDetectorImpl();
   }
 
   @provide
   @singleton
-  GenderDetector genderDetector(
-    TripDetector tripDetector,
-    FaceDetector faceDetector,
-  ) {
-    final genderDetector = GenderDetectorImpl(faceDetector.faces$);
-    genderDetector.listenToTripState(tripDetector.state$);
-    return genderDetector;
+  GenderDetector genderDetector() {
+    return GenderDetectorImpl();
   }
 
   @provide

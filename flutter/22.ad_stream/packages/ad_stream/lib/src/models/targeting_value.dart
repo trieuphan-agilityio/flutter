@@ -48,7 +48,9 @@ class PassengerAgeRange with EquatableMixin implements TargetingValue {
 
   TargetingType get type => TargetingType.passengerAgeRange;
 
-  bool get isStackable => false;
+  /// If there are more than one passengers the targeting values should collect
+  /// multiple values of passenger's age range.
+  bool get isStackable => true;
 
   @override
   String toString() {
@@ -67,17 +69,15 @@ class PassengerGender with EquatableMixin implements TargetingValue {
   /// Gender is female when all passenger genders are detected as female.
   static PassengerGender female = PassengerGender._('female');
 
-  /// Gender is both when there are more than one passengers, and
-  /// their genders are detected as both male and female.
-  static PassengerGender both = PassengerGender._('both');
-
   static PassengerGender unknown = PassengerGender._('unknown');
 
   List<Object> get props => [gender];
 
   TargetingType get type => TargetingType.passengerGender;
 
-  bool get isStackable => false;
+  /// If there are more than one passengers the targeting values should collect
+  /// multiple values of passenger's gender.
+  bool get isStackable => true;
 
   @override
   String toString() {

@@ -19,6 +19,9 @@ abstract class Service {
 
   /// Using [listenTo] method, a service can bind its lifecycle to other service.
   listenTo(Stream<ServiceStatus> serviceStatus$);
+
+  /// Provide a simple way to disposing subscription that service is consuming.
+  Disposer get disposer;
 }
 
 /// Declare common methods of [Service]
@@ -26,16 +29,20 @@ mixin ServiceMixin {
   final StreamController<ServiceStatus> _status$Controller =
       BehaviorSubject<ServiceStatus>();
 
+  /// Optional task that is executed background.
   ServiceTask backgroundTask;
+
+  Disposer get disposer => _disposer;
 
   @mustCallSuper
   Future<void> start() {
     _isStarted = true;
     _status$Controller.add(ServiceStatus.started);
 
-    // schedule background task if needs
+    // schedule background task on stop.
     backgroundTask?.start();
 
+    Log.info('$runtimeType started.');
     return null;
   }
 
@@ -47,6 +54,10 @@ mixin ServiceMixin {
     // stop background task if needs
     backgroundTask?.stop();
 
+    // cancel registered subscriptions for auto dispose.
+    disposer.cancel();
+
+    Log.info('$runtimeType stopped.');
     return null;
   }
 
@@ -72,6 +83,9 @@ mixin ServiceMixin {
 
   /// persist start state.
   bool _isStarted = false;
+
+  /// Simple way to cancel subscriptions if needs.
+  final Disposer _disposer = Disposer();
 }
 
 class ServiceTask {

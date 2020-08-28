@@ -57,6 +57,8 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
         Log.debug('GpsDebuggerImpl has done simulating ${route.id}');
       },
     );
+
+    Log.info('GpsDebugger is simulating route ${route.name}.');
   }
 
   pause() {

@@ -22,7 +22,10 @@ class ServiceManagerImpl with ServiceMixin implements ServiceManager {
   final Stream<PowerState> power$;
   final Stream<PermissionState> permission$;
 
-  final Disposer _disposer = Disposer();
+  /// NOTE: this disposer is different to the one provided by [ServiceMixn].
+  /// It's used in [init] and [dispose] methods, in other hand [ServiceMixin]'s
+  /// disposer is for [start] and [stop] method.
+  final Disposer _disposerForInit = Disposer();
 
   ServiceManagerImpl(this.power$, this.permission$);
 
@@ -36,7 +39,7 @@ class ServiceManagerImpl with ServiceMixin implements ServiceManager {
       }
     }).listen((bool isStarted) => isStarted ? start() : stop());
 
-    _disposer.autoDispose(subscription);
+    _disposerForInit.autoDispose(subscription);
 
     Log.info('ServiceManager initialized.');
   }
@@ -46,7 +49,7 @@ class ServiceManagerImpl with ServiceMixin implements ServiceManager {
     stop();
 
     // stop listening to power and permission streams
-    _disposer.cancel();
+    _disposerForInit.cancel();
 
     Log.info('ServiceManager disposed.');
     return null;

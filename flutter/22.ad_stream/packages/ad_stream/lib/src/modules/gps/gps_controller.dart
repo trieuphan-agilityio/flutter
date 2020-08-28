@@ -65,6 +65,7 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
     return _geolocator
         .getPositionStream(_gpsOptionsToLocationOptions(options))
         .flatMap((p) {
+      Log.debug('GpsController detected $p.');
       return p == null
           ? Stream<LatLng>.empty()
           : Stream<LatLng>.value(LatLng(p.latitude, p.longitude));
@@ -87,23 +88,11 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
       }
     });
 
-    _disposer.autoDispose(sub);
-
-    Log.info('GpsController started.');
-    return null;
-  }
-
-  @override
-  Future<void> stop() {
-    super.stop();
-    _disposer.cancel();
-    Log.info('GpsController stopped.');
+    disposer.autoDispose(sub);
     return null;
   }
 
   final Geolocator _geolocator;
-
-  final Disposer _disposer = Disposer();
 
   LocationOptions _gpsOptionsToLocationOptions(GpsOptions gpsOptions) {
     assert(gpsOptions.accuracy != null, 'GpsAccuracy must not be null.');

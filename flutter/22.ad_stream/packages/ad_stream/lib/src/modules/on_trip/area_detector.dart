@@ -39,20 +39,7 @@ class AreaDetectorImpl with ServiceMixin implements AreaDetector {
           ' ${areas.length} ${areas.length > 1 ? "areas" : "area"}.');
     });
 
-    _disposer.autoDispose(subscription);
-
-    Log.info('AreaDetector started.');
+    disposer.autoDispose(subscription);
     return null;
   }
-
-  @override
-  Future<void> stop() {
-    super.stop();
-    _disposer.cancel();
-
-    Log.info('AreaDetector stopped.');
-    return null;
-  }
-
-  final Disposer _disposer = Disposer();
 }

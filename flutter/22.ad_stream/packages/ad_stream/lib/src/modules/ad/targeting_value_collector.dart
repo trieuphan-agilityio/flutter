@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
-import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/face_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/gender_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/trip_state.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
-import 'package:rxdart/rxdart.dart';
 
 /// A central collector that communicate with other collectors such as
 /// [AgeCollector] and [AreaCollector] to combine to a collection of
@@ -16,15 +17,12 @@ abstract class TargetingValueCollector implements Service {
 class TargetingValueCollectorImpl
     with ServiceMixin
     implements TargetingValueCollector {
+  GenderDetector _genderDetector;
+  AgeDetector _ageDetector;
+
   /// Keep observing the [TripState] to determine when it should clean up
   /// [_targetingValues]. [TargetingValues] must not retain when trip is drop-off.
   Stream<TripState> _tripState$;
-
-  /// Gender of passenger that was detected by [GenderDetector].
-  Stream<PassengerGender> _gender$;
-
-  /// Age of passenger that was detected by [AgeDetector].
-  Stream<PassengerAgeRange> _ageRange$;
 
   /// Keywords that were derived from the conversation of passenger.
   Stream<List<Keyword>> _keywords$;
@@ -36,9 +34,9 @@ class TargetingValueCollectorImpl
   TargetingValues _targetingValues;
 
   TargetingValueCollectorImpl(
+    this._genderDetector,
+    this._ageDetector,
     this._tripState$,
-    this._gender$,
-    this._ageRange$,
     this._keywords$,
     this._areas$,
   )   : _controller = StreamController<TargetingValues>.broadcast(),
@@ -67,30 +65,49 @@ class TargetingValueCollectorImpl
   Future<void> start() {
     super.start();
 
-    _disposer.autoDispose(_gender$.listen(_addValue));
-    _disposer.autoDispose(_ageRange$.listen(_addValue));
-    _disposer.autoDispose(_keywords$.listen(_addListOfValues));
-    _disposer.autoDispose(_areas$.listen(_addListOfValues));
+    disposer.autoDispose(_keywords$.listen(_addListOfValues));
+    disposer.autoDispose(_areas$.listen(_addListOfValues));
 
-    _disposer.autoDispose(_tripState$.listen((tripState) {
+    disposer.autoDispose(_tripState$.listen((tripState) {
+      _currentTripState = tripState;
+
+      if (tripState.isOnTrip) {
+        _detectAgeRange(tripState.passengers);
+        _detectGender(tripState.passengers);
+        return;
+      }
+
       // when trip is dropped off, clear all targeting values.
-      if (tripState == TripState.offTrip) {
+      if (tripState.isOffTrip) {
         _targetingValues.clear();
       }
     }));
 
-    Log.info('TargetingValueCollector started.');
     return null;
   }
 
-  @override
-  Future<void> stop() {
-    super.stop();
-    _disposer.cancel();
-
-    Log.info('TargetingValueCollector stopped.');
-    return null;
+  _detectAgeRange(Iterable<Face> faces) {
+    faces.forEach((face) async {
+      final ageRange = await _ageDetector.detect(face);
+      // report age range value if is on trip
+      if (_currentTripState != null && _currentTripState.isOnTrip) {
+        _addValue(ageRange);
+      }
+    });
   }
 
-  final Disposer _disposer = Disposer();
+  _detectGender(Iterable<Face> faces) {
+    faces.forEach((face) async {
+      final gender = await _genderDetector.detect(face);
+      // report gender value if is on trip
+      if (_currentTripState != null && _currentTripState.isOnTrip) {
+        _addValue(gender);
+      }
+    });
+  }
+
+  /// Keep a reference to current [TripState] so that collector can decise to
+  /// accept or reject asynchronous results from [AgeDetector] and
+  /// [GenderDetector].
+  TripState _currentTripState;
 }

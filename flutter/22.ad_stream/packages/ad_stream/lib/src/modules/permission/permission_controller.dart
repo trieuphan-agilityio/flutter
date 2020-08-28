@@ -48,8 +48,6 @@ class PermissionControllerImpl
     _timer = Timer.periodic(Duration(seconds: _kRefreshSecs), (_) {
       _verifyPermission();
     });
-
-    Log.info('PermissionController started.');
     return null;
   }
 
@@ -88,7 +86,6 @@ class PermissionControllerImpl
     _timer?.cancel();
     _timer = null;
 
-    Log.info('PermissionController stopped.');
     return null;
   }
 

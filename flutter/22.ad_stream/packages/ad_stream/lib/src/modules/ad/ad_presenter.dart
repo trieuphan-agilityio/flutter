@@ -115,20 +115,6 @@ class AdPresenterImpl
 
   /// TaskService
 
-  @override
-  Future<void> start() {
-    super.start();
-    Log.info('AdPresenter started.');
-    return null;
-  }
-
-  @override
-  Future<void> stop() {
-    super.stop();
-    Log.info('AdPresenter stopped.');
-    return null;
-  }
-
   Future<void> _runTask() {
     // wake it up if find out that it's waiting for new Ad to display
     if (_displayingAd == null) {

@@ -102,8 +102,6 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
     }
 
     _delegate.start();
-
-    Log.info('PermissionDebugger started.');
     return null;
   }
 
@@ -111,8 +109,6 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   Future<void> stop() {
     super.stop();
     _delegate.stop();
-
-    Log.info('PermissionDebugger stopped.');
     return null;
   }
 

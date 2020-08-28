@@ -6,7 +6,6 @@ import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 abstract class MovementDetector implements Service {
   Stream<MovementState> get state$;
@@ -16,44 +15,34 @@ abstract class MovementDetector implements Service {
 const int _kLocationRefreshInterval = 5; // 5 seconds
 
 /// Lower than or equal this value, the vehicle is considered not moving.
-const int _kVelocityThreshold = 1; // 1 m/s
+const int _kVelocityThreshold = 3; // 1 m/s
 
 class MovementDetectorImpl with ServiceMixin implements MovementDetector {
   final BehaviorSubject<MovementState> _controller;
   final Stream<LatLng> _latLng$;
+  final List<LatLng> _buffer = [];
 
   MovementDetectorImpl(this._latLng$)
-      : _controller = BehaviorSubject<MovementState>.seeded(
-          MovementState.notMoving,
-        );
-
-  start() {
-    super.start();
-
-    /// when the refresh trigger emits event, values from latLng$ are collected
-    /// and emits on new return stream.
-    final refreshTrigger =
-        Stream.periodic(Duration(seconds: _kLocationRefreshInterval));
-
-    final disposable = _latLng$.buffer(refreshTrigger).listen(_detectMovement);
-    _disposer.autoDispose(disposable);
-
-    Log.info('MovementDetector started.');
-    return null;
+      : _controller =
+            BehaviorSubject<MovementState>.seeded(MovementState.notMoving) {
+    backgroundTask = ServiceTask(() async {
+      final state = await _detectMovement([..._buffer]);
+      _buffer.clear();
+      _controller.add(state);
+    }, _kLocationRefreshInterval);
   }
 
-  stop() {
-    super.stop();
-    _disposer.cancel();
-
-    Log.info('MovementDetector stopped.');
+  Future<void> start() {
+    super.start();
+    disposer.autoDispose(_latLng$.listen(_buffer.add));
     return null;
   }
 
   Stream<MovementState> get state$ => _state$ ??= _controller.stream.distinct();
 
-  _detectMovement(List<LatLng> listOfLatLng) async {
-    // there is no movement during last [_kLocationRefreshInterval] seconds
+  Future<MovementState> _detectMovement(Iterable<LatLng> listOfLatLng) async {
+    // If there is no location report during last [_kLocationRefreshInterval]
+    // seconds, then it is considered not moving.
     if (listOfLatLng.length <= 1) return MovementState.notMoving;
 
     double distance = 0;
@@ -67,18 +56,21 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
     final time = _kLocationRefreshInterval;
     final velocity = _VelocityCalculator.velocity(distance, time);
 
+    if (velocity > 0) {
+      Log.debug(
+          'MovementDetector measured velocity ~ ${velocity.toInt()} m/s.');
+    }
+
     if (velocity >= _kVelocityThreshold) {
-      _controller.add(MovementState.moving);
+      return MovementState.moving;
     } else {
-      _controller.add(MovementState.notMoving);
+      return MovementState.notMoving;
     }
   }
 
   /// A cache instance of [state$], it prevents stream transformation is executed
   /// when the [state$] getter is called.
   Stream<MovementState> _state$;
-
-  final _disposer = Disposer();
 }
 
 class _DistanceCalculator {

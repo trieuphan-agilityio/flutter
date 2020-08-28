@@ -30,20 +30,9 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
 
   Stream<Photo> get photo$ => _controller.stream;
 
-  /// A flag to indicate whether the controller should capture image or not.
-  /// When there is no subscriber or the subscription is paused, the controller
-  /// should not do anything to prevent leaking resources.
-  bool shouldCapture = false;
-
   CameraControllerImpl(this._config) : _controller = StreamController() {
     backgroundTask = ServiceTask(
       () async {
-        // not capture image if the service is instructed to not do so.
-        if (!shouldCapture) {
-          Log.debug('CameraController beating');
-          return;
-        }
-
         final photo = await _capturePhoto();
         _controller.add(photo);
 
@@ -52,43 +41,18 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
       _config.cameraCaptureInterval,
     );
 
-    _controller.onListen = () {
-      Log.debug('CameraController was subscribed.');
-      return shouldCapture = true;
-    };
-    _controller.onPause = () {
-      Log.debug('CameraController paused subscription.');
-      return shouldCapture = false;
-    };
-    _controller.onResume = () {
-      Log.debug('CameraController resumed subscription.');
-      return shouldCapture = true;
-    };
-    _controller.onCancel = () {
-      Log.debug('CameraController canceled subscription.');
-      return shouldCapture = false;
-    };
+    /// When there is no subscriber or the subscription is paused, the service
+    /// must be stopped and the controller should not do anything to
+    /// prevent leaking resources.
+    _controller.onListen = start;
+    _controller.onPause = stop;
+    _controller.onResume = start;
+    _controller.onCancel = stop;
   }
 
   Future<Photo> _capturePhoto() async {
     // FIXME
     return Photo('sample/file.path');
-  }
-
-  @override
-  Future<void> start() {
-    super.start();
-
-    Log.info('CameraController started.');
-    return null;
-  }
-
-  @override
-  Future<void> stop() {
-    super.stop();
-
-    Log.info('CameraController stopped.');
-    return null;
   }
 
   final Config _config;

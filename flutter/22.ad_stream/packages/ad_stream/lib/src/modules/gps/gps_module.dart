@@ -26,11 +26,12 @@ abstract class GpsModuleLocator {
 class GpsModule {
   @provide
   @singleton
-  GpsController gpsController(
+  @asynchronous
+  Future<GpsController> gpsController(
     ServiceManager serviceManager,
     GpsDebugger gpsDebugger,
     Config config,
-  ) {
+  ) async {
     final geolocator = Geolocator();
 
     // The GpsOptions is passed to a stream so that it can be changed depend on
@@ -38,6 +39,7 @@ class GpsModule {
     // different GpsOptions.
 
     // FIXME This causes many frames are skipped on initialization.
+    //       For now use @asynchronous annotation to avoid block main thread.
     // ignore: close_sinks
     final gpsOptions$Controller =
         BehaviorSubject<GpsOptions>.seeded(config.defaultGpsOptions);

@@ -50,7 +50,8 @@ class AdModule {
 
   @provide
   @singleton
-  Config config(ConfigFactory configFactory) {
+  @asynchronous
+  Future<Config> config(ConfigFactory configFactory) {
     return configFactory.createConfig();
   }
 
@@ -70,16 +71,16 @@ class AdModule {
   @singleton
   TargetingValueCollector targetingValueCollector(
     ServiceManager serviceManager,
-    TripDetector tripDetector,
     GenderDetector genderDetector,
     AgeDetector ageDetector,
+    TripDetector tripDetector,
     KeywordDetector keywordDetector,
     AreaDetector areaDetector,
   ) {
     final targetingValueCollector = TargetingValueCollectorImpl(
+      genderDetector,
+      ageDetector,
       tripDetector.state$,
-      genderDetector.gender$,
-      ageDetector.ageRange$,
       keywordDetector.keywords$,
       areaDetector.areas$,
     );

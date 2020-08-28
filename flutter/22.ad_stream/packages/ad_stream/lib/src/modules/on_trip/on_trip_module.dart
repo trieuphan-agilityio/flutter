@@ -1,4 +1,5 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
@@ -82,8 +83,11 @@ class OnTripModule {
 
   @provide
   @singleton
-  KeywordDetector keywordDetector(SpeechToText speechToText) {
-    return KeywordDetectorImpl(speechToText.text$);
+  KeywordDetector keywordDetector(
+    AdRepository adRepository,
+    SpeechToText speechToText,
+  ) {
+    return KeywordDetectorImpl(adRepository, speechToText.text$);
   }
 
   @provide

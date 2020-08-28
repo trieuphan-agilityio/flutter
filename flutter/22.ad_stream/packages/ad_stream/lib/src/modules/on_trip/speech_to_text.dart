@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:ad_stream/base.dart';
+
 import 'mic_controller.dart';
 
 abstract class SpeechToText {
@@ -25,7 +27,8 @@ class SpeechToTextImpl implements SpeechToText {
   ///
   /// Return null if any other exceptions happen.
   _convert(Audio audio) {
-    // TODO needs implement
+    final text = faker.lorem.sentences(5).join('. ');
+    _controller.add(text);
   }
 
   /// A cache instance of [text$]

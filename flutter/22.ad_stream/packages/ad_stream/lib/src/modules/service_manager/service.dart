@@ -98,7 +98,7 @@ class ServiceTask {
 
   ServiceTask(this.runTask, this.refreshIntervalSecs);
 
-  Future<void> start() {
+  start() {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: refreshIntervalSecs), (_) {
       runTask();
@@ -106,7 +106,7 @@ class ServiceTask {
     return null;
   }
 
-  Future<void> stop() {
+  stop() {
     _timer?.cancel();
     _timer = null;
     return null;

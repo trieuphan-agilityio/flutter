@@ -1,8 +1,9 @@
+import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 /// Represents different options to configure the quality and frequency
 /// of location updates.
-class GpsOptions {
+class GpsOptions extends Equatable {
   /// Initializes a new [GpsOptions] instance with default values.
   ///
   /// The following default values are used:
@@ -26,9 +27,12 @@ class GpsOptions {
   String toString() {
     return 'GpsOptions{accuracy: $accuracy, distanceFilter: $distanceFilter}';
   }
+
+  @override
+  List<Object> get props => [accuracy, distanceFilter];
 }
 
-class GpsAccuracy {
+class GpsAccuracy extends Equatable {
   const GpsAccuracy._(this.value);
 
   /// The current gps accuracy value.
@@ -66,4 +70,7 @@ class GpsAccuracy {
 
   @override
   int get hashCode => value.hashCode;
+
+  @override
+  List<Object> get props => [value];
 }

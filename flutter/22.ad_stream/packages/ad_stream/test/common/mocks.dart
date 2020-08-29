@@ -20,6 +20,7 @@ class MockGpsAdapter implements GpsAdapter {
 
   @override
   Stream<LatLng> buildStream(GpsOptions options) {
+    calledArgs.add(options);
     return this.latLng$;
   }
 }

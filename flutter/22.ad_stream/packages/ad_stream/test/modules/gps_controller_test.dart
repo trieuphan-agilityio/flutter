@@ -4,8 +4,6 @@ import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/gps/mock/mock_gps_debugger.dart';
-import 'package:fake_async/fake_async.dart';
-import 'package:quiver/time.dart';
 import 'package:test/test.dart';
 
 import '../common.dart';
@@ -80,82 +78,84 @@ main() {
       await flushMicrotasks();
 
       changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
-      gpsAdapterEmit(LatLng(53.817198, -2.417717));
+      await flushMicrotasks();
 
-      fakeAsync((async) async {
-        async.elapse(aSecond);
-        expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
-        expect(emittedValues, [LatLng(53.817198, -2.417717)]);
-        expect(errors, []);
-        expect(isDone, false);
-      });
+      gpsAdapterEmit(LatLng(53.817198, -2.417717));
+      await flushMicrotasks();
+
+      expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
+      expect(emittedValues, [LatLng(53.817198, -2.417717)]);
+      expect(errors, []);
+      expect(isDone, false);
     });
 
     test('can switch to GpsController\' stream when debugger is turning off',
         () async {
       await gpsController.start();
+
       changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
       await flushMicrotasks();
 
       // this causes the ValueNotifier triggers value changed event.
       gpsDebugger.toggle();
       gpsDebugger.toggle(false);
+      await flushMicrotasks();
 
       gpsAdapterEmit(LatLng(53.817198, -2.417717));
+      await flushMicrotasks();
 
-      fakeAsync((async) async {
-        async.elapse(aSecond);
-        expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
-        expect(emittedValues, [LatLng(53.817198, -2.417717)]);
-        expect(errors, []);
-        expect(isDone, false);
-      });
+      expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
+      expect(emittedValues, [LatLng(53.817198, -2.417717)]);
+      expect(errors, []);
+      expect(isDone, false);
     });
 
     test('build new stream when GpsOptions is changed', () async {
       await gpsController.start();
-      changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
-      gpsAdapterEmit(LatLng(53.817198, -2.417717));
 
-      fakeAsync((async) async {
-        async.elapse(aSecond);
-        expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
-        expect(emittedValues, [LatLng(53.817198, -2.417717)]);
-        expect(errors, []);
-        expect(isDone, false);
-      });
+      changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
+      await flushMicrotasks();
+
+      expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
+
+      gpsAdapterEmit(LatLng(53.817198, -2.417717));
+      await flushMicrotasks();
+
+      expect(emittedValues, [LatLng(53.817198, -2.417717)]);
+      expect(errors, []);
+      expect(isDone, false);
 
       changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.medium));
-      gpsAdapterEmit(LatLng(53.817135, -2.418114));
+      await flushMicrotasks();
 
-      fakeAsync((async) async {
-        async.elapse(aSecond);
-        expect(gpsAdapter.calledArgs, [
-          GpsOptions(accuracy: GpsAccuracy.high),
-          GpsOptions(accuracy: GpsAccuracy.medium),
-        ]);
-        expect(emittedValues, [
-          LatLng(53.817198, -2.417717),
-          LatLng(53.817135, -2.418114),
-        ]);
-        expect(errors, []);
-        expect(isDone, false);
-      });
+      gpsAdapterEmit(LatLng(53.817135, -2.418114));
+      await flushMicrotasks();
+
+      expect(gpsAdapter.calledArgs, [
+        GpsOptions(accuracy: GpsAccuracy.high),
+        GpsOptions(accuracy: GpsAccuracy.medium),
+      ]);
+      expect(emittedValues, [
+        LatLng(53.817198, -2.417717),
+        LatLng(53.817135, -2.418114),
+      ]);
+      expect(errors, []);
+      expect(isDone, false);
     });
 
     test('can use stream from debugger when turning on', () async {
       await gpsController.start();
 
       gpsDebugger.toggle(true);
-      gpsDebuggerEmit(LatLng(53.817198, -2.417717));
+      await flushMicrotasks();
 
-      fakeAsync((async) async {
-        async.elapse(aSecond);
-        expect(gpsAdapter.calledArgs, []);
-        expect(emittedValues, [LatLng(53.817198, -2.417717)]);
-        expect(errors, []);
-        expect(isDone, false);
-      });
+      gpsDebuggerEmit(LatLng(53.817198, -2.417717));
+      await flushMicrotasks();
+
+      expect(gpsAdapter.calledArgs, []);
+      expect(emittedValues, [LatLng(53.817198, -2.417717)]);
+      expect(errors, []);
+      expect(isDone, false);
     });
   });
 }

@@ -60,6 +60,34 @@ main() {
         );
       });
 
+      test('can start and stop immediately', () {
+        permissionPluginAllAllowed();
+
+        permissionController.start();
+
+        expect(errors, []);
+        expect(emittedValues, []);
+        if (permissionController is PermissionControllerImpl) {
+          expect(
+            (permissionController as PermissionControllerImpl).isTimerStopped,
+            false,
+          );
+        }
+        expect(isDone, false);
+
+        permissionController.stop();
+
+        expect(errors, []);
+        expect(emittedValues, []);
+        if (permissionController is PermissionControllerImpl) {
+          expect(
+            (permissionController as PermissionControllerImpl).isTimerStopped,
+            true,
+          );
+        }
+        expect(isDone, false);
+      });
+
       test(
           'is started when all permissions were granted '
           'then it should emit allowed event and stop its timer', () async {

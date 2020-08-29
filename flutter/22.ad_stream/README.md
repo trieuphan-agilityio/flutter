@@ -15,12 +15,16 @@ AdStream is an application that helps Driver/Place Owner monetizate by running A
         └── inject_generator  # due to the pending maintenance of the original packges.
 ```
 
-## Design of Service Manager Component
+## Run tests
 
-Activity Diagram
+```
+cd path/to/22.ad_stream
+bin/run_test.sh
+```
 
-![activity-diagram](docs/assets/service-manager-activity-diagram.png "Service Manager - Acitivity Diagram")
+## View test report
 
-Class Diagram
-
-![class-diagram](docs/assets/service-manager-class-diagram.png "Service Manager - Class Diagram")
+```
+cd path/to/22.ad_stream
+bin/run_test.sh --report
+```

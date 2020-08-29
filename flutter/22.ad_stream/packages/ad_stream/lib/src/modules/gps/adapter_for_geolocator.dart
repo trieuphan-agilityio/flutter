@@ -3,15 +3,11 @@ import 'package:ad_stream/models.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'gps_controller.dart';
 import 'gps_options.dart';
 
-abstract class GpsAdapter {
-  /// Build new [latLng$] stream with the given [GpsOptions]
-  Stream<LatLng> buildStream(GpsOptions options);
-}
-
 /// A [GpsAdapter] implementation that uses geolocator package.
-class GpsAdapterForGeolocator implements GpsAdapter {
+class AdapterForGeolocator implements GpsAdapter {
   final Geolocator _geolocator = Geolocator();
 
   Stream<LatLng> buildStream(GpsOptions options) {

@@ -21,6 +21,11 @@ class GpsOptions {
   ///
   /// The default is 1.
   final int distanceFilter;
+
+  @override
+  String toString() {
+    return 'GpsOptions{accuracy: $accuracy, distanceFilter: $distanceFilter}';
+  }
 }
 
 class GpsAccuracy {
@@ -48,6 +53,9 @@ class GpsAccuracy {
     high,
     best,
   ];
+
+  @override
+  String toString() => '$value';
 
   @override
   bool operator ==(Object other) =>

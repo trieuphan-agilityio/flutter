@@ -7,8 +7,6 @@ import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
 import 'package:ad_stream/src/modules/ad/mock/ad_api_client.dart';
 import 'package:ad_stream/src/modules/common/file_path_resolver.dart';
 import 'package:ad_stream/src/modules/common/file_url_resolver.dart';
-import 'package:ad_stream/src/modules/downloader/download_options.dart';
-import 'package:ad_stream/src/modules/downloader/file_downloader.dart';
 import 'package:ad_stream/src/modules/downloader/mock/file_downloader.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
@@ -132,18 +130,6 @@ class AdModule {
     Config config,
   ) {
     final mockFileDownloader = MockFileDownloader();
-
-    final commonFileDownloader = FileDownloaderImpl(
-        fileUrlResolver: fileUrlResolver,
-        options: DownloadOptions(
-            numOfParallelTasks: config.creativeDownloadParallelTasks,
-            timeoutSecs: config.creativeDownloadTimeout));
-    final videoFileDownloader = FileDownloaderImpl(
-        fileUrlResolver: fileUrlResolver,
-        options: DownloadOptions(
-            numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
-            timeoutSecs: config.videoCreativeDownloadTimeout));
-
     final image = ImageCreativeDownloader(mockFileDownloader);
     final video = VideoCreativeDownloader(mockFileDownloader);
     final html = HtmlCreativeDownloader(mockFileDownloader);

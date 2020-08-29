@@ -221,8 +221,9 @@ class DI$Injector implements _i1.DI {
   _i28.CameraController _createCameraController() =>
       _singletonCameraController ??=
           _onTripModule.cameraController(_createConfig());
-  _i33.KeywordDetector _createKeywordDetector() => _singletonKeywordDetector ??=
-      _onTripModule.keywordDetector(_createSpeechToText());
+  _i33.KeywordDetector _createKeywordDetector() =>
+      _singletonKeywordDetector ??= _onTripModule.keywordDetector(
+          _createAdRepository(), _createSpeechToText());
   _i32.SpeechToText _createSpeechToText() => _singletonSpeechToText ??=
       _onTripModule.speechToText(_createMicController());
   _i31.MicController _createMicController() =>

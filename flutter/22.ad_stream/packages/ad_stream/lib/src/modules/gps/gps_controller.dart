@@ -7,8 +7,6 @@ import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'gps_adapter.dart';
-
 abstract class GpsController implements Service {
   /// Provider a pair of Latitude & Longitude, is updated corresponding to
   /// the current Location of the device.
@@ -83,4 +81,9 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
   }
 
   final GpsAdapter _gpsAdapter;
+}
+
+abstract class GpsAdapter {
+  /// Build new [latLng$] stream with the given [GpsOptions]
+  Stream<LatLng> buildStream(GpsOptions options);
 }

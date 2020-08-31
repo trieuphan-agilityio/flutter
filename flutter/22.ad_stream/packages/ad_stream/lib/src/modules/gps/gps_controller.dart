@@ -67,13 +67,15 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
     super.start();
 
     // listen to the gpsOptions$ stream to create new gps stream with new options.
-    final sub = _gpsOptions$.listen((gpsOptions) {
+    final sub = _gpsOptions$.distinct().listen((gpsOptions) {
       _latest$WithOptions = _gpsAdapter.buildStream(gpsOptions);
 
       // switch to this new stream if the debugger was off.
       if (!_gpsDebugger.isOn.value) {
         _$switcher.add(_latest$WithOptions);
       }
+
+      Log.debug('GpsController built new stream with $gpsOptions.');
     });
 
     disposer.autoDispose(sub);

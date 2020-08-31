@@ -119,14 +119,6 @@ class Ad {
   int get hashCode => id.hashCode ^ version.hashCode;
 }
 
-/// A excerpt of [Ad] contains id and version.
-class AdVersion {
-  final String id;
-  final int version;
-
-  AdVersion(this.id, this.version);
-}
-
 /// An utility that helps to compare two list of ads to figure out which
 /// ads have been added new, updated and removed.
 class AdDiff {

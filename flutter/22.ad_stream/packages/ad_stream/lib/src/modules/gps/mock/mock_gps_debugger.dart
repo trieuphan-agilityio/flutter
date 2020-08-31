@@ -16,19 +16,19 @@ class MockGpsDebugger with DebuggerMixin implements GpsDebugger {
     throw UnimplementedError();
   }
 
-  pause() {
+  pauseSimulating() {
     throw UnimplementedError();
   }
 
-  resume() {
+  resumeSimulating() {
     throw UnimplementedError();
   }
 
-  simulate(DebugRoute route) {
+  simulateRoute(DebugRoute route) {
     throw UnimplementedError();
   }
 
-  stop() {
+  stopSimulating() {
     throw UnimplementedError();
   }
 }

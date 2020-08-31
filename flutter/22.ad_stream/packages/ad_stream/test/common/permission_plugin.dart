@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'base.dart';
+const kPermissionChannel = 'flutter.baseflow.com/permissions/methods';
 
 // Code of granted state of the permission.
 // not sure why PermissionStatus.granted.value doesn't work.
@@ -16,6 +16,10 @@ final List<Permission> _kAllPermissions = [
   Permission.microphone,
   Permission.storage,
 ];
+
+permissionPluginCleanUp() {
+  MethodChannel(kPermissionChannel).setMockMethodCallHandler(null);
+}
 
 permissionPluginAllAllowed() {
   permissionPluginWithContext(Map.fromIterable(

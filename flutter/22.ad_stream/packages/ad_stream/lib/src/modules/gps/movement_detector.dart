@@ -1,21 +1,22 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/subjects.dart';
 
 abstract class MovementDetector implements Service {
   Stream<MovementState> get state$;
 }
 
-/// How long before checking location to calculate vehicle velocity again?
-const int _kLocationRefreshInterval = 5; // 5 seconds
+/// Time in seconds it must elapse before grabbing location to calculate
+/// vehicle's velocity repeatedly.
+const int _kLocationRefreshInterval = 5;
 
 /// Lower than or equal this value, the vehicle is considered not moving.
-const int _kVelocityThreshold = 3; // 1 m/s
+const int _kVelocityThreshold = 3; // 3 m/s
 
 class MovementDetectorImpl with ServiceMixin implements MovementDetector {
   final BehaviorSubject<MovementState> _controller;
@@ -32,6 +33,7 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
     }, _kLocationRefreshInterval);
   }
 
+  @override
   Future<void> start() {
     super.start();
     disposer.autoDispose(_latLng$.listen(_buffer.add));
@@ -49,12 +51,15 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
     LatLng a = listOfLatLng.first;
 
     for (final b in listOfLatLng.skip(1)) {
-      distance += await _DistanceCalculator.distance(a, b);
+      distance += await _SimpleDistanceCalculator.distance(a, b);
       a = b;
     }
 
     final time = _kLocationRefreshInterval;
-    final velocity = _VelocityCalculator.velocity(distance, time);
+    final velocity = distance / time.toDouble();
+
+    // keep reference to current velocity for testing purpose
+    currentVelocity = velocity;
 
     if (velocity > 0) {
       Log.debug(
@@ -71,20 +76,24 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
   /// A cache instance of [state$], it prevents stream transformation is executed
   /// when the [state$] getter is called.
   Stream<MovementState> _state$;
+
+  @visibleForTesting
+  double currentVelocity = 0;
 }
 
-class _DistanceCalculator {
-  static final _geoLocator = Geolocator();
+class _SimpleDistanceCalculator {
+  // calculate distance (in Meter) between two points.
+  static Future<double> distance(LatLng a, LatLng b) async {
+    // https://stackoverflow.com/a/54138876
+    double calculateDistance(lat1, lng1, lat2, lng) {
+      var p = 0.017453292519943295;
+      var c = cos;
+      var a = 0.5 -
+          c((lat2 - lat1) * p) / 2 +
+          c(lat1 * p) * c(lat2 * p) * (1 - c((lng - lng1) * p)) / 2;
+      return 12742 * asin(sqrt(a));
+    }
 
-  // calculate distance between two points.
-  static Future<double> distance(LatLng a, LatLng b) {
-    return _geoLocator.distanceBetween(a.lat, a.lng, b.lat, b.lng);
-  }
-}
-
-class _VelocityCalculator {
-  /// m/s
-  static double velocity(double distanceMeter, int timeSecs) {
-    return distanceMeter / timeSecs.toDouble();
+    return calculateDistance(a.lat, a.lng, b.lat, b.lng) * 1000;
   }
 }

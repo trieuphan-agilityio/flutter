@@ -52,6 +52,17 @@ class GpsModule {
 
     gpsController.listenTo(serviceManager.status$);
 
+    /*
+    We can listen to the gps controller here to record debug route.
+    E.g:
+
+    final stopwatch = Stopwatch();
+    gpsController.latLng$.listen((e) {
+      Log.info('RR: ${stopwatch.elapsedMilliseconds},${e.lat},${e.lng}');
+    });
+    stopwatch.start();
+    */
+
     return gpsController;
   }
 

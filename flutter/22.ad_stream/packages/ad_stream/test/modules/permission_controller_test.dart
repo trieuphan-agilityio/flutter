@@ -60,6 +60,10 @@ main() {
         );
       });
 
+      tearDown(() {
+        permissionPluginCleanUp();
+      });
+
       test('can start and stop immediately', () {
         permissionPluginAllAllowed();
 

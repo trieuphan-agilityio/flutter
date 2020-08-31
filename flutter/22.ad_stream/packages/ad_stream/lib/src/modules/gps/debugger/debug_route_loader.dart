@@ -65,6 +65,18 @@ class DebugRouteLoaderImpl implements DebugRouteLoader {
       sampleRouteCsv1,
       initialTimeOffset: 52726,
     ),
+    _RawCsv(
+      '10ChauThuongVan_151NguyenHuuDat',
+      '10 Chau Thuong Van -> 151 Nguyen Huu Dat',
+      sampleRouteCsv2,
+      initialTimeOffset: 10971,
+    ),
+    _RawCsv(
+      '10XuanThuy_218XuanThuy',
+      '10 Xuan Thuy -> 218 Xuan Thuy',
+      sampleRouteCsv3,
+      initialTimeOffset: 30300,
+    ),
   ];
 }
 

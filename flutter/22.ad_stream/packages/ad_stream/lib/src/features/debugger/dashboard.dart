@@ -143,7 +143,7 @@ class _DebugDashboard extends StatelessWidget {
               builder: (context) => SimulateRoute(gpsDebugger: gpsDebugger)),
         );
 
-        if (chose != null) gpsDebugger.simulate(chose);
+        if (chose != null) gpsDebugger.simulateRoute(chose);
       },
     );
   }

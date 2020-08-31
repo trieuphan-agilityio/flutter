@@ -15,16 +15,18 @@ abstract class GpsDebugger implements Debugger {
 
   /// Invoke this method to replay the records [LatLng] value from sample data.
   /// It would produce [latLng$] events follow the order and time of the recorded.
-  simulate(DebugRoute route);
+  ///
+  /// Future is completed when route has done.
+  Future<void> simulateRoute(DebugRoute route);
 
   /// Pause the simulating route.
-  pause();
+  pauseSimulating();
 
   /// Resume the paused route.
-  resume();
+  resumeSimulating();
 
   /// Stop simulating route.
-  stop();
+  stopSimulating();
 }
 
 class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
@@ -33,7 +35,7 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
   GpsDebuggerImpl() : _controller = BehaviorSubject<LatLng>() {
     isOn.addListener(() {
       // stop the simulating route when debugger is off.
-      if (!isOn.value) stop();
+      if (!isOn.value) stopSimulating();
     });
   }
 
@@ -43,33 +45,41 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
 
   StreamSubscription<LatLng> simulatingSubscription;
 
-  simulate(DebugRoute route) {
+  Future<void> simulateRoute(DebugRoute route) {
     // make sure that debugger is enabled.
     toggle(true);
 
     // stop previous simulating if needs.
-    stop();
+    stopSimulating();
+
+    final completer = Completer();
 
     simulatingSubscription = route.latLng$.listen(
       _controller.add,
       cancelOnError: true,
+      onError: (_) {
+        completer.completeError('Got error while simulating ${route.id}');
+      },
       onDone: () {
         Log.debug('GpsDebuggerImpl has done simulating ${route.id}');
+        completer.complete();
       },
     );
 
     Log.info('GpsDebugger is simulating route ${route.name}.');
+
+    return completer.future;
   }
 
-  pause() {
+  pauseSimulating() {
     simulatingSubscription?.pause();
   }
 
-  resume() {
+  resumeSimulating() {
     simulatingSubscription?.resume();
   }
 
-  stop() {
+  stopSimulating() {
     simulatingSubscription?.cancel();
     simulatingSubscription = null;
   }

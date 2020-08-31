@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:ad_stream/models.dart';
-import 'package:ad_stream/src/modules/on_trip/face_detector.dart';
+
+import 'face.dart';
 
 abstract class AgeDetector {
   Future<PassengerAgeRange> detect(Face face);

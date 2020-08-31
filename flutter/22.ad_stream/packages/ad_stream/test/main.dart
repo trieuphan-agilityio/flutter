@@ -6,6 +6,7 @@ import 'modules/movement_detector_test.dart' as movement_detector_test;
 import 'modules/permission_controller_test.dart' as permission_controller_test;
 import 'modules/service_manager_test.dart' as service_manager_test;
 import 'modules/service_test.dart' as service_test;
+import 'modules/trip_detector_test.dart' as trip_detector_test;
 
 main() {
   ad_test.main();
@@ -16,4 +17,5 @@ main() {
   permission_controller_test.main();
   service_manager_test.main();
   service_test.main();
+  trip_detector_test.main();
 }

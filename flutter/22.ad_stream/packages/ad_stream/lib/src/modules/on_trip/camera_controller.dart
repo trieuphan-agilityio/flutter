@@ -3,21 +3,7 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 
-class Photo {
-  /// Sometimes the photo is saved at cache folder so that it can be clean up by
-  /// system's file manager.
-  ///
-  /// If the consumer use [Photo] and not seeing a valid [filePath], consumer
-  /// should handle the error by itself.
-  final String filePath;
-
-  Photo(this.filePath);
-
-  @override
-  String toString() {
-    return 'Photo{filePath: $filePath}';
-  }
-}
+import 'photo.dart';
 
 abstract class CameraController implements Service {
   Stream<Photo> get photo$;

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
-import 'package:ad_stream/src/modules/on_trip/face_detector.dart';
+import 'package:ad_stream/src/modules/on_trip/face.dart';
 import 'package:ad_stream/src/modules/on_trip/gender_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_state.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';

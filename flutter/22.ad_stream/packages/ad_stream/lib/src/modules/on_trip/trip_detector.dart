@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/gps/movement_status.dart';
-import 'package:ad_stream/src/modules/on_trip/face_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:rxdart/subjects.dart';
 
+import 'face.dart';
 import 'trip_state.dart';
 
 abstract class TripDetector implements Service {

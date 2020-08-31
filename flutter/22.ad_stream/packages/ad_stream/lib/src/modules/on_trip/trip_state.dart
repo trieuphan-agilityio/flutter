@@ -1,4 +1,6 @@
-import 'face_detector.dart';
+import 'package:ad_stream/base.dart';
+
+import 'face.dart';
 
 /// Describe the state of trip whether not on trip or on trip, and how many
 /// passenger on that trip.
@@ -18,4 +20,15 @@ class TripState {
 
   @override
   String toString() => 'TripState(passengers: $passengers)';
+
+  @override
+  bool operator ==(Object o) {
+    if (identical(this, o)) return true;
+    final listEquals = const DeepCollectionEquality().equals;
+
+    return o is TripState && listEquals(o.passengers, passengers);
+  }
+
+  @override
+  int get hashCode => passengers.hashCode;
 }

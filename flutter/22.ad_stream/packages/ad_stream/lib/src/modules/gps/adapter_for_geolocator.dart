@@ -1,5 +1,7 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
+import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
+import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -8,9 +10,17 @@ import 'gps_options.dart';
 
 /// A [GpsAdapter] implementation that uses geolocator package.
 class AdapterForGeolocator implements GpsAdapter {
-  final Geolocator _geolocator = Geolocator();
+  final Geolocator _geolocator;
+  final PermissionDebugger _permissionDebugger;
+
+  AdapterForGeolocator(this._geolocator, this._permissionDebugger);
 
   Stream<LatLng> buildStream(GpsOptions options) {
+    // cannot build stream if lacking the permission
+    if (_permissionDebugger.delegate.state == PermissionState.denied) {
+      return null;
+    }
+
     return _geolocator
         .getPositionStream(_gpsOptionsToLocationOptions(options))
         .flatMap((p) {

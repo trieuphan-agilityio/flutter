@@ -11,6 +11,9 @@ import 'package:permission_handler_platform_interface/permission_handler_platfor
 import 'package:rxdart/rxdart.dart';
 
 abstract class PermissionDebugger implements PermissionController {
+  /// Expose [PermissionController] that is wrapped by this debugger.
+  PermissionController get delegate;
+
   /// Current state of the debugger
   ValueListenable<PermissionDebuggerState> get debugState;
 
@@ -26,6 +29,8 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   /// Allow using a fallback [PermissionController] when disable debugger.
   /// If null, the status stream is empty.
   final PermissionController _delegate;
+
+  PermissionController get delegate => _delegate;
 
   /// Persist and restore debugger state from preference storage.
   final PrefStoreWriting _prefStore;
@@ -82,6 +87,17 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
 
   /// Use this controller to switch to the corresponding status stream
   final BehaviorSubject<Stream<PermissionState>> _state$Switcher;
+
+  PermissionState get state {
+    if (debugState.value == PermissionDebuggerState.allow) {
+      return PermissionState.allowed;
+    } else if (debugState.value == PermissionDebuggerState.deny) {
+      return PermissionState.denied;
+    } else if (debugState.value == PermissionDebuggerState.off) {
+      return _delegate.state;
+    }
+    throw StateError('${debugState.value} is not support');
+  }
 
   Stream<PermissionState> get state$ {
     return _state$ ??= _state$Switcher.stream.switchLatest();

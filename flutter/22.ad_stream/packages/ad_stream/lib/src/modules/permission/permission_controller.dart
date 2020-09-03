@@ -7,6 +7,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class PermissionController implements Service {
+  /// Keep a reference to the last state of [state$].
+  PermissionState get state;
+
   /// Stream state of all managed permissions.
   /// There are two states: all granted or one-or-more denied
   Stream<PermissionState> get state$;
@@ -22,13 +25,15 @@ const _kRefreshSecs = 1;
 class PermissionControllerImpl
     with ServiceMixin
     implements PermissionController {
-  final StreamController<PermissionState> _status$Controller;
+  final BehaviorSubject<PermissionState> _stateSubject;
 
   PermissionControllerImpl()
-      : _status$Controller = BehaviorSubject<PermissionState>();
+      : _stateSubject = BehaviorSubject<PermissionState>();
+
+  PermissionState get state => _stateSubject.value;
 
   Stream<PermissionState> get state$ =>
-      _state$ ??= _status$Controller.stream.distinct();
+      _state$ ??= _stateSubject.stream.distinct();
 
   List<Permission> get permissions => [
         Permission.location,
@@ -58,7 +63,7 @@ class PermissionControllerImpl
       // If once of service isn't pass the test, the controller is considered
       // being denied.
       if (!status.isGranted) {
-        _status$Controller.add(PermissionState.denied);
+        _stateSubject.add(PermissionState.denied);
         return;
       }
     }
@@ -70,12 +75,12 @@ class PermissionControllerImpl
     // even timer was canceled above, sometimes its callback still running on another
     // isolate and it canceled the stream. If so we need to double check before
     // closing the stream.
-    if (!_status$Controller.isClosed) {
+    if (!_stateSubject.isClosed) {
       // Once the permissions all granted, the stream must be closed.
       // Because once user revokes the permission, the app would be restarted
       // and the controller would be initialized again.
-      _status$Controller.add(PermissionState.allowed);
-      _status$Controller.close();
+      _stateSubject.add(PermissionState.allowed);
+      _stateSubject.close();
     }
   }
 

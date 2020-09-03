@@ -38,9 +38,15 @@ class MockPermissionController
     implements PermissionController {
   final Stream<PermissionState> _state$;
 
-  MockPermissionController(this._state$);
+  MockPermissionController(this._state$) {
+    _state$.listen((newState) => _state = newState);
+  }
 
   List<Permission> get permissions => [];
 
   Stream<PermissionState> get state$ => _state$;
+
+  PermissionState get state => _state;
+
+  PermissionState _state;
 }

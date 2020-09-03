@@ -22,12 +22,15 @@ main() {
 
   group('ServiceManagerImpl', () {
     setUp(() {
-      controllerForPower = StreamController<PowerState>();
-      powerProvider = MockPowerProvider(controllerForPower.stream);
+      controllerForPower = StreamController<PowerState>.broadcast();
+      powerProvider = MockPowerProvider(
+        controllerForPower.stream,
+      );
 
-      controllerForPermission = StreamController<PermissionState>();
-      permissionController =
-          MockPermissionController(controllerForPermission.stream);
+      controllerForPermission = StreamController<PermissionState>.broadcast();
+      permissionController = MockPermissionController(
+        controllerForPermission.stream,
+      );
 
       serviceManager = ServiceManagerImpl(
         powerProvider.state$,

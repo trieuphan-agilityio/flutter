@@ -26,15 +26,8 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
       // with the latest GpsOptions if needs.
       if (_gpsDebugger.isOn.value) {
         _$switcher.add(_gpsDebugger.latLng$);
-      } else if (_latest$WithOptions == null) {
-        // if the stream hasn't built yet, it supposes to assign to empty stream
-        // instead of keeping the last setup.
-        //
-        // This initialization is different to `Stream.empty()`, it will not
-        // trigger done event.
-        _$switcher.add(StreamController<LatLng>().stream);
       } else {
-        _$switcher.add(_latest$WithOptions);
+        _buildNewStream(_lastGpsOptions);
       }
     });
   }
@@ -45,10 +38,14 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
   /// Accept options as a stream to allow changing it on the flight.
   final Stream<GpsOptions> _gpsOptions$;
 
+  /// Keep reference to the latest [GpsOptions] from [_gpsOptions$] so that
+  /// new stream could be built when debugger is turned on.
+  GpsOptions _lastGpsOptions;
+
   final BehaviorSubject<Stream<LatLng>> _$switcher;
 
   /// Stream that was built with latest [GpsOptions] from [_gpsOptions$]
-  Stream<LatLng> _latest$WithOptions;
+  Stream<LatLng> _last$WithOptions;
 
   /// Backing field of [latLng$].
   /// It helps to cache the stream transformation result.
@@ -68,19 +65,38 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
 
     // listen to the gpsOptions$ stream to create new gps stream with new options.
     final sub = _gpsOptions$.distinct().listen((gpsOptions) {
-      _latest$WithOptions = _gpsAdapter.buildStream(gpsOptions);
-
-      // switch to this new stream if the debugger was off.
-      if (!_gpsDebugger.isOn.value) {
-        _$switcher.add(_latest$WithOptions);
+      _lastGpsOptions = gpsOptions;
+      if (isDebuggerOff) {
+        _buildNewStream(_lastGpsOptions);
       }
-
-      Log.debug('GpsController built new stream with $gpsOptions.');
     });
 
     disposer.autoDispose(sub);
     return null;
   }
+
+  _buildNewStream(GpsOptions gpsOptions) {
+    // assign to empty stream if there is no gpsOptions
+    if (gpsOptions == null) {
+      // This initialization is different to `Stream.empty()`, it will not
+      // trigger done event.
+      _$switcher.add(StreamController<LatLng>().stream);
+    } else {
+      _last$WithOptions = _gpsAdapter.buildStream(gpsOptions);
+
+      if (_last$WithOptions == null) {
+        // if the stream hasn't built yet, it supposes to assign to empty stream
+        // to avoid keeping the last setup.
+        _$switcher.add(StreamController<LatLng>().stream);
+      } else {
+        _$switcher.add(_last$WithOptions);
+      }
+
+      Log.debug('GpsController built new stream with $gpsOptions.');
+    }
+  }
+
+  bool get isDebuggerOff => !_gpsDebugger.isOn.value;
 
   final GpsAdapter _gpsAdapter;
 }

@@ -71,34 +71,9 @@ main() {
 
     test('can start stream with GpsOptions', () async {
       await gpsController.start();
-
-      // this causes the ValueNotifier triggers value changed event.
-      gpsDebugger.toggle();
-      gpsDebugger.toggle(false);
       await flushMicrotasks();
 
       changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
-      await flushMicrotasks();
-
-      gpsAdapterEmit(LatLng(53.817198, -2.417717));
-      await flushMicrotasks();
-
-      expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
-      expect(emittedValues, [LatLng(53.817198, -2.417717)]);
-      expect(errors, []);
-      expect(isDone, false);
-    });
-
-    test('can switch to GpsController\' stream when debugger is turning off',
-        () async {
-      await gpsController.start();
-
-      changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
-      await flushMicrotasks();
-
-      // this causes the ValueNotifier triggers value changed event.
-      gpsDebugger.toggle();
-      gpsDebugger.toggle(false);
       await flushMicrotasks();
 
       gpsAdapterEmit(LatLng(53.817198, -2.417717));
@@ -145,6 +120,7 @@ main() {
 
     test('can use stream from debugger when turning on', () async {
       await gpsController.start();
+      await flushMicrotasks();
 
       gpsDebugger.toggle(true);
       await flushMicrotasks();

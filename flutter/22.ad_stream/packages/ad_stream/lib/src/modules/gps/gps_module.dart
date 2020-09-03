@@ -2,7 +2,9 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
+import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'adapter_for_geolocator.dart';
@@ -29,10 +31,11 @@ class GpsModule {
   @asynchronous
   Future<GpsController> gpsController(
     ServiceManager serviceManager,
+    PermissionDebugger permissionDebugger,
     GpsDebugger gpsDebugger,
     Config config,
   ) async {
-    final gpsAdapter = AdapterForGeolocator();
+    final gpsAdapter = AdapterForGeolocator(Geolocator(), permissionDebugger);
 
     // The GpsOptions is passed to a stream so that it can be changed depend on
     // the current state of other component. E.g On trip and off trip may cause

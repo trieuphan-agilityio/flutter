@@ -141,6 +141,7 @@ class DI$Injector implements _i1.DI {
         await injector._storageModule.sharedPreferences();
     injector._gpsController = await injector._gpsModule.gpsController(
         injector._createServiceManager(),
+        injector._createPermissionDebugger(),
         injector._createGpsDebugger(),
         injector._createConfig());
     return injector;

@@ -6,7 +6,6 @@ import 'package:ad_stream/src/features/display_ad/skip_button.dart';
 import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 class AdViewContainer extends StatelessWidget {
   @override
@@ -45,9 +44,10 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
   @override
   Widget build(BuildContext context) {
     /// no display
-    if (model == null) return Placeholder();
+    if (model == null) return Placeholder(key: Key('ad_view_placeholder'));
 
     return Container(
+      key: Key('ad_view'),
       child: Stack(
         children: [
           _buildAdInfo(),

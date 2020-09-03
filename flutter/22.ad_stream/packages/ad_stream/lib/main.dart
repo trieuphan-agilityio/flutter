@@ -2,16 +2,13 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/debugger/debug_button.dart';
+import 'package:ad_stream/src/features/debugger/drawer.dart';
 import 'package:ad_stream/src/features/display_ad/ad_view.dart';
 import 'package:ad_stream/src/features/request_permission/permission_container.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-/// Asynchronously create Dependency Injection tree.
-/// While the object is constructing the app will display [Splash] screen.
-Future<DI> _diFuture = Future(createDI);
 
 void main() {
   /// log to console
@@ -25,34 +22,23 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppLifecycle(
-      child: FutureBuilder<DI>(
-        future: _diFuture,
-        builder: (_, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.hasData) {
-            return buildWithDI(context, snapshot.data);
-          } else {
-            return SplashScreen();
-          }
-        },
-      ),
+      child: DIContainer(child: _buildApp(), splash: SplashScreen()),
     );
   }
 
-  Widget buildWithDI(BuildContext context, DI di) {
-    return Provider<DI>.value(
-      value: di,
-      child: MaterialApp(
-        home: Scaffold(
-          body: SafeArea(
-            child: Stack(
-              children: <Widget>[
-                ServiceManagerContainer(),
-                AdViewContainer(),
-                PermissionContainer(),
-                Align(child: DebugButton(), alignment: Alignment.bottomCenter),
-              ],
-            ),
+  Widget _buildApp() {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('Ad Stream')),
+        drawer: DebugDrawer(),
+        body: SafeArea(
+          child: Stack(
+            children: <Widget>[
+              ServiceManagerContainer(),
+              AdViewContainer(),
+              PermissionContainer(),
+              Align(child: DebugButton(), alignment: Alignment.bottomCenter),
+            ],
           ),
         ),
       ),
@@ -95,10 +81,42 @@ class _AppLifecycleState extends State<AppLifecycle>
   }
 }
 
+class DIContainer extends StatefulWidget {
+  /// [child] widget is the main app that will be displayed when DI is ready.
+  final Widget child;
+
+  /// [splash] widget will be displayed while preparing the dependency tree.
+  final Widget splash;
+
+  const DIContainer({Key key, @required this.child, @required this.splash})
+      : super(key: key);
+
+  @override
+  _DIContainerState createState() => _DIContainerState();
+}
+
+class _DIContainerState extends State<DIContainer> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DI>(
+      future: createDI(),
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          return Provider<DI>.value(value: snapshot.data, child: widget.child);
+        } else {
+          return widget.splash;
+        }
+      },
+    );
+  }
+}
+
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      key: const Key('splash'),
       home: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -13,6 +13,7 @@ class DebugDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DebugDashboard(
+      key: Key('debug_dashboard'),
       permissionDebugger: DI.of(context).permissionDebugger,
       powerDebugger: DI.of(context).powerDebugger,
       gpsDebugger: DI.of(context).gpsDebugger,
@@ -75,6 +76,7 @@ class _DebugDashboard extends StatelessWidget {
     return ValueListenableBuilder<PermissionDebuggerState>(
       valueListenable: permissionDebugger.debugState,
       builder: (context, currentDebugState, _) => ListTile(
+        key: const Key('permission_debugger'),
         title: Text('Permission Debugger'),
         subtitle: Text(currentDebugState.name),
         onTap: () async {
@@ -88,6 +90,7 @@ class _DebugDashboard extends StatelessWidget {
                   children: [
                     ...PermissionDebuggerState.values.map((state) {
                       return ListTile(
+                        key: Key('permission_debugger_state_${state.value}'),
                         leading: Radio<int>(
                           value: state.value,
                           groupValue:
@@ -122,6 +125,7 @@ class _DebugDashboard extends StatelessWidget {
 
   Widget _buildForPower() {
     return SettingItem(
+        key: const Key('power_debugger'),
         title: 'Power Debugger',
         value: powerDebugger.isOn,
         onTap: powerDebugger.toggle);
@@ -129,6 +133,7 @@ class _DebugDashboard extends StatelessWidget {
 
   Widget _buildForGps(BuildContext context) {
     return SettingItem(
+        key: const Key('gps_debugger'),
         title: 'Gps Debugger',
         value: gpsDebugger.isOn,
         onTap: gpsDebugger.toggle);
@@ -136,6 +141,7 @@ class _DebugDashboard extends StatelessWidget {
 
   Widget _buildForSimulateRoute(BuildContext context) {
     return ListTile(
+      key: const Key('simulate_route'),
       title: Text('Simulate Route'),
       onTap: () async {
         final DebugRoute chose = await Navigator.of(context).push(
@@ -150,6 +156,7 @@ class _DebugDashboard extends StatelessWidget {
 
   Widget _buildForLog(BuildContext context) {
     return ListTile(
+      key: const Key('log'),
       title: Text('Log'),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(

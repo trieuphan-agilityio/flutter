@@ -28,6 +28,7 @@ class _PermissionRequesterUI extends StatefulWidget {
 
 class __PermissionRequesterUIState extends State<_PermissionRequesterUI> {
   final Disposer _disposer = Disposer();
+  Route<void> requestUIRoute;
 
   @override
   void initState() {
@@ -35,8 +36,10 @@ class __PermissionRequesterUIState extends State<_PermissionRequesterUI> {
     widget.permissionController.start();
 
     final sub = widget.permissionController.state$.listen((permissionState) {
-      if (permissionState == PermissionState.denied) {
-        showRequestUI();
+      if (permissionState == PermissionState.allowed) {
+        _dismissRequestUI();
+      } else if (permissionState == PermissionState.denied) {
+        _showRequestUI();
       }
     });
 
@@ -56,12 +59,24 @@ class __PermissionRequesterUIState extends State<_PermissionRequesterUI> {
     return SizedBox.shrink();
   }
 
-  showRequestUI() {
-    Navigator.of(context).push(MaterialPageRoute(
+  _showRequestUI() {
+    // to be safe, clean the exist UI if any before showing new one.
+    _dismissRequestUI();
+
+    requestUIRoute = MaterialPageRoute(
       fullscreenDialog: true,
       builder: (context) => PermissionList(
         permissionController: widget.permissionController,
       ),
-    ));
+    );
+
+    Navigator.of(context).push(requestUIRoute);
+  }
+
+  _dismissRequestUI() {
+    if (requestUIRoute != null) {
+      Navigator.of(context).removeRoute(requestUIRoute);
+      requestUIRoute = null;
+    }
   }
 }

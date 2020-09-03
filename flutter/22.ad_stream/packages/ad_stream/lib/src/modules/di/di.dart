@@ -67,7 +67,7 @@ abstract class DI
 ///
 /// For example:
 ///
-/// Future<DI> createDI() {
+/// Future<DI> _createDI() {
 ///   return DI.create(
 ///     AdFakeServices(),
 ///     PowerMockServices(),
@@ -75,14 +75,17 @@ abstract class DI
 ///   );
 /// }
 Future<DI> createDI() {
-  return DI.create(
-    AdModule(),
-    CommonModule(),
-    StorageModule(),
-    PowerModule(),
-    PermissionModule(),
-    ServiceManagerModule(),
-    GpsModule(),
-    OnTripModule(),
-  );
+  /// Asynchronously create Dependency Injection tree.
+  return Future(() {
+    return DI.create(
+      AdModule(),
+      CommonModule(),
+      StorageModule(),
+      PowerModule(),
+      PermissionModule(),
+      ServiceManagerModule(),
+      GpsModule(),
+      OnTripModule(),
+    );
+  });
 }

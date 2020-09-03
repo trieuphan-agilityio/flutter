@@ -231,7 +231,8 @@ class DI$Injector implements _i1.DI {
   _i34.AreaDetector _createAreaDetector() => _singletonAreaDetector ??=
       _onTripModule.areaDetector(_createGpsController(), _createConfig());
   _i11.PrefStoreReading _createPrefStoreReading() =>
-      _singletonPrefStoreReading ??= _storageModule.prefStoreReading(null);
+      _singletonPrefStoreReading ??=
+          _storageModule.prefStoreReading(_createPrefStoreWriting());
   @override
   _i3.Config get config => _createConfig();
   @override

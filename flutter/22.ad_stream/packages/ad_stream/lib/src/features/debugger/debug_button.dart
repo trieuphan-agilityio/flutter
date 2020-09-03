@@ -5,6 +5,7 @@ class DebugButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
+      key: Key('debug_button'),
       child: Text('Open Debug Dashboard'),
       onPressed: () {
         // open debug dashboard

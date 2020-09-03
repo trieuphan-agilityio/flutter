@@ -17,7 +17,7 @@ abstract class StorageModuleLocator {
 class StorageModule {
   @provide
   @singleton
-  PrefStoreReading prefStoreReading(PrefStoreImpl prefStore) {
+  PrefStoreReading prefStoreReading(PrefStoreWriting prefStore) {
     return prefStore;
   }
 

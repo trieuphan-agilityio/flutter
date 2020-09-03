@@ -55,6 +55,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_driver:
+    sdk: flutter
+
   inject_generator:
     path: ../vendor/inject_generator
 

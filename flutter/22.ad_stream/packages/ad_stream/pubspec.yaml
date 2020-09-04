@@ -34,6 +34,9 @@ dependencies:
 
   # Request permission to access camera and microphone
   permission_handler: 5.0.1+1
+  
+  # Provide power state.
+  battery: 1.0.5
 
   # to 1) get current location of device
   #    2) calculate the distance (in meters) between two geo coordinates;

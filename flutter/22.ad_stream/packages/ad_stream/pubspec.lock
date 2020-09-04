@@ -43,6 +43,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.2"
+  battery:
+    dependency: "direct main"
+    description:
+      name: battery
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.5"
+  battery_platform_interface:
+    dependency: transitive
+    description:
+      name: battery_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   bloc:
     dependency: "direct main"
     description:

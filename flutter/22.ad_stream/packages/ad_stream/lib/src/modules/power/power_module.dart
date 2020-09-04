@@ -1,5 +1,6 @@
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/power/debugger/power_debugger.dart';
+import 'package:battery/battery.dart';
 
 import 'power_provider.dart';
 
@@ -25,6 +26,6 @@ class PowerModule {
   @provide
   @singleton
   PowerDebugger powerDebugger() {
-    return PowerDebuggerImpl(PowerProviderImpl());
+    return PowerDebuggerImpl(PowerProviderImpl(Battery()));
   }
 }

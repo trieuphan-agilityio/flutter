@@ -28,7 +28,9 @@ class PermissionControllerImpl
   final BehaviorSubject<PermissionState> _stateSubject;
 
   PermissionControllerImpl()
-      : _stateSubject = BehaviorSubject<PermissionState>();
+      : _stateSubject = BehaviorSubject<PermissionState>.seeded(
+          PermissionState.denied,
+        );
 
   PermissionState get state => _stateSubject.value;
 

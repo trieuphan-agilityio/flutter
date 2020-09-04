@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 import 'package:rxdart/rxdart.dart';
@@ -12,9 +13,9 @@ abstract class AreaDetector implements Service {
 class AreaDetectorImpl with ServiceMixin implements AreaDetector {
   final StreamController<List<Area>> _controller;
   final Stream<LatLng> _latLng$;
-  final Config _config;
+  final AreaConfigProvider _configProvider;
 
-  AreaDetectorImpl(this._latLng$, this._config)
+  AreaDetectorImpl(this._latLng$, this._configProvider)
       : _controller = BehaviorSubject<List<Area>>();
 
   Stream<List<Area>> get areas$ => _controller.stream;
@@ -28,18 +29,25 @@ class AreaDetectorImpl with ServiceMixin implements AreaDetector {
   Future<void> start() {
     super.start();
 
-    final subscription = this
-        ._latLng$
-        .sampleTime(Duration(seconds: _config.areaRefreshInterval))
-        .listen((latLng) async {
-      final areas = await _detectAreas(latLng);
-      _controller.add(areas);
+    _configProvider.areaConfig$.listen((config) {
+      subscription?.cancel();
 
-      Log.debug('AreaDetector detected'
-          ' ${areas.length} ${areas.length > 1 ? "areas" : "area"}.');
+      subscription = this
+          ._latLng$
+          .sampleTime(Duration(seconds: config.refreshInterval))
+          .listen((latLng) async {
+        final areas = await _detectAreas(latLng);
+        _controller.add(areas);
+
+        Log.debug('AreaDetector detected'
+            ' ${areas.length} ${areas.length > 1 ? "areas" : "area"}.');
+      });
+
+      disposer.autoDispose(subscription);
     });
 
-    disposer.autoDispose(subscription);
     return null;
   }
+
+  StreamSubscription<LatLng> subscription;
 }

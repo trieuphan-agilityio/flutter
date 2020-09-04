@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
@@ -55,13 +56,12 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
   /// A delegate to download [Creative]
   final CreativeDownloader _creativeDownloader;
 
-  /// App config
-  final Config _config;
+  final AdRepositoryConfigProvider _configProvider;
 
   AdRepositoryImpl(
     this._adApiClient,
     this._creativeDownloader,
-    this._config,
+    this._configProvider,
   )   : _ads$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
         _downloadingAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
         _readyAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []) {
@@ -93,10 +93,15 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
       }
     });
 
+    /// background task for fetching Ads from Ad Server.
     backgroundTask = ServiceTask(
-      _getAds,
-      _config.defaultAdRepositoryRefreshInterval,
+      getAds,
+      _configProvider.adRepositoryConfig.refreshInterval,
     );
+
+    _configProvider.adRepositoryConfig$.listen((config) {
+      backgroundTask?.refreshIntervalSecs = config.refreshInterval;
+    });
   }
 
   Future<List<Ad>> getAds(TargetingValues values) async {

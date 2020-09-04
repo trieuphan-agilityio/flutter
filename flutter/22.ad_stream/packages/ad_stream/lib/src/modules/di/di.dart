@@ -1,11 +1,4 @@
-import 'package:ad_stream/src/modules/ad/ad_module.dart';
-import 'package:ad_stream/src/modules/common/common_module.dart';
-import 'package:ad_stream/src/modules/gps/gps_module.dart';
-import 'package:ad_stream/src/modules/on_trip/on_trip_module.dart';
-import 'package:ad_stream/src/modules/permission/permission_module.dart';
-import 'package:ad_stream/src/modules/power/power_module.dart';
-import 'package:ad_stream/src/modules/service_manager/service_manager_module.dart';
-import 'package:ad_stream/src/modules/storage/storage_module.dart';
+import 'package:ad_stream/di.dart';
 import 'package:flutter/widgets.dart';
 import 'package:inject/inject.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +8,7 @@ import 'di.inject.dart' as g;
 /// Used as a blueprint to generate an injector
 @Injector(const [
   AdModule,
+  ConfigModule,
   CommonModule,
   StorageModule,
   PowerModule,
@@ -26,6 +20,7 @@ import 'di.inject.dart' as g;
 abstract class DI
     implements
         AdModuleLocator,
+        ConfigModuleLocator,
         CommonModuleLocator,
         StorageModuleLocator,
         PowerModuleLocator,
@@ -40,6 +35,7 @@ abstract class DI
   /// Boilerplate code to wire Inject's things together.
   static Future<DI> create(
     AdModule adModule,
+    ConfigModule configModule,
     CommonModule commonModule,
     StorageModule storageModule,
     PowerModule powerModule,
@@ -50,6 +46,7 @@ abstract class DI
   ) async {
     return await g.DI$Injector.create(
       adModule,
+      configModule,
       commonModule,
       storageModule,
       powerModule,
@@ -79,6 +76,7 @@ Future<DI> createDI() {
   return Future(() {
     return DI.create(
       AdModule(),
+      ConfigModule(),
       CommonModule(),
       StorageModule(),
       PowerModule(),

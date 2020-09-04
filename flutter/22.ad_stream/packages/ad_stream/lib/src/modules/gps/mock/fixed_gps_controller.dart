@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';

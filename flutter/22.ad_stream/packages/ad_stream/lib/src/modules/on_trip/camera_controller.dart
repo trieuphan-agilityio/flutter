@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
 
 import 'photo.dart';
@@ -16,7 +17,8 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
 
   Stream<Photo> get photo$ => _controller.stream;
 
-  CameraControllerImpl(this._config) : _controller = StreamController() {
+  CameraControllerImpl(this._configProvider)
+      : _controller = StreamController() {
     backgroundTask = ServiceTask(
       () async {
         final photo = await _capturePhoto();
@@ -24,8 +26,12 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
 
         Log.info('CameraController captured $photo.');
       },
-      _config.cameraCaptureInterval,
+      _configProvider.cameraConfig.captureInterval,
     );
+
+    _configProvider.cameraConfig$.listen((config) {
+      backgroundTask?.refreshIntervalSecs = config.captureInterval;
+    });
 
     /// When there is no subscriber or the subscription is paused, the service
     /// must be stopped and the controller should not do anything to
@@ -41,5 +47,5 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
     return Photo('sample/file.path');
   }
 
-  final Config _config;
+  final CameraConfigProvider _configProvider;
 }

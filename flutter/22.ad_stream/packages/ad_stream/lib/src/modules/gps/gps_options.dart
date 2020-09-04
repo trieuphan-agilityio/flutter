@@ -66,6 +66,21 @@ class GpsAccuracy {
     best,
   ];
 
+  factory GpsAccuracy(int raw) {
+    switch (raw) {
+      case 1:
+        return GpsAccuracy.low;
+      case 2:
+        return GpsAccuracy.medium;
+      case 3:
+        return GpsAccuracy.high;
+      case 4:
+        return GpsAccuracy.best;
+      default:
+        return GpsAccuracy.best;
+    }
+  }
+
   @override
   String toString() => 'GpsAccuracy{value: $value}';
 

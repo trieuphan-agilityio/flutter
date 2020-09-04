@@ -1,4 +1,5 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
 import 'package:ad_stream/src/modules/ad/ad_presenter.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
@@ -21,7 +22,7 @@ import 'targeting_value_collector.dart';
 /// Declare public interface that an AdModule should expose
 abstract class AdModuleLocator {
   @provide
-  Config get config;
+  AdPresenterConfigProvider get config;
 
   @provide
   AdPresenter get adPresenter;
@@ -58,9 +59,14 @@ class AdModule {
   AdPresenter adPresenter(
     ServiceManager serviceManager,
     AdScheduler adScheduler,
-    Config config,
+    AdPresenterConfigProvider adPresenterConfigProvider,
+    AdConfigProvider adConfigProvider,
   ) {
-    final adPresenter = AdPresenterImpl(adScheduler, config);
+    final adPresenter = AdPresenterImpl(
+      adScheduler,
+      adPresenterConfigProvider,
+      adConfigProvider,
+    );
     adPresenter.listenTo(serviceManager.status$);
     return adPresenter;
   }
@@ -91,12 +97,14 @@ class AdModule {
   AdScheduler adScheduler(
     ServiceManager serviceManager,
     AdRepository adRepository,
-    Config config,
+    AdSchedulerConfigProvider adSchedulerConfigProvider,
+    AdConfigProvider adConfigProvider,
     TargetingValueCollector targetingValueCollector,
   ) {
     final adScheduler = AdSchedulerImpl(
       adRepository,
-      config,
+      adSchedulerConfigProvider,
+      adConfigProvider,
       targetingValueCollector.targetingValues$,
     );
     adScheduler.listenTo(serviceManager.status$);
@@ -108,14 +116,14 @@ class AdModule {
   AdRepository adRepository(
     AdApiClient adApiClient,
     CreativeDownloader creativeDownloader,
-    Config config,
+    AdRepositoryConfigProvider configProvider,
     ServiceManager serviceManager,
     GpsController gpsController,
   ) {
     final adRepository = AdRepositoryImpl(
       adApiClient,
       creativeDownloader,
-      config,
+      configProvider,
     );
     adRepository.keepWatching(gpsController.latLng$);
     adRepository.listenTo(serviceManager.status$);

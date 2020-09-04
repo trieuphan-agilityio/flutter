@@ -1,6 +1,8 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/gps/gps_controller.dart';
+import 'package:ad_stream/src/modules/gps/gps_options_provider.dart';
 import 'package:ad_stream/src/modules/gps/movement_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/age_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/area_detector.dart';
@@ -53,26 +55,30 @@ class OnTripModule {
     ServiceManager serviceManager,
     MovementDetector movementDetector,
     FaceDetector faceDetector,
+    GpsOptionsProvider gpsOptionsProvider,
   ) {
     final tripDetector = TripDetectorImpl(
       movementDetector.state$,
       faceDetector.faces$,
     );
     tripDetector.listenTo(serviceManager.status$);
+
     faceDetector.attachTripState(tripDetector.state$);
+    gpsOptionsProvider.attachTripState(tripDetector.state$);
+
     return tripDetector;
   }
 
   @provide
   @singleton
-  CameraController cameraController(Config config) {
-    return CameraControllerImpl(config);
+  CameraController cameraController(CameraConfigProvider configProvider) {
+    return CameraControllerImpl(configProvider);
   }
 
   @provide
   @singleton
-  MicController micController() {
-    return MicControllerImpl();
+  MicController micController(MicConfigProvider configProvider) {
+    return MicControllerImpl(configProvider);
   }
 
   @provide
@@ -113,8 +119,14 @@ class OnTripModule {
 
   @provide
   @singleton
-  AreaDetector areaDetector(GpsController gpsController, Config config) {
-    final areaDetector = AreaDetectorImpl(gpsController.latLng$, config);
+  AreaDetector areaDetector(
+    GpsController gpsController,
+    AreaConfigProvider configProvider,
+  ) {
+    final areaDetector = AreaDetectorImpl(
+      gpsController.latLng$,
+      configProvider,
+    );
     areaDetector.listenTo(gpsController.status$);
     return areaDetector;
   }

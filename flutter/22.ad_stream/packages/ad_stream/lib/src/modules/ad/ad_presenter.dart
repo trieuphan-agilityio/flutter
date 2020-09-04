@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/models/ad_display_error.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
@@ -36,19 +37,27 @@ abstract class AdPresenter implements Presenter<AdView> {
 class AdPresenterImpl
     with PresenterMixin<AdView>, ServiceMixin
     implements AdPresenter, Service {
-  AdPresenterImpl(this.adScheduler, this.config)
-      : displaying$Controller = StreamController<Ad>.broadcast(),
+  AdPresenterImpl(
+    this.adScheduler,
+    this._adPresenterConfigProvider,
+    this._adConfigProvider,
+  )   : displaying$Controller = StreamController<Ad>.broadcast(),
         finish$Controller = StreamController<Ad>.broadcast(),
         skip$Controller = StreamController<Ad>.broadcast(),
         fail$Controller = StreamController<AdDisplayError>.broadcast() {
     backgroundTask = ServiceTask(
       _runTask,
-      config.defaultAdPresenterHealthCheckInterval,
+      _adPresenterConfigProvider.adPresenterConfig.healthCheckInterval,
     );
+
+    _adPresenterConfigProvider.adPresenterConfig$.listen((config) {
+      backgroundTask.refreshIntervalSecs = config.healthCheckInterval;
+    });
   }
 
   final AdScheduler adScheduler;
-  final Config config;
+  final AdPresenterConfigProvider _adPresenterConfigProvider;
+  final AdConfigProvider _adConfigProvider;
 
   Stream<Ad> get displaying$ => displaying$Controller.stream;
   Stream<Ad> get finish$ => finish$Controller.stream;
@@ -104,8 +113,10 @@ class AdPresenterImpl
       ad: _displayingAd,
       canSkipAfter: _displayingAd.canSkipAfter,
       isSkippable: _displayingAd.isSkippable,
-      duration:
-          Duration(seconds: _displayingAd.timeBlocks * config.timeBlockToSecs),
+      duration: Duration(
+        seconds: _displayingAd.timeBlocks *
+            _adConfigProvider.adConfig.timeBlockToSecs,
+      ),
     ));
 
     Log.info('AdPresenter is displaying Ad{id: ${_displayingAd.shortId}'

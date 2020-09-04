@@ -1,6 +1,5 @@
 import 'package:ad_stream/base.dart';
-import 'package:ad_stream/src/modules/common/file_path_resolver.dart';
-
+import 'file_path_resolver.dart';
 import 'file_url_resolver.dart';
 
 /// Declare public interface that an CommonModule should expose
@@ -18,13 +17,13 @@ abstract class CommonModuleLocator {
 class CommonModule {
   @provide
   @singleton
-  FileUrlResolver fileUrlResolver(Config config) {
-    return FileUrlResolverImpl(config);
+  FileUrlResolver fileUrlResolver() {
+    return FileUrlResolverImpl();
   }
 
   @provide
   @singleton
-  FilePathResolver filePathResolver(Config config) {
-    return FilePathResolverImpl(config);
+  FilePathResolver filePathResolver() {
+    return FilePathResolverImpl();
   }
 }

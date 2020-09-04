@@ -13,6 +13,7 @@ abstract class Service {
 
   Future<void> start();
   Future<void> stop();
+  Future<void> restart();
 
   bool get isStarted;
   bool get isStopped;
@@ -61,6 +62,15 @@ mixin ServiceMixin {
     return null;
   }
 
+  @mustCallSuper
+  Future<void> restart() async {
+    if (isStarted) await stop();
+    await start();
+
+    Log.info('$runtimeType restarted.');
+    return null;
+  }
+
   bool get isStarted => _isStarted;
   bool get isStopped => !_isStarted;
 
@@ -89,20 +99,22 @@ mixin ServiceMixin {
 }
 
 class ServiceTask {
-  /// Time in seconds that must elapse before the service executes its task again.
-  /// Typically it should come from [ConfigFactory].
-  final int refreshIntervalSecs;
-
   /// Background task of the [Service]
   final Function runTask;
 
-  ServiceTask(this.runTask, this.refreshIntervalSecs);
+  /// Time in seconds that must elapse before the service executes its task again.
+  /// Typically it should come from [ConfigFactory].
+  int _refreshIntervalSecs;
+
+  ServiceTask(this.runTask, int refreshIntervalSecs)
+      : _refreshIntervalSecs = refreshIntervalSecs;
 
   start() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: refreshIntervalSecs), (_) {
+    _timer = Timer.periodic(Duration(seconds: _refreshIntervalSecs), (_) {
       runTask();
     });
+
     return null;
   }
 
@@ -110,6 +122,12 @@ class ServiceTask {
     _timer?.cancel();
     _timer = null;
     return null;
+  }
+
+  set refreshIntervalSecs(int newValue) {
+    _refreshIntervalSecs = newValue;
+    stop();
+    start();
   }
 
   /// A timer to periodically refresh ads.

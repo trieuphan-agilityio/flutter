@@ -1,5 +1,3 @@
-import 'package:ad_stream/base.dart';
-
 /// [FilePathResolver] translates relative file path into the platform-specific
 /// absolute path.
 ///
@@ -10,13 +8,10 @@ abstract class FilePathResolver {
 }
 
 class FilePathResolverImpl implements FilePathResolver {
-  final Config config;
-
-  FilePathResolverImpl(this.config);
+  FilePathResolverImpl();
 
   @override
   String resolve(String filePath) {
-    // TODO: implement resolve
     throw UnimplementedError();
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
 import 'package:ad_stream/src/modules/service_manager/service.dart';
@@ -13,7 +14,8 @@ abstract class AdScheduler {
 
 class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   final AdRepository adRepository;
-  final Config config;
+  final AdSchedulerConfigProvider adSchedulerConfigProvider;
+  final AdConfigProvider adConfigProvider;
 
   /// Collect a set of targeting value that helps narrows who sees ads and helps
   /// advertisers reach an intended audience with their campaigns.
@@ -21,13 +23,18 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
 
   AdSchedulerImpl(
     this.adRepository,
-    this.config,
+    this.adSchedulerConfigProvider,
+    this.adConfigProvider,
     this.targetingValues$,
   ) {
     backgroundTask = ServiceTask(
       _pullAds,
-      config.defaultAdSchedulerRefreshInterval,
+      adSchedulerConfigProvider.adSchedulerConfig.refreshInterval,
     );
+
+    adSchedulerConfigProvider.adSchedulerConfig$.listen((config) {
+      backgroundTask?.refreshIntervalSecs = config.refreshInterval;
+    });
   }
 
   /// Ad that matched targeting values and is placed here to wait for displaying.
@@ -38,7 +45,7 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
 
   /// AdScheduler
 
-  Ad get adForDisplay => _pickedAd ?? config.defaultAd;
+  Ad get adForDisplay => _pickedAd ?? adConfigProvider.adConfig.defaultAd;
 
   /// Service
 

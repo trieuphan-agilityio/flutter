@@ -1,5 +1,3 @@
-import 'package:ad_stream/base.dart';
-
 /// [FileUrlResolver] translate a logical file url into an full url
 /// with schema, host, port, path.
 ///
@@ -10,13 +8,10 @@ abstract class FileUrlResolver {
 }
 
 class FileUrlResolverImpl implements FileUrlResolver {
-  final Config config;
-
-  FileUrlResolverImpl(this.config);
+  FileUrlResolverImpl();
 
   @override
   String resolve(String fileUrl) {
-    // TODO: implement resolve
     throw UnimplementedError();
   }
 }

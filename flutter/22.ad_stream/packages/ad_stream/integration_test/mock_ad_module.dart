@@ -1,4 +1,4 @@
-import 'package:ad_stream/base.dart';
+import 'package:ad_stream/config.dart';
 import 'package:ad_stream/src/modules/ad/ad_module.dart';
 
 class MockAdModule extends AdModule {

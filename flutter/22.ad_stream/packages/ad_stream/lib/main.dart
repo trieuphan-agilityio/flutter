@@ -22,7 +22,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppLifecycle(
-      child: DIContainer(child: _buildApp(), splash: SplashScreen()),
+      child: DIContainer(child: _buildApp()),
     );
   }
 
@@ -85,11 +85,7 @@ class DIContainer extends StatefulWidget {
   /// [child] widget is the main app that will be displayed when DI is ready.
   final Widget child;
 
-  /// [splash] widget will be displayed while preparing the dependency tree.
-  final Widget splash;
-
-  const DIContainer({Key key, @required this.child, @required this.splash})
-      : super(key: key);
+  const DIContainer({Key key, @required this.child}) : super(key: key);
 
   @override
   _DIContainerState createState() => _DIContainerState();
@@ -105,7 +101,7 @@ class _DIContainerState extends State<DIContainer> {
             snapshot.hasData) {
           return Provider<DI>.value(value: snapshot.data, child: widget.child);
         } else {
-          return widget.splash;
+          return SplashScreen();
         }
       },
     );

@@ -2,6 +2,16 @@ import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/gps_options.dart';
 import 'package:meta/meta.dart';
 
+import 'ad_config.dart';
+import 'ad_presenter_config.dart';
+import 'ad_repository_config.dart';
+import 'ad_scheduler_config.dart';
+import 'area_config.dart';
+import 'camera_config.dart';
+import 'downloader_config.dart';
+import 'gps_config.dart';
+import 'mic_config.dart';
+
 class Config {
   /// Indicates how long a time block take. Duration in seconds.
   final int timeBlockToSecs;
@@ -9,9 +19,23 @@ class Config {
   /// User must want the ad before he/she can skip ad. Duration in seconds.
   final int defaultCanSkipAfter;
 
+  /// Ad that should be displayed when the app is fetching from Ad Server.
+  final Ad defaultAd;
+
+  /// Base URL that is used for constructing Creative download URL.
+  /// e.g: https://s3.awscloud.com/stag/creative/
+  final String creativeBaseUrl;
+
   /// Time in seconds must elapse before [GpsController] repeatedly
   /// refresh its content.
   final int defaultGpsControllerRefreshInterval;
+
+  /// Desired accuracy that uses to determine the gps data.
+  final int gpsAccuracy;
+
+  /// The minimum distance (measured in meters) a device must move before
+  /// an update event is generated.
+  final int gpsDistanceFilter;
 
   /// Time in seconds must elapse before [AdScheduler] repeatedly
   /// refresh its content.
@@ -49,19 +73,12 @@ class Config {
   /// Timeout in seconds for downloading a video creative.
   final int videoCreativeDownloadTimeout;
 
-  /// Ad that should be displayed when the app is fetching from Ad Server.
-  final Ad defaultAd;
-
-  /// Base URL that is used for constructing Creative download URL.
-  /// e.g: https://s3.awscloud.com/stag/creative/
-  final String creativeBaseUrl;
-
-  final GpsOptions defaultGpsOptions;
-
   Config({
     this.timeBlockToSecs = 15,
     this.defaultCanSkipAfter = 2,
     this.defaultGpsControllerRefreshInterval = 30,
+    this.gpsAccuracy = 2,
+    this.gpsDistanceFilter,
     this.defaultAdSchedulerRefreshInterval = 10,
     this.defaultAdRepositoryRefreshInterval = 60,
     this.defaultAdPresenterHealthCheckInterval = 15,
@@ -72,7 +89,6 @@ class Config {
     this.creativeDownloadTimeout = 15,
     this.videoCreativeDownloadParallelTasks = 1,
     this.videoCreativeDownloadTimeout = 240,
-    @required this.defaultGpsOptions,
     @required this.defaultAd,
     @required this.creativeBaseUrl,
   });
@@ -81,6 +97,8 @@ class Config {
     int timeBlockToSecs,
     int defaultCanSkipAfter,
     int defaultGpsControllerRefreshInterval,
+    int gpsAccuracy,
+    int gpsDistanceFilter,
     int defaultAdSchedulerRefreshInterval,
     int defaultAdRepositoryRefreshInterval,
     int defaultAdPresenterHealthCheckInterval,
@@ -101,6 +119,8 @@ class Config {
       defaultGpsControllerRefreshInterval:
           defaultGpsControllerRefreshInterval ??
               this.defaultGpsControllerRefreshInterval,
+      gpsAccuracy: gpsAccuracy ?? this.gpsAccuracy,
+      gpsDistanceFilter: gpsDistanceFilter ?? this.gpsDistanceFilter,
       defaultAdSchedulerRefreshInterval: defaultAdSchedulerRefreshInterval ??
           this.defaultAdSchedulerRefreshInterval,
       defaultAdRepositoryRefreshInterval: defaultAdRepositoryRefreshInterval ??
@@ -120,9 +140,70 @@ class Config {
           this.videoCreativeDownloadParallelTasks,
       videoCreativeDownloadTimeout:
           videoCreativeDownloadTimeout ?? this.videoCreativeDownloadTimeout,
-      defaultGpsOptions: defaultGpsOptions ?? this.defaultGpsOptions,
       defaultAd: defaultAd ?? this.defaultAd,
       creativeBaseUrl: creativeBaseUrl ?? this.creativeBaseUrl,
+    );
+  }
+
+  AdConfig toAdConfig() {
+    return AdConfig(
+      timeBlockToSecs: timeBlockToSecs,
+      defaultCanSkipAfter: defaultCanSkipAfter,
+      creativeBaseUrl: creativeBaseUrl,
+      defaultAd: defaultAd,
+    );
+  }
+
+  AdPresenterConfig toAdPresenterConfig() {
+    return AdPresenterConfig(
+      healthCheckInterval: defaultAdPresenterHealthCheckInterval,
+    );
+  }
+
+  AdRepositoryConfig toAdRepositoryConfig() {
+    return AdRepositoryConfig(
+      refreshInterval: defaultAdRepositoryRefreshInterval,
+    );
+  }
+
+  AdSchedulerConfig toAdSchedulerConfig() {
+    return AdSchedulerConfig(
+      refreshInterval: defaultAdSchedulerRefreshInterval,
+    );
+  }
+
+  AreaConfig toAreaConfig() {
+    return AreaConfig(
+      refreshInterval: areaRefreshInterval,
+    );
+  }
+
+  CameraConfig toCameraConfig() {
+    return CameraConfig(captureInterval: cameraCaptureInterval);
+  }
+
+  DownloaderConfig toDownloaderConfig() {
+    return DownloaderConfig(
+      creativeDownloadTimeout: creativeDownloadTimeout,
+      creativeDownloadParallelTasks: creativeDownloadParallelTasks,
+      videoCreativeDownloadTimeout: videoCreativeDownloadTimeout,
+      videoCreativeDownloadParallelTasks: videoCreativeDownloadParallelTasks,
+    );
+  }
+
+  GpsConfig toGpsConfig() {
+    return GpsConfig(
+      refreshInterval: defaultGpsControllerRefreshInterval,
+      accuracyWhenOnTrip: GpsAccuracy(gpsAccuracy),
+      distanceFilterWhenOnTrip: gpsDistanceFilter,
+      accuracyWhenOffTrip: GpsAccuracy(gpsAccuracy),
+      distanceFilterWhenOffTrip: gpsDistanceFilter,
+    );
+  }
+
+  MicConfig toMicConfig() {
+    return MicConfig(
+      recordInterval: micRecordInterval,
     );
   }
 }
@@ -133,7 +214,7 @@ abstract class ConfigFactory {
 
 class ConfigFactoryImpl implements ConfigFactory {
   Future<Config> createConfig() async => Config(
-        defaultGpsOptions: GpsOptions(accuracy: GpsAccuracy.best),
+        gpsAccuracy: 4,
         defaultAd: null,
         creativeBaseUrl: 'http://localhost:8080/public/creatives/',
       );

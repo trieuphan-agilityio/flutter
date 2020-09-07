@@ -95,7 +95,7 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
 
     /// background task for fetching Ads from Ad Server.
     backgroundTask = ServiceTask(
-      getAds,
+      _fetchAds,
       _configProvider.adRepositoryConfig.refreshInterval,
     );
 
@@ -159,11 +159,11 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
   Future<void> start() {
     super.start();
     // get ads from AdServer right after starting.
-    _getAds();
+    _fetchAds();
     return null;
   }
 
-  Future<void> _getAds() async {
+  Future<void> _fetchAds() async {
     // Ad currently are persisted in local storage.
     // Including downloaded Ads, and Ads that are queued up for downloading.
     final localAds = _ads$Controller.value;

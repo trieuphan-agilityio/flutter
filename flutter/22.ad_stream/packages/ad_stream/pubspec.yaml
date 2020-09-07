@@ -42,6 +42,9 @@ dependencies:
   #    2) calculate the distance (in meters) between two geo coordinates;
   geolocator: 5.3.2+2
 
+  # display video
+  video_player: '>=0.10.12+2 <2.0.0'
+
   # UI ENHANCEMENT
   animations: 1.1.1
 
@@ -67,6 +70,9 @@ dev_dependencies:
   build_runner: 1.7.3
   test: ^1.15.2
   mockito: ^4.1.1
+
+  # A Gherkin / Cucumber parser
+  flutter_gherkin: ^1.1.8+8
 
   # FakeAsync fires all asynchronous events that are scheduled for that time period without
   #  actually needing the test to wait for real time to elapse.

@@ -2,13 +2,14 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/features/debugger/debug_button.dart';
-import 'package:ad_stream/src/features/debugger/drawer.dart';
 import 'package:ad_stream/src/features/display_ad/ad_view.dart';
 import 'package:ad_stream/src/features/request_permission/permission_container.dart';
 import 'package:ad_stream/src/modules/di/di.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'config.dart';
 
 void main() {
   /// log to console
@@ -17,30 +18,40 @@ void main() {
   runApp(App());
 }
 
+void mainInjectConfig(Config config) {
+  runApp(App(defaultConfig: config));
+}
+
 /// App initialise Dependency Injector
 class App extends StatelessWidget {
+  final Config defaultConfig;
+
+  const App({Key key, this.defaultConfig}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return AppLifecycle(
-      child: DIContainer(child: _buildApp()),
+      child: DIContainer(
+        child: _buildApp(),
+      ),
     );
   }
 
   Widget _buildApp() {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: Text('Ad Stream')),
-        drawer: DebugDrawer(),
         body: SafeArea(
           child: Stack(
             children: <Widget>[
+              if (defaultConfig != null) ConfigInjector(config: defaultConfig),
               ServiceManagerContainer(),
               AdViewContainer(),
               PermissionContainer(),
-              Align(child: DebugButton(), alignment: Alignment.bottomCenter),
             ],
           ),
         ),
+        floatingActionButton: DebugButton(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
@@ -105,6 +116,17 @@ class _DIContainerState extends State<DIContainer> {
         }
       },
     );
+  }
+}
+
+class ConfigInjector extends StatelessWidget {
+  final Config config;
+  const ConfigInjector({Key key, @required this.config}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    DI.of(context).configProvider.config = config;
+    return SizedBox.shrink();
   }
 }
 

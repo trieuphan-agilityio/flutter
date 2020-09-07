@@ -1,4 +1,5 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/features/debugger/debug_button.dart';
 import 'package:ad_stream/src/features/debugger/drawer.dart';
 import 'package:ad_stream/src/features/request_permission/permission_widget..dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
@@ -19,7 +20,11 @@ class PermissionList extends StatelessWidget {
       key: const Key('permission_list'),
       onWillPop: () async => false,
       child: Scaffold(
-        appBar: AppBar(title: Text('Permission')),
+        appBar: AppBar(
+          title: Text('Permission'),
+          leading: null,
+          automaticallyImplyLeading: false,
+        ),
         drawer: DebugDrawer(),
         body: Center(
           child: ListView(
@@ -28,6 +33,8 @@ class PermissionList extends StatelessWidget {
                 .toList(),
           ),
         ),
+        floatingActionButton: DebugButton(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }

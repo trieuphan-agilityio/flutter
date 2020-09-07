@@ -9,6 +9,8 @@ import 'package:ad_stream/src/modules/power/debugger/power_debugger.dart';
 import 'package:ad_stream/src/ui/setting_item.dart';
 import 'package:flutter/material.dart';
 
+import 'choose_config.dart';
+
 class DebugDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class _DebugDashboard extends StatelessWidget {
               _buildForSimulateRoute(context),
               _buildDivider(),
               _buildHeader('Others'),
+              _buildForConfig(context),
               _buildForLog(context),
             ],
           ),
@@ -148,7 +151,6 @@ class _DebugDashboard extends StatelessWidget {
           MaterialPageRoute(
               builder: (context) => SimulateRoute(gpsDebugger: gpsDebugger)),
         );
-
         if (chose != null) gpsDebugger.simulateRoute(chose);
       },
     );
@@ -160,8 +162,19 @@ class _DebugDashboard extends StatelessWidget {
       title: Text('Log'),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-          fullscreenDialog: true,
           builder: (context) => LogView(),
+        ));
+      },
+    );
+  }
+
+  Widget _buildForConfig(BuildContext context) {
+    return ListTile(
+      key: const Key('config'),
+      title: Text('Config'),
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ChooseConfig(),
         ));
       },
     );

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 import 'package:test/test.dart';
 

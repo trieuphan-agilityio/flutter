@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/gps/movement_status.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:rxdart/subjects.dart';
 
 abstract class MovementDetector implements Service {

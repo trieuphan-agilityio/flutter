@@ -53,7 +53,7 @@ main() {
       gpsController = GpsControllerImpl(
         gpsOptions$Controller.stream,
         gpsAdapter,
-        debugger: gpsDebugger,
+        gpsDebugger,
       );
 
       gpsController.latLng$.listen(

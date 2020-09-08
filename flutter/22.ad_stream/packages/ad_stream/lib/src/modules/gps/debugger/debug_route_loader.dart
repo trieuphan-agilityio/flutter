@@ -61,19 +61,19 @@ class DebugRouteLoaderImpl implements DebugRouteLoader {
   static const _listOfRawCsv = [
     _RawCsv(
       '496NgoQuyen_604NuiThanh',
-      '496 Ngo Quyen -> 604 Nui Thanh',
+      'from 496 Ngo Quyen to 604 Nui Thanh',
       sampleRouteCsv1,
       initialTimeOffset: 52726,
     ),
     _RawCsv(
       '10ChauThuongVan_151NguyenHuuDat',
-      '10 Chau Thuong Van -> 151 Nguyen Huu Dat',
+      'from 10 Chau Thuong Van to 151 Nguyen Huu Dat',
       sampleRouteCsv2,
       initialTimeOffset: 10971,
     ),
     _RawCsv(
       '10XuanThuy_218XuanThuy',
-      '10 Xuan Thuy -> 218 Xuan Thuy',
+      'from 10 Xuan Thuy to 218 Xuan Thuy',
       sampleRouteCsv3,
       initialTimeOffset: 30300,
     ),

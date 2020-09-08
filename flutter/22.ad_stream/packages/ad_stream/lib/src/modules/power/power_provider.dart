@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:battery/battery.dart';
 import 'package:rxdart/rxdart.dart';
+
+import 'debugger/power_debugger.dart';
 
 enum PowerState { weak, strong }
 
@@ -10,33 +14,34 @@ abstract class PowerProvider {
   Stream<PowerState> get state$;
 }
 
-class PowerProviderImpl implements PowerProvider {
-  final StreamController<PowerState> subject;
-  final Battery battery;
+class PowerProviderImpl with ServiceMixin implements PowerProvider, Service {
+  final StreamController<PowerState> _subject;
+  final Battery _battery;
+  final PowerDebugger _debugger;
 
-  PowerProviderImpl(
-    this.battery,
-  ) : subject = BehaviorSubject.seeded(PowerState.weak) {
-    battery.onBatteryStateChanged.listen(_verifyPowerState);
+  PowerProviderImpl(this._battery, this._debugger)
+      : _subject = BehaviorSubject.seeded(PowerState.weak) {
+    _battery.onBatteryStateChanged.listen(_verifyPowerState);
+    acceptDebugger(_debugger, originalValue$: state$);
   }
 
   _verifyPowerState(BatteryState batteryState) async {
     if (batteryState == BatteryState.discharging) {
-      subject.add(PowerState.strong);
+      _subject.add(PowerState.strong);
     } else {
       try {
-        int batteryLevel = await battery.batteryLevel;
+        int batteryLevel = await _battery.batteryLevel;
         if (batteryLevel < 20) {
           Log.info('PowerProviderImpl observed battery level $batteryLevel.');
-          subject.add(PowerState.weak);
+          _subject.add(PowerState.weak);
         }
       } catch (_) {
-        subject.add(PowerState.weak);
+        _subject.add(PowerState.weak);
       }
     }
   }
 
-  Stream<PowerState> get state$ => _state$ ??= subject.stream.distinct();
+  Stream<PowerState> get state$ => _state$ ??= _subject.stream.distinct();
 
   /// backing field of [state$]
   Stream<PowerState> _state$;

@@ -20,12 +20,12 @@ class PowerModule {
   @provide
   @singleton
   PowerProvider powerProvider(PowerDebugger powerDebugger) {
-    return powerDebugger;
+    return PowerProviderImpl(Battery(), powerDebugger);
   }
 
   @provide
   @singleton
   PowerDebugger powerDebugger() {
-    return PowerDebuggerImpl(PowerProviderImpl(Battery()));
+    return PowerDebuggerImpl();
   }
 }

@@ -64,13 +64,14 @@ main() {
         permissionPluginCleanUp();
       });
 
-      test('can start and stop immediately', () {
-        permissionPluginAllAllowed();
+      test('can start and stop immediately', () async {
+        permissionPluginAllDenied();
 
         permissionController.start();
+        await flushMicrotasks();
 
         expect(errors, []);
-        expect(emittedValues, []);
+        expect(emittedValues, [PermissionState.denied]);
         if (permissionController is PermissionControllerImpl) {
           expect(
             (permissionController as PermissionControllerImpl).isTimerStopped,
@@ -80,9 +81,10 @@ main() {
         expect(isDone, false);
 
         permissionController.stop();
+        await flushMicrotasks();
 
         expect(errors, []);
-        expect(emittedValues, []);
+        expect(emittedValues, [PermissionState.denied]);
         if (permissionController is PermissionControllerImpl) {
           expect(
             (permissionController as PermissionControllerImpl).isTimerStopped,
@@ -103,7 +105,10 @@ main() {
           async.elapse(Duration(seconds: 3));
 
           expect(errors, []);
-          expect(emittedValues, [PermissionState.allowed]);
+          expect(emittedValues, [
+            PermissionState.denied,
+            PermissionState.allowed,
+          ]);
           expectDone(true);
         });
       });

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
-import 'package:ad_stream/src/modules/service_manager/service_status.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
+import 'package:ad_stream/src/modules/base/service_status.dart';
 
 /// A central service manager that propagate [ServiceStatus.started], [ServiceStatus.stopped]
 /// events to all services it's managing.

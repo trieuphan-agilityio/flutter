@@ -1,4 +1,4 @@
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quiver/time.dart';
@@ -63,6 +63,25 @@ main() {
         // then the service should cancel the running task and apply new config.
         async.elapse(Duration(seconds: 21));
         expect(taskRanCount, 5);
+      });
+    });
+
+    test(
+        'should not start background task '
+        'when updating refresh interval and service was stopped', () async {
+      int taskRanCount = 0;
+      int initialRefreshInterval = 3; // 3 secs
+
+      service.backgroundTask = ServiceTask(() {
+        taskRanCount++;
+      }, initialRefreshInterval);
+
+      fakeAsync((async) {
+        service.backgroundTask.refreshIntervalSecs = 10;
+
+        // then the service should cancel the running task and apply new config.
+        async.elapse(Duration(seconds: 21));
+        expect(taskRanCount, 0);
       });
     });
   });

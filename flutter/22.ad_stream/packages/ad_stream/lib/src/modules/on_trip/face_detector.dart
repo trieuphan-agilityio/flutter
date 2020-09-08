@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/on_trip/camera_controller.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 
+import 'debugger/face_debugger.dart';
 import 'face.dart';
 import 'photo.dart';
 import 'trip_state.dart';
@@ -33,6 +35,7 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   FaceDetectorImpl(
     this._movementState$,
     this._photo$,
+    this._faceDebugger,
   ) : assert(
           !_photo$.isBroadcast,
           '_photo\$ must be single-subscription stream.',
@@ -41,10 +44,25 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
       _movementState = newValue;
       _verifyState();
     });
+
+    acceptDebugger(_faceDebugger, originalValue$: faces$);
+
+    // FaceDetector is bit different to other services since it's consuming a
+    // very expensive resource, camera. So it's using single-subscription stream
+    // interface to instruct [CameraController] to pause the process when
+    // no longer used.
+    _faceDebugger.isOn.addListener(() {
+      if (_faceDebugger.isOn.value) {
+        _photo$Subscription?.pause();
+      } else {
+        _initOrElseResumePhoto$Subscription();
+      }
+    });
   }
 
   final Stream<MovementState> _movementState$;
   final Stream<Photo> _photo$;
+  final FaceDebugger _faceDebugger;
 
   TripState _tripState;
   MovementState _movementState;
@@ -91,17 +109,9 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   @override
   Future<void> start() {
     super.start();
-
-    // FaceDetector is bit different to other services since it's consuming a
-    // very expensive resource, camera. So it's using single-subscription stream
-    // interface to instruct [CameraController] to pause the process when
-    // no longer used.
-    if (_photo$Subscription == null) {
-      _photo$Subscription = _photo$.listen(_detectFaces);
-    } else if (_photo$Subscription.isPaused) {
-      _photo$Subscription.resume();
+    if (!_faceDebugger.isOn.value) {
+      _initOrElseResumePhoto$Subscription();
     }
-
     return null;
   }
 
@@ -110,6 +120,15 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
     super.stop();
     _photo$Subscription?.pause();
     return null;
+  }
+
+  _initOrElseResumePhoto$Subscription() {
+    print('is broadcast? ${_photo$Subscription}');
+    if (_photo$Subscription == null) {
+      _photo$Subscription = _photo$.listen(_detectFaces);
+    } else if (_photo$Subscription.isPaused) {
+      _photo$Subscription.resume();
+    }
   }
 
   StreamSubscription _photo$Subscription;

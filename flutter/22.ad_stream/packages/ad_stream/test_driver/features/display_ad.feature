@@ -1,11 +1,21 @@
 Feature: Display Ad
-    Ads that matched targeting values should be displayed when all services are ready
+    Ads that matched targeting values will be displayed
 
-    Scenario: no passenger information
-        Given I am passenger
-        Then I see an Ad is displaying
+    Scenario: Advertise at shopping mall
+        Given I am a visitor
+        Then I see an ad is displaying
 
-    # Scenario: ads by passenger gender and age range
-    #     Given I am 24 years old passenger
-    #     And I am male
-    #     Then I see Ads that matched my gender and age range are displayed
+    Scenario: Skip ad
+        Given I am seeing an ad
+        When I tap on skip button
+        Then I see the ad is skipped
+
+    Scenario: Advertise in taxi
+        Given Driver pick up a passenger
+        When Driver is driving from 10 Xuan Thuy to 218 Xuan Thuy
+        Then Passengers sees ads that matched their gender and age range are displayed
+
+    Scenario: Trip is dropped off
+        Given Passenger is about to finish a trip
+        When Passenger is dropped off
+        Then No ads is showing

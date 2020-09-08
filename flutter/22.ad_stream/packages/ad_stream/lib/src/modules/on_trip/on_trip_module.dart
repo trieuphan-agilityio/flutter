@@ -15,6 +15,7 @@ import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'camera_controller.dart';
+import 'debugger/face_debugger.dart';
 
 /// Declare public interface that an OnTripModule should expose
 abstract class OnTripModuleLocator {
@@ -35,6 +36,9 @@ abstract class OnTripModuleLocator {
 
   @provide
   FaceDetector get faceDetector;
+
+  @provide
+  FaceDebugger get faceDebugger;
 
   @provide
   AgeDetector get ageDetector;
@@ -101,8 +105,16 @@ class OnTripModule {
   FaceDetector faceDetector(
     MovementDetector movementDetector,
     CameraController cameraController,
+    FaceDebugger faceDebugger,
   ) {
-    return FaceDetectorImpl(movementDetector.state$, cameraController.photo$);
+    return FaceDetectorImpl(
+        movementDetector.state$, cameraController.photo$, faceDebugger);
+  }
+
+  @provide
+  @singleton
+  FaceDebugger faceDebugger() {
+    return FaceDebuggerImpl();
   }
 
   @provide

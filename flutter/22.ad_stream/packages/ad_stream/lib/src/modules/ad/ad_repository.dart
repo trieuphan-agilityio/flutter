@@ -7,7 +7,7 @@ import 'package:ad_stream/src/models/ad.dart';
 import 'package:ad_stream/src/models/targeting_value.dart';
 import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
 import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class AdRepository {

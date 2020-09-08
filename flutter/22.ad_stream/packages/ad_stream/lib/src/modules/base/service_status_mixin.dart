@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ad_stream/src/modules/service_manager/service_status.dart';
+import 'package:ad_stream/src/modules/base/service_status.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 

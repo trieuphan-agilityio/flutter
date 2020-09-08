@@ -3,8 +3,8 @@ import 'package:gherkin/gherkin.dart';
 
 import 'utils.dart';
 
-StepDefinitionGeneric iAmPassengerStep() {
-  return given<FlutterWorld>('I am passenger', (context) async {
+StepDefinitionGeneric iAmAVisitor() {
+  return given<FlutterWorld>('I am a visitor', (context) async {
     final driver = context.world.driver;
     await waitForPermissionUI(driver);
     await openDebugDashboard(driver);

@@ -5,7 +5,7 @@ import 'package:ad_stream/base.dart';
 import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 
 abstract class AdScheduler {
   /// Ad that is ready for displaying.

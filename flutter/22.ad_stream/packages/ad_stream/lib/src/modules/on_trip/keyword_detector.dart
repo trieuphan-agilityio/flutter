@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/modules/ad/ad_repository.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 
 abstract class KeywordDetector implements Service {
   Stream<List<Keyword>> get keywords$;

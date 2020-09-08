@@ -5,7 +5,7 @@ import 'package:ad_stream/config.dart';
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/models/ad_display_error.dart';
 import 'package:ad_stream/src/modules/ad/ad_scheduler.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 
 /// View component of AdPresentable
 abstract class AdView {
@@ -17,7 +17,8 @@ abstract class AdView {
 ///
 /// While the UI engine is preparing for showing the [AdView], [AdScheduler] already
 /// run in another isolate to get the Ad ready.
-abstract class AdPresenter implements Presenter<AdView> {
+abstract class AdPresenter
+    implements Service<DisplayableCreative>, Presenter<AdView> {
   Stream<Ad> get finish$;
   Stream<Ad> get skip$;
   Stream<AdDisplayError> get fail$;
@@ -36,7 +37,7 @@ abstract class AdPresenter implements Presenter<AdView> {
 
 class AdPresenterImpl
     with PresenterMixin<AdView>, ServiceMixin
-    implements AdPresenter, Service {
+    implements AdPresenter {
   AdPresenterImpl(
     this.adScheduler,
     this._adPresenterConfigProvider,
@@ -68,6 +69,17 @@ class AdPresenterImpl
   final StreamController<Ad> finish$Controller;
   final StreamController<Ad> skip$Controller;
   final StreamController<AdDisplayError> fail$Controller;
+
+  Stream<DisplayableCreative> get value$ => displaying$.map(
+        (ad) => DisplayableCreative(
+          ad: ad,
+          canSkipAfter: ad.canSkipAfter,
+          isSkippable: ad.isSkippable,
+          duration: Duration(
+            seconds: ad.timeBlocks * _adConfigProvider.adConfig.timeBlockToSecs,
+          ),
+        ),
+      );
 
   /// Keep tracking the current displaying Ad for reporting.
   /// Null means that there is no candidate.

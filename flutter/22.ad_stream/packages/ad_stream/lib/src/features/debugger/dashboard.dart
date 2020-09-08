@@ -3,6 +3,8 @@ import 'package:ad_stream/src/features/debugger/log_view.dart';
 import 'package:ad_stream/src/features/debugger/simulate_route.dart';
 import 'package:ad_stream/src/modules/gps/debugger/debug_route.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
+import 'package:ad_stream/src/modules/on_trip/face.dart';
+import 'package:ad_stream/src/modules/on_trip/photo.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger_state.dart';
 import 'package:ad_stream/src/modules/power/debugger/power_debugger.dart';
@@ -41,20 +43,25 @@ class _DebugDashboard extends StatelessWidget {
       appBar: AppBar(title: Text('Debugger')),
       body: SafeArea(
         child: Form(
-          child: Column(
-            children: [
-              _buildHeader('Service Manager'),
-              _buildForPermission(context),
-              _buildForPower(),
-              _buildDivider(),
-              _buildHeader('Gps'),
-              _buildForGps(context),
-              _buildForSimulateRoute(context),
-              _buildDivider(),
-              _buildHeader('Others'),
-              _buildForConfig(context),
-              _buildForLog(context),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader('Service Manager'),
+                _buildForPermission(context),
+                _buildForPower(),
+                _buildDivider(),
+                _buildHeader('Gps'),
+                _buildForGps(context),
+                _buildForSimulateRoute(context),
+                _buildDivider(),
+                _buildHeader('On Trip'),
+                _buildForFace(context),
+                _buildDivider(),
+                _buildHeader('Others'),
+                _buildForConfig(context),
+                _buildForLog(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -152,6 +159,74 @@ class _DebugDashboard extends StatelessWidget {
               builder: (context) => SimulateRoute(gpsDebugger: gpsDebugger)),
         );
         if (chose != null) gpsDebugger.simulateRoute(chose);
+      },
+    );
+  }
+
+  Widget _buildForFace(BuildContext context) {
+    final faceDebugger = DI.of(context).faceDebugger;
+    return ListTile(
+      key: const Key('face_debugger'),
+      title: Text('Face Debugger'),
+      subtitle: ValueListenableBuilder(
+        valueListenable: faceDebugger.isOn,
+        builder: (_, value, __) =>
+            Text('${faceDebugger.isOn.value ? "On" : "Off"}'),
+      ),
+      onTap: () async {
+        await showModalBottomSheet<void>(
+          context: context,
+          builder: (context) {
+            return Container(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ListTile(
+                    key: const Key('face_debugger_off'),
+                    leading: Radio<int>(
+                        value: 1, groupValue: null, onChanged: (_) {}),
+                    title: Text('Off'),
+                    onTap: () {
+                      faceDebugger.toggle(false);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  ListTile(
+                    key: const Key('face_debugger_no_face'),
+                    leading: Radio<int>(
+                        value: 2, groupValue: null, onChanged: (_) {}),
+                    title: Text('No face'),
+                    onTap: () {
+                      faceDebugger.noFace();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  ListTile(
+                    key: const Key('face_debugger_use_faces'),
+                    leading: Radio<int>(
+                        value: 2, groupValue: null, onChanged: (_) {}),
+                    title: Text('Use faces'),
+                    onTap: () {
+                      faceDebugger.useFaces([
+                        Face('face-id', Photo('path/to/photo1.jpg')),
+                      ]);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: FlatButton(
+                        textColor: Theme.of(context).colorScheme.primary,
+                        child: Text('Cancel'),
+                        onPressed: () => Navigator.of(context).pop()),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       },
     );
   }

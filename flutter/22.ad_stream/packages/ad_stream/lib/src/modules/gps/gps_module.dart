@@ -44,10 +44,7 @@ class GpsModule {
     // the current state of other component. E.g On trip and off trip may cause
     // different GpsOptions.
     final gpsController = GpsControllerImpl(
-      gpsOptionsProvider.gpsOptions$,
-      gpsAdapter,
-      debugger: gpsDebugger,
-    );
+        gpsOptionsProvider.gpsOptions$, gpsAdapter, gpsDebugger);
 
     gpsController.listenTo(serviceManager.status$);
 

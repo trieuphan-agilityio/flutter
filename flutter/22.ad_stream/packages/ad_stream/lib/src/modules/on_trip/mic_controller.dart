@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/config.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 
 class Audio {
   /// Typical the audio file is saved at cache folder so that it can automatically

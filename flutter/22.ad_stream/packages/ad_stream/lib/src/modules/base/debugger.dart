@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 /// A base class for all Debuggers.
-abstract class Debugger {
+abstract class Debugger<T> {
+  Stream<T> get value$;
+
   /// Get notification about the status of the debugger
   ValueListenable<bool> get isOn;
 

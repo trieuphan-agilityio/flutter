@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
-import 'package:ad_stream/src/modules/service_manager/service.dart';
+import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 

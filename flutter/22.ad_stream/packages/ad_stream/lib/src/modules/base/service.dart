@@ -1,12 +1,17 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
-import 'package:ad_stream/src/modules/service_manager/service_status.dart';
+import 'package:ad_stream/src/modules/base/service_status.dart';
 import 'package:rxdart/rxdart.dart';
+
+import 'debugger.dart';
 
 /// [Service] that is bind its lifecycle to other [Service]'s status$ stream.
 /// Typically, class that implements this interface should use [ServiceMixin].
-abstract class Service {
+abstract class Service<T> {
+  /// Each service should provide a stream of specific value.
+  Stream<T> get value$;
+
   /// Service has its own status stream. Other service can bind to this status
   /// via [listenTo] method.
   Stream<ServiceStatus> get status$;
@@ -26,14 +31,33 @@ abstract class Service {
 }
 
 /// Declare common methods of [Service]
-mixin ServiceMixin {
+mixin ServiceMixin<T> {
   final StreamController<ServiceStatus> _status$Controller =
       BehaviorSubject<ServiceStatus>();
 
   /// Optional task that is executed background.
   ServiceTask backgroundTask;
 
-  Disposer get disposer => _disposer;
+  /// Optional debugger that can provide a fake stream of [T].
+  Debugger<T> _debugger;
+
+  /// Optional value stream from service, it's used as service's state when
+  /// debugger is turned off.
+  Stream<T> _originalValue$;
+
+  Function onDebuggerIsOff;
+
+  /// Take the debugger and its value
+  @protected
+  acceptDebugger(Debugger<T> debugger,
+      {Stream<T> originalValue$, Function onDebuggerIsOff}) {
+    assert(
+      originalValue$ == null || onDebuggerIsOff == null,
+      'You must specific originalValue\$ or onDebuggerIsOff callback, not both.',
+    );
+    _debugger = debugger;
+    _originalValue$ = originalValue$;
+  }
 
   @mustCallSuper
   Future<void> start() {
@@ -42,6 +66,9 @@ mixin ServiceMixin {
 
     // schedule background task on stop.
     backgroundTask?.start();
+
+    // start listening to debugger state to switch value stream accordingly.
+    _debugger?.isOn?.addListener(_onDebuggerStateChanged);
 
     Log.info('$runtimeType started.');
     return null;
@@ -54,6 +81,9 @@ mixin ServiceMixin {
 
     // stop background task if needs
     backgroundTask?.stop();
+
+    // stop listening to debugger state
+    _debugger?.isOn?.removeListener(_onDebuggerStateChanged);
 
     // cancel registered subscriptions for auto dispose.
     disposer.cancel();
@@ -88,8 +118,30 @@ mixin ServiceMixin {
         _status$Controller.stream.distinct().skipInitialStopped();
   }
 
+  BehaviorSubject<Stream<T>> $switcher = BehaviorSubject<Stream<T>>();
+  Stream<T> get value$ => _value$ ??= $switcher.switchLatest();
+
+  /// depends on the state of the service, the switcher will choose to use
+  /// the stream from debugger or its own value.
+  void _onDebuggerStateChanged() {
+    if (_debugger.isOn.value) {
+      $switcher.add(_debugger.value$);
+    } else {
+      if (_originalValue$ == null) {
+        onDebuggerIsOff();
+      } else {
+        $switcher.add(_originalValue$);
+      }
+    }
+  }
+
+  Disposer get disposer => _disposer;
+
   /// A cache of the stream transformation result.
   Stream<ServiceStatus> _status$;
+
+  /// Backing field of [value$]
+  Stream<T> _value$;
 
   /// persist start state.
   bool _isStarted = false;
@@ -115,20 +167,27 @@ class ServiceTask {
       runTask();
     });
 
+    _isStarted = true;
     return null;
   }
 
   stop() {
     _timer?.cancel();
     _timer = null;
+    _isStarted = false;
     return null;
   }
 
   set refreshIntervalSecs(int newValue) {
     _refreshIntervalSecs = newValue;
-    stop();
-    start();
+
+    if (_isStarted) {
+      stop();
+      start();
+    }
   }
+
+  bool _isStarted = false;
 
   /// A timer to periodically refresh ads.
   Timer _timer;

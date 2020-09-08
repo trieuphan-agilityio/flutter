@@ -7,14 +7,14 @@ import 'package:ad_stream/src/modules/gps/debugger/debug_route.dart';
 import 'package:ad_stream/src/modules/gps/debugger/debug_route_loader.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class GpsDebugger implements Debugger {
-  Stream<LatLng> get latLng$;
+abstract class GpsDebugger implements Debugger<LatLng> {
+  Stream<LatLng> get value$;
 
   /// Invoke this function to load debug routes were defined.
   Future<List<DebugRoute>> loadRoutes();
 
   /// Invoke this method to replay the records [LatLng] value from sample data.
-  /// It would produce [latLng$] events follow the order and time of the recorded.
+  /// It would produce [value$] events follow the order and time of the recorded.
   ///
   /// Future is completed when route has done.
   Future<void> simulateRoute(DebugRoute route);
@@ -30,20 +30,20 @@ abstract class GpsDebugger implements Debugger {
 }
 
 class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
-  final BehaviorSubject<LatLng> _controller;
+  final BehaviorSubject<LatLng> _subject;
 
-  GpsDebuggerImpl() : _controller = BehaviorSubject<LatLng>() {
+  GpsDebuggerImpl() : _subject = BehaviorSubject<LatLng>() {
     isOn.addListener(() {
       // stop the simulating route when debugger is off.
       if (!isOn.value) stopSimulating();
     });
   }
 
-  Stream<LatLng> get latLng$ => _latLng$ ??= _controller.stream;
+  Stream<LatLng> get value$ => _value$ ??= _subject.stream;
 
   final _routeLoader = DebugRouteLoaderImpl();
 
-  StreamSubscription<LatLng> simulatingSubscription;
+  StreamSubscription<LatLng> _simulatingSubscription;
 
   Future<void> simulateRoute(DebugRoute route) {
     // make sure that debugger is enabled.
@@ -54,8 +54,8 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
 
     final completer = Completer();
 
-    simulatingSubscription = route.latLng$.listen(
-      _controller.add,
+    _simulatingSubscription = route.latLng$.listen(
+      _subject.add,
       cancelOnError: true,
       onError: (_) {
         completer.completeError('Got error while simulating ${route.id}');
@@ -72,16 +72,16 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
   }
 
   pauseSimulating() {
-    simulatingSubscription?.pause();
+    _simulatingSubscription?.pause();
   }
 
   resumeSimulating() {
-    simulatingSubscription?.resume();
+    _simulatingSubscription?.resume();
   }
 
   stopSimulating() {
-    simulatingSubscription?.cancel();
-    simulatingSubscription = null;
+    _simulatingSubscription?.cancel();
+    _simulatingSubscription = null;
   }
 
   Future<List<DebugRoute>> loadRoutes() async {
@@ -89,5 +89,5 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
   }
 
   /// Backing field of [latLng$]
-  Stream<LatLng> _latLng$;
+  Stream<LatLng> _value$;
 }

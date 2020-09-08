@@ -98,7 +98,7 @@ class __KeySequenceListenerState extends State<_KeySequenceListener> {
 
   @override
   void dispose() {
-    if (_listener != null) RawKeyboard.instance.removeListener(_listener);
+    RawKeyboard.instance.removeListener(_listener);
     _keySequenceSubscription?.cancel();
     _streamController?.close();
     super.dispose();

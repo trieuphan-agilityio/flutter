@@ -3,7 +3,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:glob/glob.dart';
 
 import 'steps/expect_ad_is_displaying.dart';
-import 'steps/i_am_passenger.dart';
+import 'steps/i_am_a_visitor.dart';
 
 Future<void> main() {
   final config = FlutterTestConfiguration()
@@ -13,7 +13,7 @@ Future<void> main() {
       TestRunSummaryReporter(),
     ]
     ..stepDefinitions = [
-      iAmPassengerStep(),
+      iAmAVisitor(),
       expectAdIsDisplayingStep(),
     ]
     ..restartAppBetweenScenarios = false

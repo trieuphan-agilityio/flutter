@@ -22,7 +22,7 @@ main() {
       isDone = false;
 
       gpsDebugger = GpsDebuggerImpl();
-      movementDetector = MovementDetectorImpl(gpsDebugger.latLng$);
+      movementDetector = MovementDetectorImpl(gpsDebugger.value$);
 
       movementDetector.state$.listen(
         emittedValues.add,

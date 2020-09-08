@@ -6,11 +6,11 @@ import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 
 @visibleForTesting
 class MockGpsDebugger with DebuggerMixin implements GpsDebugger {
-  final Stream<LatLng> _latLng$;
+  final Stream<LatLng> _value$;
 
-  MockGpsDebugger(this._latLng$);
+  MockGpsDebugger(this._value$);
 
-  Stream<LatLng> get latLng$ => _latLng$;
+  Stream<LatLng> get value$ => _value$;
 
   Future<List<DebugRoute>> loadRoutes() {
     throw UnimplementedError();

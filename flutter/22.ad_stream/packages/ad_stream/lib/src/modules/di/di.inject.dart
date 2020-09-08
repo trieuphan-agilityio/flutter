@@ -35,19 +35,20 @@ import '../on_trip/age_detector.dart' as _i34;
 import '../gps/movement_detector.dart' as _i35;
 import '../config/camera_config.dart' as _i36;
 import '../on_trip/camera_controller.dart' as _i37;
-import '../on_trip/face_detector.dart' as _i38;
-import '../on_trip/trip_detector.dart' as _i39;
-import '../config/mic_config.dart' as _i40;
-import '../on_trip/mic_controller.dart' as _i41;
-import '../on_trip/speech_to_text.dart' as _i42;
-import '../on_trip/keyword_detector.dart' as _i43;
-import '../config/area_config.dart' as _i44;
-import '../on_trip/area_detector.dart' as _i45;
-import '../ad/targeting_value_collector.dart' as _i46;
-import '../ad/ad_scheduler.dart' as _i47;
-import '../ad/ad_presenter.dart' as _i48;
-import '../config/downloader_config.dart' as _i49;
-import 'dart:async' as _i50;
+import '../on_trip/debugger/face_debugger.dart' as _i38;
+import '../on_trip/face_detector.dart' as _i39;
+import '../on_trip/trip_detector.dart' as _i40;
+import '../config/mic_config.dart' as _i41;
+import '../on_trip/mic_controller.dart' as _i42;
+import '../on_trip/speech_to_text.dart' as _i43;
+import '../on_trip/keyword_detector.dart' as _i44;
+import '../config/area_config.dart' as _i45;
+import '../on_trip/area_detector.dart' as _i46;
+import '../ad/targeting_value_collector.dart' as _i47;
+import '../ad/ad_scheduler.dart' as _i48;
+import '../ad/ad_presenter.dart' as _i49;
+import '../config/downloader_config.dart' as _i50;
+import 'dart:async' as _i51;
 
 class DI$Injector implements _i1.DI {
   DI$Injector._(
@@ -135,33 +136,35 @@ class DI$Injector implements _i1.DI {
 
   _i37.CameraController _singletonCameraController;
 
-  _i38.FaceDetector _singletonFaceDetector;
+  _i38.FaceDebugger _singletonFaceDebugger;
 
-  _i39.TripDetector _singletonTripDetector;
+  _i39.FaceDetector _singletonFaceDetector;
 
-  _i40.MicConfigProvider _singletonMicConfigProvider;
+  _i40.TripDetector _singletonTripDetector;
 
-  _i41.MicController _singletonMicController;
+  _i41.MicConfigProvider _singletonMicConfigProvider;
 
-  _i42.SpeechToText _singletonSpeechToText;
+  _i42.MicController _singletonMicController;
 
-  _i43.KeywordDetector _singletonKeywordDetector;
+  _i43.SpeechToText _singletonSpeechToText;
 
-  _i44.AreaConfigProvider _singletonAreaConfigProvider;
+  _i44.KeywordDetector _singletonKeywordDetector;
 
-  _i45.AreaDetector _singletonAreaDetector;
+  _i45.AreaConfigProvider _singletonAreaConfigProvider;
 
-  _i46.TargetingValueCollector _singletonTargetingValueCollector;
+  _i46.AreaDetector _singletonAreaDetector;
 
-  _i47.AdScheduler _singletonAdScheduler;
+  _i47.TargetingValueCollector _singletonTargetingValueCollector;
 
-  _i48.AdPresenter _singletonAdPresenter;
+  _i48.AdScheduler _singletonAdScheduler;
 
-  _i49.DownloaderConfigProvider _singletonDownloaderConfigProvider;
+  _i49.AdPresenter _singletonAdPresenter;
+
+  _i50.DownloaderConfigProvider _singletonDownloaderConfigProvider;
 
   _i13.PrefStoreReading _singletonPrefStoreReading;
 
-  static _i50.Future<_i1.DI> create(
+  static _i51.Future<_i1.DI> create(
       _i5.AdModule adModule,
       _i2.ConfigModule configModule,
       _i18.CommonModule commonModule,
@@ -198,7 +201,7 @@ class DI$Injector implements _i1.DI {
           _configModule.adPresenterConfigProvider(_createConfigProvider());
   _i3.ConfigProvider _createConfigProvider() =>
       _singletonConfigProvider ??= _configModule.configProvider();
-  _i48.AdPresenter _createAdPresenter() =>
+  _i49.AdPresenter _createAdPresenter() =>
       _singletonAdPresenter ??= _adModule.adPresenter(
           _createServiceManager(),
           _createAdScheduler(),
@@ -221,7 +224,7 @@ class DI$Injector implements _i1.DI {
       _singletonPrefStoreWriting ??=
           _storageModule.prefStoreWriting(_createSharedPreferences());
   _i12.SharedPreferences _createSharedPreferences() => _sharedPreferences;
-  _i47.AdScheduler _createAdScheduler() =>
+  _i48.AdScheduler _createAdScheduler() =>
       _singletonAdScheduler ??= _adModule.adScheduler(
           _createServiceManager(),
           _createAdRepository(),
@@ -265,7 +268,7 @@ class DI$Injector implements _i1.DI {
   _i31.AdConfigProvider _createAdConfigProvider() =>
       _singletonAdConfigProvider ??=
           _configModule.adConfigProvider(_createConfigProvider());
-  _i46.TargetingValueCollector _createTargetingValueCollector() =>
+  _i47.TargetingValueCollector _createTargetingValueCollector() =>
       _singletonTargetingValueCollector ??= _adModule.targetingValueCollector(
           _createServiceManager(),
           _createGenderDetector(),
@@ -277,7 +280,7 @@ class DI$Injector implements _i1.DI {
       _singletonGenderDetector ??= _onTripModule.genderDetector();
   _i34.AgeDetector _createAgeDetector() =>
       _singletonAgeDetector ??= _onTripModule.ageDetector();
-  _i39.TripDetector _createTripDetector() =>
+  _i40.TripDetector _createTripDetector() =>
       _singletonTripDetector ??= _onTripModule.tripDetector(
           _createServiceManager(),
           _createMovementDetector(),
@@ -286,32 +289,36 @@ class DI$Injector implements _i1.DI {
   _i35.MovementDetector _createMovementDetector() =>
       _singletonMovementDetector ??= _gpsModule.movementDetector(
           _createServiceManager(), _createGpsController());
-  _i38.FaceDetector _createFaceDetector() =>
+  _i39.FaceDetector _createFaceDetector() =>
       _singletonFaceDetector ??= _onTripModule.faceDetector(
-          _createMovementDetector(), _createCameraController());
+          _createMovementDetector(),
+          _createCameraController(),
+          _createFaceDebugger());
   _i37.CameraController _createCameraController() =>
       _singletonCameraController ??=
           _onTripModule.cameraController(_createCameraConfigProvider());
   _i36.CameraConfigProvider _createCameraConfigProvider() =>
       _singletonCameraConfigProvider ??=
           _configModule.cameraConfigProvider(_createConfigProvider());
-  _i43.KeywordDetector _createKeywordDetector() =>
+  _i38.FaceDebugger _createFaceDebugger() =>
+      _singletonFaceDebugger ??= _onTripModule.faceDebugger();
+  _i44.KeywordDetector _createKeywordDetector() =>
       _singletonKeywordDetector ??= _onTripModule.keywordDetector(
           _createAdRepository(), _createSpeechToText());
-  _i42.SpeechToText _createSpeechToText() => _singletonSpeechToText ??=
+  _i43.SpeechToText _createSpeechToText() => _singletonSpeechToText ??=
       _onTripModule.speechToText(_createMicController());
-  _i41.MicController _createMicController() => _singletonMicController ??=
+  _i42.MicController _createMicController() => _singletonMicController ??=
       _onTripModule.micController(_createMicConfigProvider());
-  _i40.MicConfigProvider _createMicConfigProvider() =>
+  _i41.MicConfigProvider _createMicConfigProvider() =>
       _singletonMicConfigProvider ??=
           _configModule.micConfigProvider(_createConfigProvider());
-  _i45.AreaDetector _createAreaDetector() =>
+  _i46.AreaDetector _createAreaDetector() =>
       _singletonAreaDetector ??= _onTripModule.areaDetector(
           _createGpsController(), _createAreaConfigProvider());
-  _i44.AreaConfigProvider _createAreaConfigProvider() =>
+  _i45.AreaConfigProvider _createAreaConfigProvider() =>
       _singletonAreaConfigProvider ??=
           _configModule.areaConfigProvider(_createConfigProvider());
-  _i49.DownloaderConfigProvider _createDownloaderConfigProvider() =>
+  _i50.DownloaderConfigProvider _createDownloaderConfigProvider() =>
       _singletonDownloaderConfigProvider ??=
           _configModule.downloaderConfigProvider(_createConfigProvider());
   _i13.PrefStoreReading _createPrefStoreReading() =>
@@ -321,9 +328,9 @@ class DI$Injector implements _i1.DI {
   _i4.AdPresenterConfigProvider get config =>
       _createAdPresenterConfigProvider();
   @override
-  _i48.AdPresenter get adPresenter => _createAdPresenter();
+  _i49.AdPresenter get adPresenter => _createAdPresenter();
   @override
-  _i47.AdScheduler get adScheduler => _createAdScheduler();
+  _i48.AdScheduler get adScheduler => _createAdScheduler();
   @override
   _i29.AdRepository get adRepository => _createAdRepository();
   @override
@@ -342,17 +349,17 @@ class DI$Injector implements _i1.DI {
   _i30.AdSchedulerConfigProvider get adSchedulerConfigProvider =>
       _createAdSchedulerConfigProvider();
   @override
-  _i44.AreaConfigProvider get areaConfigProvider => _createAreaConfigProvider();
+  _i45.AreaConfigProvider get areaConfigProvider => _createAreaConfigProvider();
   @override
   _i36.CameraConfigProvider get cameraConfigProvider =>
       _createCameraConfigProvider();
   @override
-  _i49.DownloaderConfigProvider get downloaderConfigProvider =>
+  _i50.DownloaderConfigProvider get downloaderConfigProvider =>
       _createDownloaderConfigProvider();
   @override
   _i27.GpsConfigProvider get gpsConfigProvider => _createGpsConfigProvider();
   @override
-  _i40.MicConfigProvider get micConfigProvider => _createMicConfigProvider();
+  _i41.MicConfigProvider get micConfigProvider => _createMicConfigProvider();
   @override
   _i19.FileUrlResolver get fileUrlResolver => _createFileUrlResolver();
   @override
@@ -381,21 +388,23 @@ class DI$Injector implements _i1.DI {
   @override
   _i35.MovementDetector get movementDetector => _createMovementDetector();
   @override
-  _i39.TripDetector get tripDetector => _createTripDetector();
+  _i40.TripDetector get tripDetector => _createTripDetector();
   @override
   _i37.CameraController get cameraController => _createCameraController();
   @override
-  _i41.MicController get micController => _createMicController();
+  _i42.MicController get micController => _createMicController();
   @override
-  _i42.SpeechToText get speechToText => _createSpeechToText();
+  _i43.SpeechToText get speechToText => _createSpeechToText();
   @override
-  _i43.KeywordDetector get keywordDetector => _createKeywordDetector();
+  _i44.KeywordDetector get keywordDetector => _createKeywordDetector();
   @override
-  _i38.FaceDetector get faceDetector => _createFaceDetector();
+  _i39.FaceDetector get faceDetector => _createFaceDetector();
+  @override
+  _i38.FaceDebugger get faceDebugger => _createFaceDebugger();
   @override
   _i34.AgeDetector get ageDetector => _createAgeDetector();
   @override
   _i33.GenderDetector get genderDetector => _createGenderDetector();
   @override
-  _i45.AreaDetector get areaDetector => _createAreaDetector();
+  _i46.AreaDetector get areaDetector => _createAreaDetector();
 }

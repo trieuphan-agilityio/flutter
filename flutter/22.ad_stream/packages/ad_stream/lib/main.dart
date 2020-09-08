@@ -18,6 +18,7 @@ void main() {
   runApp(App());
 }
 
+@visibleForTesting
 void mainInjectConfig(Config config) {
   runApp(App(defaultConfig: config));
 }

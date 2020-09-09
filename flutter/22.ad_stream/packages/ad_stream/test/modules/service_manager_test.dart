@@ -32,10 +32,7 @@ main() {
         controllerForPermission.stream,
       );
 
-      serviceManager = ServiceManagerImpl(
-        powerProvider.state$,
-        permissionController.state$,
-      );
+      serviceManager = ServiceManagerImpl(powerProvider, permissionController);
 
       mockService = _MockService();
       mockService.listenTo(serviceManager.status$);

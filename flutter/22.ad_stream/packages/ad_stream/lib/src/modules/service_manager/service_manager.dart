@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:ad_stream/src/modules/power/power_provider.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
@@ -19,27 +20,33 @@ abstract class ServiceManager extends Service {
 }
 
 class ServiceManagerImpl with ServiceMixin implements ServiceManager {
-  final Stream<PowerState> power$;
-  final Stream<PermissionState> permission$;
+  final PowerProvider powerProvider;
+  final PermissionController permissionController;
 
   /// NOTE: this disposer is different to the one provided by [ServiceMixn].
   /// It's used in [init] and [dispose] methods, in other hand [ServiceMixin]'s
   /// disposer is for [start] and [stop] method.
   final Disposer _disposerForInit = Disposer();
 
-  ServiceManagerImpl(this.power$, this.permission$);
+  ServiceManagerImpl(this.powerProvider, this.permissionController);
 
   init() {
-    final subscription = power$.combineLatest(permission$, (power, permission) {
-      Log.info('ServiceManager observed $power, $permission');
-      if (power == PowerState.strong && permission == PermissionState.allowed) {
-        return true;
-      } else {
-        return false;
-      }
-    }).listen((bool isStarted) => isStarted ? start() : stop());
-
+    final subscription = powerProvider.state$.combineLatest(
+      permissionController.state$,
+      (power, permission) {
+        Log.info('ServiceManager observed $power, $permission');
+        if (power == PowerState.strong &&
+            permission == PermissionState.allowed) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+    ).listen((bool isStarted) => isStarted ? start() : stop());
     _disposerForInit.autoDispose(subscription);
+
+    powerProvider.start();
+    permissionController.start();
 
     Log.info('ServiceManager initialized.');
   }
@@ -50,6 +57,9 @@ class ServiceManagerImpl with ServiceMixin implements ServiceManager {
 
     // stop listening to power and permission streams
     _disposerForInit.cancel();
+
+    powerProvider.stop();
+    permissionController.stop();
 
     Log.info('ServiceManager disposed.');
     return null;

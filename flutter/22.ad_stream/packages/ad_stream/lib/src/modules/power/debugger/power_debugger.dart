@@ -16,7 +16,7 @@ class PowerDebuggerImpl with DebuggerMixin implements PowerDebugger {
   PowerDebuggerImpl()
       : _subject = BehaviorSubject<PowerState>.seeded(PowerState.strong);
 
-  Stream<PowerState> get value$ => _subject.stream;
+  Stream<PowerState> get value$ => _subject;
 
   weak() {
     toggle(true);

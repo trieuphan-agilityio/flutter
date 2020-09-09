@@ -18,9 +18,6 @@ class ServiceManagerModule {
     PowerProvider powerProvider,
     PermissionController permissionController,
   ) {
-    return ServiceManagerImpl(
-      powerProvider.state$,
-      permissionController.state$,
-    );
+    return ServiceManagerImpl(powerProvider, permissionController);
   }
 }

@@ -39,7 +39,7 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
     });
   }
 
-  Stream<LatLng> get value$ => _value$ ??= _subject.stream;
+  Stream<LatLng> get value$ => _subject;
 
   final _routeLoader = DebugRouteLoaderImpl();
 
@@ -87,7 +87,4 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
   Future<List<DebugRoute>> loadRoutes() async {
     return _routeLoader.load();
   }
-
-  /// Backing field of [latLng$]
-  Stream<LatLng> _value$;
 }

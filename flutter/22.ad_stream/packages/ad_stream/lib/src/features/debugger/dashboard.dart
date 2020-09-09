@@ -17,7 +17,6 @@ class DebugDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DebugDashboard(
-      key: Key('debug_dashboard'),
       permissionDebugger: DI.of(context).permissionDebugger,
       powerDebugger: DI.of(context).powerDebugger,
       gpsDebugger: DI.of(context).gpsDebugger,
@@ -44,8 +43,12 @@ class _DebugDashboard extends StatelessWidget {
       body: SafeArea(
         child: Form(
           child: SingleChildScrollView(
+            key: const Key('debug_dashboard'),
             child: Column(
               children: [
+                _buildHeader('Stories'),
+                ..._buildStories(context),
+                _buildDivider(),
                 _buildHeader('Service Manager'),
                 _buildForPermission(context),
                 _buildForPower(),
@@ -80,6 +83,50 @@ class _DebugDashboard extends StatelessWidget {
       dense: true,
       title: Text(text.toUpperCase()),
     );
+  }
+
+  Iterable<Widget> _buildStories(BuildContext context) {
+    return [
+      ListTile(
+        key: const Key('story_visitor'),
+        title: Text('I am a visitor'),
+        onTap: () {
+          permissionDebugger.setDebugState(PermissionDebuggerState.allow);
+          powerDebugger.toggle(true);
+          powerDebugger.strong();
+          gpsDebugger.toggle(true);
+        },
+      ),
+      ListTile(
+        key: const Key('story_video_ad'),
+        title: Text('I am seeing an video ad is playing'),
+        onTap: () {
+          permissionDebugger.setDebugState(PermissionDebuggerState.allow);
+          powerDebugger.toggle(true);
+          powerDebugger.strong();
+          gpsDebugger.toggle(true);
+        },
+      ),
+      ListTile(
+        key: const Key('story_pick_up_passenger'),
+        title: Text('Driver pick up a passenger'),
+        onTap: () async {
+          permissionDebugger.setDebugState(PermissionDebuggerState.allow);
+          powerDebugger.toggle(true);
+          powerDebugger.strong();
+
+          // simulate route 496NgoQuyen_604NuiThanh in sample_data.dart
+          final routes = await gpsDebugger.loadRoutes();
+          final testRoute = routes[0];
+          gpsDebugger.simulateRoute(testRoute);
+        },
+      ),
+      ListTile(
+        key: const Key('story_about_finish_trip'),
+        title: Text('Passenger is about to finish a trip'),
+        onTap: () {},
+      ),
+    ];
   }
 
   Widget _buildForPermission(BuildContext context) {
@@ -153,12 +200,10 @@ class _DebugDashboard extends StatelessWidget {
     return ListTile(
       key: const Key('simulate_route'),
       title: Text('Simulate Route'),
-      onTap: () async {
-        final DebugRoute chose = await Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (context) => SimulateRoute(gpsDebugger: gpsDebugger)),
-        );
-        if (chose != null) gpsDebugger.simulateRoute(chose);
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => SimulateRoute(),
+        ));
       },
     );
   }

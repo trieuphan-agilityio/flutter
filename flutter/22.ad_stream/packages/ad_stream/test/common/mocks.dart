@@ -25,7 +25,7 @@ class MockGpsAdapter implements GpsAdapter {
   }
 }
 
-class MockPowerProvider implements PowerProvider {
+class MockPowerProvider with ServiceMixin implements PowerProvider {
   final Stream<PowerState> _state$;
 
   MockPowerProvider(this._state$);

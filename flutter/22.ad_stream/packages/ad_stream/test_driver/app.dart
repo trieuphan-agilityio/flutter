@@ -9,9 +9,9 @@ void main() {
     defaultAd: null,
     creativeBaseUrl: 'http://localhost:8080/public/creatives/',
     gpsAccuracy: 4,
-    defaultAdRepositoryRefreshInterval: 3,
-    defaultAdSchedulerRefreshInterval: 3,
-    defaultAdPresenterHealthCheckInterval: 3,
+    defaultAdRepositoryRefreshInterval: 1,
+    defaultAdSchedulerRefreshInterval: 1,
+    defaultAdPresenterHealthCheckInterval: 1,
   );
 
   app.mainInjectConfig(testConfig);

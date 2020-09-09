@@ -1,18 +1,28 @@
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/di.dart';
 import 'package:ad_stream/src/modules/gps/debugger/debug_route.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
 import 'package:flutter/material.dart';
 
-class SimulateRoute extends StatefulWidget {
-  final GpsDebugger gpsDebugger;
-
-  const SimulateRoute({Key key, @required this.gpsDebugger}) : super(key: key);
-
+class SimulateRoute extends StatelessWidget {
   @override
-  _SimulateRouteState createState() => _SimulateRouteState();
+  Widget build(BuildContext context) {
+    return _SimulateRoute(
+      gpsDebugger: DI.of(context).gpsDebugger,
+    );
+  }
 }
 
-class _SimulateRouteState extends State<SimulateRoute> {
+class _SimulateRoute extends StatefulWidget {
+  final GpsDebugger gpsDebugger;
+
+  const _SimulateRoute({Key key, @required this.gpsDebugger}) : super(key: key);
+
+  @override
+  __SimulateRouteState createState() => __SimulateRouteState();
+}
+
+class __SimulateRouteState extends State<_SimulateRoute> {
   bool isLoading = true;
   List<DebugRoute> routes = [];
 
@@ -50,13 +60,17 @@ class _SimulateRouteState extends State<SimulateRoute> {
         children: [
           ...routes.map((r) {
             return ListTile(
+              key: ValueKey(r.name),
               leading: Radio<String>(
                 value: r.id,
                 groupValue: null,
                 onChanged: (_) {},
               ),
               title: Text(r.name),
-              onTap: () => Navigator.of(context).pop(r),
+              onTap: () {
+                widget.gpsDebugger.simulateRoute(r);
+                Navigator.of(context).pop();
+              },
             );
           }).toList(),
         ],

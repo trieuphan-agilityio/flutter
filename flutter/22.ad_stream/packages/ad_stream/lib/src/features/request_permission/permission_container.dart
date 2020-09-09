@@ -70,6 +70,7 @@ class __PermissionRequesterUIState extends State<_PermissionRequesterUI> {
       ),
     );
 
+    Navigator.of(context).popUntil((route) => route.isFirst);
     Navigator.of(context).push(requestUIRoute);
   }
 

@@ -123,7 +123,6 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   }
 
   _initOrElseResumePhoto$Subscription() {
-    print('is broadcast? ${_photo$Subscription}');
     if (_photo$Subscription == null) {
       _photo$Subscription = _photo$.listen(_detectFaces);
     } else if (_photo$Subscription.isPaused) {

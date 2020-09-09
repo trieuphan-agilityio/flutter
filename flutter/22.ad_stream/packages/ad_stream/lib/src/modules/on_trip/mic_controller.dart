@@ -26,7 +26,7 @@ class MicControllerImpl with ServiceMixin implements MicController {
         final audio = await _recordAudio();
         _controller.add(audio);
 
-        Log.info('MicController recorded $audio.');
+        // Log.info('MicController recorded $audio.');
       },
       _configProvider.micConfig.recordInterval,
     );

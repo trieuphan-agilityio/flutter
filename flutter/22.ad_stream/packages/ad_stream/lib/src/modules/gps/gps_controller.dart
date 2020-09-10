@@ -40,7 +40,7 @@ class GpsControllerImpl with ServiceMixin<LatLng> implements GpsController {
   /// Service
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     // listen to the gpsOptions$ stream to create new gps stream with new options.
@@ -53,7 +53,6 @@ class GpsControllerImpl with ServiceMixin<LatLng> implements GpsController {
     });
 
     disposer.autoDispose(sub);
-    return null;
   }
 
   _buildNewStream() {

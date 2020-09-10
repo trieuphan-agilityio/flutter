@@ -156,14 +156,13 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
   /// ==========================================================================
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
     // get ads from AdServer right after starting.
     _fetchAds();
-    return null;
   }
 
-  Future<void> _fetchAds() async {
+  _fetchAds() async {
     // Ad currently are persisted in local storage.
     // Including downloaded Ads, and Ads that are queued up for downloading.
     final localAds = _ads$Controller.value;
@@ -201,8 +200,6 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
 
     // emit new ads
     _ads$Controller.add(ads);
-
-    return null;
   }
 
   /// Save the latest value of from LatLng stream.

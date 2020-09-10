@@ -50,16 +50,14 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   /// Service
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     final subscription = targetingValues$.listen((v) => targetingValues = v);
     disposer.autoDispose(subscription);
-
-    return null;
   }
 
-  Future<void> _pullAds() async {
+  _pullAds() async {
     /// going to pick an Ad from the "ready" stream Ads.
     final readyAds = await adRepository.getReadyList(targetingValues);
 
@@ -91,8 +89,6 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
         ', creativeId: ${_pickedAd.creative.shortId}'
         ', version: ${_pickedAd.version}}'
         '${targetingValues == null ? "." : ", with $targetingValues."}');
-
-    return null;
   }
 
   final Random _random = Random();

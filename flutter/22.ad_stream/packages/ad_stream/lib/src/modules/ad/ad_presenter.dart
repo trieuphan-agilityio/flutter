@@ -138,12 +138,11 @@ class AdPresenterImpl
 
   /// TaskService
 
-  Future<void> _runTask() {
+  _runTask() async {
     // wake it up if find out that it's waiting for new Ad to display
     if (_displayingAd == null) {
       _displayNewAdIfNeeds();
     }
-    return null;
   }
 }
 

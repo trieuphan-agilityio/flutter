@@ -106,7 +106,7 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
   List<Permission> get permissions => _delegate.permissions;
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     // Restore debugger state from storage
@@ -118,14 +118,12 @@ class PermissionDebuggerImpl with ServiceMixin implements PermissionDebugger {
     }
 
     _delegate.start();
-    return null;
   }
 
   @override
-  Future<void> stop() {
+  stop() async {
     super.stop();
     _delegate.stop();
-    return null;
   }
 
   /// A cache instance of [state$] stream.

@@ -45,7 +45,7 @@ class PermissionControllerImpl
       ];
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     // immediately check permission when it's starting.
@@ -55,7 +55,6 @@ class PermissionControllerImpl
     _timer = Timer.periodic(Duration(seconds: _kRefreshSecs), (_) {
       _verifyPermission();
     });
-    return null;
   }
 
   _verifyPermission() async {
@@ -87,13 +86,11 @@ class PermissionControllerImpl
   }
 
   @override
-  Future<void> stop() {
+  stop() async {
     super.stop();
 
     _timer?.cancel();
     _timer = null;
-
-    return null;
   }
 
   @visibleForTesting

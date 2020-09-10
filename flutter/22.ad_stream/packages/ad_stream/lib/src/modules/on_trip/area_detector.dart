@@ -26,7 +26,7 @@ class AreaDetectorImpl with ServiceMixin implements AreaDetector {
   }
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     _configProvider.areaConfig$.listen((config) {
@@ -45,8 +45,6 @@ class AreaDetectorImpl with ServiceMixin implements AreaDetector {
 
       disposer.autoDispose(subscription);
     });
-
-    return null;
   }
 
   StreamSubscription<LatLng> subscription;

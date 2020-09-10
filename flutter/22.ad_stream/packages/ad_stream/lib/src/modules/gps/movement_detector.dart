@@ -34,10 +34,9 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
   }
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
     disposer.autoDispose(_latLng$.listen(_buffer.add));
-    return null;
   }
 
   Stream<MovementState> get state$ => _state$ ??= _controller.stream.distinct();

@@ -62,7 +62,7 @@ class TargetingValueCollectorImpl
   }
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     disposer.autoDispose(_keywords$.listen(_addListOfValues));
@@ -82,8 +82,6 @@ class TargetingValueCollectorImpl
         _targetingValues.clear();
       }
     }));
-
-    return null;
   }
 
   _detectAgeRange(Iterable<Face> faces) {

@@ -131,16 +131,14 @@ class _MockService extends Service with ServiceMixin {
   int stopCalled = 0;
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
     startCalled++;
-    return null;
   }
 
   @override
-  Future<void> stop() {
+  stop() async {
     super.stop();
     stopCalled++;
-    return null;
   }
 }

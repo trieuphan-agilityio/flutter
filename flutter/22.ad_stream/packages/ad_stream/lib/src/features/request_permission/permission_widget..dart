@@ -74,7 +74,7 @@ class _PermissionState extends State<PermissionWidget> {
     ));
   }
 
-  Future<void> requestPermission(Permission permission) async {
+  void requestPermission(Permission permission) async {
     final status = await permission.request();
     setState(() => _permissionStatus = status);
   }

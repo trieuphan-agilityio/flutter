@@ -23,14 +23,12 @@ class FixedGpsController with ServiceMixin implements GpsController {
   /// Service
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     // this essential service should start as soon as it can
     // so that other service can consume its value on starting.
     _refreshLocation();
-
-    return null;
   }
 
   _refreshLocation() {

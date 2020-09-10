@@ -50,7 +50,7 @@ class TripDetectorImpl with ServiceMixin implements TripDetector {
   }
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
 
     disposer.autoDispose(movement$.listen((newValue) {
@@ -62,8 +62,6 @@ class TripDetectorImpl with ServiceMixin implements TripDetector {
       _faces = newValue;
       _checkState();
     }));
-
-    return null;
   }
 
   @override

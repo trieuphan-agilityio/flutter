@@ -53,12 +53,12 @@ class TripDetectorImpl with ServiceMixin implements TripDetector {
   Future<void> start() {
     super.start();
 
-    _disposer.autoDispose(movement$.listen((newValue) {
+    disposer.autoDispose(movement$.listen((newValue) {
       _movement = newValue;
       _checkState();
     }));
 
-    _disposer.autoDispose(faces$.listen((newValue) {
+    disposer.autoDispose(faces$.listen((newValue) {
       _faces = newValue;
       _checkState();
     }));
@@ -67,17 +67,18 @@ class TripDetectorImpl with ServiceMixin implements TripDetector {
   }
 
   @override
-  Future<void> stop() {
+  stop() async {
     super.stop();
 
     // Trip is considered as dropped off if service has stopped.
     _controller.add(TripState.offTrip());
-    return null;
+
+    // clean up data from previous trip
+    _movement = null;
+    _faces = null;
   }
 
   /// A cache instance of [state$]. It help to prevent re-computing
   /// stream transformation.
   Stream<TripState> _trip$;
-
-  final Disposer _disposer = Disposer();
 }

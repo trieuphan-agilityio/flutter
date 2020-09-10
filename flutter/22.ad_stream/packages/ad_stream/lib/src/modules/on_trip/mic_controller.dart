@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:ad_stream/base.dart';
 import 'package:ad_stream/config.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
 

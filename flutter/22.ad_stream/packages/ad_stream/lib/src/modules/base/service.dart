@@ -9,9 +9,6 @@ import 'debugger.dart';
 /// [Service] that is bind its lifecycle to other [Service]'s status$ stream.
 /// Typically, class that implements this interface should use [ServiceMixin].
 abstract class Service<T> {
-  /// Each service should provide a stream of specific value.
-  Stream<T> get value$;
-
   /// Service has its own status stream. Other service can bind to this status
   /// via [listenTo] method.
   Stream<ServiceStatus> get status$;
@@ -47,6 +44,9 @@ mixin ServiceMixin<T> {
 
   Function onDebuggerIsOff;
 
+  BehaviorSubject<Stream<T>> $switcher = BehaviorSubject<Stream<T>>();
+  Stream<T> get value$ => _value$ ??= $switcher.switchLatest();
+
   /// Take the debugger and its value
   @protected
   acceptDebugger(Debugger<T> debugger,
@@ -54,6 +54,10 @@ mixin ServiceMixin<T> {
     assert(
       originalValue$ == null || onDebuggerIsOff == null,
       'You must specific originalValue\$ or onDebuggerIsOff callback, not both.',
+    );
+    assert(
+      originalValue$ != null || onDebuggerIsOff != null,
+      'You must specific at least an originalValue\$ or onDebuggerIsOff callback.',
     );
     _debugger = debugger;
     _originalValue$ = originalValue$;
@@ -117,9 +121,6 @@ mixin ServiceMixin<T> {
     return _status$ ??=
         _status$Controller.stream.distinct().skipInitialStopped();
   }
-
-  BehaviorSubject<Stream<T>> $switcher = BehaviorSubject<Stream<T>>();
-  Stream<T> get value$ => _value$ ??= $switcher.switchLatest();
 
   /// depends on the state of the service, the switcher will choose to use
   /// the stream from debugger or its own value.

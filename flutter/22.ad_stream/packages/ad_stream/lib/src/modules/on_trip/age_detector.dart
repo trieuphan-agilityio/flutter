@@ -9,8 +9,14 @@ abstract class AgeDetector {
 }
 
 class AgeDetectorImpl implements AgeDetector {
+  /// Dummy detection that recognize the age range based on photo's file path
   Future<PassengerAgeRange> detect(Face face) async {
-    // FIXME
-    return PassengerAgeRange(18, 40);
+    if (face.photo.filePath.contains('18_25')) {
+      return const PassengerAgeRange(18, 25);
+    }
+    if (face.photo.filePath.contains('26_30')) {
+      return const PassengerAgeRange(26, 30);
+    }
+    return const PassengerAgeRange(18, 40);
   }
 }

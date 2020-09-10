@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:ad_stream/base.dart';
@@ -6,8 +7,8 @@ import 'package:ad_stream/src/modules/gps/movement_status.dart';
 import 'package:ad_stream/src/modules/on_trip/camera_controller.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
+import 'package:crypto/crypto.dart';
 
-import 'debugger/face_debugger.dart';
 import 'face.dart';
 import 'photo.dart';
 import 'trip_state.dart';
@@ -35,7 +36,6 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   FaceDetectorImpl(
     this._movementState$,
     this._photo$,
-    this._faceDebugger,
   ) : assert(
           !_photo$.isBroadcast,
           '_photo\$ must be single-subscription stream.',
@@ -44,25 +44,10 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
       _movementState = newValue;
       _verifyState();
     });
-
-    acceptDebugger(_faceDebugger, originalValue$: faces$);
-
-    // FaceDetector is bit different to other services since it's consuming a
-    // very expensive resource, camera. So it's using single-subscription stream
-    // interface to instruct [CameraController] to pause the process when
-    // no longer used.
-    _faceDebugger.isOn.addListener(() {
-      if (_faceDebugger.isOn.value) {
-        _photo$Subscription?.pause();
-      } else {
-        _initOrElseResumePhoto$Subscription();
-      }
-    });
   }
 
   final Stream<MovementState> _movementState$;
   final Stream<Photo> _photo$;
-  final FaceDebugger _faceDebugger;
 
   TripState _tripState;
   MovementState _movementState;
@@ -71,8 +56,28 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   Stream<List<Face>> get faces$ => _controller.stream;
 
   _detectFaces(Photo photo) {
-    // FIXME
-    final faces = [Face('face-id', photo)];
+    /// Dummy detection that recognize faces based on photo's file path
+    Iterable<Face> faces;
+    final femalePhoto = Photo('face-sample-female-26_30.png');
+    final malePhoto = Photo('face-sample-male-18_25.png');
+
+    if (photo.filePath.contains('sample_1')) {
+      faces = [
+        Face(_genFaceId(femalePhoto), femalePhoto),
+        Face(_genFaceId(malePhoto), malePhoto),
+      ];
+    } else if (photo.filePath.contains('sample_2')) {
+      faces = [
+        Face(_genFaceId(femalePhoto), femalePhoto),
+      ];
+    } else if (photo.filePath.contains('sample_3')) {
+      faces = [
+        Face(_genFaceId(malePhoto), malePhoto),
+      ];
+    } else {
+      faces = [];
+    }
+
     _controller.add(faces);
 
     Log.debug('FaceDetected detected '
@@ -107,27 +112,31 @@ class FaceDetectorImpl with ServiceMixin implements FaceDetector {
   }
 
   @override
-  Future<void> start() {
+  start() async {
     super.start();
-    if (!_faceDebugger.isOn.value) {
-      _initOrElseResumePhoto$Subscription();
-    }
-    return null;
-  }
 
-  @override
-  Future<void> stop() {
-    super.stop();
-    _photo$Subscription?.pause();
-    return null;
-  }
-
-  _initOrElseResumePhoto$Subscription() {
     if (_photo$Subscription == null) {
       _photo$Subscription = _photo$.listen(_detectFaces);
     } else if (_photo$Subscription.isPaused) {
       _photo$Subscription.resume();
     }
+  }
+
+  @override
+  stop() async {
+    super.stop();
+
+    // FaceDetector is bit different to other services since it's consuming a
+    // very expensive resource, camera. So it's using single-subscription stream
+    // interface to instruct [CameraController] to pause the process when
+    // no longer used.
+    _photo$Subscription?.pause();
+  }
+
+  /// Create an unique face id for the given photo
+  String _genFaceId(Photo photo) {
+    /// make an unique string using photo's data
+    return sha1.convert(utf8.encode(photo.filePath)).toString().substring(0, 5);
   }
 
   StreamSubscription _photo$Subscription;

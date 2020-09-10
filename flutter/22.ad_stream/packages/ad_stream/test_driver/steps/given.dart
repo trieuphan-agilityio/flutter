@@ -43,9 +43,9 @@ StepDefinitionGeneric passengerIsAboutToFinishATrip() {
 }
 
 StepDefinitionGeneric driverPickUpAPassenger() {
-  return given1<String, FlutterWorld>(
-    'Driver pick up a {word} passenger',
-    (gender, context) async {
+  return given2<String, int, FlutterWorld>(
+    'Driver pick up a {word}, {int} years old passenger',
+    (gender, age, context) async {
       final driver = context.world.driver;
       await _openDebugDashboard(driver, () async {
         await FlutterDriverUtils.tap(
@@ -65,17 +65,6 @@ StepDefinitionGeneric iAmSeeingVideoAd() {
       await _openDebugDashboard(driver, () async {
         await FlutterDriverUtils.tap(driver, find.byValueKey('story_video_ad'));
       });
-    },
-  );
-}
-
-StepDefinitionGeneric passengerAge() {
-  return given1<int, FlutterWorld>(
-    'Passenger is {int} years old',
-    (age, context) async {
-      final driver = context.world.driver;
-      await openDebugDashboard(driver);
-      await closeDebugDashboard(driver);
     },
   );
 }

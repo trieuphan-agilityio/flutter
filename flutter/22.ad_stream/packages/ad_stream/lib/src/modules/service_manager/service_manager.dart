@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/src/modules/permission/permission_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';

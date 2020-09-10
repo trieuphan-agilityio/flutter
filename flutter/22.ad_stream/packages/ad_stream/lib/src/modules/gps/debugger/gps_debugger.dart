@@ -10,6 +10,9 @@ import 'package:rxdart/rxdart.dart';
 abstract class GpsDebugger implements Debugger<LatLng> {
   Stream<LatLng> get value$;
 
+  /// Specify a fixed location to emit on [value$]
+  Future<void> useLocation(LatLng latLng);
+
   /// Invoke this function to load debug routes were defined.
   Future<List<DebugRoute>> loadRoutes();
 
@@ -44,6 +47,18 @@ class GpsDebuggerImpl with DebuggerMixin implements GpsDebugger {
   final _routeLoader = DebugRouteLoaderImpl();
 
   StreamSubscription<LatLng> _simulatingSubscription;
+
+  useLocation(LatLng latLng) async {
+    // make sure that debugger is enabled.
+    toggle(true);
+
+    // stop the current simulating if needs.
+    stopSimulating();
+
+    _subject.add(latLng);
+
+    Log.info('GpsDebugger use a fixed location $latLng.');
+  }
 
   Future<void> simulateRoute(DebugRoute route) {
     // make sure that debugger is enabled.

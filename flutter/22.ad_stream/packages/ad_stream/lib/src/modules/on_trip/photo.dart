@@ -8,7 +8,7 @@ class Photo {
   /// should handle the error by itself.
   final String filePath;
 
-  Photo(this.filePath);
+  const Photo(this.filePath);
 
   @override
   String toString() {

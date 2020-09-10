@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ad_stream/base.dart';
 import 'package:ad_stream/config.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
+import 'package:ad_stream/src/modules/on_trip/debugger/camera_debugger.dart';
 
 import 'photo.dart';
 
@@ -10,14 +11,17 @@ abstract class CameraController implements Service {
   Stream<Photo> get photo$;
 }
 
-class CameraControllerImpl with ServiceMixin implements CameraController {
+class CameraControllerImpl
+    with ServiceMixin<Photo>
+    implements CameraController {
   /// A single-subscription stream controller.
   /// It will capture image only when there is a subscriber.
   final StreamController<Photo> _controller;
+  final CameraDebugger _cameraDebugger;
 
   Stream<Photo> get photo$ => _controller.stream;
 
-  CameraControllerImpl(this._configProvider)
+  CameraControllerImpl(this._configProvider, this._cameraDebugger)
       : _controller = StreamController() {
     backgroundTask = ServiceTask(
       () async {
@@ -43,7 +47,9 @@ class CameraControllerImpl with ServiceMixin implements CameraController {
   }
 
   Future<Photo> _capturePhoto() async {
-    // FIXME
+    if (_cameraDebugger.isOn.value) {
+      return _cameraDebugger.photo;
+    }
     return Photo('sample/file.path');
   }
 

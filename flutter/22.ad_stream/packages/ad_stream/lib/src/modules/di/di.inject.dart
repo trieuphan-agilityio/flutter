@@ -34,8 +34,8 @@ import '../on_trip/gender_detector.dart' as _i33;
 import '../on_trip/age_detector.dart' as _i34;
 import '../gps/movement_detector.dart' as _i35;
 import '../config/camera_config.dart' as _i36;
-import '../on_trip/camera_controller.dart' as _i37;
-import '../on_trip/debugger/face_debugger.dart' as _i38;
+import '../on_trip/debugger/camera_debugger.dart' as _i37;
+import '../on_trip/camera_controller.dart' as _i38;
 import '../on_trip/face_detector.dart' as _i39;
 import '../on_trip/trip_detector.dart' as _i40;
 import '../config/mic_config.dart' as _i41;
@@ -134,9 +134,9 @@ class DI$Injector implements _i1.DI {
 
   _i36.CameraConfigProvider _singletonCameraConfigProvider;
 
-  _i37.CameraController _singletonCameraController;
+  _i37.CameraDebugger _singletonCameraDebugger;
 
-  _i38.FaceDebugger _singletonFaceDebugger;
+  _i38.CameraController _singletonCameraController;
 
   _i39.FaceDetector _singletonFaceDetector;
 
@@ -291,17 +291,15 @@ class DI$Injector implements _i1.DI {
           _createServiceManager(), _createGpsController());
   _i39.FaceDetector _createFaceDetector() =>
       _singletonFaceDetector ??= _onTripModule.faceDetector(
-          _createMovementDetector(),
-          _createCameraController(),
-          _createFaceDebugger());
-  _i37.CameraController _createCameraController() =>
-      _singletonCameraController ??=
-          _onTripModule.cameraController(_createCameraConfigProvider());
+          _createMovementDetector(), _createCameraController());
+  _i38.CameraController _createCameraController() =>
+      _singletonCameraController ??= _onTripModule.cameraController(
+          _createCameraConfigProvider(), _createCameraDebugger());
   _i36.CameraConfigProvider _createCameraConfigProvider() =>
       _singletonCameraConfigProvider ??=
           _configModule.cameraConfigProvider(_createConfigProvider());
-  _i38.FaceDebugger _createFaceDebugger() =>
-      _singletonFaceDebugger ??= _onTripModule.faceDebugger();
+  _i37.CameraDebugger _createCameraDebugger() =>
+      _singletonCameraDebugger ??= _onTripModule.cameraDebugger();
   _i44.KeywordDetector _createKeywordDetector() =>
       _singletonKeywordDetector ??= _onTripModule.keywordDetector(
           _createAdRepository(), _createSpeechToText());
@@ -390,7 +388,9 @@ class DI$Injector implements _i1.DI {
   @override
   _i40.TripDetector get tripDetector => _createTripDetector();
   @override
-  _i37.CameraController get cameraController => _createCameraController();
+  _i38.CameraController get cameraController => _createCameraController();
+  @override
+  _i37.CameraDebugger get cameraDebugger => _createCameraDebugger();
   @override
   _i42.MicController get micController => _createMicController();
   @override
@@ -399,8 +399,6 @@ class DI$Injector implements _i1.DI {
   _i44.KeywordDetector get keywordDetector => _createKeywordDetector();
   @override
   _i39.FaceDetector get faceDetector => _createFaceDetector();
-  @override
-  _i38.FaceDebugger get faceDebugger => _createFaceDebugger();
   @override
   _i34.AgeDetector get ageDetector => _createAgeDetector();
   @override

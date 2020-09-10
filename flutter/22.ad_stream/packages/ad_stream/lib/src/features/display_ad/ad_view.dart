@@ -69,7 +69,7 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
   Widget _buildAdInfo() {
     return Container(
       width: 400,
-      height: 250,
+      height: 400,
       padding: EdgeInsets.all(16),
       child: Stack(children: [
         Container(
@@ -82,6 +82,11 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
               ),
               SizedBox(height: 8),
               Text('${model.wellFormatString}'),
+              SizedBox(height: 8),
+              Text(
+                '${model.ad}',
+                style: Theme.of(context).textTheme.caption,
+              )
             ],
           ),
           padding: EdgeInsets.all(16),

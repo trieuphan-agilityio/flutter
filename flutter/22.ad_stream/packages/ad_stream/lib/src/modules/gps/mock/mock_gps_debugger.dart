@@ -31,4 +31,8 @@ class MockGpsDebugger with DebuggerMixin implements GpsDebugger {
   stopSimulating() {
     throw UnimplementedError();
   }
+
+  useLocation(LatLng latLng) {
+    throw UnimplementedError();
+  }
 }

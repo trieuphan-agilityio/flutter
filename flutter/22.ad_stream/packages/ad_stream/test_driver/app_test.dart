@@ -12,7 +12,6 @@ Future<void> main() {
     passengerIsAboutToFinishATrip(),
     driverPickUpAPassenger(),
     iAmSeeingVideoAd(),
-    passengerAge(),
 
     /// when
     driverIsDriving(),

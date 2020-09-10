@@ -53,6 +53,8 @@ dependencies:
 
   # UTILITY
   faker: 1.2.1
+  # gen face id
+  crypto: 2.1.5
 
   # allow persisting sample gps values as csv
   csv: 4.0.3

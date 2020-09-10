@@ -15,6 +15,7 @@ import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
 import 'camera_controller.dart';
+import 'debugger/camera_debugger.dart';
 import 'debugger/face_debugger.dart';
 
 /// Declare public interface that an OnTripModule should expose
@@ -24,6 +25,9 @@ abstract class OnTripModuleLocator {
 
   @provide
   CameraController get cameraController;
+
+  @provide
+  CameraDebugger get cameraDebugger;
 
   @provide
   MicController get micController;
@@ -36,9 +40,6 @@ abstract class OnTripModuleLocator {
 
   @provide
   FaceDetector get faceDetector;
-
-  @provide
-  FaceDebugger get faceDebugger;
 
   @provide
   AgeDetector get ageDetector;
@@ -75,8 +76,17 @@ class OnTripModule {
 
   @provide
   @singleton
-  CameraController cameraController(CameraConfigProvider configProvider) {
-    return CameraControllerImpl(configProvider);
+  CameraDebugger cameraDebugger() {
+    return CameraDebuggerImpl();
+  }
+
+  @provide
+  @singleton
+  CameraController cameraController(
+    CameraConfigProvider configProvider,
+    CameraDebugger cameraDebugger,
+  ) {
+    return CameraControllerImpl(configProvider, cameraDebugger);
   }
 
   @provide
@@ -105,10 +115,8 @@ class OnTripModule {
   FaceDetector faceDetector(
     MovementDetector movementDetector,
     CameraController cameraController,
-    FaceDebugger faceDebugger,
   ) {
-    return FaceDetectorImpl(
-        movementDetector.state$, cameraController.photo$, faceDebugger);
+    return FaceDetectorImpl(movementDetector.state$, cameraController.photo$);
   }
 
   @provide

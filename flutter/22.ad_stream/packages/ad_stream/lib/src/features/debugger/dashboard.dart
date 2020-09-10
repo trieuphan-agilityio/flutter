@@ -1,9 +1,10 @@
 import 'package:ad_stream/di.dart';
 import 'package:ad_stream/src/features/debugger/log_view.dart';
+import 'package:ad_stream/src/features/debugger/select_location.dart';
+import 'package:ad_stream/src/features/debugger/select_photo.dart';
 import 'package:ad_stream/src/features/debugger/simulate_route.dart';
-import 'package:ad_stream/src/modules/gps/debugger/debug_route.dart';
 import 'package:ad_stream/src/modules/gps/debugger/gps_debugger.dart';
-import 'package:ad_stream/src/modules/on_trip/face.dart';
+import 'package:ad_stream/src/modules/on_trip/debugger/camera_debugger.dart';
 import 'package:ad_stream/src/modules/on_trip/photo.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger.dart';
 import 'package:ad_stream/src/modules/permission/debugger/permission_debugger_state.dart';
@@ -20,6 +21,7 @@ class DebugDashboard extends StatelessWidget {
       permissionDebugger: DI.of(context).permissionDebugger,
       powerDebugger: DI.of(context).powerDebugger,
       gpsDebugger: DI.of(context).gpsDebugger,
+      cameraDebugger: DI.of(context).cameraDebugger,
     );
   }
 }
@@ -28,12 +30,14 @@ class _DebugDashboard extends StatelessWidget {
   final PermissionDebugger permissionDebugger;
   final PowerDebugger powerDebugger;
   final GpsDebugger gpsDebugger;
+  final CameraDebugger cameraDebugger;
 
   const _DebugDashboard({
     Key key,
     @required this.permissionDebugger,
     @required this.powerDebugger,
     @required this.gpsDebugger,
+    @required this.cameraDebugger,
   }) : super(key: key);
 
   @override
@@ -48,19 +52,14 @@ class _DebugDashboard extends StatelessWidget {
               children: [
                 _buildHeader('Stories'),
                 ..._buildStories(context),
-                _buildDivider(),
-                _buildHeader('Service Manager'),
+                ..._buildHeaderWithDivider('Service Manager'),
                 _buildForPermission(context),
                 _buildForPower(),
-                _buildDivider(),
-                _buildHeader('Gps'),
-                _buildForGps(context),
-                _buildForSimulateRoute(context),
-                _buildDivider(),
-                _buildHeader('On Trip'),
-                _buildForFace(context),
-                _buildDivider(),
-                _buildHeader('Others'),
+                ..._buildHeaderWithDivider('Gps'),
+                ..._buildForGps(context),
+                ..._buildHeaderWithDivider('On Trip'),
+                _buildForCamera(context),
+                ..._buildHeaderWithDivider('Others'),
                 _buildForConfig(context),
                 _buildForLog(context),
               ],
@@ -71,18 +70,18 @@ class _DebugDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
-    return Padding(
-      child: Divider(thickness: 1, height: 1),
-      padding: EdgeInsets.symmetric(vertical: 3),
-    );
+  Widget _buildHeader(String text) {
+    return ListTile(dense: true, title: Text(text.toUpperCase()));
   }
 
-  Widget _buildHeader(String text) {
-    return ListTile(
-      dense: true,
-      title: Text(text.toUpperCase()),
-    );
+  Iterable<Widget> _buildHeaderWithDivider(String text) {
+    return [
+      Padding(
+        child: const Divider(thickness: 1, height: 1),
+        padding: const EdgeInsets.symmetric(vertical: 3),
+      ),
+      ListTile(dense: true, title: Text(text.toUpperCase()))
+    ];
   }
 
   Iterable<Widget> _buildStories(BuildContext context) {
@@ -110,15 +109,20 @@ class _DebugDashboard extends StatelessWidget {
       ListTile(
         key: const Key('story_pick_up_passenger'),
         title: Text('Driver pick up a passenger'),
+        subtitle: Text('female, 26 years old'),
         onTap: () async {
           permissionDebugger.setDebugState(PermissionDebuggerState.allow);
           powerDebugger.toggle(true);
           powerDebugger.strong();
+          await Future.delayed(Duration.zero);
 
           // simulate route 496NgoQuyen_604NuiThanh in sample_data.dart
           final routes = await gpsDebugger.loadRoutes();
           final testRoute = routes[0];
           gpsDebugger.simulateRoute(testRoute);
+
+          const sample2 = Photo('assets/camera-sample_2.jpg');
+          cameraDebugger.usePhoto(sample2);
         },
       ),
       ListTile(
@@ -188,90 +192,49 @@ class _DebugDashboard extends StatelessWidget {
         onTap: powerDebugger.toggle);
   }
 
-  Widget _buildForGps(BuildContext context) {
-    return SettingItem(
+  Iterable<Widget> _buildForGps(BuildContext context) {
+    return [
+      SettingItem(
         key: const Key('gps_debugger'),
         title: 'Gps Debugger',
         value: gpsDebugger.isOn,
-        onTap: gpsDebugger.toggle);
+        onTap: gpsDebugger.toggle,
+      ),
+      ListTile(
+        key: const Key('use_location'),
+        title: Text('Select Fixed Location'),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => SelectLocation(),
+          ));
+        },
+      ),
+      ListTile(
+        key: const Key('simulate_route'),
+        title: Text('Simulate Route'),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => SimulateRoute(),
+          ));
+        },
+      ),
+    ];
   }
 
-  Widget _buildForSimulateRoute(BuildContext context) {
+  Widget _buildForCamera(BuildContext context) {
+    final cameraDebugger = DI.of(context).cameraDebugger;
     return ListTile(
-      key: const Key('simulate_route'),
-      title: Text('Simulate Route'),
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => SimulateRoute(),
-        ));
-      },
-    );
-  }
-
-  Widget _buildForFace(BuildContext context) {
-    final faceDebugger = DI.of(context).faceDebugger;
-    return ListTile(
-      key: const Key('face_debugger'),
-      title: Text('Face Debugger'),
+      key: const Key('camera_debugger'),
+      title: Text('Camera Debugger'),
       subtitle: ValueListenableBuilder(
-        valueListenable: faceDebugger.isOn,
+        valueListenable: cameraDebugger.isOn,
         builder: (_, value, __) =>
-            Text('${faceDebugger.isOn.value ? "On" : "Off"}'),
+            Text('${cameraDebugger.isOn.value ? "On" : "Off"}'),
       ),
       onTap: () async {
-        await showModalBottomSheet<void>(
-          context: context,
-          builder: (context) {
-            return Container(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ListTile(
-                    key: const Key('face_debugger_off'),
-                    leading: Radio<int>(
-                        value: 1, groupValue: null, onChanged: (_) {}),
-                    title: Text('Off'),
-                    onTap: () {
-                      faceDebugger.toggle(false);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  ListTile(
-                    key: const Key('face_debugger_no_face'),
-                    leading: Radio<int>(
-                        value: 2, groupValue: null, onChanged: (_) {}),
-                    title: Text('No face'),
-                    onTap: () {
-                      faceDebugger.noFace();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  ListTile(
-                    key: const Key('face_debugger_use_faces'),
-                    leading: Radio<int>(
-                        value: 2, groupValue: null, onChanged: (_) {}),
-                    title: Text('Use faces'),
-                    onTap: () {
-                      faceDebugger.useFaces([
-                        Face('face-id', Photo('path/to/photo1.jpg')),
-                      ]);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: FlatButton(
-                        textColor: Theme.of(context).colorScheme.primary,
-                        child: Text('Cancel'),
-                        onPressed: () => Navigator.of(context).pop()),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => SelectPhoto(),
+        ));
       },
     );
   }

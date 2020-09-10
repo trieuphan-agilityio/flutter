@@ -10,8 +10,14 @@ abstract class GenderDetector implements Service {
 }
 
 class GenderDetectorImpl with ServiceMixin implements GenderDetector {
-  Future<PassengerGender> detect(Face faces) async {
-    // FIXME
-    return PassengerGender.male;
+  /// Dummy detection that recognize the gender based on photo's file path
+  Future<PassengerGender> detect(Face face) async {
+    if (face.photo.filePath.contains('female')) {
+      return PassengerGender.female;
+    }
+    if (face.photo.filePath.contains('male')) {
+      return PassengerGender.male;
+    }
+    return PassengerGender.unknown;
   }
 }

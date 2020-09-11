@@ -10,44 +10,30 @@ import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'debugger/ad_repository_debugger.dart';
+
 abstract class AdRepository {
-  /// returns Ads that match the given Targeting Values
-  Future<List<Ad>> getAds(TargetingValues values);
-
-  /// returns downloaded Ads that match the given Targeting Values
-  Future<List<Ad>> getReadyList(TargetingValues values);
-
-  /// returns downloading Ads that match the given Targeting Values
-  Future<List<Ad>> getDownloadingAds(TargetingValues values);
+  /// Ads that has creatives were downloaded.
+  Stream<List<Ad>> get ads$;
 
   /// List of keywords are associated to the ads in this repository.
   Future<List<Keyword>> getKeywords();
-
-  /// Ads that has Creative has just been downloaded.
-  Stream<List<Ad>> get readyAds$;
-
-  /// Ads that has Creative is downloading.
-  Stream<List<Ad>> get downloadingAds$;
-
-  /// Ads that has just added to repository.
-  Stream<List<Ad>> get ads$;
-
-  /// Keywords that has just collected.
-  Stream<List<Keyword>> get keywords$;
 
   /// [AdRepository] react to the change of Latitude, Longitude values.
   keepWatching(Stream<LatLng> latLng$);
 }
 
-class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
+class AdRepositoryImpl
+    with ServiceMixin<List<Ad>>
+    implements AdRepository, Service {
   /// Produces [ads$] stream.
-  final BehaviorSubject<List<Ad>> _ads$Controller;
+  final BehaviorSubject<List<Ad>> _newAds$Controller;
 
   /// Produces [downloadingAds$] stream.
   final BehaviorSubject<List<Ad>> _downloadingAds$Controller;
 
-  /// Produces [readyAds$] stream.
-  final BehaviorSubject<List<Ad>> _readyAds$Controller;
+  /// Produces [ads$] stream.
+  final BehaviorSubject<List<Ad>> _ads$Controller;
 
   /// A client helps to pull ads from Ads Server.
   /// It will be called repeatedly according to the [backgroundTask]'s refresh interval.
@@ -58,40 +44,20 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
 
   final AdRepositoryConfigProvider _configProvider;
 
+  final AdRepositoryDebugger _debugger;
+
   AdRepositoryImpl(
     this._adApiClient,
     this._creativeDownloader,
-    this._configProvider,
-  )   : _ads$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
+    this._configProvider, {
+    AdRepositoryDebugger debugger,
+  })  : _debugger = debugger,
+        _newAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
         _downloadingAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
-        _readyAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []) {
+        _ads$Controller = BehaviorSubject<List<Ad>>.seeded(const []) {
     // Notice that while service is stopping the downloader is still running
     // and result will keep on storage to be retrieved when restart.
-    _creativeDownloader.downloaded$.listen((downloadedCreative) async {
-      // Ad after downloading creative success it will be pushed to ready stream.
-      final ads = _ads$Controller.value;
-
-      Ad downloadedAd;
-
-      try {
-        downloadedAd = ads.firstWhere(
-          (ad) => ad.creative.id == downloadedCreative.id,
-        );
-      } catch (_) {
-        // not found error
-      }
-
-      if (downloadedAd != null) {
-        // Updated the ad with new downloaded creative,
-        final readyAds = [
-          ..._readyAds$Controller.value,
-          downloadedAd.copyWith(creative: downloadedCreative),
-        ];
-
-        // then push it to ready stream.
-        _readyAds$Controller.add(readyAds);
-      }
-    });
+    _creativeDownloader.downloaded$.listen(_onCreativeDownloaded);
 
     /// background task for fetching Ads from Ad Server.
     backgroundTask = ServiceTask(
@@ -102,44 +68,29 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     _configProvider.adRepositoryConfig$.listen((config) {
       backgroundTask?.refreshIntervalSecs = config.refreshInterval;
     });
+
+    acceptDebugger(_debugger, originalValue$: _ads$Controller.stream);
   }
 
-  Future<List<Ad>> getAds(TargetingValues values) async {
-    return _ads$Controller.value.where((ad) => ad.isMatch(values)).toList();
-  }
-
-  Future<List<Ad>> getDownloadingAds(TargetingValues values) async {
-    return _downloadingAds$Controller.value
-        .where((ad) => ad.isMatch(values))
-        .toList();
-  }
-
-  Future<List<Ad>> getReadyList(TargetingValues values) async {
-    return _readyAds$Controller.value
-        .where((ad) => ad.isMatch(values))
-        .toList();
-  }
-
-  Future<List<Keyword>> getKeywords() async {
-    return _readyAds$Controller.value.targetingKeywords;
-  }
-
-  Stream<List<Ad>> get ads$ {
-    return _ads$Controller.stream;
-  }
-
-  Stream<List<Ad>> get readyAds$ {
-    return _readyAds$Controller.stream;
-  }
+  Stream<List<Ad>> get ads$ => _ads$ ??= value$.distinct();
+  Stream<List<Ad>> _ads$;
 
   Stream<List<Ad>> get downloadingAds$ {
     return _downloadingAds$Controller.stream;
   }
 
+  Stream<List<Ad>> get newAds$ {
+    return _newAds$Controller.stream;
+  }
+
   Stream<List<Keyword>> get keywords$ {
-    return _readyAds$Controller.stream.flatMap<List<Keyword>>((ads) {
+    return _ads$Controller.stream.flatMap<List<Keyword>>((ads) {
       return Stream.value(ads.targetingKeywords);
     });
+  }
+
+  Future<List<Keyword>> getKeywords() async {
+    return _ads$Controller.value.targetingKeywords;
   }
 
   /// [_currentLatLng] keeps sync up with [latLng$], when [AdRepository] run its
@@ -165,7 +116,7 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
   _fetchAds() async {
     // Ad currently are persisted in local storage.
     // Including downloaded Ads, and Ads that are queued up for downloading.
-    final localAds = _ads$Controller.value;
+    final localAds = _newAds$Controller.value;
 
     final ads = await _adApiClient.getAds(_currentLatLng);
 
@@ -184,14 +135,14 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     });
 
     // Inform the ready stream to exclude the removed ads from the list.
-    final readyAds = _readyAds$Controller.value;
+    final readyAds = _ads$Controller.value;
     final newReadyAds = readyAds.where((ad) {
       for (final removed in changeSet.removedAds) {
         if (removed.id == ad.id) return false;
       }
       return true;
     }).toList();
-    _readyAds$Controller.add(newReadyAds);
+    _ads$Controller.add(newReadyAds);
 
     // download new/updated ads
     [...changeSet.newAds, ...changeSet.updatedAds].forEach((ad) {
@@ -199,7 +150,33 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository, Service {
     });
 
     // emit new ads
-    _ads$Controller.add(ads);
+    _newAds$Controller.add(ads);
+  }
+
+  _onCreativeDownloaded(Creative downloadedCreative) {
+    // Ad after downloading creative success it will be pushed to ready stream.
+    final ads = _newAds$Controller.value;
+
+    Ad downloadedAd;
+
+    try {
+      downloadedAd = ads.firstWhere(
+        (ad) => ad.creative.id == downloadedCreative.id,
+      );
+    } catch (_) {
+      // not found error
+    }
+
+    if (downloadedAd != null) {
+      // Updated the ad with new downloaded creative,
+      final readyAds = [
+        ..._ads$Controller.value,
+        downloadedAd.copyWith(creative: downloadedCreative),
+      ];
+
+      // then push it to ready stream.
+      _ads$Controller.add(readyAds);
+    }
   }
 
   /// Save the latest value of from LatLng stream.

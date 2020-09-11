@@ -26,8 +26,7 @@ class GpsOptionsProviderImpl implements GpsOptionsProvider {
 
   GpsOptions get lastGpsOptions => subject.value;
 
-  Stream<GpsOptions> get gpsOptions$ =>
-      _gpsOptions$ ??= subject.stream.distinct();
+  Stream<GpsOptions> get gpsOptions$ => _gpsOptions$ ??= subject.distinct();
 
   attachTripState(Stream<TripState> tripState$) {
     tripState$.listen((tripState) {

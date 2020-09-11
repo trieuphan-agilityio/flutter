@@ -13,19 +13,26 @@ class MockAdApiClient implements AdApiClient {
 
   List<Ad> _previousAdResults = [];
 
+  static const minNumOfItemsPerBatch = 50;
+  static const maxNumOfItemsPerBatch = 100;
+
   /// [getAds] simulate Ads distribution, it allows to verify if there is new,
   /// updated and removed ads.
   ///
-  /// slice 5 -> 10 items from [mockAds] for each time it's called.
+  /// slice [minNumOfItemsPerBatch] -> [maxNumOfItemsPerBatch] items from
+  /// [mockAds] for each time it's called.
   Future<List<Ad>> getAds(LatLng latLng) async {
-    // 66% use previous result, which mean the list don't change.
-    if (faker.randomGenerator.integer(3) % 2 != 0) {
+    // 90% use previous result, which mean the list don't change.
+    if (faker.randomGenerator.integer(10) > 1) {
       if (_previousAdResults.length > 0) {
         return _previousAdResults;
       }
     }
 
-    final numOfItems = faker.randomGenerator.integer(10, min: 5);
+    final numOfItems = faker.randomGenerator.integer(
+      maxNumOfItemsPerBatch,
+      min: minNumOfItemsPerBatch,
+    );
     final maxStartOffset = mockAds.length - numOfItems;
     final randomStartOffset = faker.randomGenerator.integer(maxStartOffset);
 

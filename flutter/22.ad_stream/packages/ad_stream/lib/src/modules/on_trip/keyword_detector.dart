@@ -19,6 +19,36 @@ class KeywordDetectorImpl with ServiceMixin implements KeywordDetector {
   Stream<List<Keyword>> get keywords$ =>
       _keywords$ ??= _controller.stream.distinct();
 
+  @override
+  start() async {
+    super.start();
+
+    final subscription = text$.listen((text) async {
+      // derives words from the sentence
+      final words = text
+          .split(' ')
+          .map((word) => word.replaceAll(RegExp(r'(,|.|!|~)'), ''))
+          .toList();
+
+      final keywords = await adRepository.getKeywords();
+      final matchedKeywords = [];
+
+      // try to match derived words with keywords from ad repository
+      for (final word in words) {
+        if (keywords.contains(word)) {
+          matchedKeywords.add(word);
+        }
+      }
+
+      // emit if keywords are found
+      if (matchedKeywords.length > 0) {
+        _controller.add(matchedKeywords);
+      }
+    });
+
+    disposer.autoDispose(subscription);
+  }
+
   /// backing field of [keywords$].
   Stream<List<Keyword>> _keywords$;
 }

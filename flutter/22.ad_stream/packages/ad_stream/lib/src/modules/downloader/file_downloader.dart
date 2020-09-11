@@ -48,27 +48,26 @@ class FileDownloaderImpl implements FileDownloader {
           .getUrl(Uri.parse(resolvedFileUrl))
           .then((HttpClientRequest req) => req.close())
           .then((HttpClientResponse res) {
-        // write to .part file
-        return res.pipe(File(filePathOnDownloading).openWrite());
-      }).then((_) async {
-        // complete downloading file
-        File(filePathOnDownloading).renameSync(saveToPath);
+            // write to .part file
+            return res.pipe(File(filePathOnDownloading).openWrite());
+          })
+          .then((_) async {
+            // complete downloading file
+            File(filePathOnDownloading).copySync(saveToPath);
 
-        // inform status stream
-        _downloadedFile$Controller.add(DownloadedFile(
-          fileUrl: filePath,
-          filePath: saveToPath,
-          metadata: metadata,
-          createdAt: DateTime.now(),
-        ));
+            // inform status stream
+            _downloadedFile$Controller.add(DownloadedFile(
+              fileUrl: filePath,
+              filePath: saveToPath,
+              metadata: metadata,
+              createdAt: DateTime.now(),
+            ));
 
-        // complete the work on task queue
-        completer.complete();
-      }).catchError((error) {
-        // remove temp file without waiting and complete with error.
-        File(filePathOnDownloading).delete();
-        completer.completeError(error);
-      });
+            // complete the work on task queue
+            completer.complete();
+          })
+          .catchError(completer.completeError)
+          .whenComplete(() => File(filePathOnDownloading).delete());
       return completer.future;
     });
   }

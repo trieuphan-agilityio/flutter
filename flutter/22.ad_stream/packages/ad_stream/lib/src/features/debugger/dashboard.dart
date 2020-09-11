@@ -87,6 +87,24 @@ class _DebugDashboard extends StatelessWidget {
   Iterable<Widget> _buildStories(BuildContext context) {
     return [
       ListTile(
+        key: const Key('driver_onboarded'),
+        title: Text('Driver onboarded'),
+        onTap: () async {
+          permissionDebugger.setDebugState(PermissionDebuggerState.allow);
+          powerDebugger.toggle(true);
+          powerDebugger.strong();
+          await Future.delayed(Duration.zero);
+        },
+      ),
+      ListTile(
+        key: const Key('drive_on_datetime'),
+        title: Text('Driver drives on Sep 12, 2020 at 11:16 am'),
+        onTap: () async {
+          // TODO Fake Ad repository here
+          await Future.delayed(Duration.zero);
+        },
+      ),
+      ListTile(
         key: const Key('story_visitor'),
         title: Text('I am a visitor'),
         onTap: () {
@@ -107,20 +125,9 @@ class _DebugDashboard extends StatelessWidget {
         },
       ),
       ListTile(
-        key: const Key('story_pick_up_passenger'),
-        title: Text('Driver pick up a passenger'),
-        subtitle: Text('female, 26 years old'),
+        key: const Key('26_female_passenger'),
+        title: Text('I am 26 years old, a female passenger'),
         onTap: () async {
-          permissionDebugger.setDebugState(PermissionDebuggerState.allow);
-          powerDebugger.toggle(true);
-          powerDebugger.strong();
-          await Future.delayed(Duration.zero);
-
-          // simulate route 496NgoQuyen_604NuiThanh in sample_data.dart
-          final routes = await gpsDebugger.loadRoutes();
-          final testRoute = routes[0];
-          gpsDebugger.simulateRoute(testRoute);
-
           const sample2 = Photo('assets/camera-sample_2.jpg');
           cameraDebugger.usePhoto(sample2);
         },

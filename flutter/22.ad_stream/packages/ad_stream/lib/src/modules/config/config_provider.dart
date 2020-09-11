@@ -30,7 +30,7 @@ class ConfigProviderImpl implements ConfigProvider {
 
   set config(Config newValue) => configSubject.add(newValue);
 
-  Stream<Config> get config$ => configSubject.stream;
+  Stream<Config> get config$ => configSubject;
 
   /// AdConfigProvider
 

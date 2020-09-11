@@ -38,6 +38,12 @@ class Ad {
   /// It can help the device verify [LatLng] value against these [Area]s faster.
   final List<Area> targetingAreas;
 
+  /// Targeting value that match with predicted gender of passenger
+  final List<PassengerGender> targetingGenders;
+
+  /// Targeting value that match with predicted age range of passenger
+  final List<PassengerAgeRange> targetingAgeRanges;
+
   bool get isSkippable => canSkipAfter == 0;
 
   bool get isReady => creative.filePath.isNotEmpty;
@@ -59,6 +65,8 @@ class Ad {
     @required this.canSkipAfter,
     @required this.targetingKeywords,
     @required this.targetingAreas,
+    @required this.targetingGenders,
+    @required this.targetingAgeRanges,
     @required this.version,
     @required this.createdAt,
     @required this.lastModifiedAt,
@@ -71,6 +79,8 @@ class Ad {
     int canSkipAfter,
     List<Keyword> targetingKeywords,
     List<Area> targetingAreas,
+    List<PassengerGender> targetingGenders,
+    List<PassengerAgeRange> targetingAgeRanges,
     int version,
     DateTime createdAt,
     DateTime lastModifiedAt,
@@ -82,6 +92,8 @@ class Ad {
       canSkipAfter: canSkipAfter ?? this.canSkipAfter,
       targetingKeywords: targetingKeywords ?? this.targetingKeywords,
       targetingAreas: targetingAreas ?? this.targetingAreas,
+      targetingGenders: targetingGenders ?? this.targetingGenders,
+      targetingAgeRanges: targetingAgeRanges ?? this.targetingAgeRanges,
       version: version ?? this.version,
       createdAt: createdAt ?? this.createdAt,
       lastModifiedAt: lastModifiedAt ?? this.lastModifiedAt,
@@ -102,6 +114,8 @@ class Ad {
         ', canSkipAfter: $canSkipAfter'
         ', targetingKeywords: $targetingKeywords'
         ', targetingAreas: $targetingAreas'
+        ', targetingGenders: $targetingGenders'
+        ', targetingAgeRanges: $targetingAgeRanges'
         ', version: $version'
         ', createdAt: $createdAt'
         ', lastModifiedAt: $lastModifiedAt}';

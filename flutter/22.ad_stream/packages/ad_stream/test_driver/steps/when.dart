@@ -5,9 +5,9 @@ import 'package:gherkin/gherkin.dart';
 import '_utils.dart';
 
 StepDefinitionGeneric driverIsDriving() {
-  return when1<String, FlutterWorld>(
-    RegExp(r'Driver is driving {string}'),
-    (routeName, context) async {
+  return when2<String, String, FlutterWorld>(
+    RegExp(r'Driver drives (us|me) {string}'),
+    (_, routeName, context) async {
       final driver = context.world.driver;
       await openDebugDashboard(driver);
 

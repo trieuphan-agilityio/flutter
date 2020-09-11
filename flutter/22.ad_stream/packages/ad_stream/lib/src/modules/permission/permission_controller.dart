@@ -25,17 +25,16 @@ const _kRefreshSecs = 1;
 class PermissionControllerImpl
     with ServiceMixin
     implements PermissionController {
-  final BehaviorSubject<PermissionState> _stateSubject;
+  final BehaviorSubject<PermissionState> subject;
 
   PermissionControllerImpl()
-      : _stateSubject = BehaviorSubject<PermissionState>.seeded(
+      : subject = BehaviorSubject<PermissionState>.seeded(
           PermissionState.denied,
         );
 
-  PermissionState get state => _stateSubject.value;
+  PermissionState get state => subject.value;
 
-  Stream<PermissionState> get state$ =>
-      _state$ ??= _stateSubject.stream.distinct();
+  Stream<PermissionState> get state$ => _state$ ??= subject.distinct();
 
   List<Permission> get permissions => [
         Permission.location,
@@ -64,7 +63,7 @@ class PermissionControllerImpl
       // If once of service isn't pass the test, the controller is considered
       // being denied.
       if (!status.isGranted) {
-        _stateSubject.add(PermissionState.denied);
+        subject.add(PermissionState.denied);
         return;
       }
     }
@@ -76,12 +75,12 @@ class PermissionControllerImpl
     // even timer was canceled above, sometimes its callback still running on another
     // isolate and it canceled the stream. If so we need to double check before
     // closing the stream.
-    if (!_stateSubject.isClosed) {
+    if (!subject.isClosed) {
       // Once the permissions all granted, the stream must be closed.
       // Because once user revokes the permission, the app would be restarted
       // and the controller would be initialized again.
-      _stateSubject.add(PermissionState.allowed);
-      _stateSubject.close();
+      subject.add(PermissionState.allowed);
+      subject.close();
     }
   }
 

@@ -17,6 +17,7 @@ import 'package:ad_stream/src/modules/on_trip/keyword_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_detector.dart';
 import 'package:ad_stream/src/modules/service_manager/service_manager.dart';
 
+import 'debugger/ad_repository_debugger.dart';
 import 'targeting_value_collector.dart';
 
 /// Declare public interface that an AdModule should expose
@@ -102,13 +103,19 @@ class AdModule {
     TargetingValueCollector targetingValueCollector,
   ) {
     final adScheduler = AdSchedulerImpl(
-      adRepository,
+      adRepository.ads$,
+      targetingValueCollector.targetingValues$,
       adSchedulerConfigProvider,
       adConfigProvider,
-      targetingValueCollector.targetingValues$,
     );
     adScheduler.listenTo(serviceManager.status$);
     return adScheduler;
+  }
+
+  @provide
+  @singleton
+  AdRepositoryDebugger adRepositoryDebugger() {
+    return AdRepositoryDebuggerImpl();
   }
 
   @provide
@@ -119,11 +126,13 @@ class AdModule {
     AdRepositoryConfigProvider configProvider,
     ServiceManager serviceManager,
     GpsController gpsController,
+    AdRepositoryDebugger adRepositoryDebugger,
   ) {
     final adRepository = AdRepositoryImpl(
       adApiClient,
       creativeDownloader,
       configProvider,
+      debugger: adRepositoryDebugger,
     );
     adRepository.keepWatching(gpsController.latLng$);
     adRepository.listenTo(serviceManager.status$);

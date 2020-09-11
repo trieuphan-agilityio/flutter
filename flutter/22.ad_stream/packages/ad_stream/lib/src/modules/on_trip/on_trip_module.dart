@@ -104,10 +104,16 @@ class OnTripModule {
   @provide
   @singleton
   KeywordDetector keywordDetector(
+    TripDetector tripDetector,
     AdRepository adRepository,
     SpeechToText speechToText,
   ) {
-    return KeywordDetectorImpl(adRepository, speechToText.text$);
+    final keywordDetector = KeywordDetectorImpl(
+      adRepository,
+      speechToText.text$,
+    );
+    keywordDetector.listenTo(tripDetector.status$);
+    return keywordDetector;
   }
 
   @provide

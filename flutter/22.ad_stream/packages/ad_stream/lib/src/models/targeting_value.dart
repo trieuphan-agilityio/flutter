@@ -61,15 +61,15 @@ class PassengerAgeRange with EquatableMixin implements TargetingValue {
 class PassengerGender with EquatableMixin implements TargetingValue {
   final String gender;
 
-  PassengerGender._(this.gender);
+  const PassengerGender._(this.gender);
 
   /// Gender is male when all passenger genders are detected as male.
-  static PassengerGender male = PassengerGender._('male');
+  static const PassengerGender male = PassengerGender._('male');
 
   /// Gender is female when all passenger genders are detected as female.
-  static PassengerGender female = PassengerGender._('female');
+  static const PassengerGender female = PassengerGender._('female');
 
-  static PassengerGender unknown = PassengerGender._('unknown');
+  static const PassengerGender unknown = PassengerGender._('unknown');
 
   List<Object> get props => [gender];
 

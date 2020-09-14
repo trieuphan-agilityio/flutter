@@ -58,18 +58,21 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
   }
 
   Widget _buildSkipButton() {
-    return Align(
-      child: model.isSkippable
-          ? SkipButton(canSkipAfter: model.canSkipAfter, onSkip: _skip)
-          : SizedBox.shrink(),
-      alignment: Alignment.bottomRight,
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Align(
+        child: model.isSkippable
+            ? SkipButton(canSkipAfter: model.canSkipAfter, onSkip: _skip)
+            : SizedBox.shrink(),
+        alignment: Alignment.bottomRight,
+      ),
     );
   }
 
   Widget _buildAdInfo() {
     return Container(
       width: 400,
-      height: 400,
+      height: 250,
       padding: EdgeInsets.all(16),
       child: Stack(children: [
         Container(
@@ -82,11 +85,6 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
               ),
               SizedBox(height: 8),
               Text('${model.wellFormatString}'),
-              SizedBox(height: 8),
-              Text(
-                '${model.ad}',
-                style: Theme.of(context).textTheme.caption,
-              )
             ],
           ),
           padding: EdgeInsets.all(16),

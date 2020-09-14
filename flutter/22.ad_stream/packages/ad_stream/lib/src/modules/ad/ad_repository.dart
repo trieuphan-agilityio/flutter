@@ -27,13 +27,13 @@ class AdRepositoryImpl
     with ServiceMixin<List<Ad>>
     implements AdRepository, Service {
   /// Produces [ads$] stream.
-  final BehaviorSubject<List<Ad>> _newAds$Controller;
+  final BehaviorSubject<List<Ad>> _newAdsSubject;
 
   /// Produces [downloadingAds$] stream.
-  final BehaviorSubject<List<Ad>> _downloadingAds$Controller;
+  final BehaviorSubject<List<Ad>> _downloadingAdsSubject;
 
   /// Produces [ads$] stream.
-  final BehaviorSubject<List<Ad>> _ads$Controller;
+  final BehaviorSubject<List<Ad>> _adsSubject;
 
   /// A client helps to pull ads from Ads Server.
   /// It will be called repeatedly according to the [backgroundTask]'s refresh interval.
@@ -52,13 +52,9 @@ class AdRepositoryImpl
     this._configProvider, {
     AdRepositoryDebugger debugger,
   })  : _debugger = debugger,
-        _newAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
-        _downloadingAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
-        _ads$Controller = BehaviorSubject<List<Ad>>.seeded(const []) {
-    // Notice that while service is stopping the downloader is still running
-    // and result will keep on storage to be retrieved when restart.
-    _creativeDownloader.downloaded$.listen(_onCreativeDownloaded);
-
+        _newAdsSubject = BehaviorSubject<List<Ad>>.seeded(const []),
+        _downloadingAdsSubject = BehaviorSubject<List<Ad>>.seeded(const []),
+        _adsSubject = BehaviorSubject<List<Ad>>.seeded(const []) {
     /// background task for fetching Ads from Ad Server.
     backgroundTask = ServiceTask(
       _fetchAds,
@@ -69,28 +65,32 @@ class AdRepositoryImpl
       backgroundTask?.refreshIntervalSecs = config.refreshInterval;
     });
 
-    acceptDebugger(_debugger, originalValue$: _ads$Controller.stream);
+    if (_debugger != null)
+      acceptDebugger(_debugger, originalValue$: _adsSubject.stream);
   }
 
-  Stream<List<Ad>> get ads$ => _ads$ ??= value$.distinct();
+  Stream<List<Ad>> get ads$ {
+    return _ads$ ??= _debugger == null ? _adsSubject.stream : value$.distinct();
+  }
+
   Stream<List<Ad>> _ads$;
 
   Stream<List<Ad>> get downloadingAds$ {
-    return _downloadingAds$Controller.stream;
+    return _downloadingAdsSubject.stream;
   }
 
   Stream<List<Ad>> get newAds$ {
-    return _newAds$Controller.stream;
+    return _newAdsSubject.stream;
   }
 
   Stream<List<Keyword>> get keywords$ {
-    return _ads$Controller.stream.flatMap<List<Keyword>>((ads) {
+    return _adsSubject.stream.flatMap<List<Keyword>>((ads) {
       return Stream.value(ads.targetingKeywords);
     });
   }
 
   Future<List<Keyword>> getKeywords() async {
-    return _ads$Controller.value.targetingKeywords;
+    return _adsSubject.value.targetingKeywords;
   }
 
   /// [_currentLatLng] keeps sync up with [latLng$], when [AdRepository] run its
@@ -111,19 +111,28 @@ class AdRepositoryImpl
     super.start();
     // get ads from AdServer right after starting.
     _fetchAds();
+
+    // Notice that while service is stopping the downloader is still running
+    // and result will keep on storage to be retrieved when restart.
+    disposer.autoDispose(_creativeDownloader.downloaded$.listen((creative) {
+      _onCreativeDownloaded(creative);
+      _DebouceBufferPrint().increase();
+    }));
+
+    disposer.autoDispose(_DebouceBufferPrint().print$.listen(Log.info));
   }
 
   _fetchAds() async {
     // Ad currently are persisted in local storage.
     // Including downloaded Ads, and Ads that are queued up for downloading.
-    final localAds = _newAds$Controller.value;
+    final localAds = _newAdsSubject.value;
 
-    final ads = await _adApiClient.getAds(_currentLatLng);
+    final fetchedAds = await _adApiClient.getAds(_currentLatLng);
 
     // compare the result from Ad Server against the current list in local.
-    final changeSet = AdDiff.diff(localAds, ads);
+    final changeSet = AdDiff.diff(localAds, fetchedAds);
 
-    Log.info('AdRepository pulled ${ads.length} ads'
+    Log.info('AdRepository pulled ${fetchedAds.length} ads'
         '${_currentLatLng == null ? "" : " at $_currentLatLng"}'
         ', ${changeSet.numOfNewAds} new'
         ', ${changeSet.numOfUpdatedAds} updated'
@@ -135,14 +144,14 @@ class AdRepositoryImpl
     });
 
     // Inform the ready stream to exclude the removed ads from the list.
-    final readyAds = _ads$Controller.value;
+    final readyAds = _adsSubject.value;
     final newReadyAds = readyAds.where((ad) {
       for (final removed in changeSet.removedAds) {
         if (removed.id == ad.id) return false;
       }
       return true;
     }).toList();
-    _ads$Controller.add(newReadyAds);
+    _adsSubject.add(newReadyAds);
 
     // download new/updated ads
     [...changeSet.newAds, ...changeSet.updatedAds].forEach((ad) {
@@ -150,17 +159,17 @@ class AdRepositoryImpl
     });
 
     // emit new ads
-    _newAds$Controller.add(ads);
+    _newAdsSubject.add(fetchedAds);
   }
 
   _onCreativeDownloaded(Creative downloadedCreative) {
     // Ad after downloading creative success it will be pushed to ready stream.
-    final ads = _newAds$Controller.value;
+    final newAds = _newAdsSubject.value;
 
     Ad downloadedAd;
 
     try {
-      downloadedAd = ads.firstWhere(
+      downloadedAd = newAds.firstWhere(
         (ad) => ad.creative.id == downloadedCreative.id,
       );
     } catch (_) {
@@ -170,16 +179,39 @@ class AdRepositoryImpl
     if (downloadedAd != null) {
       // Updated the ad with new downloaded creative,
       final readyAds = [
-        ..._ads$Controller.value,
+        ..._adsSubject.value,
         downloadedAd.copyWith(creative: downloadedCreative),
       ];
 
       // then push it to ready stream.
-      _ads$Controller.add(readyAds);
+      _adsSubject.add(readyAds);
     }
   }
 
   /// Save the latest value of from LatLng stream.
   /// Whenever call AdClientApi, this value would be sent to the Ad Server.
   LatLng _currentLatLng;
+}
+
+class _DebouceBufferPrint {
+  factory _DebouceBufferPrint() {
+    if (_shared == null) _shared = _DebouceBufferPrint._();
+    return _shared;
+  }
+
+  StreamController<void> _controller;
+
+  increase() {
+    _controller.add(null);
+  }
+
+  Stream<String> get print$ => _controller.stream
+      .debounceBuffer(Duration(milliseconds: 500))
+      .where((values) => values.length > 0)
+      .flatMap((values) => Stream.value(
+            'AdRepository observed ${values.length} downloaded creatives.',
+          ));
+
+  _DebouceBufferPrint._() : _controller = StreamController.broadcast();
+  static _DebouceBufferPrint _shared;
 }

@@ -15,8 +15,10 @@ main() {
               fileSize: 106722),
           timeBlocks: 1,
           canSkipAfter: 6,
-          targetingKeywords: [Keyword('varius')],
-          targetingAreas: [Area('Da Nang')],
+          targetingKeywords: [const Keyword('varius')],
+          targetingAreas: [const Area('Da Nang')],
+          targetingGenders: [PassengerGender.female],
+          targetingAgeRanges: [const PassengerAgeRange(24, 38)],
           version: 0,
           createdAt: DateTime.parse('2020-08-13 09:34:10.007672'),
           lastModifiedAt: DateTime.parse('2020-08-13 09:34:10.007687'));

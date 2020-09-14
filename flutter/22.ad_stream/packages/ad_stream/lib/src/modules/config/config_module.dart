@@ -45,8 +45,9 @@ class ConfigModule {
 
     // default config
     configProvider.config = Config(
-      gpsAccuracy: 4,
+      timeBlockToSecs: 10,
       defaultAd: null,
+      gpsAccuracy: 4,
       creativeBaseUrl: 'http://localhost:8080/public/creatives/',
     );
 

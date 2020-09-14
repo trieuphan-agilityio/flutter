@@ -155,9 +155,7 @@ class Config {
   }
 
   AdPresenterConfig toAdPresenterConfig() {
-    return AdPresenterConfig(
-      healthCheckInterval: defaultAdPresenterHealthCheckInterval,
-    );
+    return AdPresenterConfig();
   }
 
   AdRepositoryConfig toAdRepositoryConfig() {
@@ -167,9 +165,7 @@ class Config {
   }
 
   AdSchedulerConfig toAdSchedulerConfig() {
-    return AdSchedulerConfig(
-      refreshInterval: defaultAdSchedulerRefreshInterval,
-    );
+    return AdSchedulerConfig();
   }
 
   AreaConfig toAreaConfig() {

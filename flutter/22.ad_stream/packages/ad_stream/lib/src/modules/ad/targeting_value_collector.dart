@@ -6,6 +6,7 @@ import 'package:ad_stream/src/modules/on_trip/face.dart';
 import 'package:ad_stream/src/modules/on_trip/gender_detector.dart';
 import 'package:ad_stream/src/modules/on_trip/trip_state.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
+import 'package:rxdart/rxdart.dart';
 
 /// A central collector that communicate with other collectors such as
 /// [AgeCollector] and [AreaCollector] to combine to a collection of
@@ -39,13 +40,13 @@ class TargetingValueCollectorImpl
     this._tripState$,
     this._keywords$,
     this._areas$,
-  )   : _controller = StreamController<TargetingValues>.broadcast(),
+  )   : _subject = BehaviorSubject<TargetingValues>.seeded(TargetingValues()),
         _targetingValues = TargetingValues();
 
-  final StreamController<TargetingValues> _controller;
+  final BehaviorSubject<TargetingValues> _subject;
 
   Stream<TargetingValues> get targetingValues$ =>
-      _targetingValues$ ??= _controller.stream;
+      _targetingValues$ ??= _subject.stream;
 
   /// A buffer of targeting values, it collects all values and used for
   /// emitting to [targetingValues$] stream.
@@ -53,12 +54,12 @@ class TargetingValueCollectorImpl
 
   _addValue(TargetingValue value) {
     _targetingValues.add(value);
-    _controller.add(_targetingValues);
+    _subject.add(_targetingValues);
   }
 
   _addListOfValues(List<TargetingValue> values) {
     _targetingValues.addAll(values);
-    _controller.add(_targetingValues);
+    _subject.add(_targetingValues);
   }
 
   @override
@@ -104,7 +105,7 @@ class TargetingValueCollectorImpl
     });
   }
 
-  /// Keep a reference to current [TripState] so that collector can decise to
+  /// Keep a reference to current [TripState] so that collector can decide to
   /// accept or reject asynchronous results from [AgeDetector] and
   /// [GenderDetector].
   TripState _currentTripState;

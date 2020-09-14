@@ -35,15 +35,6 @@ mixin ServiceMixin<T> {
   /// Optional task that is executed background.
   ServiceTask backgroundTask;
 
-  /// Optional debugger that can provide a fake stream of [T].
-  Debugger<T> _debugger;
-
-  /// Optional value stream from service, it's used as service's state when
-  /// debugger is turned off.
-  Stream<T> _originalValue$;
-
-  Function onDebuggerIsOff;
-
   BehaviorSubject<Stream<T>> $switcher = BehaviorSubject<Stream<T>>();
   Stream<T> get value$ => _value$ ??= $switcher.switchLatest();
 
@@ -51,6 +42,7 @@ mixin ServiceMixin<T> {
   @protected
   acceptDebugger(Debugger<T> debugger,
       {Stream<T> originalValue$, Function onDebuggerIsOff}) {
+    assert(debugger != null);
     assert(
       originalValue$ == null || onDebuggerIsOff == null,
       'You must specific originalValue\$ or onDebuggerIsOff callback, not both.',
@@ -59,8 +51,23 @@ mixin ServiceMixin<T> {
       originalValue$ != null || onDebuggerIsOff != null,
       'You must specific at least an originalValue\$ or onDebuggerIsOff callback.',
     );
-    _debugger = debugger;
-    _originalValue$ = originalValue$;
+
+    /// depends on the state of the service, the switcher will choose to use
+    /// the stream from debugger or its own value.
+    final onDebuggerStateChanged = () {
+      if (debugger.isOn.value) {
+        $switcher.add(debugger.value$);
+      } else {
+        if (originalValue$ == null) {
+          onDebuggerIsOff();
+        } else {
+          $switcher.add(originalValue$);
+        }
+      }
+    };
+
+    debugger.isOn.addListener(onDebuggerStateChanged);
+    onDebuggerStateChanged();
   }
 
   @mustCallSuper
@@ -70,9 +77,6 @@ mixin ServiceMixin<T> {
 
     // schedule background task on stop.
     backgroundTask?.start();
-
-    // start listening to debugger state to switch value stream accordingly.
-    _debugger?.isOn?.addListener(_onDebuggerStateChanged);
 
     Log.info('$runtimeType started.');
     return null;
@@ -85,9 +89,6 @@ mixin ServiceMixin<T> {
 
     // stop background task if needs
     backgroundTask?.stop();
-
-    // stop listening to debugger state
-    _debugger?.isOn?.removeListener(_onDebuggerStateChanged);
 
     // cancel registered subscriptions for auto dispose.
     disposer.cancel();
@@ -120,20 +121,6 @@ mixin ServiceMixin<T> {
     // 3. Dismiss initial stopped event.
     return _status$ ??=
         _status$Controller.stream.distinct().skipInitialStopped();
-  }
-
-  /// depends on the state of the service, the switcher will choose to use
-  /// the stream from debugger or its own value.
-  void _onDebuggerStateChanged() {
-    if (_debugger.isOn.value) {
-      $switcher.add(_debugger.value$);
-    } else {
-      if (_originalValue$ == null) {
-        onDebuggerIsOff();
-      } else {
-        $switcher.add(_originalValue$);
-      }
-    }
   }
 
   Disposer get disposer => _disposer;

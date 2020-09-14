@@ -11,8 +11,8 @@ Ad _generateAd() {
   return Ad(
     id: faker.guid.guid(),
     creative: _generateCreative(),
-    timeBlocks: faker.randomGenerator.integer(5, min: 1),
-    canSkipAfter: 6,
+    timeBlocks: faker.randomGenerator.integer(3, min: 1),
+    canSkipAfter: _generateCanSkipAfter(),
     targetingKeywords: faker.lorem
         .words(faker.randomGenerator.integer(10, min: 5))
         .map((w) => Keyword(w))
@@ -24,6 +24,15 @@ Ad _generateAd() {
     createdAt: DateTime.now(),
     lastModifiedAt: DateTime.now(),
   );
+}
+
+int _generateCanSkipAfter() {
+  // 80% ads can skip
+  final canSkip = (faker.randomGenerator.integer(10) < 8);
+  if (canSkip) {
+    return 6;
+  }
+  return -1;
 }
 
 Iterable<PassengerGender> _generateTargetingGenders() {

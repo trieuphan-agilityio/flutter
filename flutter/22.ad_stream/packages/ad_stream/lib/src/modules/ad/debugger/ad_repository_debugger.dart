@@ -11,22 +11,22 @@ class AdRepositoryDebuggerImpl
     with DebuggerMixin
     implements AdRepositoryDebugger {
   /// Produces [ads$] stream.
-  final BehaviorSubject<List<Ad>> ads$Controller;
+  final BehaviorSubject<List<Ad>> adsSubject;
 
   /// Produces [downloadingAds$] stream.
-  final BehaviorSubject<List<Ad>> downloadingAds$Controller;
+  final BehaviorSubject<List<Ad>> downloadingAdsSubject;
 
   AdRepositoryDebuggerImpl()
-      : ads$Controller = BehaviorSubject<List<Ad>>.seeded(const []),
-        downloadingAds$Controller = BehaviorSubject<List<Ad>>.seeded(const []);
+      : adsSubject = BehaviorSubject<List<Ad>>.seeded(const []),
+        downloadingAdsSubject = BehaviorSubject<List<Ad>>.seeded(const []);
 
   setAds(Iterable<Ad> ads) {
-    ads$Controller.add(ads);
+    adsSubject.add(ads);
   }
 
-  Stream<List<Ad>> get ads$ => ads$Controller.stream;
+  Stream<List<Ad>> get ads$ => adsSubject.stream;
 
-  Stream<List<Ad>> get downloadingAds$ => downloadingAds$Controller.stream;
+  Stream<List<Ad>> get downloadingAds$ => downloadingAdsSubject.stream;
 
   Stream<List<Keyword>> get keywords$ {
     return ads$.flatMap<List<Keyword>>((ads) {

@@ -96,20 +96,17 @@ class AdModule {
   @provide
   @singleton
   AdScheduler adScheduler(
-    ServiceManager serviceManager,
     AdRepository adRepository,
     AdSchedulerConfigProvider adSchedulerConfigProvider,
     AdConfigProvider adConfigProvider,
     TargetingValueCollector targetingValueCollector,
   ) {
-    final adScheduler = AdSchedulerImpl(
+    return AdSchedulerImpl(
       adRepository.ads$,
       targetingValueCollector.targetingValues$,
       adSchedulerConfigProvider,
       adConfigProvider,
     );
-    adScheduler.listenTo(serviceManager.status$);
-    return adScheduler;
   }
 
   @provide

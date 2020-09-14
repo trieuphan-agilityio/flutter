@@ -24,7 +24,7 @@ class Ad {
   /// Skippable ads allow viewers to skip ads after 6 seconds if they wish.
   /// Advertiser specify the duration limit for skippable ads.
   ///
-  /// Zero value indicates that ad cannot be skipped.
+  /// Negative value indicates that ad cannot be skipped.
   final int canSkipAfter;
 
   /// Advertiser supposes to buy keywords for the Ad. Once these keywords
@@ -44,7 +44,7 @@ class Ad {
   /// Targeting value that match with predicted age range of passenger
   final List<PassengerAgeRange> targetingAgeRanges;
 
-  bool get isSkippable => canSkipAfter == 0;
+  bool get isSkippable => canSkipAfter > 0;
 
   bool get isReady => creative.filePath.isNotEmpty;
 

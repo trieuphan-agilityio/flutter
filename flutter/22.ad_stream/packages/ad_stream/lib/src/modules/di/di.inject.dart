@@ -229,7 +229,6 @@ class DI$Injector implements _i1.DI {
   _i12.SharedPreferences _createSharedPreferences() => _sharedPreferences;
   _i49.AdScheduler _createAdScheduler() =>
       _singletonAdScheduler ??= _adModule.adScheduler(
-          _createServiceManager(),
           _createAdRepository(),
           _createAdSchedulerConfigProvider(),
           _createAdConfigProvider(),

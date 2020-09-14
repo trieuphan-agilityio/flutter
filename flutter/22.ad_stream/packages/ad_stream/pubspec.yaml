@@ -16,6 +16,7 @@ dependencies:
   equatable: 1.2.3
   bloc: 6.0.1
   meta: 1.1.8
+  tuple: 1.0.3
   rxdart: ">=0.24.1 <2.0.0"
 
   # DI

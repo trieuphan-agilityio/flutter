@@ -45,18 +45,10 @@ class AdPresenterImpl
   )   : displaying$Controller = StreamController<Ad>.broadcast(),
         finish$Controller = StreamController<Ad>.broadcast(),
         skip$Controller = StreamController<Ad>.broadcast(),
-        fail$Controller = StreamController<AdDisplayError>.broadcast() {
-    backgroundTask = ServiceTask(
-      _runTask,
-      _adPresenterConfigProvider.adPresenterConfig.healthCheckInterval,
-    );
-
-    _adPresenterConfigProvider.adPresenterConfig$.listen((config) {
-      backgroundTask.refreshIntervalSecs = config.healthCheckInterval;
-    });
-  }
+        fail$Controller = StreamController<AdDisplayError>.broadcast();
 
   final AdScheduler adScheduler;
+  // ignore: unused_field
   final AdPresenterConfigProvider _adPresenterConfigProvider;
   final AdConfigProvider _adConfigProvider;
 
@@ -85,42 +77,63 @@ class AdPresenterImpl
   /// Null means that there is no candidate.
   Ad _displayingAd;
 
+  StreamSubscription<Ad> adSubscription;
+
+  @override
+  start() async {
+    super.start();
+
+    adSubscription = adScheduler.ad$.listen((ad) {
+      _displayNewAdIfNeeds(ad);
+    });
+  }
+
   fail(Error err) {
     if (_displayingAd != null) {
       fail$Controller.add(AdDisplayError(_displayingAd, err));
     }
-    _displayNewAdIfNeeds();
+    _resumeAdSubscriptionIfNeeds();
   }
 
   finish() {
     if (_displayingAd != null) {
       finish$Controller.add(_displayingAd);
     }
-    _displayNewAdIfNeeds();
+    _resumeAdSubscriptionIfNeeds();
   }
 
   skip() {
     if (_displayingAd != null) {
       skip$Controller.add(_displayingAd);
     }
-    _displayNewAdIfNeeds();
+    _resumeAdSubscriptionIfNeeds();
   }
 
-  _displayNewAdIfNeeds() {
+  _resumeAdSubscriptionIfNeeds() {
+    if (adSubscription != null && adSubscription.isPaused) {
+      adSubscription?.resume();
+    }
+  }
+
+  _displayNewAdIfNeeds(Ad ad) {
     // stop displaying if service is stopped.
     if (!isStarted) return;
 
-    _displayingAd = adScheduler.adForDisplay;
+    _displayingAd = ad;
 
     // no ad, no display
     if (_displayingAd == null) {
-      Log.info('AdPresenter is waiting for Ad...');
       // FIXME it should prepare a null displayable object instead.
       view.display(null);
+
+      Log.info('AdPresenterImpl beating');
       return;
     }
 
-    /// Ad to DisplayableCreative
+    // wait for the ad to display before receiving new Ad.
+    adSubscription?.pause();
+
+    // Ad to DisplayableCreative
     view.display(DisplayableCreative(
       ad: _displayingAd,
       canSkipAfter: _displayingAd.canSkipAfter,
@@ -131,18 +144,9 @@ class AdPresenterImpl
       ),
     ));
 
-    Log.info('AdPresenter is displaying Ad{id: ${_displayingAd.shortId}'
-        ', creativeId: ${_displayingAd.creative.shortId}'
-        ', version: ${_displayingAd.version}}');
-  }
-
-  /// TaskService
-
-  _runTask() async {
-    // wake it up if find out that it's waiting for new Ad to display
-    if (_displayingAd == null) {
-      _displayNewAdIfNeeds();
-    }
+    Log.info('AdPresenterImpl is displaying ${_displayingAd.shortId}'
+        '-${_displayingAd.creative.shortId}'
+        '-v${_displayingAd.version}.');
   }
 }
 
@@ -170,7 +174,7 @@ class DisplayableCreative {
   String get wellFormatString {
     return 'DisplayableCreative{\n  id: ${ad.creative.shortId}'
         ',\n  duration: ${duration.inSeconds}s'
-        ',\n  canSkipAfter: ${canSkipAfter}s'
-        ',\n  isSkippable: $isSkippable\n}';
+        ',\n  isSkippable: $isSkippable'
+        ',\n  canSkipAfter: ${canSkipAfter}s\n}';
   }
 }

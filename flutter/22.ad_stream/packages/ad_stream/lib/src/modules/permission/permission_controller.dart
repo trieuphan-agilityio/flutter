@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_stream/base.dart';
+import 'package:ad_stream/src/modules/gps/gps_controller.dart';
 import 'package:ad_stream/src/modules/permission/permission_state.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -36,6 +37,12 @@ class PermissionControllerImpl
 
   Stream<PermissionState> get state$ => _state$ ??= subject.distinct();
 
+  /// All permissions that are managed.
+  ///
+  /// [Permission.location] is used by implementers of [GpsController]
+  /// [Permission.camera] is used by implementers of [CameraController]
+  /// [Permission.microphone] is used by implementers of [MicController]
+  /// [Permission.storage] is for storage components.
   List<Permission> get permissions => [
         Permission.location,
         Permission.camera,

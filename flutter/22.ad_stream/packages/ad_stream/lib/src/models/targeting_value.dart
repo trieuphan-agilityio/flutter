@@ -1,5 +1,3 @@
-import 'package:equatable/equatable.dart';
-
 enum TargetingType {
   passengerGender,
   passengerAgeRange,
@@ -38,13 +36,11 @@ abstract class TargetingValue {
   bool get isStackable;
 }
 
-class PassengerAgeRange with EquatableMixin implements TargetingValue {
+class PassengerAgeRange implements TargetingValue {
   final int from;
   final int to;
 
   const PassengerAgeRange(this.from, this.to);
-
-  List<Object> get props => [from, to];
 
   TargetingType get type => TargetingType.passengerAgeRange;
 
@@ -56,9 +52,20 @@ class PassengerAgeRange with EquatableMixin implements TargetingValue {
   String toString() {
     return 'PassengerAgeRange{from: $from, to: $to}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PassengerAgeRange &&
+          runtimeType == other.runtimeType &&
+          from == other.from &&
+          to == other.to;
+
+  @override
+  int get hashCode => from.hashCode ^ to.hashCode;
 }
 
-class PassengerGender with EquatableMixin implements TargetingValue {
+class PassengerGender implements TargetingValue {
   final String gender;
 
   const PassengerGender._(this.gender);
@@ -71,8 +78,6 @@ class PassengerGender with EquatableMixin implements TargetingValue {
 
   static const PassengerGender unknown = PassengerGender._('unknown');
 
-  List<Object> get props => [gender];
-
   TargetingType get type => TargetingType.passengerGender;
 
   /// If there are more than one passengers the targeting values should collect
@@ -83,14 +88,22 @@ class PassengerGender with EquatableMixin implements TargetingValue {
   String toString() {
     return 'PassengerGender{gender: $gender}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PassengerGender &&
+          runtimeType == other.runtimeType &&
+          gender == other.gender;
+
+  @override
+  int get hashCode => gender.hashCode;
 }
 
-class Keyword with EquatableMixin implements TargetingValue {
+class Keyword implements TargetingValue {
   final String keyword;
 
   const Keyword(this.keyword);
-
-  List<Object> get props => [keyword];
 
   TargetingType get type => TargetingType.keyword;
 
@@ -100,15 +113,23 @@ class Keyword with EquatableMixin implements TargetingValue {
   String toString() {
     return 'Keyword{keyword: $keyword}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Keyword &&
+          runtimeType == other.runtimeType &&
+          keyword == other.keyword;
+
+  @override
+  int get hashCode => keyword.hashCode;
 }
 
-class LatLng with EquatableMixin implements TargetingValue {
+class LatLng implements TargetingValue {
   final double lat;
   final double lng;
 
   const LatLng(this.lat, this.lng);
-
-  List<Object> get props => [lat, lng];
 
   TargetingType get type => TargetingType.latLng;
 
@@ -118,14 +139,23 @@ class LatLng with EquatableMixin implements TargetingValue {
   String toString() {
     return 'LatLng{lat: $lat, lng: $lng}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LatLng &&
+          runtimeType == other.runtimeType &&
+          lat == other.lat &&
+          lng == other.lng;
+
+  @override
+  int get hashCode => lat.hashCode ^ lng.hashCode;
 }
 
-class Area with EquatableMixin implements TargetingValue {
+class Area implements TargetingValue {
   final String name;
 
   const Area(this.name);
-
-  List<Object> get props => [name];
 
   TargetingType get type => TargetingType.area;
 
@@ -135,6 +165,14 @@ class Area with EquatableMixin implements TargetingValue {
   String toString() {
     return 'Area{name: $name}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Area && runtimeType == other.runtimeType && name == other.name;
+
+  @override
+  int get hashCode => name.hashCode;
 }
 
 /// TargetingValues is the abstraction of the collection of TargetingValue
@@ -166,4 +204,14 @@ class TargetingValues {
   String toString() {
     return 'TargetingValues{valuesMap: $valuesMap}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TargetingValues &&
+          runtimeType == other.runtimeType &&
+          valuesMap == other.valuesMap;
+
+  @override
+  int get hashCode => valuesMap.hashCode;
 }

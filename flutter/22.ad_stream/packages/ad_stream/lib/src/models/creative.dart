@@ -29,7 +29,7 @@ class ImageCreative implements Creative {
 
   String get shortId => id.substring(0, 5);
 
-  ImageCreative({
+  const ImageCreative({
     @required this.id,
     @required this.urlPath,
     @required this.filePath,
@@ -51,6 +51,20 @@ class ImageCreative implements Creative {
   String toString() {
     return 'ImageCreative{id: $id, urlPath: $urlPath, filePath: $filePath}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ImageCreative &&
+            runtimeType == other.runtimeType &&
+            id == other.id &&
+            urlPath == other.urlPath &&
+            filePath == other.filePath;
+  }
+
+  @override
+  int get hashCode =>
+      super.hashCode ^ id.hashCode ^ urlPath.hashCode ^ filePath.hashCode;
 }
 
 class YoutubeCreative implements Creative {
@@ -63,7 +77,7 @@ class YoutubeCreative implements Creative {
 
   String get shortId => id.substring(0, 5);
 
-  YoutubeCreative({
+  const YoutubeCreative({
     @required this.id,
     @required this.urlPath,
     @required this.videoLength,
@@ -88,6 +102,24 @@ class YoutubeCreative implements Creative {
         ', filePath: $filePath'
         ', videoLength: $videoLength}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is YoutubeCreative &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          urlPath == other.urlPath &&
+          filePath == other.filePath &&
+          videoLength == other.videoLength;
+
+  @override
+  int get hashCode =>
+      super.hashCode ^
+      id.hashCode ^
+      urlPath.hashCode ^
+      filePath.hashCode ^
+      videoLength.hashCode;
 }
 
 class VideoCreative implements Creative {
@@ -106,7 +138,7 @@ class VideoCreative implements Creative {
 
   String get shortId => id.substring(0, 5);
 
-  VideoCreative({
+  const VideoCreative({
     @required this.id,
     @required this.urlPath,
     @required this.filePath,
@@ -142,6 +174,27 @@ class VideoCreative implements Creative {
         ', videoLength: $videoLength'
         ', fileSize: $fileSize}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VideoCreative &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          urlPath == other.urlPath &&
+          filePath == other.filePath &&
+          format == other.format &&
+          videoLength == other.videoLength &&
+          fileSize == other.fileSize;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      urlPath.hashCode ^
+      filePath.hashCode ^
+      format.hashCode ^
+      videoLength.hashCode ^
+      fileSize.hashCode;
 }
 
 class HtmlCreative implements Creative {
@@ -160,7 +213,7 @@ class HtmlCreative implements Creative {
 
   String get shortId => id.substring(0, 5);
 
-  HtmlCreative({
+  const HtmlCreative({
     @required this.id,
     @required this.urlPath,
     @required this.filePath,
@@ -188,4 +241,22 @@ class HtmlCreative implements Creative {
         ', filePath: $filePath'
         ', fileSize: $fileSize}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HtmlCreative &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          urlPath == other.urlPath &&
+          filePath == other.filePath &&
+          fileSize == other.fileSize;
+
+  @override
+  int get hashCode =>
+      super.hashCode ^
+      id.hashCode ^
+      urlPath.hashCode ^
+      filePath.hashCode ^
+      fileSize.hashCode;
 }

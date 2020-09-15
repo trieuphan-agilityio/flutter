@@ -1,3 +1,4 @@
+export 'dart:async';
 export 'package:async/async.dart';
 export 'package:collection/collection.dart';
 export 'package:flutter/widgets.dart';

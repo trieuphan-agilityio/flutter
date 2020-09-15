@@ -1,5 +1,7 @@
 import 'ad/ad_test.dart' as ad_test;
+import 'ad/creative_test.dart' as creative_test;
 import 'csv_replayer_test.dart' as csv_replayer_test;
+import 'modules/ad_repository_test.dart' as ad_repository_test;
 import 'modules/gps_controller_test.dart' as gps_controller_test;
 import 'modules/gps_options_test.dart' as gps_options_test;
 import 'modules/movement_detector_test.dart' as movement_detector_test;
@@ -9,7 +11,9 @@ import 'modules/service_test.dart' as service_test;
 import 'modules/trip_detector_test.dart' as trip_detector_test;
 
 main() {
+  ad_repository_test.main();
   ad_test.main();
+  creative_test.main();
   csv_replayer_test.main();
   gps_controller_test.main();
   gps_options_test.main();

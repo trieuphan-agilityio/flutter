@@ -1,5 +1,6 @@
 import 'package:ad_stream/models.dart';
 import 'package:ad_stream/src/models/creative.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
@@ -127,10 +128,30 @@ class Ad {
       other is Ad &&
           runtimeType == other.runtimeType &&
           id == other.id &&
-          version == other.version;
+          creative == other.creative &&
+          timeBlocks == other.timeBlocks &&
+          canSkipAfter == other.canSkipAfter &&
+          listEquals(targetingKeywords, other.targetingKeywords) &&
+          listEquals(targetingAreas, other.targetingAreas) &&
+          listEquals(targetingGenders, other.targetingGenders) &&
+          listEquals(targetingAgeRanges, other.targetingAgeRanges) &&
+          version == other.version &&
+          createdAt == other.createdAt &&
+          lastModifiedAt == other.lastModifiedAt;
 
   @override
-  int get hashCode => id.hashCode ^ version.hashCode;
+  int get hashCode =>
+      id.hashCode ^
+      creative.hashCode ^
+      timeBlocks.hashCode ^
+      canSkipAfter.hashCode ^
+      targetingKeywords.hashCode ^
+      targetingAreas.hashCode ^
+      targetingGenders.hashCode ^
+      targetingAgeRanges.hashCode ^
+      version.hashCode ^
+      createdAt.hashCode ^
+      lastModifiedAt.hashCode;
 }
 
 /// An utility that helps to compare two list of ads to figure out which

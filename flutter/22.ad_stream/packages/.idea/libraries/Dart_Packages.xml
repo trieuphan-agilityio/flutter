@@ -23,6 +23,13 @@
             </list>
           </value>
         </entry>
+        <entry key="archive">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/archive-2.0.13/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="args">
           <value>
             <list>
@@ -34,6 +41,20 @@
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/async-2.4.2/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="battery">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/battery-1.0.5/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="battery_platform_interface">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/battery_platform_interface-1.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -244,6 +265,20 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_driver">
+          <value>
+            <list>
+              <option value="$USER_HOME$/opt/flutter/packages/flutter_driver/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_gherkin">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/flutter_gherkin-1.1.8+8/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_test">
           <value>
             <list>
@@ -258,10 +293,24 @@
             </list>
           </value>
         </entry>
+        <entry key="fuchsia_remote_debug_protocol">
+          <value>
+            <list>
+              <option value="$USER_HOME$/opt/flutter/packages/fuchsia_remote_debug_protocol/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="geolocator">
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/geolocator-5.3.2+2/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="gherkin">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/gherkin-1.1.8+3/lib" />
             </list>
           </value>
         </entry>
@@ -341,6 +390,13 @@
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/json_annotation-2.4.0/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/json_annotation-3.0.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="json_rpc_2">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/json_rpc_2-2.2.1/lib" />
             </list>
           </value>
         </entry>
@@ -664,6 +720,13 @@
             </list>
           </value>
         </entry>
+        <entry key="sync_http">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/sync_http-0.2.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="term_glyph">
           <value>
             <list>
@@ -702,6 +765,13 @@
             </list>
           </value>
         </entry>
+        <entry key="tuple">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/tuple-1.0.3/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="typed_data">
           <value>
             <list>
@@ -716,11 +786,39 @@
             </list>
           </value>
         </entry>
+        <entry key="video_player">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/video_player-0.10.12+2/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="video_player_platform_interface">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/video_player_platform_interface-2.1.1/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="video_player_web">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/video_player_web-0.1.3+2/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="vm_service">
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service-2.3.1/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service-4.2.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="vm_service_client">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service_client-0.2.6+2/lib" />
             </list>
           </value>
         </entry>
@@ -735,6 +833,13 @@
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-1.1.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="webdriver">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/webdriver-2.1.2/lib" />
             </list>
           </value>
         </entry>
@@ -765,8 +870,11 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-4.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/analyzer-0.39.10/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/animations-1.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/archive-2.0.13/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/args-1.6.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/async-2.4.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/battery-1.0.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/battery_platform_interface-1.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/bloc-6.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/boolean_selector-1.0.5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/boolean_selector-2.0.0/lib" />
@@ -799,7 +907,9 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/faker-1.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/file-5.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/fixnum-0.10.11/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/flutter_gherkin-1.1.8+8/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/geolocator-5.3.2+2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/gherkin-1.1.8+3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/glob-1.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/google_api_availability-2.0.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/graphs-0.2.0/lib" />
@@ -813,6 +923,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/js-0.6.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/json_annotation-2.4.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/json_annotation-3.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/json_rpc_2-2.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/location_permissions-3.0.0+1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/logging-0.11.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/matcher-0.12.6/lib" />
@@ -862,6 +973,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/stream_transform-0.0.20/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/stream_transform-1.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/string_scanner-1.0.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/sync_http-0.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/term_glyph-1.1.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/test-1.11.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/test-1.15.2/lib" />
@@ -870,19 +982,27 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/test_core-0.2.18/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/test_core-0.3.10/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/timing-0.1.1+2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/tuple-1.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/typed_data-1.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vector_math-2.0.8/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/video_player-0.10.12+2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/video_player_platform_interface-2.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/video_player_web-0.1.3+2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service-2.3.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service-4.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service_client-0.2.6+2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/watcher-0.9.7+15/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-1.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/webdriver-2.1.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/webkit_inspection_protocol-0.7.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/xdg_directories-0.1.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/yaml-2.2.1/lib" />
       <root url="file://$USER_HOME$/opt/flutter/bin/cache/pkg/sky_engine/lib" />
       <root url="file://$USER_HOME$/opt/flutter/packages/flutter/lib" />
+      <root url="file://$USER_HOME$/opt/flutter/packages/flutter_driver/lib" />
       <root url="file://$USER_HOME$/opt/flutter/packages/flutter_test/lib" />
       <root url="file://$USER_HOME$/opt/flutter/packages/flutter_web_plugins/lib" />
+      <root url="file://$USER_HOME$/opt/flutter/packages/fuchsia_remote_debug_protocol/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -8,6 +8,7 @@ import 'package:ad_stream/src/models/targeting_value.dart';
 import 'package:ad_stream/src/modules/ad/ad_api_client.dart';
 import 'package:ad_stream/src/modules/ad/creative_downloader.dart';
 import 'package:ad_stream/src/modules/base/service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'debugger/ad_repository_debugger.dart';
@@ -143,15 +144,21 @@ class AdRepositoryImpl
       return _creativeDownloader.cancelDownload(ad.creative);
     });
 
-    // Inform the ready stream to exclude the removed ads from the list.
+    // Inform the ready stream to exclude the removed/updated ads from the list.
     final readyAds = _adsSubject.value;
     final newReadyAds = readyAds.where((ad) {
       for (final removed in changeSet.removedAds) {
         if (removed.id == ad.id) return false;
       }
+      for (final updated in changeSet.updatedAds) {
+        if (updated.id == ad.id) return false;
+      }
       return true;
     }).toList();
-    _adsSubject.add(newReadyAds);
+
+    if (!listEquals(readyAds, newReadyAds)) {
+      _adsSubject.add(newReadyAds);
+    }
 
     // download new/updated ads
     [...changeSet.newAds, ...changeSet.updatedAds].forEach((ad) {

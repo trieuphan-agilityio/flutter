@@ -59,6 +59,7 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
 
   Widget _buildSkipButton() {
     return Padding(
+      key: ValueKey('skip_button_${model.ad.shortId}'),
       padding: EdgeInsets.all(20),
       child: Align(
         child: model.isSkippable
@@ -94,18 +95,6 @@ class _AdViewImplState extends State<AdViewImpl> implements AdView {
       ]),
     );
   }
-
-  /*
-  Align(child: _buildDebugCountdown(), alignment: Alignment.bottomRight),
-  Widget _buildDebugCountdown() {
-    return finishTimer == null
-        ? SizedBox.shrink()
-        : Padding(
-            child: Text('${model.duration.inSeconds - finishTimer.tick}s'),
-            padding: EdgeInsets.all(8),
-          );
-  }
-  */
 
   _skip() {
     finishTimer?.cancel();

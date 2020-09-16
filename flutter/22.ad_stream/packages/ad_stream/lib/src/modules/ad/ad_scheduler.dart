@@ -23,8 +23,8 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
     this._adConfigProvider,
   ) : ad$Controller = StreamController<Ad>() {
     ad$Controller.onListen = start;
-    ad$Controller.onPause = stop;
-    ad$Controller.onResume = start;
+    ad$Controller.onPause = pause;
+    ad$Controller.onResume = resume;
     ad$Controller.onCancel = stop;
   }
 
@@ -46,8 +46,29 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
   @override
   start() async {
     super.start();
+    _subscription = _buildSubscription();
+    disposer.autoDispose(_subscription);
+  }
 
-    final subscription = CombineLatestStream.combine2(
+  pause() {
+    _isPaused = true;
+    _subscription?.cancel();
+  }
+
+  resume() {
+    if (_isPaused) {
+      _isPaused = false;
+
+      _subscription = _buildSubscription();
+      disposer.autoDispose(_subscription);
+    }
+  }
+
+  /// indicates that the service was paused
+  bool _isPaused = false;
+
+  StreamSubscription _buildSubscription() {
+    return CombineLatestStream.combine2(
       ads$,
       targetingValues$,
       (List<Ad> ads, TargetingValues targetingValues) {
@@ -78,9 +99,11 @@ class AdSchedulerImpl with ServiceMixin implements AdScheduler, Service {
           '-v${pickedAd.version}'
           '${hasTargetingValues ? ", with ${targetingValues.valuesMap}." : "."}');
     });
-
-    disposer.autoDispose(subscription);
   }
+
+  /// use subscription of single-subscription stream to control the lifecycle
+  /// of the ad scheduler.
+  StreamSubscription _subscription;
 
   /// A data structure for rotating creatives
   Queue<Ad> _displayingQueue = Queue<Ad>();

@@ -7,11 +7,10 @@ import 'face.dart';
 class TripState {
   final List<Face> passengers;
 
-  TripState._([this.passengers]);
-  static TripState _offTrip = TripState._();
+  const TripState._([this.passengers]);
 
-  factory TripState.offTrip() => _offTrip;
-  factory TripState.onTrip(List<Face> passengers) = TripState._;
+  const factory TripState.offTrip() = TripState._;
+  const factory TripState.onTrip(List<Face> passengers) = TripState._;
 
   /// Device is considered on trip when Power is [PowerState.strong],
   /// face is found and there is movement.

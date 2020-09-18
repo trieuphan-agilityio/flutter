@@ -1,0 +1,6 @@
+package me.sangdong.ad_bloc
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}

@@ -1,6 +1,17 @@
 import 'package:ad_bloc/base.dart';
 import 'package:flutter/widgets.dart';
 
+abstract class DebuggerFactory {
+  static DebuggerFactory of(BuildContext context) {
+    return Provider.of<DebuggerFactory>(context);
+  }
+
+  PermissionDebugger get permissionDebugger;
+  PowerDebugger get powerDebugger;
+
+  driverOnboarded();
+}
+
 class PermissionDebugger extends Equatable {
   final bool isAllowed;
 
@@ -19,11 +30,7 @@ class PowerDebugger extends Equatable {
   List<Object> get props => [isStrong];
 }
 
-class DebuggerFactory {
-  static DebuggerFactory of(BuildContext context) {
-    return Provider.of<DebuggerFactory>(context);
-  }
-
+class DebuggerFactoryImpl implements DebuggerFactory {
   PermissionDebugger get permissionDebugger => _permissionDebugger;
   PermissionDebugger _permissionDebugger;
 
@@ -44,5 +51,10 @@ class DebuggerFactory {
 
   disablePowerDebugger() {
     _powerDebugger = null;
+  }
+
+  driverOnboarded() {
+    enablePermissionDebugger(true);
+    enablePowerDebugger(true);
   }
 }

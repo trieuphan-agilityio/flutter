@@ -30,12 +30,20 @@ class NewAdsChanged extends AppEvent {
   List<Object> get props => [ads];
 }
 
+class Initialized extends AppEvent {
+  const Initialized();
+}
+
 class Started extends AppEvent {
   const Started();
 }
 
 class Stopped extends AppEvent {
   const Stopped();
+}
+
+class Disposed extends AppEvent {
+  const Disposed();
 }
 
 class FetchedAds extends AppEvent {}
@@ -49,10 +57,10 @@ class Permitted extends AppEvent {
   List<Object> get props => [isAllowed];
 }
 
-class PowerChanged extends AppEvent {
+class PowerSupplied extends AppEvent {
   final bool isStrong;
 
-  const PowerChanged(this.isStrong);
+  const PowerSupplied(this.isStrong);
 
   @override
   List<Object> get props => [isStrong];

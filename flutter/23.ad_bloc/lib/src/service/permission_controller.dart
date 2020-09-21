@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:permission_handler/permission_handler.dart';
-import 'package:rxdart/rxdart.dart';
-
 import 'package:ad_bloc/base.dart';
-import 'debugger.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'debugger_factory.dart';
 
 abstract class PermissionController {
   Stream<bool> get isAllowed$;
@@ -21,13 +20,13 @@ abstract class PermissionController {
 const _kRefreshSecs = 1;
 
 class PermissionControllerImpl implements PermissionController {
-  final BehaviorSubject<bool> subject;
+  PermissionControllerImpl({this.debugger})
+      : controller = StreamController<bool>.broadcast();
+
+  final StreamController<bool> controller;
   final PermissionDebugger debugger;
 
-  PermissionControllerImpl({this.debugger})
-      : subject = BehaviorSubject<bool>.seeded(false);
-
-  Stream<bool> get isAllowed$ => _isAllowed$ ??= subject.distinct();
+  Stream<bool> get isAllowed$ => _isAllowed$ ??= controller.stream.distinct();
 
   /// All permissions that are managed.
   ///
@@ -56,7 +55,7 @@ class PermissionControllerImpl implements PermissionController {
     if (debugger == null)
       _doVerifyPermission();
     else
-      subject.add(debugger.isAllowed);
+      controller.add(debugger.isAllowed);
   }
 
   _doVerifyPermission() async {
@@ -66,7 +65,7 @@ class PermissionControllerImpl implements PermissionController {
       // If once of service isn't pass the test, the controller is considered
       // being denied.
       if (!status.isGranted) {
-        subject.add(false);
+        controller.add(false);
         return;
       }
     }
@@ -78,12 +77,12 @@ class PermissionControllerImpl implements PermissionController {
     // even timer was canceled above, sometimes its callback still running on another
     // isolate and it canceled the stream. If so we need to double check before
     // closing the stream.
-    if (!subject.isClosed) {
+    if (!controller.isClosed) {
       // Once the permissions all granted, the stream must be closed.
       // Because once user revokes the permission, the app would be restarted
       // and the controller would be initialized again.
-      subject.add(true);
-      subject.close();
+      controller.add(true);
+      controller.close();
     }
   }
 

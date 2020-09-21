@@ -3,6 +3,8 @@ import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/ad_api_client.dart';
 import 'package:ad_bloc/src/service/creative_downloader.dart';
+import 'package:ad_bloc/src/service/permission_controller.dart';
+import 'package:ad_bloc/src/service/power_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
@@ -14,20 +16,57 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   AppBloc(
     AppState initialState, {
+    @required PermissionController permissionController,
+    @required PowerProvider powerProvider,
     @required AdApiClient adApiClient,
     @required CreativeDownloader creativeDownloader,
-  })  : _adApiClient = adApiClient,
+  })  : assert(permissionController.isAllowed$.isBroadcast),
+        assert(powerProvider.isStrong$.isBroadcast),
+        _permissionController = permissionController,
+        _powerProvider = powerProvider,
+        _adApiClient = adApiClient,
         _creativeDownloader = creativeDownloader,
         super(initialState) {
     // print out downloaded creatives
-    _DebouceBufferPrint().print$.listen(Log.info);
+    _logSubscription = _DebouceBufferPrint().print$.listen(Log.info);
   }
 
+  final PermissionController _permissionController;
+  final PowerProvider _powerProvider;
   final AdApiClient _adApiClient;
   final CreativeDownloader _creativeDownloader;
 
+  StreamSubscription _permissionSubscription;
+  StreamSubscription _powerSubscription;
+  StreamSubscription _logSubscription;
+
+  @override
+  void onEvent(AppEvent event) {
+    Log.debug('${event.runtimeType}');
+    super.onEvent(event);
+  }
+
   @override
   Stream<AppState> mapEventToState(AppEvent evt) async* {
+    if (evt is Initialized) {
+      _permissionSubscription?.cancel();
+      _permissionSubscription = _permissionController.isAllowed$.listen(
+        (isAllowed) {
+          add(Permitted(isAllowed));
+        },
+      );
+
+      _powerSubscription?.cancel();
+      _powerSubscription = _powerProvider.isStrong$.listen(
+        (isStrong) {
+          add(PowerSupplied(isStrong));
+        },
+      );
+
+      _permissionController.start();
+      _powerProvider.start();
+    }
+
     if (evt is Started) {
       yield state.copyWith(
         isTrackingLocation: true,
@@ -47,7 +86,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       _manageService();
     }
 
-    if (evt is PowerChanged) {
+    if (evt is PowerSupplied) {
       yield state.copyWith(isPowerStrong: evt.isStrong);
       _manageService();
     }
@@ -88,6 +127,21 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
   }
 
+  @override
+  close() async {
+    // stop before disposing
+    add(const Stopped());
+
+    _logSubscription?.cancel();
+    _permissionSubscription?.cancel();
+    _powerSubscription?.cancel();
+
+    _permissionController.stop();
+    _powerProvider.stop();
+
+    super.close();
+  }
+
   _manageService() async {
     if (state.isPermitted && state.isPowerStrong) {
       // services should start
@@ -106,7 +160,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   _startFetchingAds() {
     _fetchAdSubscription?.cancel();
-
     _fetchAdSubscription = Stream.periodic(
       Duration(seconds: 30),
     ).listen((_) async {
@@ -183,7 +236,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     });
   }
 
-  _stopFetchingAds() async* {
+  _stopFetchingAds() {
     _fetchAdSubscription?.cancel();
     _creativeDownloadedSubscription?.cancel();
   }

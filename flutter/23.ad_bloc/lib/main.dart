@@ -5,17 +5,19 @@ import 'package:ad_bloc/bloc.dart';
 
 import 'src/service/ad_api_client.dart';
 import 'src/service/creative_downloader.dart';
-import 'src/service/debugger.dart';
+import 'src/service/debugger_factory.dart';
 import 'src/service/file_downloader.dart';
 import 'src/service/permission_controller.dart';
 import 'src/service/power_provider.dart';
 import 'src/widget/ad_view.dart';
-import 'src/widget/debugger.dart';
-import 'src/widget/permission_container.dart';
-import 'src/widget/power_container.dart';
+import 'src/widget/debug_button.dart';
+import 'src/widget/debug_dashboard.dart';
 
 void main() {
-  /// log to console
+  // log Bloc events
+  //Bloc.observer = SimpleBlocObserver();
+
+  // log to console
   Log.log$.listen(dartDev.log);
 
   runApp(App());
@@ -26,13 +28,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return Provider<DebuggerFactory>(
       create: (_) {
-        return DebuggerFactory()
-          ..enablePermissionDebugger(true)
-          ..enablePowerDebugger(true);
+        return DebuggerFactoryImpl()..driverOnboarded();
       },
       child: MaterialApp(
         routes: {
-          '/debugger': (_) => Debugger(),
+          '/debug': (_) => DebugDashboard(),
           '/': (_) => DIContainer(child: _App()),
         },
       ),
@@ -45,14 +45,10 @@ class _App extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            AdContainer(),
-            PermissionContainer(),
-            PowerContainer(),
-          ],
-        ),
+        child: AdContainer(),
       ),
+      floatingActionButton: const DebugButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -93,17 +89,21 @@ class DIContainer extends StatelessWidget {
         builder: (BuildContext context) {
           final adApiClient = Provider.of<AdApiClient>(context);
           final creativeDownloader = Provider.of<CreativeDownloader>(context);
+          final permissionController =
+              Provider.of<PermissionController>(context);
+          final powerProvider = Provider.of<PowerProvider>(context);
+
           return MultiBlocProvider(
             providers: [
               BlocProvider<AppBloc>(
                 create: (BuildContext context) {
                   return AppBloc(
                     AppState.init(),
+                    permissionController: permissionController,
+                    powerProvider: powerProvider,
                     adApiClient: adApiClient,
                     creativeDownloader: creativeDownloader,
-                  )
-                    ..add(const Permitted(true))
-                    ..add(const PowerChanged(true));
+                  )..add(const Initialized());
                 },
               ),
               BlocProvider<AdBloc>(

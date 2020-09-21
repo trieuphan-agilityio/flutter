@@ -220,7 +220,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       if (downloadedAd != null) {
         // Updated the ad with new downloaded creative,
         final newReadyAds = [
-          ...state.readyAds,
+          ...state.readyAds.where((ad) => ad.id != downloadedAd.id),
           downloadedAd.copyWith(creative: downloadedCreative),
         ];
 

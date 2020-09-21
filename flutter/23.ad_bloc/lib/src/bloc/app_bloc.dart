@@ -41,12 +41,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   StreamSubscription _logSubscription;
 
   @override
-  void onEvent(AppEvent event) {
-    Log.debug('${event.runtimeType}');
-    super.onEvent(event);
-  }
-
-  @override
   Stream<AppState> mapEventToState(AppEvent evt) async* {
     if (evt is Initialized) {
       _permissionSubscription?.cancel();

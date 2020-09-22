@@ -27,11 +27,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         _powerProvider = powerProvider,
         _adRepository = adRepository,
         _gpsController = gpsController,
-        super(initialState) {
-    // print out downloaded creatives
-    _logSubscription = _DebouceBufferPrint.singleton().print$.listen(Log.info);
-    _disposer.autoDispose(_logSubscription);
-  }
+        super(initialState);
 
   final PermissionController _permissionController;
   final PowerProvider _powerProvider;
@@ -40,10 +36,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   StreamSubscription _permissionSubscription;
   StreamSubscription _powerSubscription;
-
-  /// already cancel using [_disposer]
-  /// ignore: cancel_subscriptions
-  StreamSubscription _logSubscription;
 
   @override
   Stream<AppState> mapEventToState(AppEvent evt) async* {
@@ -211,11 +203,15 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       if (!listEquals(state.readyAds.toList(), ads.toList()))
         add(ReadyAdsChanged(ads));
     });
+
+    _disposer.autoDispose(_adRepositorySubscription);
+
     _adRepository.start();
   }
 
   _stopFetchingAds() {
     _adRepositorySubscription?.cancel();
+    _adRepository.stop();
   }
 
   _detectTrip() async* {
@@ -256,26 +252,4 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   Stream<AppEvent> get event$ => _event$Controller.stream;
 
   final Disposer _disposer = Disposer();
-}
-
-class _DebouceBufferPrint {
-  factory _DebouceBufferPrint.singleton() {
-    if (_shared == null) _shared = _DebouceBufferPrint._();
-    return _shared;
-  }
-  _DebouceBufferPrint._() : _controller = StreamController.broadcast();
-  static _DebouceBufferPrint _shared;
-
-  StreamController<void> _controller;
-
-  increase() {
-    _controller.add(null);
-  }
-
-  Stream<String> get print$ => _controller.stream
-      .debounceBuffer(Duration(milliseconds: 500))
-      .where((values) => values.length > 0)
-      .flatMap((values) => Stream.value(
-            'observed ${values.length} downloaded creatives.',
-          ));
 }

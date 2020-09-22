@@ -111,8 +111,9 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     // compare the result from Ad Server against the current list in local.
     final changeSet = AdDiff.diff(localAds, fetchedAds);
 
+    final latLng = _currentLatLng;
     Log.info('AdRepository pulled ${fetchedAds.length} ads'
-        '${_currentLatLng == null ? "" : " at $_currentLatLng"}'
+        '${latLng == null ? "" : " at ${latLng.lat} ${latLng.lng}"}'
         ', ${changeSet.numOfNewAds} new'
         ', ${changeSet.numOfUpdatedAds} updated'
         ', ${changeSet.numOfRemovedAds} removed.');

@@ -31,6 +31,19 @@ main() {
       permissionPluginCleanUp();
     });
 
+    test(
+        'is started when permission was denied '
+        'then it should emit denied event', () async {
+      permissionPluginAllDenied();
+
+      permissionController.start();
+      await flushMicrotasks();
+
+      expect(errors, []);
+      expect(emittedValues, [false]);
+      expect(isDone, false);
+    });
+
     test('can start and stop immediately', () async {
       permissionPluginAllDenied();
 
@@ -59,19 +72,6 @@ main() {
 
       expect(errors, []);
       expect(emittedValues, [true]);
-      expect(isDone, false);
-    });
-
-    test(
-        'is started when permission was denied '
-        'then it should emit denied event', () async {
-      permissionPluginAllDenied();
-
-      permissionController.start();
-      await flushMicrotasks();
-
-      expect(errors, []);
-      expect(emittedValues, [false]);
       expect(isDone, false);
     });
 

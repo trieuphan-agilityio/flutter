@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
+import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,10 +44,13 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   AdBloc(
     AdState initialState, {
     @required AppBloc appBloc,
+    @required AdConfig adConfig,
   })  : _appBloc = appBloc,
+        _adConfig = adConfig,
         super(initialState);
 
   final AppBloc _appBloc;
+  final AdConfig _adConfig;
 
   @override
   Stream<AdState> mapEventToState(AdEvent evt) async* {
@@ -83,7 +87,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       Log.debug('beating');
 
       // use default if there is no candidate
-      return AdState(_adToAdViewModel(kDefaultAd));
+      return AdState(_adToAdViewModel(_adConfig.defaultAd));
     }
 
     // FIXME It supposes to figure out which ad is best for displaying.

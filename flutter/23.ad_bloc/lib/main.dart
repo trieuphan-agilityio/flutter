@@ -70,10 +70,11 @@ class DIContainer extends StatelessWidget {
         Provider<ConfigProvider>(
           create: (_) => ConfigProviderImpl()
             ..config = Config(
-              timeBlockToSecs: 10,
-              defaultAd: null,
+              timeBlockToSecs: 5,
+              defaultAd: kDefaultAd,
               gpsAccuracy: 4,
               creativeBaseUrl: 'http://localhost:8080/public/creatives/',
+              defaultAdRepositoryRefreshInterval: 15,
             ),
         ),
         Provider<AdApiClient>(create: (_) => FakeAdApiClient()),
@@ -132,6 +133,7 @@ class DIContainer extends StatelessWidget {
           final permissionController =
               Provider.of<PermissionController>(context);
           final powerProvider = Provider.of<PowerProvider>(context);
+          final adConfig = Provider.of<ConfigProvider>(context).adConfig;
 
           return MultiBlocProvider(
             providers: [
@@ -154,6 +156,7 @@ class DIContainer extends StatelessWidget {
                 create: (BuildContext context) => AdBloc(
                   AdState(),
                   appBloc: AppBloc.of(context),
+                  adConfig: adConfig,
                 ),
               ),
             ],

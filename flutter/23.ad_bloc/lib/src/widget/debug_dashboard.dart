@@ -1,3 +1,4 @@
+import 'package:ad_bloc/src/service/ad_repository/debug_date_time.dart';
 import 'package:ad_bloc/src/service/debugger_factory.dart';
 import 'package:ad_bloc/src/service/gps/debug_route.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class __DebugState extends State<_Debug> {
                   title: const Text('Driver onboarded'),
                   onTap: () => debuggerFactory.driverOnboarded(),
                 ),
+                _DriverPickUpPassenger(debuggerFactory: debuggerFactory),
                 _Routes(debuggerFactory: debuggerFactory),
               ],
             ),
@@ -91,16 +93,58 @@ class __RoutesState extends State<_Routes> {
       key: const Key('load_routes'),
       title: const Text('Driving on route'),
       children: [
-        ...[
-          for (final route in routes)
-            ListTile(
-              key: ValueKey(route.id),
-              title: Text(route.name),
-              onTap: () {
-                widget.debuggerFactory.drivingOnRoute(route);
-              },
-            ),
-        ],
+        for (final route in routes)
+          ListTile(
+            key: ValueKey(route.id),
+            title: Text(route.name),
+            onTap: () {
+              widget.debuggerFactory.drivingOnRoute(route);
+            },
+          ),
+      ],
+    );
+  }
+}
+
+class _DriverPickUpPassenger extends StatefulWidget {
+  final DebuggerFactory debuggerFactory;
+
+  const _DriverPickUpPassenger({Key key, @required this.debuggerFactory})
+      : super(key: key);
+
+  @override
+  __DriverPickUpPassengerState createState() => __DriverPickUpPassengerState();
+}
+
+class __DriverPickUpPassengerState extends State<_DriverPickUpPassenger> {
+  List<DebugDateTime> debugDateTimes = [];
+
+  @override
+  void initState() {
+    // it supposes to renew DebugDateTimes list so that the route stream can be renew
+    // after being consumed all events.
+    widget.debuggerFactory.loadDebugDateTimes().then((newValue) {
+      setState(() => debugDateTimes = newValue);
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      key: const Key('pick_up_passenger'),
+      title: const Text('Driver picked up passenger on'),
+      children: [
+        for (final debugDateTime in debugDateTimes)
+          ListTile(
+            key: ValueKey(debugDateTime.id),
+            title: Text(debugDateTime.name),
+            onTap: () {
+              widget.debuggerFactory.driverPickUpPassengerOnDateTime(
+                debugDateTime,
+              );
+            },
+          ),
       ],
     );
   }

@@ -1,6 +1,8 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
 
+import 'ad_repository/debug_ad_loader.dart';
+import 'ad_repository/debug_date_time.dart';
 import 'gps/debug_route.dart';
 import 'gps/debug_route_loader.dart';
 
@@ -16,10 +18,18 @@ abstract class DebuggerFactory {
 
   void driverOnboarded();
 
+  /// Load predefined date time when [AdRepository] can read and serve
+  /// corresponding Ad values at that specified time.
+  Future<List<DebugDateTime>> loadDebugDateTimes();
+
+  /// Replay the recorded [Iterable<Ad>] value from sample data.
+  /// It would produce events follow the order and time of the recorded.
+  void driverPickUpPassengerOnDateTime(DebugDateTime pickedUpTime);
+
   /// Load debug routes were defined.
   Future<List<DebugRoute>> loadRoutes();
 
-  /// Replay the records [LatLng] value from sample data.
+  /// Replay the recorded [LatLng] value from sample data.
   /// It would produce events follow the order and time of the recorded.
   void drivingOnRoute(DebugRoute route);
 }
@@ -82,6 +92,14 @@ class DebuggerFactoryImpl implements DebuggerFactory {
   driverOnboarded() {
     enablePermissionDebugger(true);
     enablePowerDebugger(true);
+  }
+
+  Future<List<DebugDateTime>> loadDebugDateTimes() async {
+    return DebugAdLoader.singleton().load();
+  }
+
+  driverPickUpPassengerOnDateTime(DebugDateTime pickedUpTime) {
+    _adRepositoryDebugger = AdRepositoryDebugger(pickedUpTime.ads$);
   }
 
   GpsDebugger _gpsDebugger;

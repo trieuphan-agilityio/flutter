@@ -5,5 +5,5 @@ class DebugRoute {
   final String name;
   final Stream<LatLng> latLng$;
 
-  DebugRoute(this.id, this.name, this.latLng$);
+  DebugRoute(this.id, this.name, this.latLng$) : assert(!latLng$.isBroadcast);
 }

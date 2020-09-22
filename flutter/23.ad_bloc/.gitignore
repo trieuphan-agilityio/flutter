@@ -1,3 +1,7 @@
+# Dart test
+lcov.info
+coverage/
+
 # Miscellaneous
 *.class
 *.log

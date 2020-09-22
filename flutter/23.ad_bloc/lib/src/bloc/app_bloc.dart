@@ -1,8 +1,7 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
-import 'package:ad_bloc/src/service/ad_api_client.dart';
-import 'package:ad_bloc/src/service/creative_downloader.dart';
+import 'package:ad_bloc/src/service/ad_repository/ad_repository.dart';
 import 'package:ad_bloc/src/service/gps/gps_controller.dart';
 import 'package:ad_bloc/src/service/permission_controller.dart';
 import 'package:ad_bloc/src/service/power_provider.dart';
@@ -19,16 +18,14 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     AppState initialState, {
     @required PermissionController permissionController,
     @required PowerProvider powerProvider,
-    @required AdApiClient adApiClient,
-    @required CreativeDownloader creativeDownloader,
+    @required AdRepository adRepository,
     @required GpsController gpsController,
   })  : assert(permissionController.isAllowed$.isBroadcast),
         assert(powerProvider.isStrong$.isBroadcast),
         _event$Controller = StreamController.broadcast(),
         _permissionController = permissionController,
         _powerProvider = powerProvider,
-        _adApiClient = adApiClient,
-        _creativeDownloader = creativeDownloader,
+        _adRepository = adRepository,
         _gpsController = gpsController,
         super(initialState) {
     // print out downloaded creatives
@@ -38,8 +35,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   final PermissionController _permissionController;
   final PowerProvider _powerProvider;
-  final AdApiClient _adApiClient;
-  final CreativeDownloader _creativeDownloader;
+  final AdRepository _adRepository;
   final GpsController _gpsController;
 
   StreamSubscription _permissionSubscription;
@@ -68,6 +64,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
       _permissionController.start();
       _powerProvider.start();
+      return;
     }
 
     if (evt is Started) {
@@ -75,6 +72,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         isTrackingLocation: true,
       );
       _startTrackingLocation();
+      return;
     }
 
     if (evt is Stopped) {
@@ -84,60 +82,81 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       );
       _stopTrackingLocation();
       _stopFetchingAds();
+      return;
     }
 
     if (evt is Permitted) {
       yield state.copyWith(isPermitted: evt.isAllowed);
       yield* _manageService();
+      return;
     }
 
     if (evt is PowerSupplied) {
       yield state.copyWith(isPowerStrong: evt.isStrong);
       yield* _manageService();
+      return;
+    }
+
+    if (evt is ChangedGpsOptions) {
+      _gpsController.changeGpsOptions(evt.gpsOptions);
+      yield state.copyWith(gpsOptions: evt.gpsOptions);
+      return;
     }
 
     if (evt is NewAdsChanged) {
       yield state.copyWith(newAds: evt.ads);
+      return;
     }
 
     if (evt is ReadyAdsChanged) {
       yield state.copyWith(readyAds: evt.ads);
+      return;
     }
 
     if (evt is Located) {
+      _adRepository.changeLocation(evt.latLng);
+
       if (state.isFetchingAds) {
         yield state.copyWith(latLng: evt.latLng);
       } else {
         yield state.copyWith(latLng: evt.latLng, isFetchingAds: true);
         _startFetchingAds();
       }
+      return;
     }
 
     if (evt is Moved) {
       yield state.copyWith(isMoving: evt.isMoving);
       yield* _detectTrip();
       yield* _detectFaces();
+      return;
     }
 
     if (evt is GendersDetected) {
       yield state.copyWith(genders: evt.genders);
+      return;
     }
 
-    if (evt is AgeRangesDetected)
+    if (evt is AgeRangesDetected) {
       yield state.copyWith(ageRanges: evt.ageRanges);
+      return;
+    }
 
     if (evt is KeywordsExtracted) {
       yield state.copyWith(keywords: evt.keywords);
+      return;
     }
 
     if (evt is FacesDetected) {
       yield state.copyWith(faces: evt.faces);
       yield* _detectTrip();
       yield* _detectFaces();
+      return;
     }
 
     if (evt is AppChangedState) {
       yield evt.state;
+      return;
     }
   }
 
@@ -185,99 +204,18 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     _trackLocationSubscription = null;
   }
 
-  StreamSubscription _fetchAdSubscription;
-
-  StreamSubscription _creativeDownloadedSubscription;
+  StreamSubscription _adRepositorySubscription;
 
   _startFetchingAds() {
-    fetchAds() async {
-      final fetchedAds = await _adApiClient.getAds(state.latLng);
-
-      // compare the result from Ad Server against the current list in local.
-      final changeSet = AdDiff.diff(state.readyAds, fetchedAds);
-
-      Log.info('pulled ${fetchedAds.length} ads'
-          '${state.latLng == null ? "" : " at ${state.latLng}"}'
-          ', ${changeSet.numOfNewAds} new'
-          ', ${changeSet.numOfUpdatedAds} updated'
-          ', ${changeSet.numOfRemovedAds} removed.');
-
-      // Inform the downloader to cancel the downloading if needs.
-      changeSet.removedAds.forEach((ad) {
-        return _creativeDownloader.cancelDownload(ad.creative);
-      });
-
-      // Inform the ready stream to exclude the removed/updated ads from the list.
-      final readyAds = state.readyAds;
-      final newReadyAds = readyAds.where((ad) {
-        for (final removed in changeSet.removedAds) {
-          if (removed.id == ad.id) return false;
-        }
-        for (final updated in changeSet.updatedAds) {
-          if (updated.id == ad.id) return false;
-        }
-        return true;
-      }).toList();
-
-      if (!listEquals(readyAds, newReadyAds)) {
-        add(ReadyAdsChanged(newReadyAds));
-      }
-
-      // download new/updated ads
-      [...changeSet.newAds, ...changeSet.updatedAds].forEach((ad) {
-        _creativeDownloader.download(ad.creative);
-      });
-
-      // emit new ads
-      add(NewAdsChanged(fetchedAds));
-    }
-
-    // eagerly fetch ads
-    fetchAds();
-
-    // then periodically fetch ads
-    _fetchAdSubscription?.cancel();
-    _fetchAdSubscription =
-        Stream.periodic(Duration(seconds: 30)).listen((_) => fetchAds());
-
-    _disposer.autoDispose(_fetchAdSubscription);
-
-    _creativeDownloadedSubscription?.cancel();
-    // wait for the creative to download and update the ready ads accordingly.
-    _creativeDownloadedSubscription =
-        _creativeDownloader.downloaded$.listen((downloadedCreative) {
-      // log a downloaded creative.
-      _DebouceBufferPrint.singleton().increase();
-
-      // Ad after downloading creative success it will be pushed to ready stream.
-      Ad downloadedAd;
-
-      try {
-        downloadedAd = state.newAds.firstWhere(
-          (ad) => ad.creative.id == downloadedCreative.id,
-        );
-      } catch (_) {
-        // not found error
-      }
-
-      if (downloadedAd != null) {
-        // Updated the ad with new downloaded creative,
-        final newReadyAds = [
-          ...state.readyAds.where((ad) => ad.id != downloadedAd.id),
-          downloadedAd.copyWith(creative: downloadedCreative),
-        ];
-
-        // then emit event to update ready ads.
-        add(ReadyAdsChanged(newReadyAds));
-      }
+    _adRepositorySubscription = _adRepository.ads$.listen((ads) {
+      if (!listEquals(state.readyAds.toList(), ads.toList()))
+        add(ReadyAdsChanged(ads));
     });
-
-    _disposer.autoDispose(_creativeDownloadedSubscription);
+    _adRepository.start();
   }
 
   _stopFetchingAds() {
-    _fetchAdSubscription?.cancel();
-    _creativeDownloadedSubscription?.cancel();
+    _adRepositorySubscription?.cancel();
   }
 
   _detectTrip() async* {

@@ -9,10 +9,7 @@ main() {
   AppBloc appBloc;
   List<AppEvent> emittedEvents;
 
-  MockAdApiClient adApiClient;
-
-  StreamController<Creative> downloadedCreative$Controller;
-  MockCreativeDownloader creativeDownloader;
+  MockAdRepository adRepository;
 
   StreamController<LatLng> latLng$Controller;
   MockGpsController gpsController;
@@ -25,12 +22,7 @@ main() {
 
   group('AppBloc', () {
     setUp(() {
-      adApiClient = MockAdApiClient();
-
-      downloadedCreative$Controller = StreamController.broadcast();
-      creativeDownloader = MockCreativeDownloader(
-        downloadedCreative$Controller.stream,
-      );
+      adRepository = MockAdRepository();
 
       latLng$Controller = StreamController.broadcast();
       gpsController = MockGpsController(latLng$Controller.stream);
@@ -46,8 +38,7 @@ main() {
 
       appBloc = AppBloc(
         AppState.init(),
-        adApiClient: adApiClient,
-        creativeDownloader: creativeDownloader,
+        adRepository: adRepository,
         gpsController: gpsController,
         permissionController: permissionController,
         powerProvider: powerProvider,
@@ -61,7 +52,6 @@ main() {
       latLng$Controller.close();
       isAllowed$Controller.close();
       isStrong$Controller.close();
-      downloadedCreative$Controller.close();
       appBloc.close();
     });
 
@@ -75,6 +65,10 @@ main() {
 
     _locate(LatLng latLng) {
       latLng$Controller.add(latLng);
+    }
+
+    _fetchAds(Iterable<Ad> ads) {
+      adRepository.ads = ads;
     }
 
     test('stopped when permission is denied or power is weak', () async {
@@ -149,8 +143,6 @@ main() {
     });
 
     test('fetch new ads when location is changed', () async {
-      adApiClient.ads = [];
-
       // App started
       final initialState = AppState.init().copyWith(
         isPermitted: true,
@@ -165,11 +157,17 @@ main() {
       _locate(const LatLng(53.817198, -2.417717));
       await flushMicrotasks();
 
-      expect(creativeDownloader.downloadCalledArgs, []);
+      expect(adRepository.changeLocationCalledArgs, [
+        const LatLng(53.817198, -2.417717),
+      ]);
+
+      _fetchAds(sampleAds);
+      await flushMicrotasks();
+
       expect(emittedEvents.skip(1), [
         const Started(),
         const Located(const LatLng(53.817198, -2.417717)),
-        const NewAdsChanged([]),
+        ReadyAdsChanged(sampleAds),
       ]);
       expect(
         appBloc.state,
@@ -178,7 +176,7 @@ main() {
           isFetchingAds: true,
           latLng: const LatLng(53.817198, -2.417717),
           newAds: [],
-          readyAds: [],
+          readyAds: sampleAds,
         ),
       );
     });

@@ -79,6 +79,15 @@ class PowerSupplied extends AppEvent {
   List<Object> get props => [isStrong];
 }
 
+class ChangedGpsOptions extends AppEvent {
+  final GpsOptions gpsOptions;
+
+  const ChangedGpsOptions(this.gpsOptions);
+
+  @override
+  List<Object> get props => [gpsOptions];
+}
+
 class Located extends AppEvent {
   final LatLng latLng;
 

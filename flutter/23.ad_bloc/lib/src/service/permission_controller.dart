@@ -4,24 +4,26 @@ import 'package:ad_bloc/base.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'debugger_factory.dart';
+import 'service.dart';
 
-abstract class PermissionController {
+abstract class PermissionController implements Service {
   Stream<bool> get isAllowed$;
 
   /// All permissions that are managed.
   List<Permission> get permissions;
-
-  start();
-  stop();
 }
 
 /// Time in seconds that indicates how long it should elapse to repeatedly verify
 /// permission statuses.
 const _kRefreshSecs = 1;
 
-class PermissionControllerImpl implements PermissionController {
+class PermissionControllerImpl
+    with ServiceMixin
+    implements PermissionController {
   PermissionControllerImpl({this.debugger})
-      : controller = StreamController<bool>.broadcast();
+      : controller = StreamController<bool>.broadcast() {
+    backgroundTask = ServiceTask(_verifyPermission, _kRefreshSecs);
+  }
 
   final StreamController<bool> controller;
   final PermissionDebugger debugger;
@@ -41,14 +43,13 @@ class PermissionControllerImpl implements PermissionController {
         Permission.storage,
       ];
 
-  start() {
+  @override
+  start() async {
+    super.start();
+
     // immediately check permission when it's starting.
     // and schedule a timer to repeatedly verify it then.
-    _verifyPermission();
-
-    _timer = Timer.periodic(Duration(seconds: _kRefreshSecs), (_) {
-      _verifyPermission();
-    });
+    backgroundTask.runTask();
   }
 
   _verifyPermission() {
@@ -70,32 +71,9 @@ class PermissionControllerImpl implements PermissionController {
       }
     }
 
-    // Once the permissions all granted, the timer must be cancel.
-    _timer?.cancel();
-    _timer = null;
-
-    // even timer was canceled above, sometimes its callback still running on another
-    // isolate and it canceled the stream. If so we need to double check before
-    // closing the stream.
-    if (!controller.isClosed) {
-      // Once the permissions all granted, the stream must be closed.
-      // Because once user revokes the permission, the app would be restarted
-      // and the controller would be initialized again.
-      controller.add(true);
-      controller.close();
-    }
+    // all permission have been granted
+    controller.add(true);
   }
-
-  stop() async {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  @visibleForTesting
-  bool get isTimerStopped => _timer == null;
-
-  /// A timer is set to periodically check permission status
-  Timer _timer;
 
   /// [isAllowed$] backing field.
   Stream<bool> _isAllowed$;

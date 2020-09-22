@@ -80,7 +80,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
         .toList();
 
     if (matchedAds.length == 0) {
-      Log.info('beating');
+      Log.debug('beating');
 
       // use default if there is no candidate
       return AdState(_adToAdViewModel(kDefaultAd));

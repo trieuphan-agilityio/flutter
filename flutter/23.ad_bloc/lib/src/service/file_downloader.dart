@@ -129,7 +129,6 @@ class _TaskQueue {
 
   /// Remove by task id.
   remove(String id) {
-    // TODO find out if task is working or in queue.
     queue.removeWhere((task) => task.id == id);
   }
 
@@ -144,7 +143,6 @@ class _TaskQueue {
 
     _Task task = queue.removeFirst();
     Future(task.run).catchError((err) {
-      // TODO classify error
       task.completer.completeError(err);
     }).then((_) {
       if (!task.completer.isCompleted) {

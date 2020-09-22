@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
 
-import 'file_downloader.dart';
+import '../file_downloader.dart';
 
 abstract class CreativeDownloader {
   /// Schedule to download
@@ -125,7 +125,6 @@ class HtmlCreativeDownloader implements CreativeDownloader {
 
   /// Unzip the .zip file and complete the future with string of the root folder.
   Future<String> _unzip(String filePath) async {
-    // TODO unzip the bundle file
     return null;
   }
 

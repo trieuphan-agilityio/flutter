@@ -12,6 +12,7 @@ abstract class DebuggerFactory {
   PermissionDebugger get permissionDebugger;
   PowerDebugger get powerDebugger;
   GpsDebugger get gpsDebugger;
+  AdRepositoryDebugger get adRepositoryDebugger;
 
   void driverOnboarded();
 
@@ -41,10 +42,22 @@ class PowerDebugger extends Equatable {
   List<Object> get props => [isStrong];
 }
 
-class GpsDebugger {
+class GpsDebugger extends Equatable {
   final Stream<LatLng> latLng$;
 
   const GpsDebugger(this.latLng$);
+
+  @override
+  List<Object> get props => [latLng$];
+}
+
+class AdRepositoryDebugger extends Equatable {
+  final Stream<Iterable<Ad>> ads$;
+
+  AdRepositoryDebugger(this.ads$);
+
+  @override
+  List<Object> get props => [ads$];
 }
 
 class DebuggerFactoryImpl implements DebuggerFactory {
@@ -55,9 +68,7 @@ class DebuggerFactoryImpl implements DebuggerFactory {
     _permissionDebugger = PermissionDebugger(isAllowed);
   }
 
-  disablePermissionDebugger() {
-    _permissionDebugger = null;
-  }
+  disablePermissionDebugger() => _permissionDebugger = null;
 
   PowerDebugger get powerDebugger => _powerDebugger;
   PowerDebugger _powerDebugger;
@@ -66,9 +77,7 @@ class DebuggerFactoryImpl implements DebuggerFactory {
     _powerDebugger = PowerDebugger(isStrong);
   }
 
-  disablePowerDebugger() {
-    _powerDebugger = null;
-  }
+  disablePowerDebugger() => _powerDebugger = null;
 
   driverOnboarded() {
     enablePermissionDebugger(true);
@@ -95,4 +104,9 @@ class DebuggerFactoryImpl implements DebuggerFactory {
       controller.onCancel = subscription.cancel;
     };
   }
+
+  disableGpsDebugger() => _gpsDebugger = null;
+
+  AdRepositoryDebugger _adRepositoryDebugger;
+  AdRepositoryDebugger get adRepositoryDebugger => _adRepositoryDebugger;
 }

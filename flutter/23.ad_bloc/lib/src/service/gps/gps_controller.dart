@@ -4,42 +4,36 @@ import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
 
 import '../debugger_factory.dart';
+import '../service.dart';
 
-abstract class GpsController {
+abstract class GpsController implements Service {
   /// Provider a pair of Latitude & Longitude, is updated corresponding to
   /// the current Location of the device.
   Stream<LatLng> get latLng$;
 
   changeGpsOptions(GpsOptions options);
-
-  start();
-  stop();
 }
 
-class GpsControllerImpl implements GpsController {
+class GpsControllerImpl with ServiceMixin implements GpsController {
   GpsControllerImpl(this._gpsAdapter, {this.debugger})
-      : controller = StreamController.broadcast(),
-        disposer = Disposer();
+      : controller = StreamController.broadcast();
 
   Stream<LatLng> get latLng$ => _latLng$ ??= controller.stream;
 
   final StreamController<LatLng> controller;
   final GpsDebugger debugger;
-  final Disposer disposer;
 
   /// Service
 
-  start() {
+  @override
+  start() async {
+    super.start();
     if (debugger == null)
       _buildNewStream();
     else
       disposer.autoDispose(
         debugger.latLng$.listen(controller.add),
       );
-  }
-
-  stop() {
-    disposer.cancel();
   }
 
   GpsOptions _lastGpsOptions;

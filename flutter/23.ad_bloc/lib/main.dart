@@ -2,11 +2,14 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
+import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'src/service/ad_api_client.dart';
-import 'src/service/creative_downloader.dart';
+import 'config.dart';
+import 'src/service/ad_repository/ad_api_client.dart';
+import 'src/service/ad_repository/ad_repository.dart';
+import 'src/service/ad_repository/creative_downloader.dart';
 import 'src/service/debugger_factory.dart';
 import 'src/service/file_downloader.dart';
 import 'src/service/gps/gps_controller.dart';
@@ -64,6 +67,15 @@ class DIContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<ConfigProvider>(
+          create: (_) => ConfigProviderImpl()
+            ..config = Config(
+              timeBlockToSecs: 10,
+              defaultAd: null,
+              gpsAccuracy: 4,
+              creativeBaseUrl: 'http://localhost:8080/public/creatives/',
+            ),
+        ),
         Provider<AdApiClient>(create: (_) => FakeAdApiClient()),
         Provider<CreativeDownloader>(create: (_) {
           final mockFileDownloader = FakeFileDownloader();
@@ -73,9 +85,31 @@ class DIContainer extends StatelessWidget {
           final youtube = YoutubeCreativeDownloader();
           return ChainDownloaderImpl([image, video, html, youtube]);
         }),
-        Provider<GpsController>(create: (_) {
-          return GpsControllerImpl(AdapterForGeolocator(Geolocator()));
-        }),
+        ProxyProvider4<AdApiClient, CreativeDownloader, ConfigProvider,
+            DebuggerFactory, AdRepository>(
+          update: (
+            _,
+            adApiClient,
+            creativeDownloader,
+            configProvider,
+            debuggerFactory,
+            __,
+          ) {
+            return AdRepositoryImpl(
+              adApiClient,
+              creativeDownloader,
+              configProvider,
+            );
+          },
+        ),
+        ProxyProvider<DebuggerFactory, GpsController>(
+          update: (_, debuggerFactory, __) {
+            return GpsControllerImpl(
+              AdapterForGeolocator(Geolocator()),
+              debugger: debuggerFactory.gpsDebugger,
+            );
+          },
+        ),
         ProxyProvider<DebuggerFactory, PermissionController>(
           update: (_, debuggerFactory, __) {
             return PermissionControllerImpl(
@@ -93,8 +127,7 @@ class DIContainer extends StatelessWidget {
       ],
       child: Builder(
         builder: (BuildContext context) {
-          final adApiClient = Provider.of<AdApiClient>(context);
-          final creativeDownloader = Provider.of<CreativeDownloader>(context);
+          final adRepository = Provider.of<AdRepository>(context);
           final gpsController = Provider.of<GpsController>(context);
           final permissionController =
               Provider.of<PermissionController>(context);
@@ -108,10 +141,13 @@ class DIContainer extends StatelessWidget {
                     AppState.init(),
                     permissionController: permissionController,
                     powerProvider: powerProvider,
-                    adApiClient: adApiClient,
-                    creativeDownloader: creativeDownloader,
+                    adRepository: adRepository,
                     gpsController: gpsController,
-                  )..add(const Initialized());
+                  )
+                    ..add(const Initialized())
+                    ..add(const ChangedGpsOptions(
+                      const GpsOptions(accuracy: GpsAccuracy.high),
+                    ));
                 },
               ),
               BlocProvider<AdBloc>(

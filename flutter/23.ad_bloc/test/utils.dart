@@ -13,6 +13,8 @@ import 'package:ad_bloc/src/service/service.dart';
 import 'package:mockito/mockito.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+export 'utils/permission_plugin.dart';
+
 /// A zero-millisecond timer should wait until after all microtasks.
 Future flushMicrotasks() => Future.delayed(Duration.zero);
 

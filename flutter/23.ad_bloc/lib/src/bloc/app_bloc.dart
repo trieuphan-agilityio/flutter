@@ -3,6 +3,7 @@ import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/ad_api_client.dart';
 import 'package:ad_bloc/src/service/creative_downloader.dart';
+import 'package:ad_bloc/src/service/gps/gps_controller.dart';
 import 'package:ad_bloc/src/service/permission_controller.dart';
 import 'package:ad_bloc/src/service/power_provider.dart';
 import 'package:flutter/widgets.dart';
@@ -20,24 +21,32 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     @required PowerProvider powerProvider,
     @required AdApiClient adApiClient,
     @required CreativeDownloader creativeDownloader,
+    @required GpsController gpsController,
   })  : assert(permissionController.isAllowed$.isBroadcast),
         assert(powerProvider.isStrong$.isBroadcast),
+        _event$Controller = StreamController.broadcast(),
         _permissionController = permissionController,
         _powerProvider = powerProvider,
         _adApiClient = adApiClient,
         _creativeDownloader = creativeDownloader,
+        _gpsController = gpsController,
         super(initialState) {
     // print out downloaded creatives
-    _logSubscription = _DebouceBufferPrint().print$.listen(Log.info);
+    _logSubscription = _DebouceBufferPrint.singleton().print$.listen(Log.info);
+    _disposer.autoDispose(_logSubscription);
   }
 
   final PermissionController _permissionController;
   final PowerProvider _powerProvider;
   final AdApiClient _adApiClient;
   final CreativeDownloader _creativeDownloader;
+  final GpsController _gpsController;
 
   StreamSubscription _permissionSubscription;
   StreamSubscription _powerSubscription;
+
+  /// already cancel using [_disposer]
+  /// ignore: cancel_subscriptions
   StreamSubscription _logSubscription;
 
   @override
@@ -65,24 +74,26 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       yield state.copyWith(
         isTrackingLocation: true,
       );
-      _startFetchingAds();
+      _startTrackingLocation();
     }
 
     if (evt is Stopped) {
       yield state.copyWith(
         isTrackingLocation: false,
+        isFetchingAds: false,
       );
+      _stopTrackingLocation();
       _stopFetchingAds();
     }
 
     if (evt is Permitted) {
       yield state.copyWith(isPermitted: evt.isAllowed);
-      _manageService();
+      yield* _manageService();
     }
 
     if (evt is PowerSupplied) {
       yield state.copyWith(isPowerStrong: evt.isStrong);
-      _manageService();
+      yield* _manageService();
     }
 
     if (evt is NewAdsChanged) {
@@ -94,7 +105,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
 
     if (evt is Located) {
-      yield state.copyWith(latLng: evt.latLng);
+      if (state.isFetchingAds) {
+        yield state.copyWith(latLng: evt.latLng);
+      } else {
+        yield state.copyWith(latLng: evt.latLng, isFetchingAds: true);
+        _startFetchingAds();
+      }
     }
 
     if (evt is Moved) {
@@ -119,6 +135,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       yield* _detectTrip();
       yield* _detectFaces();
     }
+
+    if (evt is AppChangedState) {
+      yield evt.state;
+    }
   }
 
   @override
@@ -126,26 +146,43 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     // stop before disposing
     add(const Stopped());
 
-    _logSubscription?.cancel();
-    _permissionSubscription?.cancel();
-    _powerSubscription?.cancel();
+    _disposer.cancel();
 
     _permissionController.stop();
     _powerProvider.stop();
 
+    _event$Controller.close();
     super.close();
   }
 
-  _manageService() async {
-    if (state.isPermitted && state.isPowerStrong) {
-      // services should start
+  Stream<AppState> _manageService() async* {
+    if (state.isStopped && state.isPermitted && state.isPowerStrong) {
+      yield state.copyWith(isStarted: true);
       add(const Started());
     }
 
-    if (state.isNotPermitted || state.isPowerWeak) {
-      // services should stop
+    if (state.isStarted && (state.isNotPermitted || state.isPowerWeak)) {
+      yield state.copyWith(isStarted: false);
       add(const Stopped());
     }
+  }
+
+  StreamSubscription _trackLocationSubscription;
+
+  _startTrackingLocation() {
+    _trackLocationSubscription?.cancel();
+    _trackLocationSubscription = _gpsController.latLng$.listen((latLng) {
+      add(Located(latLng));
+    });
+
+    _disposer.autoDispose(_trackLocationSubscription);
+
+    _gpsController.start();
+  }
+
+  _stopTrackingLocation() {
+    _trackLocationSubscription?.cancel();
+    _trackLocationSubscription = null;
   }
 
   StreamSubscription _fetchAdSubscription;
@@ -153,10 +190,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   StreamSubscription _creativeDownloadedSubscription;
 
   _startFetchingAds() {
-    _fetchAdSubscription?.cancel();
-    _fetchAdSubscription = Stream.periodic(
-      Duration(seconds: 30),
-    ).listen((_) async {
+    fetchAds() async {
       final fetchedAds = await _adApiClient.getAds(state.latLng);
 
       // compare the result from Ad Server against the current list in local.
@@ -196,15 +230,24 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
       // emit new ads
       add(NewAdsChanged(fetchedAds));
-    });
+    }
+
+    // eagerly fetch ads
+    fetchAds();
+
+    // then periodically fetch ads
+    _fetchAdSubscription?.cancel();
+    _fetchAdSubscription =
+        Stream.periodic(Duration(seconds: 30)).listen((_) => fetchAds());
+
+    _disposer.autoDispose(_fetchAdSubscription);
 
     _creativeDownloadedSubscription?.cancel();
-
     // wait for the creative to download and update the ready ads accordingly.
     _creativeDownloadedSubscription =
         _creativeDownloader.downloaded$.listen((downloadedCreative) {
       // log a downloaded creative.
-      _DebouceBufferPrint().increase();
+      _DebouceBufferPrint.singleton().increase();
 
       // Ad after downloading creative success it will be pushed to ready stream.
       Ad downloadedAd;
@@ -228,6 +271,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         add(ReadyAdsChanged(newReadyAds));
       }
     });
+
+    _disposer.autoDispose(_creativeDownloadedSubscription);
   }
 
   _stopFetchingAds() {
@@ -260,13 +305,28 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     yield state.copyWith(isDetectingFaces: true);
   }
+
+  @override
+  onEvent(AppEvent event) {
+    _event$Controller.add(event);
+    super.onEvent(event);
+  }
+
+  StreamController<AppEvent> _event$Controller;
+
+  @visibleForTesting
+  Stream<AppEvent> get event$ => _event$Controller.stream;
+
+  final Disposer _disposer = Disposer();
 }
 
 class _DebouceBufferPrint {
-  factory _DebouceBufferPrint() {
+  factory _DebouceBufferPrint.singleton() {
     if (_shared == null) _shared = _DebouceBufferPrint._();
     return _shared;
   }
+  _DebouceBufferPrint._() : _controller = StreamController.broadcast();
+  static _DebouceBufferPrint _shared;
 
   StreamController<void> _controller;
 
@@ -280,7 +340,4 @@ class _DebouceBufferPrint {
       .flatMap((values) => Stream.value(
             'observed ${values.length} downloaded creatives.',
           ));
-
-  _DebouceBufferPrint._() : _controller = StreamController.broadcast();
-  static _DebouceBufferPrint _shared;
 }

@@ -11,8 +11,11 @@ class AppState extends Equatable {
         newAds: const [],
         isPermitted: false,
         isPowerStrong: false,
+        isStarted: false,
+        isTrackingLocation: false,
         gpsOptions: const GpsOptions(accuracy: GpsAccuracy.high),
         latLng: null,
+        isFetchingAds: false,
         isMoving: false,
         genders: const [],
         ageRanges: const [],
@@ -20,7 +23,6 @@ class AppState extends Equatable {
         faces: const [],
         trip: const Trip.offTrip(),
         faceId: null,
-        isTrackingLocation: false,
         isDetectingFaces: false,
       );
 
@@ -41,9 +43,16 @@ class AppState extends Equatable {
   final bool isPowerStrong;
   bool get isPowerWeak => !isPowerStrong;
 
+  final bool isStarted;
+  bool get isStopped => !isStarted;
+
   final GpsOptions gpsOptions;
 
   final LatLng latLng;
+
+  final bool isTrackingLocation;
+
+  final bool isFetchingAds;
 
   final bool isMoving;
   bool get isNotMoving => !isMoving;
@@ -67,8 +76,6 @@ class AppState extends Equatable {
   /// There is no further face detection once Face Id is set.
   final Iterable<Face> faceId;
 
-  final bool isTrackingLocation;
-
   final bool isDetectingFaces;
 
   const AppState({
@@ -77,8 +84,11 @@ class AppState extends Equatable {
     @required this.newAds,
     @required this.isPermitted,
     @required this.isPowerStrong,
+    @required this.isStarted,
     @required this.gpsOptions,
     @required this.latLng,
+    @required this.isTrackingLocation,
+    @required this.isFetchingAds,
     @required this.isMoving,
     @required this.genders,
     @required this.ageRanges,
@@ -86,7 +96,6 @@ class AppState extends Equatable {
     @required this.faces,
     @required this.trip,
     @required this.faceId,
-    @required this.isTrackingLocation,
     @required this.isDetectingFaces,
   })  : assert(adToDisplay != null),
         assert(readyAds != null),
@@ -103,8 +112,11 @@ class AppState extends Equatable {
     Iterable<Ad> newAds,
     bool isPermitted,
     bool isPowerStrong,
+    bool isStarted,
     GpsOptions gpsOptions,
     LatLng latLng,
+    bool isTrackingLocation,
+    bool isFetchingAds,
     bool isMoving,
     Iterable<PassengerGender> genders,
     Iterable<PassengerAgeRange> ageRanges,
@@ -112,7 +124,6 @@ class AppState extends Equatable {
     Iterable<Face> faces,
     Trip trip,
     Face faceId,
-    bool isTrackingLocation,
     bool isDetectingFaces,
   }) {
     return AppState(
@@ -121,8 +132,11 @@ class AppState extends Equatable {
       newAds: newAds ?? this.newAds,
       isPermitted: isPermitted ?? this.isPermitted,
       isPowerStrong: isPowerStrong ?? this.isPowerStrong,
+      isStarted: isStarted ?? this.isStarted,
       gpsOptions: gpsOptions ?? this.gpsOptions,
       latLng: latLng ?? this.latLng,
+      isTrackingLocation: isTrackingLocation ?? this.isTrackingLocation,
+      isFetchingAds: isFetchingAds ?? this.isFetchingAds,
       isMoving: isMoving ?? this.isMoving,
       genders: genders ?? this.genders,
       ageRanges: ageRanges ?? this.ageRanges,
@@ -130,7 +144,6 @@ class AppState extends Equatable {
       faces: faces ?? this.faces,
       trip: trip ?? this.trip,
       faceId: faceId ?? this.faceId,
-      isTrackingLocation: isTrackingLocation ?? this.isTrackingLocation,
       isDetectingFaces: isDetectingFaces ?? this.isDetectingFaces,
     );
   }
@@ -142,8 +155,11 @@ class AppState extends Equatable {
         newAds,
         isPermitted,
         isPowerStrong,
+        isStarted,
         gpsOptions,
         latLng,
+        isTrackingLocation,
+        isFetchingAds,
         isMoving,
         genders,
         ageRanges,
@@ -151,7 +167,28 @@ class AppState extends Equatable {
         faces,
         trip,
         faceId,
-        isTrackingLocation,
         isDetectingFaces,
       ];
+
+  @override
+  String toString() {
+    return 'Ad{adToDisplay: $adToDisplay'
+        ', readyAds: $readyAds'
+        ', newAds: $newAds'
+        ', isPermitted: $isPermitted'
+        ', isPowerStrong: $isPowerStrong'
+        ', isStarted: $isStarted'
+        ', gpsOptions: $gpsOptions'
+        ', latLng: $latLng'
+        ', isTrackingLocation: $isTrackingLocation'
+        ', isFetchingAds: $isFetchingAds'
+        ', isMoving: $isMoving'
+        ', genders: $genders'
+        ', ageRanges: $ageRanges'
+        ', keywords: $keywords'
+        ', faces: $faces'
+        ', trip: $trip'
+        ', faceId: $faceId'
+        ', isDetectingFaces: $isDetectingFaces}';
+  }
 }

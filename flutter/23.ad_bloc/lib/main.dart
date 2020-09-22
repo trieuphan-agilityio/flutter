@@ -2,11 +2,14 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
+import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'src/service/ad_api_client.dart';
 import 'src/service/creative_downloader.dart';
 import 'src/service/debugger_factory.dart';
 import 'src/service/file_downloader.dart';
+import 'src/service/gps/gps_controller.dart';
 import 'src/service/permission_controller.dart';
 import 'src/service/power_provider.dart';
 import 'src/widget/ad_view.dart';
@@ -70,6 +73,9 @@ class DIContainer extends StatelessWidget {
           final youtube = YoutubeCreativeDownloader();
           return ChainDownloaderImpl([image, video, html, youtube]);
         }),
+        Provider<GpsController>(create: (_) {
+          return GpsControllerImpl(AdapterForGeolocator(Geolocator()));
+        }),
         ProxyProvider<DebuggerFactory, PermissionController>(
           update: (_, debuggerFactory, __) {
             return PermissionControllerImpl(
@@ -89,6 +95,7 @@ class DIContainer extends StatelessWidget {
         builder: (BuildContext context) {
           final adApiClient = Provider.of<AdApiClient>(context);
           final creativeDownloader = Provider.of<CreativeDownloader>(context);
+          final gpsController = Provider.of<GpsController>(context);
           final permissionController =
               Provider.of<PermissionController>(context);
           final powerProvider = Provider.of<PowerProvider>(context);
@@ -103,6 +110,7 @@ class DIContainer extends StatelessWidget {
                     powerProvider: powerProvider,
                     adApiClient: adApiClient,
                     creativeDownloader: creativeDownloader,
+                    gpsController: gpsController,
                   )..add(const Initialized());
                 },
               ),

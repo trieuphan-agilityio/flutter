@@ -1,5 +1,8 @@
 import 'package:ad_bloc/base.dart';
-import 'package:flutter/widgets.dart';
+import 'package:ad_bloc/model.dart';
+
+import 'gps/debug_route.dart';
+import 'gps/debug_route_loader.dart';
 
 abstract class DebuggerFactory {
   static DebuggerFactory of(BuildContext context) {
@@ -8,8 +11,16 @@ abstract class DebuggerFactory {
 
   PermissionDebugger get permissionDebugger;
   PowerDebugger get powerDebugger;
+  GpsDebugger get gpsDebugger;
 
-  driverOnboarded();
+  void driverOnboarded();
+
+  /// Load debug routes were defined.
+  Future<List<DebugRoute>> loadRoutes();
+
+  /// Replay the records [LatLng] value from sample data.
+  /// It would produce events follow the order and time of the recorded.
+  void drivingOnRoute(DebugRoute route);
 }
 
 class PermissionDebugger extends Equatable {
@@ -28,6 +39,12 @@ class PowerDebugger extends Equatable {
 
   @override
   List<Object> get props => [isStrong];
+}
+
+class GpsDebugger {
+  final Stream<LatLng> latLng$;
+
+  const GpsDebugger(this.latLng$);
 }
 
 class DebuggerFactoryImpl implements DebuggerFactory {
@@ -56,5 +73,26 @@ class DebuggerFactoryImpl implements DebuggerFactory {
   driverOnboarded() {
     enablePermissionDebugger(true);
     enablePowerDebugger(true);
+  }
+
+  GpsDebugger _gpsDebugger;
+  GpsDebugger get gpsDebugger => _gpsDebugger;
+
+  Future<List<DebugRoute>> loadRoutes() {
+    return DebugRouteLoader.singleton().load();
+  }
+
+  drivingOnRoute(DebugRoute route) {
+    final controller = StreamController<LatLng>.broadcast();
+
+    _gpsDebugger = GpsDebugger(controller.stream);
+
+    controller.onListen = () {
+      StreamSubscription<LatLng> subscription = route.latLng$.listen(
+        controller.add,
+        onDone: controller.close,
+      );
+      controller.onCancel = subscription.cancel;
+    };
   }
 }

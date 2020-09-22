@@ -1,11 +1,24 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
 
+import 'app_state.dart';
+
 class AppEvent extends Equatable {
   const AppEvent();
 
   @override
   List<Object> get props => [];
+}
+
+/// Use for testing purpose
+class AppChangedState extends AppEvent {
+  final AppState state;
+
+  @visibleForTesting
+  const AppChangedState(this.state);
+
+  @override
+  List<Object> get props => [state];
 }
 
 /// Indicates that the ads that have creatives were downloaded

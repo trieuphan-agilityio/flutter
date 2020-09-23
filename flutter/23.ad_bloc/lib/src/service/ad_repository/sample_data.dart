@@ -1,9 +1,9 @@
 import 'package:ad_bloc/model.dart';
 
-/// AdRepository's refresh rate is every 15 seconds
+/// AdRepository's refresh rate is every 5 seconds
 ///
-/// AdRepository's update rate is 10%, it's a high chance that AdRepository
-/// keeps response no change.
+/// AdRepository's update rate is 10%, there is a high chance that AdRepository
+/// keeps responding no change.
 ///
 /// 80% ads can skip after 1 second.
 final sampleAdsCsv1 =

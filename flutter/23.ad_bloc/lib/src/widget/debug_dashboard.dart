@@ -43,11 +43,7 @@ class __DebugState extends State<_Debug> {
             key: const Key('debug_dashboard'),
             child: Column(
               children: [
-                ListTile(
-                  key: const Key('driver_onboarded'),
-                  title: const Text('Driver onboarded'),
-                  onTap: () => debuggerFactory.driverOnboarded(),
-                ),
+                _DriverOnboarded(debuggerFactory: debuggerFactory),
                 _DriverPickUpPassenger(debuggerFactory: debuggerFactory),
                 _Routes(debuggerFactory: debuggerFactory),
               ],
@@ -63,6 +59,33 @@ class __DebugState extends State<_Debug> {
   }
 }
 
+class _DriverOnboarded extends StatefulWidget {
+  final DebuggerFactory debuggerFactory;
+
+  const _DriverOnboarded({Key key, @required this.debuggerFactory})
+      : super(key: key);
+
+  @override
+  __DriverOnboardedState createState() => __DriverOnboardedState();
+}
+
+class __DriverOnboardedState extends State<_DriverOnboarded> {
+  bool isSelected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      key: const Key('driver_onboarded'),
+      title: const Text('Driver onboarded'),
+      trailing: isSelected ? _getSelectedIcon(context) : null,
+      onTap: () {
+        setState(() => isSelected = true);
+        widget.debuggerFactory.driverOnboarded();
+      },
+    );
+  }
+}
+
 class _Routes extends StatefulWidget {
   final DebuggerFactory debuggerFactory;
 
@@ -74,6 +97,7 @@ class _Routes extends StatefulWidget {
 
 class __RoutesState extends State<_Routes> {
   List<DebugRoute> routes = [];
+  String selectedId;
 
   @override
   void initState() {
@@ -97,7 +121,9 @@ class __RoutesState extends State<_Routes> {
           ListTile(
             key: ValueKey(route.id),
             title: Text(route.name),
+            trailing: selectedId == route.id ? _getSelectedIcon(context) : null,
             onTap: () {
+              setState(() => selectedId = route.id);
               widget.debuggerFactory.drivingOnRoute(route);
             },
           ),
@@ -118,6 +144,7 @@ class _DriverPickUpPassenger extends StatefulWidget {
 
 class __DriverPickUpPassengerState extends State<_DriverPickUpPassenger> {
   List<DebugDateTime> debugDateTimes = [];
+  String selectedId;
 
   @override
   void initState() {
@@ -139,7 +166,11 @@ class __DriverPickUpPassengerState extends State<_DriverPickUpPassenger> {
           ListTile(
             key: ValueKey(debugDateTime.id),
             title: Text(debugDateTime.name),
+            trailing: selectedId == debugDateTime.id
+                ? _getSelectedIcon(context)
+                : null,
             onTap: () {
+              setState(() => selectedId = debugDateTime.id);
               widget.debuggerFactory.driverPickUpPassengerOnDateTime(
                 debugDateTime,
               );
@@ -149,3 +180,7 @@ class __DriverPickUpPassengerState extends State<_DriverPickUpPassenger> {
     );
   }
 }
+
+final Widget Function(BuildContext) _getSelectedIcon = (context) {
+  return Icon(Icons.done, color: Theme.of(context).accentIconTheme.color);
+};

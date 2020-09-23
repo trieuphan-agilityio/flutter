@@ -5,7 +5,7 @@ import 'package:faker/faker.dart';
 /// Client library that help to communicate with Ad Server
 abstract class AdApiClient {
   /// Get all the ads that are targeting to this [LatLng] value.
-  Future<List<Ad>> getAds(LatLng latLng);
+  Future<Iterable<Ad>> getAds(LatLng latLng);
 }
 
 class FakeAdApiClient implements AdApiClient {
@@ -25,7 +25,7 @@ class FakeAdApiClient implements AdApiClient {
   ///
   /// slice [minNumOfItemsPerBatch] -> [maxNumOfItemsPerBatch] items from
   /// [mockAds] for each time it's called.
-  Future<List<Ad>> getAds(LatLng latLng) async {
+  Future<Iterable<Ad>> getAds(LatLng latLng) async {
     // 90% use previous result, which mean the list don't change.
     if (faker.randomGenerator.integer(10) > 1) {
       if (_previousAdResults.length > 0) {

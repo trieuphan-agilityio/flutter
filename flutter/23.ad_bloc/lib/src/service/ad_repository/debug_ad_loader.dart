@@ -14,7 +14,7 @@ class DebugAdLoader {
   static DebugAdLoader _shared;
 
   Future<List<DebugDateTime>> load() async {
-    List<DebugDateTime> debugDateTime = [];
+    List<DebugDateTime> debugDateTimes = [];
 
     for (final rawCsv in _listOfRawCsv) {
       // Use a Csv Replayer to load the raw csv data and play it on
@@ -26,29 +26,39 @@ class DebugAdLoader {
         initialTimeOffset: rawCsv.initialTimeOffset,
       );
 
-      final Stream<Iterable<Ad>> ads$ = csvReplayer.csv$.flatMap((csv) {
-        final ads = _csvToAds(csv);
+      final Stream<Iterable<Ad>> ads$ = csvReplayer.csv$.flatMap((csvRow) {
+        final ads = _csvToAds(csvRow);
         if (ads == null)
           return Stream.empty();
         else
           return Stream.value(ads);
       });
 
-      debugDateTime.add(DebugDateTime(rawCsv.name, rawCsv.dateTime, ads$));
+      debugDateTimes.add(DebugDateTime(rawCsv.name, rawCsv.dateTime, ads$));
     }
 
-    return [];
+    return debugDateTimes;
   }
 
   /// Convert csv data format to [Iterable<Ad>] value.
   /// Return null if the csv data is invalid.
-  Iterable<Ad> _csvToAds(List<dynamic> csv) {
-    if (csv.length < 1) return null;
+  Iterable<Ad> _csvToAds(List<dynamic> csvRow) {
+    if (csvRow.length < 1) return null;
 
     List<Ad> ads;
     try {
-      // find ad by ad id from csv row and add to the list
       ads = [];
+      // find ad by ad id which derived from csv row
+      for (final cell in csvRow) {
+        // cell format is {ad-short-id}-{version}
+        // e.g: de98a6c-1
+        final splitted = cell.toString().split('-');
+        final String adShortId = splitted[0].toString();
+        final int adVersion = int.parse(splitted[1]);
+        final ad = sampleAds.firstWhere(
+            (ad) => ad.shortId == adShortId && ad.version == adVersion);
+        ads.add(ad);
+      }
     } catch (_) {
       return null;
     }
@@ -59,9 +69,9 @@ class DebugAdLoader {
   static final _listOfRawCsv = [
     _RawCsv(
       'Sep 12, 2020 at 11:16 am',
-      DateTime.now(),
+      DateTime.parse('2020-09-12 11:16:00'),
       sampleAdsCsv1,
-      initialTimeOffset: 0,
+      initialTimeOffset: 4794,
     ),
   ];
 }

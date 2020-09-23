@@ -34,6 +34,8 @@ abstract class TargetingValue {
   /// Some values that are stackable such as [Keyword] which mean that on an trip
   /// [Keyword]s are collecting until passenger is dropped off.
   bool get isStackable;
+
+  String toConstructableString();
 }
 
 class PassengerAgeRange implements TargetingValue {
@@ -47,6 +49,10 @@ class PassengerAgeRange implements TargetingValue {
   /// If there are more than one passengers the targeting values should collect
   /// multiple values of passenger's age range.
   bool get isStackable => true;
+
+  String toConstructableString() {
+    return 'const PassengerAgeRange($from, $to)';
+  }
 
   @override
   String toString() {
@@ -84,6 +90,10 @@ class PassengerGender implements TargetingValue {
   /// multiple values of passenger's gender.
   bool get isStackable => true;
 
+  String toConstructableString() {
+    return 'PassengerGender.$gender';
+  }
+
   @override
   String toString() {
     return 'PassengerGender{gender: $gender}';
@@ -108,6 +118,10 @@ class Keyword implements TargetingValue {
   TargetingType get type => TargetingType.keyword;
 
   bool get isStackable => true;
+
+  String toConstructableString() {
+    return 'const Keyword("$keyword")';
+  }
 
   @override
   String toString() {
@@ -135,6 +149,10 @@ class LatLng implements TargetingValue {
 
   bool get isStackable => false;
 
+  String toConstructableString() {
+    return 'const LatLng("$lat", "$lng")';
+  }
+
   @override
   String toString() {
     return 'LatLng{lat: $lat, lng: $lng}';
@@ -160,6 +178,10 @@ class Area implements TargetingValue {
   TargetingType get type => TargetingType.area;
 
   bool get isStackable => false;
+
+  String toConstructableString() {
+    return 'const Area("$name")';
+  }
 
   @override
   String toString() {

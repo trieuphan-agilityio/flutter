@@ -44,14 +44,14 @@ class DebugRouteLoader {
 
   /// Convert csv data format to [LatLng] value.
   /// Return null if the csv data is invalid.
-  LatLng _csvToLatLng(List<dynamic> csv) {
-    if (csv.length != 2) return null;
+  LatLng _csvToLatLng(List<dynamic> csvRow) {
+    if (csvRow.length != 2) return null;
 
     double lat;
     double lng;
     try {
-      lat = csv[0];
-      lng = csv[1];
+      lat = csvRow[0];
+      lng = csvRow[1];
     } catch (_) {
       return null;
     }

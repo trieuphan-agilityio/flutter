@@ -100,6 +100,7 @@ class DIContainer extends StatelessWidget {
               adApiClient,
               creativeDownloader,
               configProvider,
+              debugger: debuggerFactory.adRepositoryDebugger,
             );
           },
         ),

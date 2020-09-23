@@ -20,6 +20,8 @@ abstract class Creative {
   /// 2. In [HtmlCreative] [filePath] is assigned to the folder contains Html
   ///    bundle instead of a file.
   String get filePath;
+
+  String toConstructableString();
 }
 
 class ImageCreative implements Creative {
@@ -45,6 +47,12 @@ class ImageCreative implements Creative {
       urlPath: urlPath ?? this.urlPath,
       filePath: filePath ?? this.filePath,
     );
+  }
+
+  String toConstructableString() {
+    return 'const ImageCreative(id: "$id"'
+        ', urlPath: "$urlPath"'
+        ', filePath: "$filePath")';
   }
 
   @override
@@ -93,6 +101,12 @@ class YoutubeCreative implements Creative {
       urlPath: urlPath ?? this.urlPath,
       videoLength: videoLength ?? this.videoLength,
     );
+  }
+
+  String toConstructableString() {
+    return 'const YoutubeCreative(id: "$id"'
+        ', urlPath: "$urlPath"'
+        ', videoLength: $videoLength)';
   }
 
   @override
@@ -165,6 +179,15 @@ class VideoCreative implements Creative {
     );
   }
 
+  String toConstructableString() {
+    return 'VideoCreative(id: "$id"'
+        ', urlPath: "$urlPath"'
+        ', filePath: "$filePath"'
+        ', format: "$format"'
+        ', videoLength: $videoLength'
+        ', fileSize: $fileSize)';
+  }
+
   @override
   String toString() {
     return 'VideoCreative{id: $id'
@@ -232,6 +255,13 @@ class HtmlCreative implements Creative {
       filePath: filePath ?? this.filePath,
       fileSize: fileSize ?? this.fileSize,
     );
+  }
+
+  String toConstructableString() {
+    return 'HtmlCreative(id: "$id"'
+        ', urlPath: "$urlPath"'
+        ', filePath: "$filePath"'
+        ', fileSize: $fileSize)';
   }
 
   @override

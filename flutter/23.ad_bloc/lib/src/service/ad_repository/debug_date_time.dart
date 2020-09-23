@@ -6,7 +6,7 @@ class DebugDateTime {
   final String id;
   final String name;
   final DateTime dateTime;
-  final Stream<List<Ad>> ads$;
+  final Stream<Iterable<Ad>> ads$;
 
   DebugDateTime(this.name, this.dateTime, this.ads$)
       : assert(!ads$.isBroadcast),

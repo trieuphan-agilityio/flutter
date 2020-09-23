@@ -12,7 +12,7 @@ abstract class AdRepository implements Service {
   Stream<Iterable<Ad>> get ads$;
 
   /// List of keywords are associated to the ads in this repository.
-  Future<List<Keyword>> getKeywords();
+  Future<Iterable<Keyword>> getKeywords();
 
   /// [AdRepository] react to the change of Latitude, Longitude values.
   changeLocation(LatLng latLng);
@@ -27,15 +27,17 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   })  : _debugger = debugger,
         _newAdsSubject = BehaviorSubject<List<Ad>>.seeded(const []),
         _adsSubject = BehaviorSubject<List<Ad>>.seeded(const []) {
-    /// background task for fetching Ads from Ad Server.
-    backgroundTask = ServiceTask(
-      _fetchAds,
-      _configProvider.adRepositoryConfig.refreshInterval,
-    );
+    if (_debugger == null) {
+      /// background task for fetching Ads from Ad Server.
+      backgroundTask = ServiceTask(
+        _fetchAds,
+        _configProvider.adRepositoryConfig.refreshInterval,
+      );
 
-    _configProvider.adRepositoryConfig$.listen((config) {
-      backgroundTask?.refreshIntervalSecs = config.refreshInterval;
-    });
+      _configProvider.adRepositoryConfig$.listen((config) {
+        backgroundTask?.refreshIntervalSecs = config.refreshInterval;
+      });
+    }
   }
 
   /// A client helps to pull ads from Ads Server.
@@ -55,14 +57,14 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   /// Produces [ads$] stream.
   final BehaviorSubject<List<Ad>> _adsSubject;
 
-  Stream<List<Ad>> get ads$ => _ads$ ??= _adsSubject.stream.distinct();
-  Stream<List<Ad>> _ads$;
+  Stream<Iterable<Ad>> get ads$ => _ads$ ??= _adsSubject.stream.distinct();
+  Stream<Iterable<Ad>> _ads$;
 
-  Stream<List<Ad>> get newAds$ {
+  Stream<Iterable<Ad>> get newAds$ {
     return _newAdsSubject.stream;
   }
 
-  Stream<List<Keyword>> get keywords$ {
+  Stream<Iterable<Keyword>> get keywords$ {
     return _adsSubject.stream.flatMap<List<Keyword>>((ads) {
       return Stream.value(ads.targetingKeywords);
     });
@@ -86,19 +88,28 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   @override
   start() async {
     super.start();
+
+    // run with debugger if it's enabled.
+    if (_debugger != null) {
+      disposer.autoDispose(_debugger.ads$.listen(_adsSubject.add));
+      return;
+    }
+
     // eagerly get ads from Ad Server after starting.
     _fetchAds();
 
     // Notice that while service is stopping the downloader is still running
     // and result will keep on storage to be retrieved when restart.
-    disposer.autoDispose(_creativeDownloader.downloaded$.listen((creative) {
-      _onCreativeDownloaded(creative);
-      _DebouceBufferPrint.singleton().increase();
-    }));
 
-    disposer.autoDispose(
-      _DebouceBufferPrint.singleton().print$.listen(Log.info),
-    );
+    final subscription = _creativeDownloader.downloaded$
+        .debounceBuffer(Duration(milliseconds: 500))
+        .listen((creatives) {
+      _onCreativesDownloaded(creatives);
+      Log.info(
+          'AdRepository observed ${creatives.length} downloaded creatives.');
+    });
+
+    disposer.autoDispose(subscription);
   }
 
   _fetchAds() async {
@@ -148,55 +159,60 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     _newAdsSubject.add(fetchedAds);
   }
 
-  _onCreativeDownloaded(Creative downloadedCreative) {
+  _onCreativesDownloaded(Iterable<Creative> downloadedCreatives) {
     // Ad after downloading creative success it will be pushed to ready stream.
     final newAds = _newAdsSubject.value;
 
-    Ad downloadedAd;
+    Iterable<Ad> downloadedAds;
 
     try {
-      downloadedAd = newAds.firstWhere(
-        (ad) => ad.creative.id == downloadedCreative.id,
+      downloadedAds = newAds.where(
+        (ad) => downloadedCreatives.map((c) => c.id).contains(ad.creative.id),
       );
     } catch (_) {
       // not found error
     }
 
-    if (downloadedAd != null) {
-      // Updated the ad with new downloaded creative,
+    if (downloadedAds != null) {
+      // (!) update the ready ads with new downloaded creatives.
       final readyAds = [
-        ..._adsSubject.value.where((ad) => ad.id != downloadedAd.id),
-        downloadedAd.copyWith(creative: downloadedCreative),
+        ..._adsSubject.value.where(
+          (ad) => !downloadedAds.map((a) => a.id).contains(ad.id),
+        ),
+        ...downloadedAds.map(
+          (ad) => ad.copyWith(
+            creative: downloadedCreatives.firstWhere(
+              (creative) => ad.creative.id == creative.id,
+            ),
+          ),
+        ),
       ];
 
       // then push it to ready stream.
       _adsSubject.add(readyAds);
+
+      /*
+      An utility to generate Ads data for integration tests
+      =====================================================
+
+      final adString =
+          readyAds.map((ad) => '${ad.shortId}-${ad.version}').join(',');
+
+      final adToPrint = downloadedAds.map(
+        (ad) => ad.copyWith(
+          creative: downloadedCreatives.firstWhere(
+            (creative) => ad.creative.id == creative.id,
+          ),
+        ),
+      );
+
+      print('===csv ${stopwatch.elapsedMilliseconds},$adString');
+      for (final ad in adToPrint) print('=== ad ${ad.toConstructableString()}');
+      */
     }
   }
 
   /// Save the latest value of from LatLng stream.
   /// Whenever call AdClientApi, this value would be sent to the Ad Server.
   LatLng _currentLatLng;
-}
-
-class _DebouceBufferPrint {
-  factory _DebouceBufferPrint.singleton() {
-    if (_shared == null) _shared = _DebouceBufferPrint._();
-    return _shared;
-  }
-  _DebouceBufferPrint._() : _controller = StreamController.broadcast();
-  static _DebouceBufferPrint _shared;
-
-  StreamController<void> _controller;
-
-  increase() {
-    _controller.add(null);
-  }
-
-  Stream<String> get print$ => _controller.stream
-      .debounceBuffer(Duration(milliseconds: 500))
-      .where((values) => values.length > 0)
-      .flatMap((values) => Stream.value(
-            'AdRepository observed ${values.length} downloaded creatives.',
-          ));
 }

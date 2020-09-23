@@ -90,7 +90,8 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       return AdState(_adToAdViewModel(_adConfig.defaultAd));
     }
 
-    // FIXME It supposes to figure out which ad is best for displaying.
+    // (!) It supposes to figure out which ad is best for displaying.
+    // For now it blindly chooses ad by rotating the list.
     Ad pickedAd = _rotateCreative(_appBloc.state.readyAds);
 
     bool hasTargetingValues = targetingValues.valuesMap.isNotEmpty;
@@ -123,7 +124,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       canSkipAfter: ad.canSkipAfter,
       isSkippable: ad.isSkippable,
       duration: Duration(
-        seconds: ad.timeBlocks * 5, // FIXME
+        seconds: ad.timeBlocks * _adConfig.timeBlockToSecs,
       ),
       displayedAt: DateTime.now().millisecondsSinceEpoch,
     );

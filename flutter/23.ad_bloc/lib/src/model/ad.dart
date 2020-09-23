@@ -123,6 +123,30 @@ class Ad {
     return true;
   }
 
+  String toConstructableString() {
+    // constructable string of targeting values.
+    final keywords =
+        targetingKeywords.map((e) => e.toConstructableString()).join(', ');
+    final areas =
+        targetingAreas.map((e) => e.toConstructableString()).join(', ');
+    final genders =
+        targetingGenders.map((e) => e.toConstructableString()).join(', ');
+    final ageRanges =
+        targetingAgeRanges.map((e) => e.toConstructableString()).join(', ');
+
+    return 'const Ad(id: "$id"'
+        ', creative: ${creative.toConstructableString()}'
+        ', timeBlocks: $timeBlocks'
+        ', canSkipAfter: $canSkipAfter'
+        ', targetingKeywords: [$keywords]'
+        ', targetingAreas: [$areas]'
+        ', targetingGenders: [$genders]'
+        ', targetingAgeRanges: [$ageRanges]'
+        ', version: $version'
+        ', createdAt: $createdAt'
+        ', lastModifiedAt: $lastModifiedAt)';
+  }
+
   @override
   String toString() {
     return 'Ad{id: $id'

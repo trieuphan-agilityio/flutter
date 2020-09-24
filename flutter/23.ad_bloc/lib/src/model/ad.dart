@@ -117,12 +117,6 @@ class Ad {
     );
   }
 
-  /// True indicates that [Ad] match with the targeting [values].
-  bool isMatch(TargetingValues values) {
-    // FIXME
-    return true;
-  }
-
   String toConstructableString() {
     // constructable string of targeting values.
     final keywords =

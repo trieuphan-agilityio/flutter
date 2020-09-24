@@ -17,12 +17,12 @@ class AppState extends Equatable {
         latLng: null,
         isFetchingAds: false,
         isMoving: false,
+        capturedPhoto: null,
         genders: const [],
         ageRanges: const [],
         keywords: const [],
         faces: const [],
         trip: const Trip.offTrip(),
-        faceId: null,
         isDetectingFaces: false,
       );
 
@@ -57,6 +57,9 @@ class AppState extends Equatable {
   final bool isMoving;
   bool get isNotMoving => !isMoving;
 
+  /// Captured photo that is used for detecting passenger info
+  final Photo capturedPhoto;
+
   /// Genders of Passengers
   final Iterable<PassengerGender> genders;
 
@@ -70,11 +73,6 @@ class AppState extends Equatable {
   final Iterable<Face> faces;
 
   final Trip trip;
-
-  /// An identity that represents for passengers on a trip.
-  /// On trip, the first Face Id will be used until the trip is end.
-  /// There is no further face detection once Face Id is set.
-  final Iterable<Face> faceId;
 
   final bool isDetectingFaces;
 
@@ -90,12 +88,12 @@ class AppState extends Equatable {
     @required this.isTrackingLocation,
     @required this.isFetchingAds,
     @required this.isMoving,
+    @required this.capturedPhoto,
     @required this.genders,
     @required this.ageRanges,
     @required this.keywords,
     @required this.faces,
     @required this.trip,
-    @required this.faceId,
     @required this.isDetectingFaces,
   })  : assert(adToDisplay != null),
         assert(readyAds != null),
@@ -104,7 +102,8 @@ class AppState extends Equatable {
         assert(genders != null),
         assert(ageRanges != null),
         assert(keywords != null),
-        assert(faces != null);
+        assert(faces != null),
+        assert(trip != null);
 
   AppState copyWith({
     Ad adToDisplay,
@@ -118,12 +117,12 @@ class AppState extends Equatable {
     bool isTrackingLocation,
     bool isFetchingAds,
     bool isMoving,
+    Photo capturedPhoto,
     Iterable<PassengerGender> genders,
     Iterable<PassengerAgeRange> ageRanges,
     Iterable<Keyword> keywords,
     Iterable<Face> faces,
     Trip trip,
-    Face faceId,
     bool isDetectingFaces,
   }) {
     return AppState(
@@ -138,12 +137,12 @@ class AppState extends Equatable {
       isTrackingLocation: isTrackingLocation ?? this.isTrackingLocation,
       isFetchingAds: isFetchingAds ?? this.isFetchingAds,
       isMoving: isMoving ?? this.isMoving,
+      capturedPhoto: capturedPhoto ?? this.capturedPhoto,
       genders: genders ?? this.genders,
       ageRanges: ageRanges ?? this.ageRanges,
       keywords: keywords ?? this.keywords,
       faces: faces ?? this.faces,
       trip: trip ?? this.trip,
-      faceId: faceId ?? this.faceId,
       isDetectingFaces: isDetectingFaces ?? this.isDetectingFaces,
     );
   }
@@ -161,12 +160,12 @@ class AppState extends Equatable {
         isTrackingLocation,
         isFetchingAds,
         isMoving,
+        capturedPhoto,
         genders,
         ageRanges,
         keywords,
         faces,
         trip,
-        faceId,
         isDetectingFaces,
       ];
 
@@ -188,7 +187,6 @@ class AppState extends Equatable {
         ', keywords: $keywords'
         ', faces: $faces'
         ', trip: $trip'
-        ', faceId: $faceId'
         ', isDetectingFaces: $isDetectingFaces}';
   }
 }

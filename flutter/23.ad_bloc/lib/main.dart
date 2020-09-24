@@ -3,25 +3,30 @@ import 'dart:developer' as dartDev;
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
+import 'package:ad_bloc/src/service/camera_controller.dart';
 import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
+import 'package:ad_bloc/src/service/movement_detector.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'config.dart';
 import 'src/service/ad_repository/ad_api_client.dart';
 import 'src/service/ad_repository/ad_repository.dart';
 import 'src/service/ad_repository/creative_downloader.dart';
+import 'src/service/age_detector.dart';
 import 'src/service/debugger_factory.dart';
+import 'src/service/face_detector.dart';
 import 'src/service/file_downloader.dart';
+import 'src/service/gender_detector.dart';
 import 'src/service/gps/gps_controller.dart';
 import 'src/service/permission_controller.dart';
 import 'src/service/power_provider.dart';
 import 'src/widget/ad_view.dart';
 import 'src/widget/debug_button.dart';
-import 'src/widget/debug_dashboard.dart';
+import 'src/widget/debug_dashboard/debug_dashboard.dart';
 
 void main() {
   // log Bloc events
-  //Bloc.observer = SimpleBlocObserver();
+  Bloc.observer = SimpleBlocObserver();
 
   // log to console
   Log.log$.listen(dartDev.log);
@@ -33,9 +38,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Provider<DebuggerFactory>(
-      create: (_) {
-        return DebuggerFactoryImpl()..driverOnboarded();
-      },
+      create: (_) => DebuggerFactoryImpl(),
       child: MaterialApp(
         routes: {
           '/debug': (_) => DebugDashboard(),
@@ -70,7 +73,7 @@ class DIContainer extends StatelessWidget {
         Provider<ConfigProvider>(
           create: (_) => ConfigProviderImpl()
             ..config = Config(
-              timeBlockToSecs: 5,
+              timeBlockToSecs: 2,
               defaultAd: kDefaultAd,
               gpsAccuracy: 4,
               creativeBaseUrl: 'http://localhost:8080/public/creatives/',
@@ -126,15 +129,35 @@ class DIContainer extends StatelessWidget {
             );
           },
         ),
+        ProxyProvider<DebuggerFactory, CameraController>(
+          update: (_, debuggerFactory, __) {
+            return CameraControllerImpl(
+              debugger: debuggerFactory.cameraDebugger,
+            );
+          },
+        ),
+        ProxyProvider<GpsController, MovementDetector>(
+          update: (_, gpsController, __) {
+            return MovementDetectorImpl(gpsController.latLng$);
+          },
+        ),
+        Provider<FaceDetector>(create: (_) => FaceDetectorImpl()),
+        Provider<GenderDetector>(create: (_) => GenderDetectorImpl()),
+        Provider<AgeDetector>(create: (_) => AgeDetectorImpl()),
       ],
       child: Builder(
         builder: (BuildContext context) {
-          final adRepository = Provider.of<AdRepository>(context);
-          final gpsController = Provider.of<GpsController>(context);
+          final adConfig = Provider.of<ConfigProvider>(context).adConfig;
           final permissionController =
               Provider.of<PermissionController>(context);
           final powerProvider = Provider.of<PowerProvider>(context);
-          final adConfig = Provider.of<ConfigProvider>(context).adConfig;
+          final adRepository = Provider.of<AdRepository>(context);
+          final gpsController = Provider.of<GpsController>(context);
+          final movementDetector = Provider.of<MovementDetector>(context);
+          final cameraController = Provider.of<CameraController>(context);
+          final faceDetector = Provider.of<FaceDetector>(context);
+          final genderDetector = Provider.of<GenderDetector>(context);
+          final ageDetector = Provider.of<AgeDetector>(context);
 
           return MultiBlocProvider(
             providers: [
@@ -146,6 +169,11 @@ class DIContainer extends StatelessWidget {
                     powerProvider: powerProvider,
                     adRepository: adRepository,
                     gpsController: gpsController,
+                    movementDetector: movementDetector,
+                    cameraController: cameraController,
+                    faceDetector: faceDetector,
+                    genderDetector: genderDetector,
+                    ageDetector: ageDetector,
                   )
                     ..add(const Initialized())
                     ..add(const ChangedGpsOptions(

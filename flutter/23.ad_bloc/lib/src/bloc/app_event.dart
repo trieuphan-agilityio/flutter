@@ -21,28 +21,6 @@ class AppChangedState extends AppEvent {
   List<Object> get props => [state];
 }
 
-/// Indicates that the ads that have creatives were downloaded
-/// have changed.
-class ReadyAdsChanged extends AppEvent {
-  final Iterable<Ad> ads;
-
-  const ReadyAdsChanged(this.ads);
-
-  @override
-  List<Object> get props => [ads];
-}
-
-/// Indicates that the ads that have just fetched from Ad Server
-/// have changed.
-class NewAdsChanged extends AppEvent {
-  final Iterable<Ad> ads;
-
-  const NewAdsChanged(this.ads);
-
-  @override
-  List<Object> get props => [ads];
-}
-
 class Initialized extends AppEvent {
   const Initialized();
 }
@@ -55,11 +33,16 @@ class Stopped extends AppEvent {
   const Stopped();
 }
 
-class Disposed extends AppEvent {
-  const Disposed();
-}
+/// Indicates that the ads that have creatives were downloaded
+/// have changed.
+class ReadyAdsChanged extends AppEvent {
+  final Iterable<Ad> ads;
 
-class FetchedAds extends AppEvent {}
+  const ReadyAdsChanged(this.ads);
+
+  @override
+  List<Object> get props => [ads];
+}
 
 class Permitted extends AppEvent {
   final bool isAllowed;
@@ -68,6 +51,11 @@ class Permitted extends AppEvent {
 
   @override
   List<Object> get props => [isAllowed];
+
+  @override
+  String toString() {
+    return 'Permitted{isAllowed: $isAllowed}';
+  }
 }
 
 class PowerSupplied extends AppEvent {
@@ -77,6 +65,11 @@ class PowerSupplied extends AppEvent {
 
   @override
   List<Object> get props => [isStrong];
+
+  @override
+  String toString() {
+    return 'PowerSupplied{isStrong: $isStrong}';
+  }
 }
 
 class ChangedGpsOptions extends AppEvent {
@@ -95,15 +88,29 @@ class Located extends AppEvent {
 
   @override
   List<Object> get props => [latLng];
+
+  @override
+  String toString() {
+    return 'Located{latLng: $latLng}';
+  }
 }
 
 class Moved extends AppEvent {
   final bool isMoving;
 
-  Moved(this.isMoving);
+  const Moved(this.isMoving);
 
   @override
   List<Object> get props => [isMoving];
+}
+
+class PhotoCaptured extends AppEvent {
+  final Photo photo;
+
+  const PhotoCaptured(this.photo);
+
+  @override
+  List<Object> get props => [photo];
 }
 
 class GendersDetected extends AppEvent {
@@ -133,20 +140,23 @@ class KeywordsExtracted extends AppEvent {
   List<Object> get props => [keywords];
 }
 
+class DetectedNoFace extends AppEvent {
+  const DetectedNoFace();
+}
+
 class FacesDetected extends AppEvent {
   final Iterable<Face> faces;
 
-  FacesDetected(this.faces);
+  const FacesDetected(this.faces) : assert(faces.length > 0);
 
   @override
   List<Object> get props => [faces];
 }
 
-class TripChanged extends AppEvent {
-  final Trip trip;
+class TripStarted extends AppEvent {
+  const TripStarted();
+}
 
-  const TripChanged(this.trip);
-
-  @override
-  List<Object> get props => [trip];
+class TripEnded extends AppEvent {
+  const TripEnded();
 }

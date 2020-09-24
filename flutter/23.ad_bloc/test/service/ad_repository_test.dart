@@ -4,7 +4,7 @@ import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/ad_repository/ad_repository.dart';
 import 'package:fake_async/fake_async.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:quiver/time.dart';
 
@@ -98,20 +98,8 @@ main() {
         mockCreativeDownloader.downloadSuccess(sampleCreatives[2]);
         async.elapse(aSecond);
 
-        expect(emittedValues.length, 4);
+        expect(emittedValues.length, 3);
         expect(emittedValues[2], [
-          sampleAds[0].copyWith(
-            creative: sampleVideoCreatives[0].copyWith(
-              filePath: 'mock/file.mp4',
-            ),
-          ),
-          sampleAds[1].copyWith(
-            creative: sampleImageCreatives[0].copyWith(
-              filePath: 'mock/file.jpg',
-            ),
-          ),
-        ]);
-        expect(emittedValues[3], [
           sampleAds[0].copyWith(
             creative: sampleVideoCreatives[0].copyWith(
               filePath: 'mock/file.mp4',
@@ -160,7 +148,7 @@ main() {
         mockCreativeDownloader.downloadSuccess(sampleCreatives[2]);
         async.elapse(aSecond);
 
-        expect(emittedValues.length, 4);
+        expect(emittedValues.length, 2);
 
         locationChanged(LatLng(53.817198, -2.417717));
 
@@ -170,8 +158,8 @@ main() {
         // expect no need to redownload
         expect(mockCreativeDownloader.downloadCalledArgs, sampleCreatives);
 
-        expect(emittedValues.length, 5);
-        expect(emittedValues[4], [
+        expect(emittedValues.length, 3);
+        expect(emittedValues[2], [
           sampleAds[0].copyWith(
             creative: sampleVideoCreatives[0].copyWith(
               filePath: 'mock/file.mp4',

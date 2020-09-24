@@ -2,12 +2,14 @@ import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/ad_repository/ad_repository.dart';
+import 'package:ad_bloc/src/service/age_detector.dart';
+import 'package:ad_bloc/src/service/camera_controller.dart';
+import 'package:ad_bloc/src/service/face_detector.dart';
+import 'package:ad_bloc/src/service/gender_detector.dart';
 import 'package:ad_bloc/src/service/gps/gps_controller.dart';
+import 'package:ad_bloc/src/service/movement_detector.dart';
 import 'package:ad_bloc/src/service/permission_controller.dart';
 import 'package:ad_bloc/src/service/power_provider.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
   static AppBloc of(BuildContext context) {
@@ -16,23 +18,39 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   AppBloc(
     AppState initialState, {
-    @required PermissionController permissionController,
-    @required PowerProvider powerProvider,
-    @required AdRepository adRepository,
-    @required GpsController gpsController,
-  })  : assert(permissionController.isAllowed$.isBroadcast),
-        assert(powerProvider.isStrong$.isBroadcast),
-        _event$Controller = StreamController.broadcast(),
+    PermissionController permissionController,
+    PowerProvider powerProvider,
+    AdRepository adRepository,
+    GpsController gpsController,
+    MovementDetector movementDetector,
+    CameraController cameraController,
+    FaceDetector faceDetector,
+    GenderDetector genderDetector,
+    AgeDetector ageDetector,
+  })  : assert(permissionController == null ||
+            permissionController.isAllowed$.isBroadcast),
+        assert(powerProvider == null || powerProvider.isStrong$.isBroadcast),
+        _eventController = StreamController.broadcast(),
         _permissionController = permissionController,
         _powerProvider = powerProvider,
         _adRepository = adRepository,
         _gpsController = gpsController,
+        _cameraController = cameraController,
+        _movementDetector = movementDetector,
+        _faceDetector = faceDetector,
+        _genderDetector = genderDetector,
+        _ageDetector = ageDetector,
         super(initialState);
 
-  final PermissionController _permissionController;
-  final PowerProvider _powerProvider;
-  final AdRepository _adRepository;
-  final GpsController _gpsController;
+  PermissionController _permissionController;
+  PowerProvider _powerProvider;
+  AdRepository _adRepository;
+  GpsController _gpsController;
+  CameraController _cameraController;
+  MovementDetector _movementDetector;
+  FaceDetector _faceDetector;
+  GenderDetector _genderDetector;
+  AgeDetector _ageDetector;
 
   StreamSubscription _permissionSubscription;
   StreamSubscription _powerSubscription;
@@ -40,63 +58,26 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   @override
   Stream<AppState> mapEventToState(AppEvent evt) async* {
     if (evt is Initialized) {
-      _permissionSubscription?.cancel();
-      _permissionSubscription = _permissionController.isAllowed$.listen(
-        (isAllowed) {
-          add(Permitted(isAllowed));
-        },
-      );
-
-      _powerSubscription?.cancel();
-      _powerSubscription = _powerProvider.isStrong$.listen(
-        (isStrong) {
-          add(PowerSupplied(isStrong));
-        },
-      );
-
-      _permissionController.start();
-      _powerProvider.start();
-      return;
-    }
-
-    if (evt is Started) {
-      yield state.copyWith(
-        isTrackingLocation: true,
-      );
-      _startTrackingLocation();
-      return;
-    }
-
-    if (evt is Stopped) {
-      yield state.copyWith(
-        isTrackingLocation: false,
-        isFetchingAds: false,
-      );
-      _stopTrackingLocation();
-      _stopFetchingAds();
+      _verifyPermission();
+      _verifyPower();
       return;
     }
 
     if (evt is Permitted) {
       yield state.copyWith(isPermitted: evt.isAllowed);
-      yield* _manageService();
+      yield* _startOrStopIfNeeds();
       return;
     }
 
     if (evt is PowerSupplied) {
       yield state.copyWith(isPowerStrong: evt.isStrong);
-      yield* _manageService();
+      yield* _startOrStopIfNeeds();
       return;
     }
 
     if (evt is ChangedGpsOptions) {
-      _gpsController.changeGpsOptions(evt.gpsOptions);
       yield state.copyWith(gpsOptions: evt.gpsOptions);
-      return;
-    }
-
-    if (evt is NewAdsChanged) {
-      yield state.copyWith(newAds: evt.ads);
+      _gpsController?.changeGpsOptions(evt.gpsOptions);
       return;
     }
 
@@ -106,8 +87,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
 
     if (evt is Located) {
-      _adRepository.changeLocation(evt.latLng);
-
       if (state.isFetchingAds) {
         yield state.copyWith(latLng: evt.latLng);
       } else {
@@ -119,30 +98,66 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     if (evt is Moved) {
       yield state.copyWith(isMoving: evt.isMoving);
-      yield* _detectTrip();
-      yield* _detectFaces();
+      _capturePhotoIfNeeds();
+      _updateTripStateIfNeeds();
       return;
     }
 
-    if (evt is GendersDetected) {
-      yield state.copyWith(genders: evt.genders);
+    if (evt is PhotoCaptured) {
+      yield state.copyWith(capturedPhoto: evt.photo);
+      _detectFaces();
       return;
     }
 
-    if (evt is AgeRangesDetected) {
-      yield state.copyWith(ageRanges: evt.ageRanges);
-      return;
-    }
-
-    if (evt is KeywordsExtracted) {
-      yield state.copyWith(keywords: evt.keywords);
+    if (evt is DetectedNoFace) {
+      yield state.copyWith(faces: const []);
+      _updateTripStateIfNeeds();
       return;
     }
 
     if (evt is FacesDetected) {
       yield state.copyWith(faces: evt.faces);
-      yield* _detectTrip();
-      yield* _detectFaces();
+      _updateTripStateIfNeeds();
+      _detectGenders();
+      _detectAgeRanges();
+      return;
+    }
+
+    if (evt is TripStarted) {
+      yield state.copyWith(trip: Trip.onTrip(state.faces));
+      return;
+    }
+
+    if (evt is TripEnded) {
+      yield state.copyWith(
+        trip: const Trip.offTrip(),
+        faces: const [],
+        genders: const [],
+        ageRanges: const [],
+        keywords: const [],
+      );
+      return;
+    }
+
+    if (evt is GendersDetected) {
+      if (state.trip.isOnTrip) {
+        final distincted = [...state.genders, ...evt.genders].toSet().toList();
+        yield state.copyWith(genders: distincted);
+      }
+      return;
+    }
+
+    if (evt is AgeRangesDetected) {
+      if (state.trip.isOnTrip) {
+        final distincted =
+            [...state.ageRanges, ...evt.ageRanges].toSet().toList();
+        yield state.copyWith(ageRanges: distincted);
+      }
+      return;
+    }
+
+    if (evt is KeywordsExtracted) {
+      yield state.copyWith(keywords: evt.keywords);
       return;
     }
 
@@ -154,27 +169,59 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   @override
   close() async {
-    // stop before disposing
-    add(const Stopped());
+    _stopTrackingLocation();
+    _stopFetchingAds();
+    _stopTrackingMovement();
 
     _disposer.cancel();
 
     _permissionController.stop();
     _powerProvider.stop();
 
-    _event$Controller.close();
+    _eventController.close();
     super.close();
   }
 
-  Stream<AppState> _manageService() async* {
+  _verifyPermission() {
+    _permissionSubscription?.cancel();
+    _permissionSubscription = _permissionController?.isAllowed$?.listen(
+      (isAllowed) {
+        add(Permitted(isAllowed));
+      },
+    );
+    _permissionController?.start();
+  }
+
+  _verifyPower() {
+    _powerSubscription?.cancel();
+    _powerSubscription = _powerProvider?.isStrong$?.listen(
+      (isStrong) {
+        add(PowerSupplied(isStrong));
+      },
+    );
+
+    _powerProvider?.start();
+  }
+
+  Stream<AppState> _startOrStopIfNeeds() async* {
     if (state.isStopped && state.isPermitted && state.isPowerStrong) {
-      yield state.copyWith(isStarted: true);
-      add(const Started());
+      yield state.copyWith(
+        isStarted: true,
+        isTrackingLocation: true,
+      );
+      _startTrackingLocation();
+      _startTrackingMovement();
     }
 
     if (state.isStarted && (state.isNotPermitted || state.isPowerWeak)) {
-      yield state.copyWith(isStarted: false);
-      add(const Stopped());
+      yield state.copyWith(
+        isStarted: false,
+        isTrackingLocation: false,
+        isFetchingAds: false,
+      );
+      _stopTrackingLocation();
+      _stopFetchingAds();
+      _stopTrackingMovement();
     }
   }
 
@@ -182,74 +229,112 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   _startTrackingLocation() {
     _trackLocationSubscription?.cancel();
-    _trackLocationSubscription = _gpsController.latLng$.listen((latLng) {
+    _trackLocationSubscription = _gpsController?.latLng$?.listen((latLng) {
+      _adRepository?.changeLocation(latLng);
       add(Located(latLng));
     });
-
     _disposer.autoDispose(_trackLocationSubscription);
-
-    _gpsController.start();
+    _gpsController?.start();
   }
 
   _stopTrackingLocation() {
     _trackLocationSubscription?.cancel();
     _trackLocationSubscription = null;
+    _gpsController?.stop();
+  }
+
+  StreamSubscription _trackMovementSubscription;
+
+  _startTrackingMovement() {
+    _trackMovementSubscription?.cancel();
+    _trackMovementSubscription = _movementDetector?.isMoving$?.listen(
+      (isMoving) {
+        if (state.isMoving != isMoving) add(Moved(isMoving));
+      },
+    );
+    _disposer.autoDispose(_trackMovementSubscription);
+    _movementDetector?.start();
+  }
+
+  _stopTrackingMovement() {
+    _trackMovementSubscription?.cancel();
+    _trackMovementSubscription = null;
+    _movementDetector?.stop();
   }
 
   StreamSubscription _adRepositorySubscription;
 
   _startFetchingAds() {
-    _adRepositorySubscription = _adRepository.ads$.listen((ads) {
+    _adRepositorySubscription = _adRepository?.ads$?.listen((ads) {
       if (!listEquals(state.readyAds.toList(), ads.toList()))
         add(ReadyAdsChanged(ads));
     });
-
     _disposer.autoDispose(_adRepositorySubscription);
-
-    _adRepository.start();
+    _adRepository?.start();
   }
 
   _stopFetchingAds() {
     _adRepositorySubscription?.cancel();
-    _adRepository.stop();
+    _adRepository?.stop();
   }
 
-  _detectTrip() async* {
+  _detectGenders() async {
+    for (final face in state.faces) {
+      final gender = await _genderDetector?.detect(face);
+      if (gender != null) add(GendersDetected([gender]));
+    }
+  }
+
+  _detectAgeRanges() async {
+    for (final face in state.faces) {
+      final ageRange = await _ageDetector?.detect(face);
+      if (ageRange != null) add(AgeRangesDetected([ageRange]));
+    }
+  }
+
+  _updateTripStateIfNeeds() {
     if (state.isMoving && state.faces.isNotEmpty) {
-      yield state.copyWith(
-        trip: Trip.onTrip(state.faces),
-      );
+      add(const TripStarted());
     }
 
-    if (state.isNotMoving && state.faces.isEmpty) {
-      yield state.copyWith(
-        trip: Trip.offTrip(),
-      );
+    if (state.trip.isOnTrip && state.isNotMoving && state.faces.isEmpty) {
+      add(const TripEnded());
     }
   }
 
-  _detectFaces() async* {
-    if (state.trip.isOnTrip) {
-      yield state.copyWith(isDetectingFaces: false);
-    }
+  _capturePhotoIfNeeds() async {
+    // 1. Stop capturing photo once on trip.
+    // During the trip, use one Face Id was detected from the beginning.
+    if (state.trip.isOnTrip) return;
 
-    if (state.isNotMoving) {
-      yield state.copyWith(isDetectingFaces: false);
-    }
+    // 2. Vehicle is not moving then no need to detect faces.
+    if (state.isNotMoving) return;
 
-    yield state.copyWith(isDetectingFaces: true);
+    final photo = await _cameraController?.capture();
+
+    if (photo != null) add(PhotoCaptured(photo));
+  }
+
+  _detectFaces() async {
+    final faces = await _faceDetector?.detect(state.capturedPhoto);
+    if (faces != null) {
+      if (faces.length == 0)
+        add(const DetectedNoFace());
+      else
+        add(FacesDetected(faces));
+    }
   }
 
   @override
   onEvent(AppEvent event) {
-    _event$Controller.add(event);
+    _eventController.add(event);
     super.onEvent(event);
   }
 
-  StreamController<AppEvent> _event$Controller;
+  StreamController<AppEvent> _eventController;
 
   @visibleForTesting
-  Stream<AppEvent> get event$ => _event$Controller.stream;
+  Stream<AppEvent> get event$ => _eventController.stream;
 
   final Disposer _disposer = Disposer();
 }

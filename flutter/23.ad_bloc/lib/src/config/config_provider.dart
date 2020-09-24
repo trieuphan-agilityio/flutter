@@ -1,6 +1,8 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/config.dart';
 
+import 'camera_config.dart';
+
 abstract class ConfigProvider
     implements AdConfigProvider, AdRepositoryConfigProvider {
   /// the current config
@@ -38,5 +40,15 @@ class ConfigProviderImpl implements ConfigProvider {
 
   Stream<AdRepositoryConfig> get adRepositoryConfig$ {
     return config$.map((c) => c.toAdRepositoryConfig()).distinct();
+  }
+
+  /// CameraConfigProvider
+
+  CameraConfig get cameraConfig {
+    return configSubject.value.toCameraConfig();
+  }
+
+  Stream<CameraConfig> get cameraConfig$ {
+    return config$.map((c) => c.toCameraConfig()).distinct();
   }
 }

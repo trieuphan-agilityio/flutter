@@ -3,12 +3,17 @@ import 'package:ad_bloc/base.dart';
 /// Describe the state of trip whether not on trip or on trip, and how many
 /// passenger on that trip.
 class Trip {
-  final List<Face> passengers;
+  final Iterable<Face> passengers;
+
+  /// An identity that represents for passengers on a trip.
+  /// On trip, the first Face Id will be used until the trip is end.
+  /// There is no further face detection once Face Id is set.
+  Face get faceId => passengers.length > 1 ? passengers.first : null;
 
   const Trip._([this.passengers]);
 
   const factory Trip.offTrip() = Trip._;
-  const factory Trip.onTrip(List<Face> passengers) = Trip._;
+  const factory Trip.onTrip(Iterable<Face> passengers) = Trip._;
 
   /// Device is considered on trip when Power is [PowerState.strong],
   /// face is found and there is movement.
@@ -66,7 +71,7 @@ class Face {
   /// Cropped portrait contains a full face.
   final Photo photo;
 
-  Face(this.id, this.photo);
+  const Face(this.id, this.photo);
 
   @override
   String toString() {

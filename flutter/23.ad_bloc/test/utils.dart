@@ -179,9 +179,12 @@ class MockAdRepository with ServiceMixin implements AdRepository {
 }
 
 class MockGpsController with ServiceMixin implements GpsController {
-  MockGpsController(this.initial$);
+  MockGpsController(this.initial$)
+      : assert(!initial$.isBroadcast),
+        controller = StreamController.broadcast();
 
   final Stream<LatLng> initial$;
+  final StreamController<LatLng> controller;
 
   List<GpsOptions> changeGpsOptionsCalledArgs = [];
 
@@ -189,7 +192,13 @@ class MockGpsController with ServiceMixin implements GpsController {
     changeGpsOptionsCalledArgs.add(options);
   }
 
-  Stream<LatLng> get latLng$ => initial$;
+  Stream<LatLng> get latLng$ => controller.stream;
+
+  @override
+  start() async {
+    super.start();
+    disposer.autoDispose(initial$.listen(controller.add));
+  }
 }
 
 class MockPermissionController

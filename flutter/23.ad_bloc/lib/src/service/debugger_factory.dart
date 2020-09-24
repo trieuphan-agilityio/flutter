@@ -15,6 +15,7 @@ abstract class DebuggerFactory {
   PowerDebugger get powerDebugger;
   GpsDebugger get gpsDebugger;
   AdRepositoryDebugger get adRepositoryDebugger;
+  CameraDebugger get cameraDebugger;
 
   void driverOnboarded();
 
@@ -32,6 +33,9 @@ abstract class DebuggerFactory {
   /// Replay the recorded [LatLng] value from sample data.
   /// It would produce events follow the order and time of the recorded.
   void drivingOnRoute(DebugRoute route);
+
+  /// Specify output of [CameraController]
+  void passengerPhotoAt(String filePath);
 }
 
 class PermissionDebugger extends Equatable {
@@ -64,10 +68,19 @@ class GpsDebugger extends Equatable {
 class AdRepositoryDebugger extends Equatable {
   final Stream<Iterable<Ad>> ads$;
 
-  AdRepositoryDebugger(this.ads$);
+  const AdRepositoryDebugger(this.ads$);
 
   @override
   List<Object> get props => [ads$];
+}
+
+class CameraDebugger extends Equatable {
+  final String filePath;
+
+  const CameraDebugger(this.filePath);
+
+  @override
+  List<Object> get props => [filePath];
 }
 
 class DebuggerFactoryImpl implements DebuggerFactory {
@@ -78,16 +91,12 @@ class DebuggerFactoryImpl implements DebuggerFactory {
     _permissionDebugger = PermissionDebugger(isAllowed);
   }
 
-  disablePermissionDebugger() => _permissionDebugger = null;
-
   PowerDebugger get powerDebugger => _powerDebugger;
   PowerDebugger _powerDebugger;
 
   enablePowerDebugger(bool isStrong) {
     _powerDebugger = PowerDebugger(isStrong);
   }
-
-  disablePowerDebugger() => _powerDebugger = null;
 
   driverOnboarded() {
     enablePermissionDebugger(true);
@@ -123,8 +132,13 @@ class DebuggerFactoryImpl implements DebuggerFactory {
     };
   }
 
-  disableGpsDebugger() => _gpsDebugger = null;
-
   AdRepositoryDebugger _adRepositoryDebugger;
   AdRepositoryDebugger get adRepositoryDebugger => _adRepositoryDebugger;
+
+  CameraDebugger _cameraDebugger;
+  CameraDebugger get cameraDebugger => _cameraDebugger;
+
+  void passengerPhotoAt(String filePath) {
+    _cameraDebugger = CameraDebugger(filePath);
+  }
 }

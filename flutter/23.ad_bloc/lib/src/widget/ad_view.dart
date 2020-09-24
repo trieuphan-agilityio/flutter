@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
@@ -56,9 +55,10 @@ class _AdControllerState extends State<_AdController> {
         if (state.ad == null)
           return Placeholder(key: const Key('ad_view_placeholder'));
 
+        final model = state.ad;
         return _AdView(
-          key: const Key('ad_view'),
-          model: state.ad,
+          key: Key('ad_view_${model.ad.shortId}'),
+          model: model,
           onSkip: () {
             finishTimer?.cancel();
             finishTimer = null;
@@ -125,7 +125,7 @@ class _AdView extends StatelessWidget {
             ],
           ),
           padding: EdgeInsets.all(16),
-          color: _chooseColorForAd(),
+          color: _chooseColorForAd(model),
           alignment: Alignment.topLeft,
         ),
       ]),
@@ -133,11 +133,11 @@ class _AdView extends StatelessWidget {
   }
 }
 
-Color _chooseColorForAd() {
-  return _kAdInfoBgColors[_random.nextInt(_kAdInfoBgColors.length - 1)];
+Color _chooseColorForAd(AdViewModel model) {
+  // just simply find a color based on the first two hex numbers of Ad id
+  return _kAdInfoBgColors[
+      int.parse(model.ad.id.substring(0, 1), radix: 16) % 7];
 }
-
-final Random _random = Random();
 
 final List<Color> _kAdInfoBgColors = [
   SolarizedColor.yellow.withAlpha(100),

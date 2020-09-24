@@ -28,13 +28,6 @@ enum TargetingType {
 abstract class TargetingValue {
   TargetingType get type;
 
-  /// If value is not stackable, new value would causes previous one is removed
-  /// from the list when adding.
-  ///
-  /// Some values that are stackable such as [Keyword] which mean that on an trip
-  /// [Keyword]s are collecting until passenger is dropped off.
-  bool get isStackable;
-
   String toConstructableString();
 }
 
@@ -45,10 +38,6 @@ class PassengerAgeRange implements TargetingValue {
   const PassengerAgeRange(this.from, this.to);
 
   TargetingType get type => TargetingType.passengerAgeRange;
-
-  /// If there are more than one passengers the targeting values should collect
-  /// multiple values of passenger's age range.
-  bool get isStackable => true;
 
   String toConstructableString() {
     return 'const PassengerAgeRange($from, $to)';
@@ -71,6 +60,25 @@ class PassengerAgeRange implements TargetingValue {
   int get hashCode => from.hashCode ^ to.hashCode;
 }
 
+extension TargetPassengerAgeRange on Iterable<PassengerAgeRange> {
+  /// An utility to verify if age ranges detected in [AppBloc] match with
+  /// the targeting age ranges of an Ad.
+  bool isMatched(Iterable<PassengerAgeRange> targetingValues) {
+    int requiredMatching = this.length;
+    // In order to match targeting values of Passenger's Age Range,
+    // the detected age ranges must be covered by targeting values.
+    for (final ageRange in this) {
+      for (final targetingValue in targetingValues) {
+        if (targetingValue.from <= ageRange.from &&
+            targetingValue.to >= ageRange.to) {
+          requiredMatching--;
+        }
+      }
+    }
+    return requiredMatching == 0;
+  }
+}
+
 class PassengerGender implements TargetingValue {
   final String gender;
 
@@ -85,10 +93,6 @@ class PassengerGender implements TargetingValue {
   static const PassengerGender unknown = PassengerGender._('unknown');
 
   TargetingType get type => TargetingType.passengerGender;
-
-  /// If there are more than one passengers the targeting values should collect
-  /// multiple values of passenger's gender.
-  bool get isStackable => true;
 
   String toConstructableString() {
     return 'PassengerGender.$gender';
@@ -110,14 +114,26 @@ class PassengerGender implements TargetingValue {
   int get hashCode => gender.hashCode;
 }
 
+extension TargetPassengerGender on Iterable<PassengerGender> {
+  /// An utility to verify if genders detected in [AppBloc] match with
+  /// the targeting genders of an Ad.
+  bool isMatched(Iterable<PassengerGender> targetingValues) {
+    int requiredMatching = this.length;
+    // In order to match targeting values of Passenger's Gender,
+    // the detected genders must be covered by targeting values.
+    for (final gender in this) {
+      if (targetingValues.contains(gender)) requiredMatching--;
+    }
+    return requiredMatching == 0;
+  }
+}
+
 class Keyword implements TargetingValue {
   final String keyword;
 
   const Keyword(this.keyword);
 
   TargetingType get type => TargetingType.keyword;
-
-  bool get isStackable => true;
 
   String toConstructableString() {
     return 'const Keyword("$keyword")';
@@ -139,35 +155,16 @@ class Keyword implements TargetingValue {
   int get hashCode => keyword.hashCode;
 }
 
-class LatLng implements TargetingValue {
-  final double lat;
-  final double lng;
+extension TargetKeyword on Iterable<Keyword> {
+  /// An utility to verify if keywords detected in [AppBloc] match with
+  /// the targeting keywords of an Ad.
+  bool isMatched(Iterable<Keyword> targetingValues) {
+    // no keyword it's considered as matched.
+    if (this.length == 0) return true;
 
-  const LatLng(this.lat, this.lng);
-
-  TargetingType get type => TargetingType.latLng;
-
-  bool get isStackable => false;
-
-  String toConstructableString() {
-    return 'const LatLng("$lat", "$lng")';
+    // at least one keyword is matched, the targeting values are conformed.
+    return this.toSet().intersection(targetingValues.toSet()).length > 0;
   }
-
-  @override
-  String toString() {
-    return 'LatLng{lat: $lat, lng: $lng}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is LatLng &&
-          runtimeType == other.runtimeType &&
-          lat == other.lat &&
-          lng == other.lng;
-
-  @override
-  int get hashCode => lat.hashCode ^ lng.hashCode;
 }
 
 class Area implements TargetingValue {
@@ -176,8 +173,6 @@ class Area implements TargetingValue {
   const Area(this.name);
 
   TargetingType get type => TargetingType.area;
-
-  bool get isStackable => false;
 
   String toConstructableString() {
     return 'const Area("$name")';
@@ -197,43 +192,11 @@ class Area implements TargetingValue {
   int get hashCode => name.hashCode;
 }
 
-/// TargetingValues is the abstraction of the collection of TargetingValue
-/// A targeting type can have more than one TargetingValue,
-/// for example: Advertiser want to target to multiple areas.
-class TargetingValues {
-  final Map<TargetingType, List<TargetingValue>> valuesMap = {};
-
-  add(TargetingValue value) {
-    if (valuesMap.containsKey(value.type) && value.isStackable) {
-      valuesMap[value.type].add(value);
-    } else {
-      valuesMap[value.type] = [value];
-    }
+extension TargetArea on Iterable<Area> {
+  /// An utility to verify if areas detected in [AppBloc] match with
+  /// the targeting areas of an Ad.
+  bool isMatched(Iterable<Area> targetingValues) {
+    // (!) figure out if an area is in another area.
+    return true;
   }
-
-  addAll(Iterable<TargetingValue> values) {
-    for (final value in values) {
-      add(value);
-    }
-  }
-
-  /// Remove all targeting values.
-  clear() {
-    valuesMap.clear();
-  }
-
-  @override
-  String toString() {
-    return 'TargetingValues{valuesMap: $valuesMap}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TargetingValues &&
-          runtimeType == other.runtimeType &&
-          valuesMap == other.valuesMap;
-
-  @override
-  int get hashCode => valuesMap.hashCode;
 }

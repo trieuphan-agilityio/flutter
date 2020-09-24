@@ -2,6 +2,8 @@ import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:meta/meta.dart';
 
+import 'camera_config.dart';
+
 class Config {
   /// Indicates how long a time block take. Duration in seconds.
   final int timeBlockToSecs;
@@ -148,6 +150,10 @@ class Config {
     return AdRepositoryConfig(
       refreshInterval: defaultAdRepositoryRefreshInterval,
     );
+  }
+
+  CameraConfig toCameraConfig() {
+    return CameraConfig(captureInterval: cameraCaptureInterval);
   }
 }
 

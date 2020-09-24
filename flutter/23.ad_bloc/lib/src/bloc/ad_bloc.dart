@@ -74,14 +74,15 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   }
 
   AdState _pickAd(Iterable<Ad> ads) {
-    final targetingValues = TargetingValues();
-    targetingValues.addAll(_appBloc.state.genders);
-    targetingValues.addAll(_appBloc.state.ageRanges);
-    targetingValues.addAll(_appBloc.state.keywords);
+    final genders = _appBloc.state.genders;
+    final ageRanges = _appBloc.state.ageRanges;
+    final keywords = _appBloc.state.keywords;
 
-    final matchedAds = _appBloc.state.readyAds
-        .where((ad) => ad.isMatch(targetingValues))
-        .toList();
+    final matchedAds = _appBloc.state.readyAds.where((ad) {
+      return genders.isMatched(ad.targetingGenders) &&
+          ageRanges.isMatched(ad.targetingAgeRanges) &&
+          keywords.isMatched(ad.targetingKeywords);
+    }).toList();
 
     if (matchedAds.length == 0) {
       Log.debug('beating');
@@ -92,13 +93,20 @@ class AdBloc extends Bloc<AdEvent, AdState> {
 
     // (!) It supposes to figure out which ad is best for displaying.
     // For now it blindly chooses ad by rotating the list.
-    Ad pickedAd = _rotateCreative(_appBloc.state.readyAds);
+    final Ad pickedAd = _rotateCreative(matchedAds);
 
-    bool hasTargetingValues = targetingValues.valuesMap.isNotEmpty;
+    final hasTargeting =
+        genders.isNotEmpty || ageRanges.isNotEmpty && keywords.isNotEmpty;
+
+    final genderStr = 'genders: [${genders.map((g) => g.gender).join(', ')}]';
+    final ageStr =
+        'age ranges: [${ageRanges.map((r) => "${r.from}-${r.to}").join(', ')}]';
+    final keywordStr = 'keywords: [${keywords.join(', ')}]';
+
     Log.info('picked ${pickedAd.shortId}'
         '-${pickedAd.creative.shortId}'
         '-v${pickedAd.version}'
-        '${hasTargetingValues ? ", with ${targetingValues.valuesMap}." : "."}');
+        '${hasTargeting ? ", with $genderStr, $ageStr, $keywordStr." : "."}');
 
     // choose this Ad for displaying
     return AdState(_adToAdViewModel(pickedAd));

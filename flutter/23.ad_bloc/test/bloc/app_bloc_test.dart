@@ -1,6 +1,9 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
+import 'package:ad_bloc/src/service/gps/debug_route_loader.dart';
+import 'package:ad_bloc/src/service/movement_detector.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import '../utils.dart';
@@ -13,6 +16,7 @@ main() {
 
   StreamController<LatLng> latLng$Controller;
   MockGpsController gpsController;
+  MovementDetector movementDetector;
 
   StreamController<bool> isAllowed$Controller;
   MockPermissionController permissionController;
@@ -24,8 +28,9 @@ main() {
     setUp(() {
       adRepository = MockAdRepository();
 
-      latLng$Controller = StreamController.broadcast();
+      latLng$Controller = StreamController();
       gpsController = MockGpsController(latLng$Controller.stream);
+      movementDetector = MovementDetectorImpl(gpsController.latLng$);
 
       isAllowed$Controller = StreamController.broadcast();
       permissionController =
@@ -34,15 +39,16 @@ main() {
       isStrong$Controller = StreamController.broadcast();
       powerProvider = MockPowerProvider(isStrong$Controller.stream);
 
-      emittedEvents = [];
-
       appBloc = AppBloc(
         AppState.init(),
         adRepository: adRepository,
         gpsController: gpsController,
         permissionController: permissionController,
         powerProvider: powerProvider,
+        movementDetector: movementDetector,
       );
+
+      emittedEvents = [];
 
       appBloc.event$.listen(emittedEvents.add);
     });
@@ -129,7 +135,6 @@ main() {
         const Initialized(),
         const Permitted(true),
         const PowerSupplied(true),
-        const Started(),
       ]);
       expect(
         appBloc.state,
@@ -144,12 +149,11 @@ main() {
 
     test('fetch new ads when location is changed', () async {
       // App started
-      final initialState = AppState.init().copyWith(
-        isPermitted: true,
-        isPowerStrong: true,
-      );
-      appBloc.add(AppChangedState(initialState));
-      appBloc.add(const Started());
+      appBloc
+        ..add(const Initialized())
+        ..add(const Permitted(true))
+        ..add(const PowerSupplied(true));
+
       await flushMicrotasks();
 
       expect(gpsController.startCalled, 1);
@@ -164,14 +168,16 @@ main() {
       _fetchAds(sampleAds);
       await flushMicrotasks();
 
-      expect(emittedEvents.skip(1), [
-        const Started(),
+      expect(emittedEvents.skip(3), [
         const Located(const LatLng(53.817198, -2.417717)),
         ReadyAdsChanged(sampleAds),
       ]);
       expect(
         appBloc.state,
-        initialState.copyWith(
+        AppState.init().copyWith(
+          isPermitted: true,
+          isPowerStrong: true,
+          isStarted: true,
           isTrackingLocation: true,
           isFetchingAds: true,
           latLng: const LatLng(53.817198, -2.417717),
@@ -179,6 +185,46 @@ main() {
           readyAds: sampleAds,
         ),
       );
+    });
+  });
+
+  group('AppBloc', () {
+    test('detect movement when location is changing', () async {
+      final debugRoutes = await DebugRouteLoader.singleton().load();
+      final debugRoute = debugRoutes[0];
+
+      fakeAsync((async) {
+        final gpsController = MockGpsController(debugRoute.latLng$);
+        final movementDetector = MovementDetectorImpl(gpsController.latLng$);
+
+        appBloc = AppBloc(
+          AppState.init(),
+          gpsController: gpsController,
+          movementDetector: movementDetector,
+        );
+
+        emittedEvents = [];
+        appBloc.event$.listen(emittedEvents.add);
+
+        appBloc
+          ..add(const Initialized())
+          ..add(const Permitted(true))
+          ..add(const PowerSupplied(true));
+
+        async.elapse(Duration(seconds: 11));
+
+        expect(emittedEvents.skip(3), [
+          const Located(const LatLng(16.0703366, 108.231204)),
+          const Located(const LatLng(16.0707824, 108.2310186)),
+          const Located(const LatLng(16.0709385, 108.230972)),
+          const Located(const LatLng(16.0710511, 108.2309365)),
+          const Located(const LatLng(16.0710983, 108.2309286)),
+          const Located(const LatLng(16.0710929, 108.2309424)),
+          const Located(const LatLng(16.0710693, 108.2309624)),
+          const Moved(true),
+          const Located(const LatLng(16.0710323, 108.2309851)),
+        ]);
+      });
     });
   });
 }

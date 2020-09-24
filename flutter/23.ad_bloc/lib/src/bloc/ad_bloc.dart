@@ -67,12 +67,6 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     }
   }
 
-  @override
-  close() async {
-    _appBloc.close();
-    super.close();
-  }
-
   AdState _pickAd(Iterable<Ad> ads) {
     final genders = _appBloc.state.genders;
     final ageRanges = _appBloc.state.ageRanges;

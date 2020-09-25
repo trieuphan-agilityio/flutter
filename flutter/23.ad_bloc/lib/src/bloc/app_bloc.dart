@@ -27,10 +27,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     FaceDetector faceDetector,
     GenderDetector genderDetector,
     AgeDetector ageDetector,
-  })  : assert(permissionController == null ||
-            permissionController.isAllowed$.isBroadcast),
-        assert(powerProvider == null || powerProvider.isStrong$.isBroadcast),
-        _eventController = StreamController.broadcast(),
+  })  : _eventController = StreamController.broadcast(),
         _permissionController = permissionController,
         _powerProvider = powerProvider,
         _adRepository = adRepository,

@@ -4,7 +4,7 @@ abstract class GenderDetector {
   Future<PassengerGender> detect(Face face);
 }
 
-class GenderDetectorImpl implements GenderDetector {
+class FakeGenderDetector implements GenderDetector {
   /// Dummy detection that recognize the gender based on photo's file path
   Future<PassengerGender> detect(Face face) async {
     if (face.photo.filePath.contains('female')) {

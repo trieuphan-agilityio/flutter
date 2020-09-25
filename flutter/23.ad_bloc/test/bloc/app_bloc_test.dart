@@ -1,6 +1,9 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
+import 'package:ad_bloc/src/service/age_detector.dart';
+import 'package:ad_bloc/src/service/face_detector.dart';
+import 'package:ad_bloc/src/service/gender_detector.dart';
 import 'package:ad_bloc/src/service/gps/debug_route_loader.dart';
 import 'package:ad_bloc/src/service/movement_detector.dart';
 import 'package:fake_async/fake_async.dart';
@@ -224,14 +227,34 @@ main() {
           const Located(const LatLng(16.0710693, 108.2309624)),
           const Located(const LatLng(16.0710323, 108.2309851)),
         ]);
+
+        expect(
+          appBloc.state,
+          AppState.init().copyWith(
+            isPermissionAllowed: true,
+            isPowerStrong: true,
+            isStarted: true,
+            isTrackingLocation: true,
+            isMoving: true,
+            isFetchingAds: true,
+            gpsOptions: const GpsOptions(accuracy: GpsAccuracy.high),
+            latLng: const LatLng(16.0710323, 108.2309851),
+          ),
+        );
       });
     });
+  });
 
-    test('detect passenger info', () async {
+  group('AppBloc', () {
+    test('detect no faces while moving', () async {
       fakeAsync((async) {
+        final cameraController = MockCameraController();
         appBloc = AppBloc(
           AppState.init(),
-          faceDetector: MockFaceDetector(),
+          cameraController: cameraController,
+          faceDetector: FakeFaceDetector(),
+          genderDetector: FakeGenderDetector(),
+          ageDetector: FakeAgeDetector(),
         );
 
         emittedEvents = [];
@@ -244,9 +267,103 @@ main() {
           ..add(const Located(const LatLng(16.0710693, 108.2309624)))
           ..add(const Moved(true));
 
-        async.elapse(Duration(seconds: 11));
+        const fakePhoto = Photo('camera-sample_4.png');
+        cameraController.photo = fakePhoto;
 
-        expect(emittedEvents.skip(5), []);
+        async.elapse(Duration(seconds: 3));
+
+        expect(cameraController.captureCalled, 1);
+        expect(emittedEvents.skip(5), const [
+          PhotoCaptured(fakePhoto),
+          DetectedNoFace(),
+        ]);
+
+        expect(
+          appBloc.state,
+          AppState.init().copyWith(
+            isPermissionAllowed: true,
+            isPowerStrong: true,
+            isStarted: true,
+            isTrackingLocation: true,
+            isMoving: true,
+            isFetchingAds: true,
+            gpsOptions: const GpsOptions(accuracy: GpsAccuracy.high),
+            latLng: const LatLng(16.0710693, 108.2309624),
+            capturedPhoto: fakePhoto,
+          ),
+        );
+      });
+    });
+
+    test('detect passenger info when moving', () async {
+      fakeAsync((async) {
+        final cameraController = MockCameraController();
+        appBloc = AppBloc(
+          AppState.init(),
+          cameraController: cameraController,
+          faceDetector: FakeFaceDetector(),
+          genderDetector: FakeGenderDetector(),
+          ageDetector: FakeAgeDetector(),
+        );
+
+        emittedEvents = [];
+        appBloc.event$.listen(emittedEvents.add);
+
+        appBloc
+          ..add(const Initialized())
+          ..add(const Permitted(true))
+          ..add(const PowerSupplied(true))
+          ..add(const Located(const LatLng(16.0710693, 108.2309624)))
+          ..add(const Moved(true));
+
+        const fakePhoto = Photo('camera-sample_1.png');
+        cameraController.photo = fakePhoto;
+
+        async.elapse(Duration(seconds: 3));
+
+        expect(cameraController.captureCalled, 1);
+        expect(emittedEvents.skip(5), const [
+          PhotoCaptured(fakePhoto),
+          FacesDetected([
+            Face('fd32f', Photo('face-sample-female-26_30.png')),
+            Face('5eeb5', Photo('face-sample-male-18_25.png')),
+          ]),
+          GendersDetected([PassengerGender.female]),
+          AgeRangesDetected([PassengerAgeRange(26, 30)]),
+          GendersDetected([PassengerGender.male]),
+          AgeRangesDetected([PassengerAgeRange(18, 25)]),
+        ]);
+
+        expect(
+          appBloc.state,
+          AppState.init().copyWith(
+            isPermissionAllowed: true,
+            isPowerStrong: true,
+            isStarted: true,
+            isTrackingLocation: true,
+            isMoving: true,
+            isFetchingAds: true,
+            gpsOptions: const GpsOptions(accuracy: GpsAccuracy.high),
+            latLng: const LatLng(16.0710693, 108.2309624),
+            capturedPhoto: fakePhoto,
+            genders: const [
+              PassengerGender.female,
+              PassengerGender.male,
+            ],
+            ageRanges: const [
+              PassengerAgeRange(26, 30),
+              PassengerAgeRange(18, 25),
+            ],
+            faces: const [
+              Face('fd32f', Photo('face-sample-female-26_30.png')),
+              Face('5eeb5', Photo('face-sample-male-18_25.png')),
+            ],
+            trip: Trip.onTrip(const [
+              Face('fd32f', Photo('face-sample-female-26_30.png')),
+              Face('5eeb5', Photo('face-sample-male-18_25.png')),
+            ]),
+          ),
+        );
       });
     });
   });

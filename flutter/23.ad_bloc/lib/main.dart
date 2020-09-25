@@ -142,9 +142,9 @@ class DIContainer extends StatelessWidget {
             return MovementDetectorImpl(gpsController.latLng$);
           },
         ),
-        Provider<FaceDetector>(create: (_) => FaceDetectorImpl()),
-        Provider<GenderDetector>(create: (_) => GenderDetectorImpl()),
-        Provider<AgeDetector>(create: (_) => AgeDetectorImpl()),
+        Provider<FaceDetector>(create: (_) => FakeFaceDetector()),
+        Provider<GenderDetector>(create: (_) => FakeGenderDetector()),
+        Provider<AgeDetector>(create: (_) => FakeAgeDetector()),
       ],
       child: Builder(
         builder: (BuildContext context) {

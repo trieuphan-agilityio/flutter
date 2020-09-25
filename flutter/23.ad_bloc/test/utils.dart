@@ -7,6 +7,7 @@ import 'package:ad_bloc/src/model/trip.dart';
 import 'package:ad_bloc/src/service/ad_repository/ad_api_client.dart';
 import 'package:ad_bloc/src/service/ad_repository/ad_repository.dart';
 import 'package:ad_bloc/src/service/ad_repository/creative_downloader.dart';
+import 'package:ad_bloc/src/service/camera_controller.dart';
 import 'package:ad_bloc/src/service/face_detector.dart';
 import 'package:ad_bloc/src/service/gps/gps_controller.dart';
 import 'package:ad_bloc/src/service/permission_controller.dart';
@@ -220,6 +221,16 @@ class MockPowerProvider with ServiceMixin implements PowerProvider {
   final Stream<bool> initial$;
 
   Stream<bool> get isStrong$ => initial$;
+}
+
+class MockCameraController implements CameraController {
+  Photo photo;
+
+  int captureCalled = 0;
+  Future<Photo> capture() async {
+    captureCalled++;
+    return photo;
+  }
 }
 
 class MockFaceDetector implements FaceDetector {

@@ -7,7 +7,7 @@ abstract class FaceDetector {
   Future<Iterable<Face>> detect(Photo photo);
 }
 
-class FaceDetectorImpl implements FaceDetector {
+class FakeFaceDetector implements FaceDetector {
   Future<Iterable<Face>> detect(Photo photo) async {
     /// Dummy detection that recognize faces based on photo's file path
     Iterable<Face> faces;

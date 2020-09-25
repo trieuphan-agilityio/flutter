@@ -4,7 +4,7 @@ abstract class AgeDetector {
   Future<PassengerAgeRange> detect(Face face);
 }
 
-class AgeDetectorImpl implements AgeDetector {
+class FakeAgeDetector implements AgeDetector {
   /// Dummy detection that recognize the age range based on photo's file path
   Future<PassengerAgeRange> detect(Face face) async {
     if (face.photo.filePath.contains('18_25')) {

@@ -130,10 +130,15 @@ class DetectedNoFace extends AppEvent {
 class FacesDetected extends AppEvent {
   final Iterable<Face> faces;
 
-  const FacesDetected(this.faces) : assert(faces.length > 0);
+  const FacesDetected(this.faces);
 
   @override
   List<Object> get props => [faces];
+
+  @override
+  String toString() {
+    return 'FacesDetected{faces: $faces}';
+  }
 }
 
 class TripStarted extends AppEvent {

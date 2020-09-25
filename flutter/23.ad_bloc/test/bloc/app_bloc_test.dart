@@ -96,7 +96,7 @@ main() {
       expect(
         appBloc.state,
         AppState.init().copyWith(
-          isPermitted: false,
+          isPermissionAllowed: false,
           isPowerStrong: true,
           isStarted: false,
         ),
@@ -113,7 +113,7 @@ main() {
       expect(
         appBloc.state,
         AppState.init().copyWith(
-          isPermitted: true,
+          isPermissionAllowed: true,
           isPowerStrong: false,
           isStarted: false,
         ),
@@ -139,7 +139,7 @@ main() {
       expect(
         appBloc.state,
         AppState.init().copyWith(
-          isPermitted: true,
+          isPermissionAllowed: true,
           isPowerStrong: true,
           isStarted: true,
           isTrackingLocation: true,
@@ -175,7 +175,7 @@ main() {
       expect(
         appBloc.state,
         AppState.init().copyWith(
-          isPermitted: true,
+          isPermissionAllowed: true,
           isPowerStrong: true,
           isStarted: true,
           isTrackingLocation: true,
@@ -219,11 +219,34 @@ main() {
           const Located(const LatLng(16.0709385, 108.230972)),
           const Located(const LatLng(16.0710511, 108.2309365)),
           const Located(const LatLng(16.0710983, 108.2309286)),
+          const Moved(true),
           const Located(const LatLng(16.0710929, 108.2309424)),
           const Located(const LatLng(16.0710693, 108.2309624)),
-          const Moved(true),
           const Located(const LatLng(16.0710323, 108.2309851)),
         ]);
+      });
+    });
+
+    test('detect passenger info', () async {
+      fakeAsync((async) {
+        appBloc = AppBloc(
+          AppState.init(),
+          faceDetector: MockFaceDetector(),
+        );
+
+        emittedEvents = [];
+        appBloc.event$.listen(emittedEvents.add);
+
+        appBloc
+          ..add(const Initialized())
+          ..add(const Permitted(true))
+          ..add(const PowerSupplied(true))
+          ..add(const Located(const LatLng(16.0710693, 108.2309624)))
+          ..add(const Moved(true));
+
+        async.elapse(Duration(seconds: 11));
+
+        expect(emittedEvents.skip(5), []);
       });
     });
   });

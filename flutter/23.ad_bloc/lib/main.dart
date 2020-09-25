@@ -6,6 +6,7 @@ import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/camera_controller.dart';
 import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
 import 'package:ad_bloc/src/service/movement_detector.dart';
+import 'package:ad_bloc/src/widget/permission_container.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'config.dart';
@@ -42,7 +43,7 @@ class App extends StatelessWidget {
       child: MaterialApp(
         routes: {
           '/debug': (_) => DebugDashboard(),
-          '/': (_) => DIContainer(child: _App()),
+          '/': (_) => DIContainer(child: PermissionContainer(child: _App())),
         },
       ),
     );
@@ -174,11 +175,7 @@ class DIContainer extends StatelessWidget {
                     faceDetector: faceDetector,
                     genderDetector: genderDetector,
                     ageDetector: ageDetector,
-                  )
-                    ..add(const Initialized())
-                    ..add(const ChangedGpsOptions(
-                      const GpsOptions(accuracy: GpsAccuracy.high),
-                    ));
+                  )..add(const Initialized());
                 },
               ),
               BlocProvider<AdBloc>(

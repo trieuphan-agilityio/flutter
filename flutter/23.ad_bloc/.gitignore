@@ -2,6 +2,9 @@
 lcov.info
 coverage/
 
+# flutter gherkin's report
+report.json
+
 # Miscellaneous
 *.class
 *.log

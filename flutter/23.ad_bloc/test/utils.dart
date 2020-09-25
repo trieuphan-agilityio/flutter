@@ -3,9 +3,11 @@ import 'package:ad_bloc/src/model/ad.dart';
 import 'package:ad_bloc/src/model/creative.dart';
 import 'package:ad_bloc/src/model/targeting_value.dart';
 import 'package:ad_bloc/src/model/gps.dart';
+import 'package:ad_bloc/src/model/trip.dart';
 import 'package:ad_bloc/src/service/ad_repository/ad_api_client.dart';
 import 'package:ad_bloc/src/service/ad_repository/ad_repository.dart';
 import 'package:ad_bloc/src/service/ad_repository/creative_downloader.dart';
+import 'package:ad_bloc/src/service/face_detector.dart';
 import 'package:ad_bloc/src/service/gps/gps_controller.dart';
 import 'package:ad_bloc/src/service/permission_controller.dart';
 import 'package:ad_bloc/src/service/power_provider.dart';
@@ -106,15 +108,13 @@ final sampleAds = [
 ];
 
 class MockGpsAdapter implements GpsAdapter {
-  List<GpsOptions> calledArgs = [];
-
   final Stream<LatLng> latLng$;
 
   MockGpsAdapter(this.latLng$);
 
-  @override
+  List<GpsOptions> buildStreamCalledArgs = [];
   Future<Stream<LatLng>> buildStream(GpsOptions options) async {
-    calledArgs.add(options);
+    buildStreamCalledArgs.add(options);
     return this.latLng$;
   }
 }
@@ -220,4 +220,14 @@ class MockPowerProvider with ServiceMixin implements PowerProvider {
   final Stream<bool> initial$;
 
   Stream<bool> get isStrong$ => initial$;
+}
+
+class MockFaceDetector implements FaceDetector {
+  List<Face> faces;
+
+  List<Photo> detectCalledArgs = [];
+  Future<Iterable<Face>> detect(Photo photo) async {
+    detectCalledArgs.add(photo);
+    return faces;
+  }
 }

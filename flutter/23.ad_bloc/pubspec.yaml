@@ -38,6 +38,9 @@ dependencies:
   #    2) calculate the distance (in meters) between two geo coordinates;
   geolocator: 5.3.2+2
 
+  # Use User Accelerometer Events to determine movement state of the device
+  sensors: '0.4.2+5 <2.0.0'
+
   # display video
   video_player: '>=0.10.12+2 <2.0.0'
 

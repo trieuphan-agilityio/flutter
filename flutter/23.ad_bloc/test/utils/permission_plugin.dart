@@ -11,7 +11,7 @@ final kPermissionGranted = 1;
 final kPermissionDenied = 0;
 
 final List<Permission> _kAllPermissions = [
-  Permission.location,
+  Permission.locationWhenInUse,
   Permission.camera,
   Permission.microphone,
   Permission.storage,

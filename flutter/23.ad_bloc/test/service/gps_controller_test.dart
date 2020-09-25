@@ -81,7 +81,8 @@ main() {
       gpsAdapterEmit(LatLng(53.817198, -2.417717));
       await flushMicrotasks();
 
-      expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
+      expect(gpsAdapter.buildStreamCalledArgs,
+          [GpsOptions(accuracy: GpsAccuracy.high)]);
       expect(emittedValues, [LatLng(53.817198, -2.417717)]);
       expect(errors, []);
       expect(isDone, false);
@@ -95,7 +96,8 @@ main() {
       changeGpsOptions(GpsOptions(accuracy: GpsAccuracy.high));
       await flushMicrotasks();
 
-      expect(gpsAdapter.calledArgs, [GpsOptions(accuracy: GpsAccuracy.high)]);
+      expect(gpsAdapter.buildStreamCalledArgs,
+          [GpsOptions(accuracy: GpsAccuracy.high)]);
 
       gpsAdapterEmit(LatLng(53.817198, -2.417717));
       await flushMicrotasks();
@@ -110,7 +112,7 @@ main() {
       gpsAdapterEmit(LatLng(53.817135, -2.418114));
       await flushMicrotasks();
 
-      expect(gpsAdapter.calledArgs, [
+      expect(gpsAdapter.buildStreamCalledArgs, [
         GpsOptions(accuracy: GpsAccuracy.high),
         GpsOptions(accuracy: GpsAccuracy.medium),
       ]);
@@ -131,7 +133,7 @@ main() {
       gpsDebuggerEmit(LatLng(53.817198, -2.417717));
       await flushMicrotasks();
 
-      expect(gpsAdapter.calledArgs, []);
+      expect(gpsAdapter.buildStreamCalledArgs, []);
       expect(emittedValues, [LatLng(53.817198, -2.417717)]);
       expect(errors, []);
       expect(isDone, false);

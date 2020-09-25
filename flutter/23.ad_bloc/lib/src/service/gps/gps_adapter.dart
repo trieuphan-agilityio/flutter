@@ -14,14 +14,14 @@ class AdapterForGeolocator implements GpsAdapter {
 
   Future<Stream<LatLng>> buildStream(GpsOptions options) async {
     // cannot build stream if lacking the permission
-    if (await Permission.location.status != PermissionStatus.granted) {
+    if (await Permission.locationWhenInUse.status != PermissionStatus.granted) {
       return null;
     }
 
     return _geolocator
-        .getPositionStream(_gpsOptionsToLocationOptions(options))
+        .getPositionStream(_gpsOptionsToLocationOptions(options),
+            GeolocationPermission.locationWhenInUse)
         .flatMap((p) {
-      Log.debug('GpsAdapterForGeolocator detected $p.');
       return p == null
           ? Stream<LatLng>.empty()
           : Stream<LatLng>.value(LatLng(p.latitude, p.longitude));
@@ -46,6 +46,7 @@ class AdapterForGeolocator implements GpsAdapter {
   final Map<GpsAccuracy, LocationAccuracy> _gpsLocationMap = {
     GpsAccuracy.best: LocationAccuracy.best,
     GpsAccuracy.high: LocationAccuracy.high,
+    GpsAccuracy.medium: LocationAccuracy.medium,
     GpsAccuracy.low: LocationAccuracy.low,
   };
 }

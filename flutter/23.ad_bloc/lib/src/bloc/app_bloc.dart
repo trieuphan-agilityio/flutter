@@ -64,7 +64,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
 
     if (evt is Permitted) {
-      yield state.copyWith(isPermitted: evt.isAllowed);
+      yield state.copyWith(isPermissionAllowed: evt.isAllowed);
       yield* _startOrStopIfNeeds();
       return;
     }
@@ -72,12 +72,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     if (evt is PowerSupplied) {
       yield state.copyWith(isPowerStrong: evt.isStrong);
       yield* _startOrStopIfNeeds();
-      return;
-    }
-
-    if (evt is ChangedGpsOptions) {
-      yield state.copyWith(gpsOptions: evt.gpsOptions);
-      _gpsController?.changeGpsOptions(evt.gpsOptions);
       return;
     }
 
@@ -98,8 +92,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     if (evt is Moved) {
       yield state.copyWith(isMoving: evt.isMoving);
+      yield* _updateTripStateIfNeeds();
       _capturePhotoIfNeeds();
-      _updateTripStateIfNeeds();
       return;
     }
 
@@ -111,31 +105,16 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
     if (evt is DetectedNoFace) {
       yield state.copyWith(faces: const []);
-      _updateTripStateIfNeeds();
+      yield* _updateTripStateIfNeeds();
       return;
     }
 
     if (evt is FacesDetected) {
       yield state.copyWith(faces: evt.faces);
-      _updateTripStateIfNeeds();
+      yield* _updateTripStateIfNeeds();
+      _changeGpsOptions(const GpsOptions(accuracy: GpsAccuracy.high));
       _detectGenders();
       _detectAgeRanges();
-      return;
-    }
-
-    if (evt is TripStarted) {
-      yield state.copyWith(trip: Trip.onTrip(state.faces));
-      return;
-    }
-
-    if (evt is TripEnded) {
-      yield state.copyWith(
-        trip: const Trip.offTrip(),
-        faces: const [],
-        genders: const [],
-        ageRanges: const [],
-        keywords: const [],
-      );
       return;
     }
 
@@ -160,11 +139,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       yield state.copyWith(keywords: evt.keywords);
       return;
     }
-
-    if (evt is AppChangedState) {
-      yield evt.state;
-      return;
-    }
   }
 
   @override
@@ -185,9 +159,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   _verifyPermission() {
     _permissionSubscription?.cancel();
     _permissionSubscription = _permissionController?.isAllowed$?.listen(
-      (isAllowed) {
-        add(Permitted(isAllowed));
-      },
+      (isAllowed) => add(Permitted(isAllowed)),
     );
     _permissionController?.start();
   }
@@ -195,9 +167,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   _verifyPower() {
     _powerSubscription?.cancel();
     _powerSubscription = _powerProvider?.isStrong$?.listen(
-      (isStrong) {
-        add(PowerSupplied(isStrong));
-      },
+      (isStrong) => add(PowerSupplied(isStrong)),
     );
 
     _powerProvider?.start();
@@ -234,6 +204,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       add(Located(latLng));
     });
     _disposer.autoDispose(_trackLocationSubscription);
+
+    _gpsController?.changeGpsOptions(state.gpsOptions);
     _gpsController?.start();
   }
 
@@ -292,13 +264,30 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
   }
 
-  _updateTripStateIfNeeds() {
+  _changeGpsOptions(GpsOptions gpsOptions) async* {
+    yield state.copyWith(gpsOptions: gpsOptions);
+    _gpsController?.changeGpsOptions(gpsOptions);
+  }
+
+  Stream<AppState> _updateTripStateIfNeeds() async* {
+    // trip started
     if (state.isMoving && state.faces.isNotEmpty) {
-      add(const TripStarted());
+      yield state.copyWith(trip: Trip.onTrip(state.faces));
     }
 
+    // trip ended
     if (state.trip.isOnTrip && state.isNotMoving && state.faces.isEmpty) {
-      add(const TripEnded());
+      yield state.copyWith(
+        trip: const Trip.offTrip(),
+        faces: const [],
+        genders: const [],
+        ageRanges: const [],
+        keywords: const [],
+      );
+
+      // location should be updated less frequent when off trip ended to
+      // save battery life.
+      _changeGpsOptions(const GpsOptions(accuracy: GpsAccuracy.medium));
     }
   }
 

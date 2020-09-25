@@ -38,7 +38,7 @@ StepDefinitionGeneric driverPicksUpPassenger() {
 
 StepDefinitionGeneric passengerIsTakenPhoto() {
   return given2<String, String, FlutterWorld>(
-    '(My|Our) photo is located at {String}',
+    '(My|We are group of passengers, our) photo is located at {String}',
     (_, photoFilePath, context) async {
       final driver = context.world.driver;
       final debugDashboard = find.byValueKey('debug_dashboard');

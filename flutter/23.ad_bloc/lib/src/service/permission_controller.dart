@@ -32,12 +32,12 @@ class PermissionControllerImpl
 
   /// All permissions that are managed.
   ///
-  /// [Permission.location] is used by implementers of [GpsController]
+  /// [Permission.locationWhenInUse] is used by implementers of [GpsController]
   /// [Permission.camera] is used by implementers of [CameraController]
   /// [Permission.microphone] is used by implementers of [MicController]
   /// [Permission.storage] is for storage components.
   List<Permission> get permissions => [
-        Permission.location,
+        Permission.locationWhenInUse,
         Permission.camera,
         Permission.microphone,
         Permission.storage,

@@ -11,7 +11,7 @@ abstract class MovementDetector implements Service {
 
 /// Time in seconds it must elapse before grabbing location to calculate
 /// vehicle's velocity repeatedly.
-const int _kLocationRefreshInterval = 5;
+const int _kLocationRefreshInterval = 4;
 
 /// Lower than or equal this value, the vehicle is considered not moving.
 const int _kVelocityThreshold = 3; // 3 m/s
@@ -24,9 +24,9 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
   MovementDetectorImpl(this._latLng$)
       : _controller = BehaviorSubject<bool>.seeded(false) {
     backgroundTask = ServiceTask(() async {
-      final state = await _detectMovement([..._buffer]);
+      final isMoving = await _detectMovement(_buffer);
+      _controller.add(isMoving);
       _buffer.clear();
-      _controller.add(state);
     }, _kLocationRefreshInterval);
   }
 

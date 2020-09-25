@@ -27,7 +27,7 @@ StepDefinitionGeneric passengerSeeAdsDisplaying() {
       }
     },
     configuration: StepDefinitionConfiguration()
-      ..timeout = Duration(seconds: 20),
+      ..timeout = Duration(seconds: 30),
   );
 }
 

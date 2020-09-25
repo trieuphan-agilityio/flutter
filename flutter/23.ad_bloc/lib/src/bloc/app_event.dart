@@ -1,24 +1,11 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
 
-import 'app_state.dart';
-
 class AppEvent extends Equatable {
   const AppEvent();
 
   @override
   List<Object> get props => [];
-}
-
-/// Use for testing purpose
-class AppChangedState extends AppEvent {
-  final AppState state;
-
-  @visibleForTesting
-  const AppChangedState(this.state);
-
-  @override
-  List<Object> get props => [state];
 }
 
 class Initialized extends AppEvent {
@@ -72,15 +59,6 @@ class PowerSupplied extends AppEvent {
   }
 }
 
-class ChangedGpsOptions extends AppEvent {
-  final GpsOptions gpsOptions;
-
-  const ChangedGpsOptions(this.gpsOptions);
-
-  @override
-  List<Object> get props => [gpsOptions];
-}
-
 class Located extends AppEvent {
   final LatLng latLng;
 
@@ -102,6 +80,11 @@ class Moved extends AppEvent {
 
   @override
   List<Object> get props => [isMoving];
+
+  @override
+  String toString() {
+    return 'Moved{isMoving: $isMoving}';
+  }
 }
 
 class PhotoCaptured extends AppEvent {

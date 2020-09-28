@@ -16,11 +16,11 @@ abstract class GpsController implements Service {
 
 class GpsControllerImpl with ServiceMixin implements GpsController {
   GpsControllerImpl(this._gpsAdapter, {this.debugger})
-      : controller = StreamController.broadcast();
+      : _subject = BehaviorSubject();
 
-  Stream<LatLng> get latLng$ => _latLng$ ??= controller.stream;
+  Stream<LatLng> get latLng$ => _latLng$ ??= _subject;
 
-  final StreamController<LatLng> controller;
+  final BehaviorSubject<LatLng> _subject;
   final GpsDebugger debugger;
 
   /// Service
@@ -32,7 +32,7 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
       _buildNewStream();
     else
       disposer.autoDispose(
-        debugger.latLng$.listen(controller.add),
+        debugger.latLng$.listen(_subject.add),
       );
   }
 
@@ -55,7 +55,7 @@ class GpsControllerImpl with ServiceMixin implements GpsController {
 
     // rebuilt the subscription to adapter's stream.
     _adapterSubscription?.cancel();
-    _adapterSubscription = newStream.listen(controller.add);
+    _adapterSubscription = newStream.listen(_subject.add);
 
     disposer.autoDispose(_adapterSubscription);
   }

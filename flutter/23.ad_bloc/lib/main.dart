@@ -53,9 +53,19 @@ class App extends StatelessWidget {
 class _App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // reload the Ad if and only if AdConfig is changed, regardless of any other
+    // config properties are changed.
+    final adConfig = context.select((ConfigProvider cp) => cp.adConfig);
     return Scaffold(
       body: SafeArea(
-        child: AdContainer(),
+        child: BlocProvider<AdBloc>(
+          create: (_) => AdBloc(
+            AdState(),
+            appBloc: AppBloc.of(context),
+            adConfig: adConfig,
+          ),
+          child: AdContainer(),
+        ),
       ),
       floatingActionButton: const DebugButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -148,7 +158,6 @@ class DIContainer extends StatelessWidget {
       ],
       child: Builder(
         builder: (BuildContext context) {
-          final adConfig = Provider.of<ConfigProvider>(context).adConfig;
           final permissionController =
               Provider.of<PermissionController>(context);
           final powerProvider = Provider.of<PowerProvider>(context);
@@ -160,32 +169,21 @@ class DIContainer extends StatelessWidget {
           final genderDetector = Provider.of<GenderDetector>(context);
           final ageDetector = Provider.of<AgeDetector>(context);
 
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider<AppBloc>(
-                create: (BuildContext context) {
-                  return AppBloc(
-                    AppState.init(),
-                    permissionController: permissionController,
-                    powerProvider: powerProvider,
-                    adRepository: adRepository,
-                    gpsController: gpsController,
-                    movementDetector: movementDetector,
-                    cameraController: cameraController,
-                    faceDetector: faceDetector,
-                    genderDetector: genderDetector,
-                    ageDetector: ageDetector,
-                  )..add(const Initialized());
-                },
-              ),
-              BlocProvider<AdBloc>(
-                create: (BuildContext context) => AdBloc(
-                  AdState(),
-                  appBloc: AppBloc.of(context),
-                  adConfig: adConfig,
-                ),
-              ),
-            ],
+          return BlocProvider<AppBloc>(
+            create: (BuildContext context) {
+              return AppBloc(
+                AppState.init(),
+                permissionController: permissionController,
+                powerProvider: powerProvider,
+                adRepository: adRepository,
+                gpsController: gpsController,
+                movementDetector: movementDetector,
+                cameraController: cameraController,
+                faceDetector: faceDetector,
+                genderDetector: genderDetector,
+                ageDetector: ageDetector,
+              )..add(const Initialized());
+            },
             child: child,
           );
         },

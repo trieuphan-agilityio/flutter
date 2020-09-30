@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
 
-import '../debugger_factory.dart';
+import '../debugger_builder.dart';
 import '../service.dart';
 
 abstract class GpsController implements Service {

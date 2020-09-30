@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:battery/battery.dart';
 import 'package:ad_bloc/base.dart';
-import 'package:ad_bloc/src/service/debugger_factory.dart';
+import 'package:ad_bloc/src/service/debugger_builder.dart';
 
 import 'service.dart';
 

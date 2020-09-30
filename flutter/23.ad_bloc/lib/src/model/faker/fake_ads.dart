@@ -68,27 +68,22 @@ Iterable<PassengerAgeRange> _generateTargetingAgeRanges() {
 }
 
 Creative _generateCreative() {
-  // 80% image
-  final shouldReturnImage = (faker.randomGenerator.integer(10) < 8);
+  // 40% image
+  final shouldReturnImage = (faker.randomGenerator.integer(10) < 4);
 
   if (shouldReturnImage) {
     return faker.creative.image();
   } else {
-    final shouldReturnVideo = faker.randomGenerator.boolean();
-    // 10% that it's video
+    final shouldReturnVideo = (faker.randomGenerator.integer(10) < 7);
+    // 40% that it's video
     if (shouldReturnVideo) {
       return faker.creative.video();
     } else if (faker.randomGenerator.boolean()) {
-      // 5% youtube
+      // 10% youtube
       return faker.creative.youtube();
     } else {
-      // 5% html
+      // 10% html
       return faker.creative.html();
     }
   }
 }
-
-Iterable<Ad> fakeImageAds = [];
-Iterable<Ad> fakeVideoAds = [];
-Iterable<Ad> fakeHtmlAds = [];
-Iterable<Ad> fakeYoutubeAds = [];

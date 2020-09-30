@@ -3,6 +3,7 @@ import 'package:ad_bloc/model.dart';
 import 'package:meta/meta.dart';
 
 import 'camera_config.dart';
+import 'downloader_config.dart';
 
 class Config {
   /// Indicates how long a time block take. Duration in seconds.
@@ -77,9 +78,9 @@ class Config {
     this.cameraCaptureInterval = 10,
     this.micRecordInterval = 10,
     this.areaRefreshInterval = 30,
-    this.creativeDownloadParallelTasks = 3,
-    this.creativeDownloadTimeout = 15,
-    this.videoCreativeDownloadParallelTasks = 1,
+    this.creativeDownloadParallelTasks = 2,
+    this.creativeDownloadTimeout = 5,
+    this.videoCreativeDownloadParallelTasks = 2,
     this.videoCreativeDownloadTimeout = 240,
     @required this.defaultAd,
     @required this.creativeBaseUrl,
@@ -154,6 +155,15 @@ class Config {
 
   CameraConfig toCameraConfig() {
     return CameraConfig(captureInterval: cameraCaptureInterval);
+  }
+
+  DownloaderConfig toDownloaderConfig() {
+    return DownloaderConfig(
+      creativeDownloadTimeout: creativeDownloadTimeout,
+      creativeDownloadParallelTasks: creativeDownloadParallelTasks,
+      videoCreativeDownloadTimeout: videoCreativeDownloadTimeout,
+      videoCreativeDownloadParallelTasks: videoCreativeDownloadParallelTasks,
+    );
   }
 }
 

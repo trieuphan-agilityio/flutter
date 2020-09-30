@@ -1,10 +1,16 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/config.dart';
+import 'package:ad_bloc/model.dart';
+import 'package:ad_bloc/src/service/debugger_builder.dart';
 
 import 'camera_config.dart';
+import 'downloader_config.dart';
 
 abstract class ConfigProvider
-    implements AdConfigProvider, AdRepositoryConfigProvider {
+    implements
+        AdConfigProvider,
+        AdRepositoryConfigProvider,
+        DownloaderConfigProvider {
   /// the current config
   Config get config;
 
@@ -16,6 +22,22 @@ abstract class ConfigProvider
 }
 
 class ConfigProviderImpl implements ConfigProvider {
+  final ConfigDebugger _configDebugger;
+
+  ConfigProviderImpl({ConfigDebugger debugger}) : _configDebugger = debugger {
+    if (_configDebugger == null) {
+      configSubject.add(Config(
+        timeBlockToSecs: 15,
+        defaultAd: kDefaultAd,
+        gpsAccuracy: 4,
+        creativeBaseUrl: 'http://localhost:8080/public/creatives/',
+        defaultAdRepositoryRefreshInterval: 60,
+      ));
+    } else {
+      configSubject.add(_configDebugger.config);
+    }
+  }
+
   // ignore: close_sinks
   final configSubject = BehaviorSubject<Config>();
 
@@ -50,5 +72,15 @@ class ConfigProviderImpl implements ConfigProvider {
 
   Stream<CameraConfig> get cameraConfig$ {
     return config$.map((c) => c.toCameraConfig()).distinct();
+  }
+
+  /// DownloaderConfigProvider
+
+  DownloaderConfig get downloaderConfig {
+    return configSubject.value.toDownloaderConfig();
+  }
+
+  Stream<DownloaderConfig> get downloaderConfig$ {
+    return config$.map((c) => c.toDownloaderConfig()).distinct();
   }
 }

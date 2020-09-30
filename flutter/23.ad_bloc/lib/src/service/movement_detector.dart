@@ -24,7 +24,8 @@ class MovementDetectorImpl with ServiceMixin implements MovementDetector {
   MovementDetectorImpl(this._latLng$)
       : _controller = BehaviorSubject<bool>.seeded(false) {
     backgroundTask = ServiceTask(() async {
-      final isMoving = await _detectMovement(_buffer);
+      // copy the buffer instance to avoid concurrent modification.
+      final isMoving = await _detectMovement([..._buffer]);
       _controller.add(isMoving);
       _buffer.clear();
     }, _kLocationRefreshInterval);

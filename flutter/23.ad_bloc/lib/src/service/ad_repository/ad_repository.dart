@@ -2,7 +2,7 @@ import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/model.dart';
 
-import '../debugger_factory.dart';
+import '../debugger_builder.dart';
 import '../service.dart';
 import 'ad_api_client.dart';
 import 'creative_downloader.dart';
@@ -25,8 +25,8 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     this._configProvider, {
     AdRepositoryDebugger debugger,
   })  : _debugger = debugger,
-        _newAdsSubject = BehaviorSubject<List<Ad>>.seeded(const []),
-        _adsSubject = BehaviorSubject<List<Ad>>.seeded(const []) {
+        _newAdsSubject = BehaviorSubject<Iterable<Ad>>.seeded(const []),
+        _adsSubject = BehaviorSubject<Iterable<Ad>>.seeded(const []) {
     if (_debugger == null) {
       /// background task for fetching Ads from Ad Server.
       backgroundTask = ServiceTask(
@@ -52,10 +52,10 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   final AdRepositoryDebugger _debugger;
 
   /// Produces [ads$] stream.
-  final BehaviorSubject<List<Ad>> _newAdsSubject;
+  final BehaviorSubject<Iterable<Ad>> _newAdsSubject;
 
   /// Produces [ads$] stream.
-  final BehaviorSubject<List<Ad>> _adsSubject;
+  final BehaviorSubject<Iterable<Ad>> _adsSubject;
 
   Stream<Iterable<Ad>> get ads$ => _ads$ ??= _adsSubject.stream.distinct();
   Stream<Iterable<Ad>> _ads$;
@@ -144,9 +144,9 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
         if (updated.id == ad.id) return false;
       }
       return true;
-    }).toList();
+    });
 
-    if (!listEquals(readyAds, newReadyAds)) {
+    if (!listEquals(readyAds.toList(), newReadyAds.toList())) {
       _adsSubject.add(newReadyAds);
     }
 
@@ -155,8 +155,14 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
       _creativeDownloader.download(ad.creative);
     });
 
+    // set the displaying order
+    int priority = 0;
+    final prioritized = fetchedAds.map((ad) {
+      return ad.copyWith(displayPriority: priority++);
+    });
+
     // emit new ads
-    _newAdsSubject.add(fetchedAds);
+    _newAdsSubject.add(prioritized);
   }
 
   _onCreativesDownloaded(Iterable<Creative> downloadedCreatives) {

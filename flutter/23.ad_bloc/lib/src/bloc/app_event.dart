@@ -73,6 +73,20 @@ class Located extends AppEvent {
   }
 }
 
+class AdFetchOptionsChanged extends AppEvent {
+  final int refreshIntervalSecs;
+
+  const AdFetchOptionsChanged(this.refreshIntervalSecs);
+
+  @override
+  List<Object> get props => [refreshIntervalSecs];
+
+  @override
+  String toString() {
+    return 'AdFetchOptionsChanged{refreshIntervalSecs: $refreshIntervalSecs}';
+  }
+}
+
 class Moved extends AppEvent {
   final bool isMoving;
 

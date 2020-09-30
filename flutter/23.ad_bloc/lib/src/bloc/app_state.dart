@@ -4,34 +4,27 @@ import 'package:ad_bloc/model.dart';
 @immutable
 class AppState extends Equatable {
   factory AppState.init() {
-    if (_init == null)
-      _init = const AppState(
-        adToDisplay: kDefaultAd,
-        readyAds: const [],
-        newAds: const [],
-        isPermitted: false,
-        isPowerStrong: false,
-        isStarted: false,
-        isTrackingLocation: false,
-        gpsOptions: const GpsOptions(accuracy: GpsAccuracy.high),
-        latLng: null,
-        isFetchingAds: false,
-        isMoving: false,
-        capturedPhoto: null,
-        genders: const [],
-        ageRanges: const [],
-        keywords: const [],
-        faces: const [],
-        trip: const Trip.offTrip(),
-        isDetectingFaces: false,
-      );
-
-    return _init;
+    return _init ??= const AppState(
+      readyAds: const [],
+      newAds: const [],
+      isPermitted: false,
+      isPowerStrong: false,
+      isStarted: false,
+      isTrackingLocation: false,
+      gpsOptions: const GpsOptions(accuracy: GpsAccuracy.high),
+      latLng: null,
+      isFetchingAds: false,
+      isMoving: false,
+      capturedPhoto: null,
+      genders: const [],
+      ageRanges: const [],
+      keywords: const [],
+      faces: const [],
+      trip: const Trip.offTrip(),
+      isDetectingFaces: false,
+    );
   }
-
   static AppState _init;
-
-  final Ad adToDisplay;
 
   final Iterable<Ad> readyAds;
 
@@ -77,7 +70,6 @@ class AppState extends Equatable {
   final bool isDetectingFaces;
 
   const AppState({
-    @required this.adToDisplay,
     @required this.readyAds,
     @required this.newAds,
     @required this.isPermitted,
@@ -95,8 +87,7 @@ class AppState extends Equatable {
     @required this.faces,
     @required this.trip,
     @required this.isDetectingFaces,
-  })  : assert(adToDisplay != null),
-        assert(readyAds != null),
+  })  : assert(readyAds != null),
         assert(newAds != null),
         assert(gpsOptions != null),
         assert(genders != null),
@@ -106,7 +97,6 @@ class AppState extends Equatable {
         assert(trip != null);
 
   AppState copyWith({
-    Ad adToDisplay,
     Iterable<Ad> readyAds,
     Iterable<Ad> newAds,
     bool isPermissionAllowed,
@@ -126,7 +116,6 @@ class AppState extends Equatable {
     bool isDetectingFaces,
   }) {
     return AppState(
-      adToDisplay: adToDisplay ?? this.adToDisplay,
       readyAds: readyAds ?? this.readyAds,
       newAds: newAds ?? this.newAds,
       isPermitted: isPermissionAllowed ?? this.isPermitted,
@@ -149,7 +138,6 @@ class AppState extends Equatable {
 
   @override
   List<Object> get props => [
-        adToDisplay,
         readyAds,
         newAds,
         isPermitted,
@@ -171,8 +159,7 @@ class AppState extends Equatable {
 
   @override
   String toString() {
-    return 'Ad{adToDisplay: $adToDisplay'
-        ', readyAds: $readyAds'
+    return 'Ad{readyAds: $readyAds'
         ', newAds: $newAds'
         ', isPermitted: $isPermitted'
         ', isPowerStrong: $isPowerStrong'

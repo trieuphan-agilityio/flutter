@@ -2,7 +2,6 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
-import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/camera_controller.dart';
 import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
 import 'package:ad_bloc/src/service/movement_detector.dart';
@@ -14,16 +13,17 @@ import 'src/service/ad_repository/ad_api_client.dart';
 import 'src/service/ad_repository/ad_repository.dart';
 import 'src/service/ad_repository/creative_downloader.dart';
 import 'src/service/age_detector.dart';
-import 'src/service/debugger_factory.dart';
+import 'src/service/debugger_builder.dart';
 import 'src/service/face_detector.dart';
 import 'src/service/file_downloader.dart';
 import 'src/service/gender_detector.dart';
 import 'src/service/gps/gps_controller.dart';
 import 'src/service/permission_controller.dart';
 import 'src/service/power_provider.dart';
-import 'src/widget/ad_view.dart';
+import 'src/widget/ad_view/ad_view.dart';
 import 'src/widget/debug_button.dart';
 import 'src/widget/debug_dashboard/debug_dashboard.dart';
+import 'src/widget/splash.dart';
 
 void main() {
   // log Bloc events
@@ -38,12 +38,14 @@ void main() {
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Provider<DebuggerFactory>(
-      create: (_) => DebuggerFactoryImpl(),
+    return ChangeNotifierProvider<DebuggerBuilder>(
+      create: (_) => DebuggerBuilder(),
       child: MaterialApp(
         routes: {
+          '/': (_) => DIContainer(
+                child: Splash(child: PermissionContainer(child: _App())),
+              ),
           '/debug': (_) => DebugDashboard(),
-          '/': (_) => DIContainer(child: PermissionContainer(child: _App())),
         },
       ),
     );
@@ -56,6 +58,7 @@ class _App extends StatelessWidget {
     // reload the Ad if and only if AdConfig is changed, regardless of any other
     // config properties are changed.
     final adConfig = context.select((ConfigProvider cp) => cp.adConfig);
+
     return Scaffold(
       body: SafeArea(
         child: BlocProvider<AdBloc>(
@@ -64,7 +67,7 @@ class _App extends StatelessWidget {
             appBloc: AppBloc.of(context),
             adConfig: adConfig,
           ),
-          child: AdContainer(),
+          child: AdView(),
         ),
       ),
       floatingActionButton: const DebugButton(),
@@ -79,73 +82,76 @@ class DIContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final debugger = Provider.of<DebuggerBuilder>(context).value;
+
     return MultiProvider(
       providers: [
         Provider<ConfigProvider>(
-          create: (_) => ConfigProviderImpl()
-            ..config = Config(
-              timeBlockToSecs: 2,
-              defaultAd: kDefaultAd,
-              gpsAccuracy: 4,
-              creativeBaseUrl: 'http://localhost:8080/public/creatives/',
-              defaultAdRepositoryRefreshInterval: 15,
-            ),
+          create: (_) => ConfigProviderImpl(debugger: debugger.configDebugger),
+        ),
+        ProxyProvider<ConfigProvider, CreativeDownloader>(
+          update: (_, configProvider, __) {
+            final config = configProvider.downloaderConfig;
+            final fileDownloader = FileDownloaderImpl(
+              fileUrlResolver: FileUrlResolverImpl(),
+              filePathResolver: FilePathResolverImpl(),
+              options: DownloadOptions(
+                numOfParallelTasks: config.creativeDownloadParallelTasks,
+                timeoutSecs: config.creativeDownloadTimeout,
+              ),
+            );
+
+            final videoDownloader = FileDownloaderImpl(
+              fileUrlResolver: FileUrlResolverImpl(),
+              filePathResolver: FilePathResolverImpl(),
+              options: DownloadOptions(
+                numOfParallelTasks: config.videoCreativeDownloadParallelTasks,
+                timeoutSecs: config.videoCreativeDownloadTimeout,
+              ),
+            );
+
+            final image = ImageCreativeDownloader(fileDownloader);
+            final html = HtmlCreativeDownloader(fileDownloader);
+            final video = VideoCreativeDownloader(videoDownloader);
+            final youtube = YoutubeCreativeDownloader();
+
+            return ChainDownloaderImpl([image, video, html, youtube]);
+          },
         ),
         Provider<AdApiClient>(create: (_) => FakeAdApiClient()),
-        Provider<CreativeDownloader>(create: (_) {
-          final mockFileDownloader = FakeFileDownloader();
-          final image = ImageCreativeDownloader(mockFileDownloader);
-          final video = VideoCreativeDownloader(mockFileDownloader);
-          final html = HtmlCreativeDownloader(mockFileDownloader);
-          final youtube = YoutubeCreativeDownloader();
-          return ChainDownloaderImpl([image, video, html, youtube]);
-        }),
-        ProxyProvider4<AdApiClient, CreativeDownloader, ConfigProvider,
-            DebuggerFactory, AdRepository>(
+        ProxyProvider3<AdApiClient, CreativeDownloader, ConfigProvider,
+            AdRepository>(
           update: (
             _,
             adApiClient,
             creativeDownloader,
             configProvider,
-            debuggerFactory,
             __,
           ) {
             return AdRepositoryImpl(
               adApiClient,
               creativeDownloader,
               configProvider,
-              debugger: debuggerFactory.adRepositoryDebugger,
+              debugger: debugger.adRepositoryDebugger,
             );
           },
         ),
-        ProxyProvider<DebuggerFactory, GpsController>(
-          update: (_, debuggerFactory, __) {
-            return GpsControllerImpl(
-              AdapterForGeolocator(Geolocator()),
-              debugger: debuggerFactory.gpsDebugger,
-            );
-          },
+        Provider<GpsController>(
+          create: (_) => GpsControllerImpl(
+            AdapterForGeolocator(Geolocator()),
+            debugger: debugger.gpsDebugger,
+          ),
         ),
-        ProxyProvider<DebuggerFactory, PermissionController>(
-          update: (_, debuggerFactory, __) {
-            return PermissionControllerImpl(
-              debugger: debuggerFactory.permissionDebugger,
-            );
-          },
+        Provider<PermissionController>(
+          create: (_) =>
+              PermissionControllerImpl(debugger: debugger.permissionDebugger),
         ),
-        ProxyProvider<DebuggerFactory, PowerProvider>(
-          update: (_, debuggerFactory, __) {
-            return PowerProviderImpl(
-              debugger: debuggerFactory.powerDebugger,
-            );
-          },
+        Provider<PowerProvider>(
+          create: (_) => PowerProviderImpl(debugger: debugger.powerDebugger),
         ),
-        ProxyProvider<DebuggerFactory, CameraController>(
-          update: (_, debuggerFactory, __) {
-            return CameraControllerImpl(
-              debugger: debuggerFactory.cameraDebugger,
-            );
-          },
+        Provider<CameraController>(
+          create: (_) =>
+              CameraControllerImpl(debugger: debugger.cameraDebugger),
         ),
         ProxyProvider<GpsController, MovementDetector>(
           update: (_, gpsController, __) {

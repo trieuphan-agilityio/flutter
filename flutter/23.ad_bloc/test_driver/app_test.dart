@@ -8,6 +8,7 @@ import 'steps/when.dart';
 Future<void> main() {
   final config = FlutterTestConfiguration.DEFAULT([
     /// given
+    inTestEnvironment(),
     driverOnboarded(),
     driverPicksUpPassenger(),
     passengerIsTakenPhoto(),

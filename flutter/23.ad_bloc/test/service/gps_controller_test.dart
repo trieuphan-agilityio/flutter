@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:ad_bloc/model.dart';
-import 'package:ad_bloc/src/service/debugger_factory.dart';
+import 'package:ad_bloc/src/service/debugger_builder.dart';
 import 'package:ad_bloc/src/service/gps/gps_controller.dart';
 import 'package:test/test.dart';
 

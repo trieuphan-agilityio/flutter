@@ -4,13 +4,25 @@ import 'package:gherkin/gherkin.dart';
 
 import '_utils.dart';
 
+StepDefinitionGeneric inTestEnvironment() {
+  return given<FlutterWorld>(
+    'In test environment',
+    (context) async {
+      final driver = context.world.driver;
+      await openDebugDashboard(driver);
+      await FlutterDriverUtils.tap(
+        driver,
+        find.byValueKey('in_test_environment'),
+      );
+    },
+  );
+}
+
 StepDefinitionGeneric driverOnboarded() {
   return given<FlutterWorld>(
     'Driver onboarded',
     (context) async {
       final driver = context.world.driver;
-      //await waitForPermissionUI(driver);
-      await openDebugDashboard(driver);
       await FlutterDriverUtils.tap(
         driver,
         find.byValueKey('driver_onboarded'),

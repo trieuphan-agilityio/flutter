@@ -28,6 +28,9 @@ dependencies:
   # Use below dependency constraint to allow a smoother ecosystem migration.
   shared_preferences: ">=0.5.7+3 <2.0.0"
 
+  # access to cache & document folders
+  path_provider: 1.6.18
+
   # Request permission to access camera and microphone
   permission_handler: 5.0.1+1
   

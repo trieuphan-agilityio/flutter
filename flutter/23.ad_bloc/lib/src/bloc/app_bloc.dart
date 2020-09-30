@@ -95,19 +95,28 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     }
 
     if (evt is PhotoCaptured) {
-      yield state.copyWith(capturedPhoto: evt.photo);
+      yield state.copyWith(
+        capturedPhoto: evt.photo,
+        isDetectingFaces: true,
+      );
       _detectFaces();
       return;
     }
 
     if (evt is DetectedNoFace) {
-      yield state.copyWith(faces: const []);
+      yield state.copyWith(
+        faces: const [],
+        isDetectingFaces: false,
+      );
       yield* _updateTripStateIfNeeds();
       return;
     }
 
     if (evt is FacesDetected) {
-      yield state.copyWith(faces: evt.faces);
+      yield state.copyWith(
+        faces: evt.faces,
+        isDetectingFaces: false,
+      );
       yield* _updateTripStateIfNeeds();
       _changeGpsOptions(const GpsOptions(accuracy: GpsAccuracy.high));
       _detectGenders();

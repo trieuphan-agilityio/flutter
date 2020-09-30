@@ -17,7 +17,7 @@ main() {
   MockCreativeDownloader mockCreativeDownloader;
   ConfigProvider configProvider;
 
-  List<List<Ad>> emittedValues;
+  List<Iterable<Ad>> emittedValues;
   List<String> errors;
   bool isDone;
 
@@ -124,13 +124,13 @@ main() {
     test('remove ad', () async {
       // the fisrt time it get ads without location info
       when(mockAdApiClient.getAds(null)).thenAnswer(
-        (_) => Future<List<Ad>>.value(sampleAds),
+        (_) => Future<Iterable<Ad>>.value(sampleAds),
       );
 
       // then few seconds later, when background task starts running, it supposes
       // to send get ads request with location info is attached.
       when(mockAdApiClient.getAds(LatLng(53.817198, -2.417717))).thenAnswer(
-        (_) => Future<List<Ad>>.value([
+        (_) => Future<Iterable<Ad>>.value([
           sampleAds[0],
         ]),
       );
@@ -171,13 +171,13 @@ main() {
 
     test('update ad', () {
       when(mockAdApiClient.getAds(null)).thenAnswer(
-        (_) => Future<List<Ad>>.value([
+        (_) => Future<Iterable<Ad>>.value([
           sampleAds[0],
         ]),
       );
 
       when(mockAdApiClient.getAds(LatLng(53.817198, -2.417717))).thenAnswer(
-        (_) => Future<List<Ad>>.value([
+        (_) => Future<Iterable<Ad>>.value([
           sampleAds[0].copyWith(timeBlocks: 2, version: 1),
         ]),
       );

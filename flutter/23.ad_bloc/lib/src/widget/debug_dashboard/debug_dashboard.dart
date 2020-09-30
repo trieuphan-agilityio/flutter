@@ -1,5 +1,5 @@
 import 'package:ad_bloc/src/service/ad_repository/debug_date_time.dart';
-import 'package:ad_bloc/src/service/debugger_factory.dart';
+import 'package:ad_bloc/src/service/debugger_builder.dart';
 import 'package:ad_bloc/src/service/gps/debug_route.dart';
 import 'package:flutter/material.dart';
 
@@ -8,21 +8,27 @@ import 'debug_passenger_photo.dart';
 class DebugDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return _Debug(debuggerFactory: DebuggerFactory.of(context));
+    return _Debug(debuggerBuilder: DebuggerBuilder.of(context));
   }
 }
 
 class _Debug extends StatefulWidget {
-  final DebuggerFactory debuggerFactory;
+  final DebuggerBuilder debuggerBuilder;
 
-  const _Debug({Key key, @required this.debuggerFactory}) : super(key: key);
+  const _Debug({Key key, @required this.debuggerBuilder}) : super(key: key);
 
   @override
   __DebugState createState() => __DebugState();
 }
 
 class __DebugState extends State<_Debug> {
-  DebuggerFactory get debuggerFactory => widget.debuggerFactory;
+  DebuggerBuilder get debuggerBuilder => widget.debuggerBuilder;
+
+  @override
+  void initState() {
+    debuggerBuilder.reset();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +51,11 @@ class __DebugState extends State<_Debug> {
             key: const Key('debug_dashboard'),
             child: Column(
               children: [
-                DebugDriverOnboarded(debuggerFactory: debuggerFactory),
-                DebugDriverPickUpPassenger(debuggerFactory: debuggerFactory),
-                DebugRoutes(debuggerFactory: debuggerFactory),
-                DebugPassengerPhoto(debuggerFactory: debuggerFactory),
+                DebugEnvironment(debuggerBuilder: debuggerBuilder),
+                DebugDriverOnboarded(debuggerBuilder: debuggerBuilder),
+                DebugDriverPickUpPassenger(debuggerBuilder: debuggerBuilder),
+                DebugRoutes(debuggerBuilder: debuggerBuilder),
+                DebugPassengerPhoto(debuggerBuilder: debuggerBuilder),
               ],
             ),
           ),
@@ -58,14 +65,44 @@ class __DebugState extends State<_Debug> {
   }
 
   _done() {
+    widget.debuggerBuilder.build();
     Navigator.pushNamed(context, '/');
   }
 }
 
-class DebugDriverOnboarded extends StatefulWidget {
-  final DebuggerFactory debuggerFactory;
+class DebugEnvironment extends StatefulWidget {
+  final DebuggerBuilder debuggerBuilder;
 
-  const DebugDriverOnboarded({Key key, @required this.debuggerFactory})
+  const DebugEnvironment({Key key, @required this.debuggerBuilder})
+      : super(key: key);
+
+  @override
+  _DebugEnvironmentState createState() => _DebugEnvironmentState();
+}
+
+class _DebugEnvironmentState extends State<DebugEnvironment> {
+  bool isSelected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      key: const Key('in_test_environment'),
+      title: const Text('In test environment'),
+      trailing: isSelected
+          ? Icon(Icons.done, color: Theme.of(context).primaryColor)
+          : null,
+      onTap: () {
+        setState(() => isSelected = true);
+        widget.debuggerBuilder.inTestEnvironment();
+      },
+    );
+  }
+}
+
+class DebugDriverOnboarded extends StatefulWidget {
+  final DebuggerBuilder debuggerBuilder;
+
+  const DebugDriverOnboarded({Key key, @required this.debuggerBuilder})
       : super(key: key);
 
   @override
@@ -85,16 +122,16 @@ class _DebugDriverOnboardedState extends State<DebugDriverOnboarded> {
           : null,
       onTap: () {
         setState(() => isSelected = true);
-        widget.debuggerFactory.driverOnboarded();
+        widget.debuggerBuilder.driverOnboarded();
       },
     );
   }
 }
 
 class DebugRoutes extends StatefulWidget {
-  final DebuggerFactory debuggerFactory;
+  final DebuggerBuilder debuggerBuilder;
 
-  const DebugRoutes({Key key, @required this.debuggerFactory})
+  const DebugRoutes({Key key, @required this.debuggerBuilder})
       : super(key: key);
 
   @override
@@ -109,7 +146,7 @@ class _DebugRoutesState extends State<DebugRoutes> {
   void initState() {
     // it supposes to renew routes list so that the route stream can be renew
     // after being consumed all events.
-    widget.debuggerFactory.loadRoutes().then((newRoutes) {
+    widget.debuggerBuilder.loadRoutes().then((newRoutes) {
       setState(() => routes = newRoutes);
     });
     super.initState();
@@ -132,7 +169,7 @@ class _DebugRoutesState extends State<DebugRoutes> {
                 : null,
             onTap: () {
               setState(() => selectedId = route.id);
-              widget.debuggerFactory.drivingOnRoute(route);
+              widget.debuggerBuilder.drivingOnRoute(route);
             },
           ),
       ],
@@ -141,9 +178,9 @@ class _DebugRoutesState extends State<DebugRoutes> {
 }
 
 class DebugDriverPickUpPassenger extends StatefulWidget {
-  final DebuggerFactory debuggerFactory;
+  final DebuggerBuilder debuggerBuilder;
 
-  const DebugDriverPickUpPassenger({Key key, @required this.debuggerFactory})
+  const DebugDriverPickUpPassenger({Key key, @required this.debuggerBuilder})
       : super(key: key);
 
   @override
@@ -160,7 +197,7 @@ class _DebugDriverPickUpPassengerState
   void initState() {
     // it supposes to renew DebugDateTimes list so that the route stream can be renew
     // after being consumed all events.
-    widget.debuggerFactory.loadDebugDateTimes().then((newValue) {
+    widget.debuggerBuilder.loadDebugDateTimes().then((newValue) {
       setState(() => debugDateTimes = newValue);
     });
     super.initState();
@@ -181,7 +218,7 @@ class _DebugDriverPickUpPassengerState
                 : null,
             onTap: () {
               setState(() => selectedId = debugDateTime.id);
-              widget.debuggerFactory.driverPickUpPassengerOnDateTime(
+              widget.debuggerBuilder.driverPickUpPassengerOnDateTime(
                 debugDateTime,
               );
             },

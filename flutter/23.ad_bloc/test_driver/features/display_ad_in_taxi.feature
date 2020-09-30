@@ -5,7 +5,8 @@ Feature: Display ad in taxi
     age range will be displayed
 
     Background:
-        Given Driver onboarded
+        Given In test environment
+        And Driver onboarded
         And Driver picked me up on "Sep 12, 2020 at 11:16 am"
 
     Scenario: Female passenger is on trip

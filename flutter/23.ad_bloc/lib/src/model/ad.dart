@@ -10,8 +10,8 @@ const kDefaultAd = Ad(
   id: 'default',
   creative: const ImageCreative(
     id: 'default',
-    filePath: 'assets/p0.jpg',
-    urlPath: 'assets/p0.jpg',
+    urlPath: 'p0.jpg',
+    filePath: null,
   ),
   timeBlocks: 1,
   canSkipAfter: -1,
@@ -43,6 +43,9 @@ class Ad {
   ///
   /// Negative value indicates that ad cannot be skipped.
   final int canSkipAfter;
+
+  /// Priority order when displaying the ad, the lower is priority.
+  final int displayPriority;
 
   /// Advertiser supposes to buy keywords for the Ad. Once these keywords
   /// are matched with the audience, this Ad will be scheduled to display.
@@ -80,6 +83,7 @@ class Ad {
     @required this.creative,
     @required this.timeBlocks,
     @required this.canSkipAfter,
+    this.displayPriority = 0,
     this.targetingKeywords,
     this.targetingAreas,
     this.targetingGenders,
@@ -94,6 +98,7 @@ class Ad {
     Creative creative,
     int timeBlocks,
     int canSkipAfter,
+    int displayPriority,
     List<Keyword> targetingKeywords,
     List<Area> targetingAreas,
     List<PassengerGender> targetingGenders,
@@ -107,6 +112,7 @@ class Ad {
       creative: creative ?? this.creative,
       timeBlocks: timeBlocks ?? this.timeBlocks,
       canSkipAfter: canSkipAfter ?? this.canSkipAfter,
+      displayPriority: displayPriority ?? this.displayPriority,
       targetingKeywords: targetingKeywords ?? this.targetingKeywords,
       targetingAreas: targetingAreas ?? this.targetingAreas,
       targetingGenders: targetingGenders ?? this.targetingGenders,
@@ -132,6 +138,7 @@ class Ad {
         ', creative: ${creative.toConstructableString()}'
         ', timeBlocks: $timeBlocks'
         ', canSkipAfter: $canSkipAfter'
+        ', displayPriority: $displayPriority'
         ', targetingKeywords: [$keywords]'
         ', targetingAreas: [$areas]'
         ', targetingGenders: [$genders]'
@@ -147,6 +154,7 @@ class Ad {
         ', creative: $creative'
         ', timeBlocks: $timeBlocks'
         ', canSkipAfter: $canSkipAfter'
+        ', displayPriority: $displayPriority'
         ', targetingKeywords: $targetingKeywords'
         ', targetingAreas: $targetingAreas'
         ', targetingGenders: $targetingGenders'
@@ -191,7 +199,7 @@ class Ad {
 /// An utility that helps to compare two list of ads to figure out which
 /// ads have been added new, updated and removed.
 class AdDiff {
-  static AdChangeSet diff(List<Ad> source, List<Ad> other) {
+  static AdChangeSet diff(Iterable<Ad> source, Iterable<Ad> other) {
     List<Ad> newAds = [];
     List<Ad> updatedAds = [];
     List<Ad> removedAds = [];
@@ -233,9 +241,9 @@ class AdDiff {
 /// A data class that describes the different between two Ads list.
 /// Check out [AdDiff] to see how [AdChangeSet] is computed.
 class AdChangeSet {
-  final List<Ad> newAds;
-  final List<Ad> updatedAds;
-  final List<Ad> removedAds;
+  final Iterable<Ad> newAds;
+  final Iterable<Ad> updatedAds;
+  final Iterable<Ad> removedAds;
 
   int get numOfNewAds => newAds.length;
   int get numOfUpdatedAds => updatedAds.length;
@@ -244,9 +252,9 @@ class AdChangeSet {
   AdChangeSet({this.newAds, this.updatedAds, this.removedAds});
 }
 
-extension AdToKeywordExtension on List<Ad> {
+extension AdToKeywordExtension on Iterable<Ad> {
   /// Derive the targeting keywords that are associated to Ad in the list.
-  List<Keyword> get targetingKeywords {
+  Iterable<Keyword> get targetingKeywords {
     final List<Keyword> keywords = [];
     for (final ad in this) {
       keywords.addAll(ad.targetingKeywords);

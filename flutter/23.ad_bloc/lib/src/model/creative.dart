@@ -1,5 +1,30 @@
 import 'package:meta/meta.dart';
 
+class CreativeType {
+  final String name;
+
+  const CreativeType._(this.name);
+
+  static const CreativeType image = CreativeType._('image');
+  static const CreativeType video = CreativeType._('video');
+  static const CreativeType html = CreativeType._('html');
+  static const CreativeType youtube = CreativeType._('youtube');
+
+  @override
+  String toString() {
+    return 'CreativeType{name: $name}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is CreativeType && name == other.name;
+  }
+
+  @override
+  int get hashCode => name.hashCode;
+}
+
 /// A creative is the ad users see on the app.
 /// Creative can be image, video, and other formats that get delivered to users.
 @immutable
@@ -8,6 +33,8 @@ abstract class Creative {
 
   /// First 6 chars of Id, useful for displaying on debugging.
   String get shortId;
+
+  CreativeType get type;
 
   /// Location of the file in local filesystem. Its presentation indicates that
   /// the creative have been downloaded and ready to serve.
@@ -26,6 +53,7 @@ abstract class Creative {
 
 class ImageCreative implements Creative {
   final String id;
+  final CreativeType type;
   final String urlPath;
   final String filePath;
 
@@ -35,7 +63,7 @@ class ImageCreative implements Creative {
     @required this.id,
     @required this.urlPath,
     @required this.filePath,
-  });
+  }) : type = CreativeType.image;
 
   ImageCreative copyWith({
     String id,
@@ -77,6 +105,7 @@ class ImageCreative implements Creative {
 
 class YoutubeCreative implements Creative {
   final String id;
+  final CreativeType type;
   final String urlPath;
   final String filePath;
 
@@ -89,7 +118,8 @@ class YoutubeCreative implements Creative {
     @required this.id,
     @required this.urlPath,
     @required this.videoLength,
-  }) : filePath = urlPath;
+  })  : type = CreativeType.youtube,
+        filePath = urlPath;
 
   YoutubeCreative copyWith({
     String id,
@@ -138,6 +168,7 @@ class YoutubeCreative implements Creative {
 
 class VideoCreative implements Creative {
   final String id;
+  final CreativeType type;
   final String urlPath;
   final String filePath;
 
@@ -159,7 +190,7 @@ class VideoCreative implements Creative {
     @required this.format,
     @required this.videoLength,
     @required this.fileSize,
-  });
+  }) : type = CreativeType.video;
 
   VideoCreative copyWith({
     String id,
@@ -222,6 +253,7 @@ class VideoCreative implements Creative {
 
 class HtmlCreative implements Creative {
   final String id;
+  final CreativeType type;
 
   /// [urlPath] is the location of the Zip file on Asset Server. It contains
   /// a Html bundle, inside are index.html, images and css files.
@@ -241,7 +273,7 @@ class HtmlCreative implements Creative {
     @required this.urlPath,
     @required this.filePath,
     @required this.fileSize,
-  });
+  }) : type = CreativeType.html;
 
   HtmlCreative copyWith({
     String id,

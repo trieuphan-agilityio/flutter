@@ -1,6 +1,6 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/model.dart';
-import 'debugger_factory.dart';
+import 'debugger_builder.dart';
 
 abstract class CameraController {
   Future<Photo> capture();

@@ -1,10 +1,10 @@
 import 'package:ad_bloc/base.dart';
-import 'package:ad_bloc/src/service/debugger_factory.dart';
+import 'package:ad_bloc/src/service/debugger_builder.dart';
 
 class DebugPassengerPhoto extends StatefulWidget {
-  final DebuggerFactory debuggerFactory;
+  final DebuggerBuilder debuggerBuilder;
 
-  const DebugPassengerPhoto({Key key, @required this.debuggerFactory})
+  const DebugPassengerPhoto({Key key, @required this.debuggerBuilder})
       : super(key: key);
 
   @override
@@ -55,7 +55,7 @@ class _DebugPassengerPhotoState extends State<DebugPassengerPhoto> {
                 : null,
             onTap: () {
               setState(() => selected = model.filePath);
-              widget.debuggerFactory.passengerPhotoAt(model.filePath);
+              widget.debuggerBuilder.passengerPhotoAt(model.filePath);
             },
           ),
       ],

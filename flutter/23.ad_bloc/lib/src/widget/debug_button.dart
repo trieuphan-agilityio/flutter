@@ -14,10 +14,10 @@ class DebugButton extends StatefulWidget {
 class _DebugButtonState extends State<DebugButton> {
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0,
-      child: _KeySequenceListener(
-        onKeyMatched: _openDebugDashboard,
+    return _KeySequenceListener(
+      onKeyMatched: _openDebugDashboard,
+      child: Opacity(
+        opacity: 1,
         child: RawMaterialButton(
           key: const Key('debug_button'),
           onLongPress: _openDebugDashboard,
@@ -57,13 +57,13 @@ class _KeySequenceListener extends StatefulWidget {
 class __KeySequenceListenerState extends State<_KeySequenceListener> {
   StreamController<VolumeKey> _streamController;
   StreamSubscription<bool> _keySequenceSubscription;
-  Function(RawKeyEvent) _listener;
+  ValueChanged<RawKeyEvent> _handleKeyboardEvent;
 
   @override
   void initState() {
     _streamController = StreamController.broadcast();
 
-    RawKeyboard.instance.addListener(_listener ??= (value) {
+    RawKeyboard.instance.addListener(_handleKeyboardEvent ??= (value) {
       final volumeKey = _getVolumeKey(value.logicalKey);
       if (volumeKey != null) {
         _streamController.add(volumeKey);
@@ -87,7 +87,7 @@ class __KeySequenceListenerState extends State<_KeySequenceListener> {
 
   @override
   void dispose() {
-    RawKeyboard.instance.removeListener(_listener);
+    RawKeyboard.instance.removeListener(_handleKeyboardEvent);
     _keySequenceSubscription?.cancel();
     _streamController?.close();
     super.dispose();

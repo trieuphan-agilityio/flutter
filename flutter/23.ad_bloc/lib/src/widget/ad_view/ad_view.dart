@@ -1,6 +1,7 @@
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
+import 'package:ad_bloc/src/widget/ad_view/youtube_view.dart';
 
 import '../skip_button.dart';
 import 'image_view.dart';
@@ -103,6 +104,10 @@ class _AdViewState extends State<_AdView> {
 
     if (model.type == CreativeType.video) {
       return VideoView(model: model);
+    }
+
+    if (model.type == CreativeType.youtube) {
+      return YoutubeView(model: model);
     }
 
     return Container();

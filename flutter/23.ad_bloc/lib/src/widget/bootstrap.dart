@@ -64,21 +64,23 @@ class _BootstrapState extends State<_Bootstrap> with AutoDisposeMixin {
     return MaterialApp(
       key: const Key('bootstrap'),
       home: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 200,
-              height: 200,
-              decoration: FlutterLogoDecoration(),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Ad Bloc',
-              style: Theme.of(context).textTheme.headline5,
-            ),
-          ],
+        body: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 200,
+                height: 200,
+                decoration: FlutterLogoDecoration(),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Ad Bloc',
+                style: Theme.of(context).textTheme.headline5,
+              ),
+            ],
+          ),
         ),
       ),
     );

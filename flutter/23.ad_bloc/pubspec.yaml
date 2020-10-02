@@ -50,6 +50,9 @@ dependencies:
   # display video
   video_player: '>=0.10.12+2 <2.0.0'
 
+  # play youtube video
+  youtube_player_flutter: 7.0.0+7
+
   # UI ENHANCEMENT
   animations: 1.1.1
 

@@ -5,7 +5,7 @@ import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/src/service/camera_controller.dart';
 import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
 import 'package:ad_bloc/src/service/movement_detector.dart';
-import 'package:ad_bloc/src/widget/permission_container.dart';
+import 'package:ad_bloc/src/widget/app_scaffold.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'config.dart';
@@ -21,9 +21,9 @@ import 'src/service/gps/gps_controller.dart';
 import 'src/service/permission_controller.dart';
 import 'src/service/power_provider.dart';
 import 'src/widget/ad_view/ad_view.dart';
-import 'src/widget/debug_button.dart';
 import 'src/widget/debug_dashboard/debug_dashboard.dart';
-import 'src/widget/splash.dart';
+import 'src/widget/bootstrap.dart';
+import 'src/widget/permission_container.dart';
 
 void main() {
   // log Bloc events
@@ -40,14 +40,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<DebuggerBuilder>(
       create: (_) => DebuggerBuilder(),
-      child: MaterialApp(
-        routes: {
-          '/': (_) => DIContainer(
-                child: Splash(child: PermissionContainer(child: _App())),
-              ),
-          '/debug': (_) => DebugDashboard(),
-        },
-      ),
+      child: MaterialApp(routes: {
+        '/': (_) => Bootstrap(nextRouteName: '/ad'),
+        '/ad': (_) => DIContainer(child: PermissionContainer(child: _App())),
+        '/debug': (_) => DebugDashboard(),
+      }),
     );
   }
 }
@@ -59,30 +56,27 @@ class _App extends StatelessWidget {
     // config properties are changed.
     final adConfig = context.select((ConfigProvider cp) => cp.adConfig);
 
-    return Scaffold(
-      body: SafeArea(
-        child: BlocProvider<AdBloc>(
-          create: (_) => AdBloc(
-            AdState(),
-            appBloc: AppBloc.of(context),
-            adConfig: adConfig,
-          ),
-          child: AdView(),
+    return AppScaffold(
+      body: BlocProvider<AdBloc>(
+        create: (_) => AdBloc(
+          AdState.screensaver(),
+          appBloc: AppBloc.of(context),
+          adConfig: adConfig,
         ),
+        child: AdView(),
       ),
-      floatingActionButton: const DebugButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
 
 class DIContainer extends StatelessWidget {
-  const DIContainer({Key key, @required this.child}) : super(key: key);
   final Widget child;
+
+  const DIContainer({Key key, @required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final debugger = Provider.of<DebuggerBuilder>(context).value;
+    final debugger = Provider.of<DebuggerBuilder>(context).debugger;
 
     return MultiProvider(
       providers: [
@@ -131,6 +125,7 @@ class DIContainer extends StatelessWidget {
             return AdRepositoryImpl(
               adApiClient,
               creativeDownloader,
+              configProvider,
               configProvider,
               debugger: debugger.adRepositoryDebugger,
             );

@@ -29,6 +29,7 @@ class ConfigProviderImpl implements ConfigProvider {
       configSubject.add(Config(
         timeBlockToSecs: 15,
         defaultAd: kDefaultAd,
+        defaultAdEnabled: true,
         gpsAccuracy: 4,
         creativeBaseUrl: 'http://localhost:8080/public/creatives/',
         defaultAdRepositoryRefreshInterval: 60,

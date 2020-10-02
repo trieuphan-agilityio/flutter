@@ -39,7 +39,7 @@ class __PermissionRequesterUIState extends State<_PermissionRequesterUI>
   void initState() {
     final sub = widget.permissionController.isAllowed$.listen((isAllowed) {
       if (isAllowed)
-        _dismissRequestUI();
+        _dismissRequestUIIfNeeds();
       else
         _showRequestUI();
     });
@@ -55,7 +55,7 @@ class __PermissionRequesterUIState extends State<_PermissionRequesterUI>
 
   _showRequestUI() {
     // to be safe, clean the exist UI if any before showing new one.
-    _dismissRequestUI();
+    _dismissRequestUIIfNeeds();
 
     requestUIRoute = MaterialPageRoute(
       fullscreenDialog: true,
@@ -68,7 +68,7 @@ class __PermissionRequesterUIState extends State<_PermissionRequesterUI>
     Navigator.of(context).push(requestUIRoute);
   }
 
-  _dismissRequestUI() {
+  _dismissRequestUIIfNeeds() {
     if (requestUIRoute != null) {
       Navigator.of(context).removeRoute(requestUIRoute);
       requestUIRoute = null;

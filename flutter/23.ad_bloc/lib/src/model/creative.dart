@@ -9,6 +9,7 @@ class CreativeType {
   static const CreativeType video = CreativeType._('video');
   static const CreativeType html = CreativeType._('html');
   static const CreativeType youtube = CreativeType._('youtube');
+  static const CreativeType screensaver = CreativeType._('screensaver');
 
   @override
   String toString() {
@@ -321,4 +322,31 @@ class HtmlCreative implements Creative {
       urlPath.hashCode ^
       filePath.hashCode ^
       fileSize.hashCode;
+}
+
+class Screensaver implements Creative {
+  const Screensaver();
+
+  String get id => 'screensaver';
+
+  String get shortId => 'screensaver';
+
+  CreativeType get type => CreativeType.screensaver;
+
+  String get filePath => 'assets/screensaver.jpg';
+
+  String toConstructableString() {
+    return 'Screensaver(id: "$id"'
+        ', shortId: "$shortId"'
+        ', type: Screensaver.${type.name}'
+        ', filePath: "$filePath")';
+  }
+
+  @override
+  String toString() {
+    return 'Screensaver{id: $id'
+        ', shortId: $shortId'
+        ', type: $type'
+        ', filePath: $filePath}';
+  }
 }

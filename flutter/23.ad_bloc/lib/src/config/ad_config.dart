@@ -11,6 +11,9 @@ class AdConfig {
   /// Ad that should be displayed when the app is fetching from Ad Server.
   final Ad defaultAd;
 
+  /// Whether default is enabled or not.
+  final bool defaultAdEnabled;
+
   /// Base URL that is used for constructing Creative download URL.
   /// e.g: https://s3.awscloud.com/stag/creative/
   final String creativeBaseUrl;
@@ -19,6 +22,7 @@ class AdConfig {
     @required this.timeBlockToSecs,
     @required this.defaultCanSkipAfter,
     @required this.defaultAd,
+    @required this.defaultAdEnabled,
     @required this.creativeBaseUrl,
   });
 }

@@ -35,12 +35,14 @@ main() {
       configProvider.config = Config(
         defaultAdRepositoryRefreshInterval: 15,
         defaultAd: null,
+        defaultAdEnabled: false,
         creativeBaseUrl: 'http://localhost:8080/public/creatives/',
       );
 
       adRepository = AdRepositoryImpl(
         mockAdApiClient,
         mockCreativeDownloader,
+        configProvider,
         configProvider,
       );
 

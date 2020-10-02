@@ -33,13 +33,12 @@ class Debugger extends Equatable {
       ];
 }
 
-class DebuggerBuilder extends ValueNotifier<Debugger> {
+class DebuggerBuilder extends ChangeNotifier {
   static DebuggerBuilder of(BuildContext context) {
     return Provider.of<DebuggerBuilder>(context);
   }
 
-  DebuggerBuilder() : super(Debugger());
-
+  Debugger debugger = Debugger();
   ConfigDebugger _configDebugger;
   AdRepositoryDebugger _adRepositoryDebugger;
   CameraDebugger _cameraDebugger;
@@ -60,6 +59,7 @@ class DebuggerBuilder extends ValueNotifier<Debugger> {
     _configDebugger = ConfigDebugger(Config(
       timeBlockToSecs: 2,
       defaultAd: kDefaultAd,
+      defaultAdEnabled: true,
       creativeBaseUrl: 'http://localhost:8080/public/creatives/',
       defaultAdRepositoryRefreshInterval: 15,
     ));
@@ -117,7 +117,7 @@ class DebuggerBuilder extends ValueNotifier<Debugger> {
   }
 
   build() {
-    value = Debugger(
+    debugger = Debugger(
       configDebugger: _configDebugger,
       adRepositoryDebugger: _adRepositoryDebugger,
       cameraDebugger: _cameraDebugger,
@@ -125,6 +125,7 @@ class DebuggerBuilder extends ValueNotifier<Debugger> {
       permissionDebugger: _permissionDebugger,
       powerDebugger: _powerDebugger,
     );
+    notifyListeners();
   }
 }
 

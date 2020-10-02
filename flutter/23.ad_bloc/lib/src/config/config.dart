@@ -15,6 +15,10 @@ class Config {
   /// Ad that should be displayed when the app is fetching from Ad Server.
   final Ad defaultAd;
 
+  /// Whether default Ad from config is enabled. Sometime it prefers to get
+  /// default ad via Ad Server instead of remote config.
+  final bool defaultAdEnabled;
+
   /// Base URL that is used for constructing Creative download URL.
   /// e.g: https://s3.awscloud.com/stag/creative/
   final String creativeBaseUrl;
@@ -83,6 +87,7 @@ class Config {
     this.videoCreativeDownloadParallelTasks = 2,
     this.videoCreativeDownloadTimeout = 240,
     @required this.defaultAd,
+    @required this.defaultAdEnabled,
     @required this.creativeBaseUrl,
   });
 
@@ -104,6 +109,7 @@ class Config {
     int videoCreativeDownloadTimeout,
     GpsOptions defaultGpsOptions,
     Ad defaultAd,
+    bool defaultAdEnabled,
     String creativeBaseUrl,
   }) {
     return Config(
@@ -134,6 +140,7 @@ class Config {
       videoCreativeDownloadTimeout:
           videoCreativeDownloadTimeout ?? this.videoCreativeDownloadTimeout,
       defaultAd: defaultAd ?? this.defaultAd,
+      defaultAdEnabled: defaultAdEnabled ?? this.defaultAdEnabled,
       creativeBaseUrl: creativeBaseUrl ?? this.creativeBaseUrl,
     );
   }
@@ -144,6 +151,7 @@ class Config {
       defaultCanSkipAfter: defaultCanSkipAfter,
       creativeBaseUrl: creativeBaseUrl,
       defaultAd: defaultAd,
+      defaultAdEnabled: defaultAdEnabled,
     );
   }
 
@@ -165,16 +173,4 @@ class Config {
       videoCreativeDownloadParallelTasks: videoCreativeDownloadParallelTasks,
     );
   }
-}
-
-abstract class ConfigFactory {
-  Future<Config> createConfig();
-}
-
-class ConfigFactoryImpl implements ConfigFactory {
-  Future<Config> createConfig() async => Config(
-        gpsAccuracy: 4,
-        defaultAd: null,
-        creativeBaseUrl: 'http://localhost:8080/public/creatives/',
-      );
 }

@@ -33,7 +33,8 @@ class _SkipButtonState extends State<SkipButton>
 
         return AbsorbPointer(
           absorbing: ignoreSkip,
-          child: RaisedButton(
+          child: FlatButton(
+            color: Theme.of(context).splashColor.withAlpha(150),
             onPressed: () => widget.onSkip(),
             child: Text('$text'),
           ),

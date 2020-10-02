@@ -5,11 +5,22 @@ import 'package:ad_bloc/model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+const _kScreensaver = AdViewModel(
+  id: 'screensaver',
+  type: CreativeType.screensaver,
+  duration: const Duration(seconds: 5),
+  canSkipAfter: -1,
+  isSkippable: false,
+  filePath: 'assets/screensaver.jpg',
+);
+
 class AdState extends Equatable {
   /// If null display a placeholder
   final AdViewModel ad;
 
-  const AdState([this.ad]);
+  const AdState(this.ad);
+
+  const AdState.screensaver() : ad = _kScreensaver;
 
   @override
   List<Object> get props => [ad];
@@ -72,8 +83,8 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     if (matchedAds.length == 0) {
       Log.debug('beating');
 
-      // use default if there is no candidate
-      return AdState(_adToAdViewModel(_adConfig.defaultAd));
+      // show screensaver
+      return const AdState.screensaver();
     }
 
     // (!) It supposes to figure out which ad is best for displaying.
@@ -85,7 +96,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       ReadyAdsChanged(appState.readyAds.toList()
         ..remove(pickedAd)
         ..add(pickedAd.copyWith(
-          displayPriority: appState.readyAds.length,
+          displayPriority: pickedAd.displayPriority + appState.readyAds.length,
         ))),
     );
 
@@ -106,10 +117,12 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     return AdState(_adToAdViewModel(pickedAd));
   }
 
-  /// A data structure for rotating creatives
+  /// A data structure for rotating creatives.
+  ///
+  /// An ad that compares as less than another Ad has a higher priority.
   PriorityQueue<Ad> _displayingQueue = PriorityQueue<Ad>((ad1, ad2) {
-    if (ad1.displayPriority < ad2.displayPriority) return 1;
-    if (ad1.displayPriority > ad2.displayPriority) return -1;
+    if (ad1.displayPriority > ad2.displayPriority) return 1;
+    if (ad1.displayPriority < ad2.displayPriority) return -1;
     return 0;
   });
 
@@ -133,29 +146,48 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   }
 
   _adToAdViewModel(Ad ad) {
-    return AdViewModel()
-      ..id = ad.creative.shortId
-      ..type = ad.creative.type
-      ..duration = Duration(
-        seconds: ad.timeBlocks * _adConfig.timeBlockToSecs,
-      )
-      ..canSkipAfter = ad.canSkipAfter
-      ..isSkippable = ad.isSkippable
-      ..filePath = ad.creative.filePath;
+    return AdViewModel(
+      id: ad.creative.shortId,
+      type: ad.creative.type,
+      duration: Duration(seconds: ad.timeBlocks * _adConfig.timeBlockToSecs),
+      canSkipAfter: ad.canSkipAfter,
+      isSkippable: ad.isSkippable,
+      filePath: ad.creative.filePath,
+    );
   }
 }
 
 class AdViewModel {
-  String id;
-  CreativeType type;
+  final String id;
+
+  final CreativeType type;
 
   /// duration indicates how long the ad should be displayed
-  Duration duration;
+  final Duration duration;
 
   /// allow viewers to skip ads after `canSkipAfter` seconds if they wish
-  int canSkipAfter;
+  final int canSkipAfter;
 
   /// indicates whether ad is skippable
-  bool isSkippable;
-  String filePath;
+  final bool isSkippable;
+
+  final String filePath;
+
+  const AdViewModel(
+      {@required this.id,
+      @required this.type,
+      @required this.duration,
+      @required this.canSkipAfter,
+      @required this.isSkippable,
+      @required this.filePath});
+
+  @override
+  String toString() {
+    return 'AdViewModel{id: $id'
+        ', type: $type'
+        ', duration: $duration'
+        ', canSkipAfter: $canSkipAfter'
+        ', isSkippable: $isSkippable'
+        ', filePath: $filePath}';
+  }
 }

@@ -1,10 +1,6 @@
-import 'dart:async';
-
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
 import 'package:ad_bloc/model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../skip_button.dart';
 import 'image_view.dart';
@@ -13,27 +9,25 @@ import 'video_view.dart';
 class AdView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return _AdController(adEventSink: AdBloc.of(context));
+    return _AdView(adEventSink: AdBloc.of(context));
   }
 }
 
-class _AdController extends StatefulWidget {
+class _AdView extends StatefulWidget {
   final EventSink<AdEvent> adEventSink;
 
-  const _AdController({Key key, @required this.adEventSink}) : super(key: key);
+  const _AdView({Key key, @required this.adEventSink}) : super(key: key);
 
   @override
-  _AdControllerState createState() => _AdControllerState();
+  _AdViewState createState() => _AdViewState();
 }
 
-class _AdControllerState extends State<_AdController> {
+class _AdViewState extends State<_AdView> {
   /// [finishTimer] fires when required time block of the Ad elapsed.
   Timer finishTimer;
-  Widget previousAdView;
 
   @override
   void initState() {
-    previousAdView = Container();
     widget.adEventSink.add(const AdStarted());
     super.initState();
   }
@@ -42,8 +36,6 @@ class _AdControllerState extends State<_AdController> {
   Widget build(BuildContext context) {
     return BlocConsumer<AdBloc, AdState>(
       listener: (context, state) {
-        if (state.ad == null) return;
-
         finishTimer?.cancel();
         // when timer elapsed, Ad impression can be finished.
         finishTimer = Timer(state.ad.duration, () {
@@ -51,67 +43,60 @@ class _AdControllerState extends State<_AdController> {
         });
       },
       builder: (_, state) {
-        if (state.ad == null) {
-          return Container(key: const Key('ad_view_placeholder'));
-        }
-
         final model = state.ad;
-
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          child: _AdView(
-            key: Key('ad_view_${model.id}'),
-            model: model,
-            onSkip: () {
-              finishTimer?.cancel();
-              finishTimer = null;
-              widget.adEventSink.add(const AdSkipped());
-            },
-          ),
+        return Stack(
+          children: [
+            AnimatedSwitcher(
+              child: Container(
+                key: Key('ad_view_${model.id}'),
+                child: _buildView(context, model),
+              ),
+              duration: Duration(milliseconds: 500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                final offsetAnimation = Tween<Offset>(
+                  begin: Offset(1.0, 0.0),
+                  end: Offset(0.0, 0.0),
+                ).animate(animation);
+                return SlideTransition(position: offsetAnimation, child: child);
+              },
+              // disable switch out transition
+              switchOutCurve: const Threshold(0.0),
+            ),
+            _buildAdInfo(context, model),
+            _buildSkipButton(model),
+          ],
         );
       },
-    );
-  }
-}
-
-class _AdView extends StatelessWidget {
-  final AdViewModel model;
-  final Function onSkip;
-
-  const _AdView({Key key, @required this.model, @required this.onSkip})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          child: Stack(
-            children: [
-              _buildView(context, model),
-              _buildAdInfo(context, model),
-              _buildSkipButton(model),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
   Widget _buildSkipButton(AdViewModel model) {
     return Padding(
-      key: ValueKey('skip_button_${model.id}'),
       padding: EdgeInsets.all(20),
       child: Align(
         child: model.isSkippable
-            ? SkipButton(canSkipAfter: model.canSkipAfter, onSkip: onSkip)
+            ? SkipButton(
+                key: ValueKey('skip_button_${model.id}'),
+                canSkipAfter: model.canSkipAfter,
+                onSkip: _onSkip,
+              )
             : SizedBox.shrink(),
         alignment: Alignment.bottomRight,
       ),
     );
   }
 
+  _onSkip() {
+    finishTimer?.cancel();
+    finishTimer = null;
+    widget.adEventSink.add(const AdSkipped());
+  }
+
   Widget _buildView(BuildContext context, AdViewModel model) {
+    if (model.type == CreativeType.screensaver) {
+      return Placeholder();
+    }
+
     if (model.type == CreativeType.image) {
       return ImageView(model: model);
     }

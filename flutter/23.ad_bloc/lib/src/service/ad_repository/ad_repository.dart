@@ -22,6 +22,7 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   AdRepositoryImpl(
     this._adApiClient,
     this._creativeDownloader,
+    this._adConfigProvider,
     this._configProvider, {
     AdRepositoryDebugger debugger,
   })  : _debugger = debugger,
@@ -48,6 +49,8 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   final CreativeDownloader _creativeDownloader;
 
   final AdRepositoryConfigProvider _configProvider;
+
+  final AdConfigProvider _adConfigProvider;
 
   final AdRepositoryDebugger _debugger;
 
@@ -104,9 +107,9 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     final subscription = _creativeDownloader.downloaded$
         .debounceBuffer(Duration(milliseconds: 500))
         .listen((creatives) {
-      _onCreativesDownloaded(creatives);
       Log.info(
           'AdRepository observed ${creatives.length} downloaded creatives.');
+      _onCreativesDownloaded(creatives);
     });
 
     disposer.autoDispose(subscription);
@@ -117,7 +120,12 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     // Including downloaded Ads, and Ads that are queued up for downloading.
     final localAds = _newAdsSubject.value;
 
-    final fetchedAds = await _adApiClient.getAds(_currentLatLng);
+    List<Ad> fetchedAds = await _adApiClient.getAds(_currentLatLng);
+
+    if (_adConfigProvider.adConfig.defaultAdEnabled &&
+        _adConfigProvider.adConfig.defaultAd != null) {
+      fetchedAds.add(_adConfigProvider.adConfig.defaultAd);
+    }
 
     // compare the result from Ad Server against the current list in local.
     final changeSet = AdDiff.diff(localAds, fetchedAds);
@@ -155,10 +163,16 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
       _creativeDownloader.download(ad.creative);
     });
 
-    // set the displaying order
-    int priority = 0;
-    final prioritized = fetchedAds.map((ad) {
-      return ad.copyWith(displayPriority: priority++);
+    List<Ad> prioritized = [];
+    fetchedAds.asMap().forEach((index, ad) {
+      // if display property is not assigned yet, then let's prioritize by
+      // the order in the list.
+      if (ad.displayPriority == -1) {
+        // set the displaying order
+        prioritized.add(ad.copyWith(displayPriority: index));
+      } else {
+        prioritized.add(ad);
+      }
     });
 
     // emit new ads

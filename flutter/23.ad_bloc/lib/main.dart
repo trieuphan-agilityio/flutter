@@ -2,6 +2,7 @@ import 'dart:developer' as dartDev;
 
 import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/bloc.dart';
+import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/service/camera_controller.dart';
 import 'package:ad_bloc/src/service/gps/gps_adapter.dart';
 import 'package:ad_bloc/src/service/movement_detector.dart';
@@ -59,7 +60,7 @@ class _App extends StatelessWidget {
     return AppScaffold(
       body: BlocProvider<AdBloc>(
         create: (_) => AdBloc(
-          AdState.screensaver(),
+          AdState(AdViewModel.fromAd(kScreensaverAd, adConfig)),
           appBloc: AppBloc.of(context),
           adConfig: adConfig,
         ),
@@ -112,22 +113,17 @@ class DIContainer extends StatelessWidget {
             return ChainDownloaderImpl([image, video, html, youtube]);
           },
         ),
-        Provider<AdApiClient>(create: (_) => FakeAdApiClient()),
+        Provider<AdApiClient>(create: (_) {
+          return FakeAdApiClient(debugger: debugger.adApiClientDebugger);
+        }),
         ProxyProvider3<AdApiClient, CreativeDownloader, ConfigProvider,
             AdRepository>(
-          update: (
-            _,
-            adApiClient,
-            creativeDownloader,
-            configProvider,
-            __,
-          ) {
+          update: (_, adApiClient, creativeDownloader, configProvider, __) {
             return AdRepositoryImpl(
               adApiClient,
               creativeDownloader,
               configProvider,
               configProvider,
-              debugger: debugger.adRepositoryDebugger,
             );
           },
         ),

@@ -12,7 +12,7 @@ class Debugger extends Equatable {
   final PermissionDebugger permissionDebugger;
   final PowerDebugger powerDebugger;
   final GpsDebugger gpsDebugger;
-  final AdRepositoryDebugger adRepositoryDebugger;
+  final AdApiClientDebugger adApiClientDebugger;
   final CameraDebugger cameraDebugger;
 
   Debugger(
@@ -20,7 +20,7 @@ class Debugger extends Equatable {
       this.permissionDebugger,
       this.powerDebugger,
       this.gpsDebugger,
-      this.adRepositoryDebugger,
+      this.adApiClientDebugger,
       this.cameraDebugger});
 
   @override
@@ -28,7 +28,7 @@ class Debugger extends Equatable {
         permissionDebugger,
         powerDebugger,
         gpsDebugger,
-        adRepositoryDebugger,
+        adApiClientDebugger,
         cameraDebugger
       ];
 }
@@ -40,7 +40,7 @@ class DebuggerBuilder extends ChangeNotifier {
 
   Debugger debugger = Debugger();
   ConfigDebugger _configDebugger;
-  AdRepositoryDebugger _adRepositoryDebugger;
+  AdApiClientDebugger _adApiClientDebugger;
   CameraDebugger _cameraDebugger;
   GpsDebugger _gpsDebugger;
   PermissionDebugger _permissionDebugger;
@@ -48,7 +48,7 @@ class DebuggerBuilder extends ChangeNotifier {
 
   reset() {
     _configDebugger = null;
-    _adRepositoryDebugger = null;
+    _adApiClientDebugger = null;
     _cameraDebugger = null;
     _gpsDebugger = null;
     _permissionDebugger = null;
@@ -87,7 +87,7 @@ class DebuggerBuilder extends ChangeNotifier {
   /// Replay the recorded [Iterable<Ad>] value from sample data.
   /// It would produce events follow the order and time of the recorded.
   driverPickUpPassengerOnDateTime(DebugDateTime pickedUpTime) {
-    _adRepositoryDebugger = AdRepositoryDebugger(pickedUpTime.ads$);
+    _adApiClientDebugger = AdApiClientDebugger(pickedUpTime.ads$);
   }
 
   /// Load debug routes were defined.
@@ -119,7 +119,7 @@ class DebuggerBuilder extends ChangeNotifier {
   build() {
     debugger = Debugger(
       configDebugger: _configDebugger,
-      adRepositoryDebugger: _adRepositoryDebugger,
+      adApiClientDebugger: _adApiClientDebugger,
       cameraDebugger: _cameraDebugger,
       gpsDebugger: _gpsDebugger,
       permissionDebugger: _permissionDebugger,
@@ -165,10 +165,10 @@ class GpsDebugger extends Equatable {
   List<Object> get props => [latLng$];
 }
 
-class AdRepositoryDebugger extends Equatable {
+class AdApiClientDebugger extends Equatable {
   final Stream<Iterable<Ad>> ads$;
 
-  const AdRepositoryDebugger(this.ads$);
+  const AdApiClientDebugger(this.ads$);
 
   @override
   List<Object> get props => [ads$];

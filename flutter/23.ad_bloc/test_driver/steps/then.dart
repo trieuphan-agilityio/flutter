@@ -17,17 +17,19 @@ StepDefinitionGeneric passengerSeeAdsDisplaying() {
         ));
       }
 
-      SerializableFinder adView;
+      final toleranceSecs = 5; // 5 seconds
+
       for (final ad in ads) {
-        adView = find.byValueKey('ad_view_${ad.id}');
-        await FlutterDriverUtils.isPresent(driver, adView,
-            timeout: Duration(
-              seconds: ad.durationSecs,
-            ));
+        final isPresent = await FlutterDriverUtils.isPresent(
+          driver,
+          find.byValueKey('ad_view_${ad.id}'),
+          timeout: Duration(seconds: ad.durationSecs + toleranceSecs),
+        );
+        context.expect('${ad.id} $isPresent', '${ad.id} ${true}');
       }
     },
     configuration: StepDefinitionConfiguration()
-      ..timeout = Duration(seconds: 30),
+      ..timeout = Duration(seconds: 60),
   );
 }
 

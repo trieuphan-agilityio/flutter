@@ -70,7 +70,7 @@ class Config {
   /// Timeout in seconds for downloading a video creative.
   final int videoCreativeDownloadTimeout;
 
-  Config({
+  const Config({
     this.timeBlockToSecs = 15,
     this.defaultCanSkipAfter = 2,
     this.defaultGpsControllerRefreshInterval = 30,

@@ -4,23 +4,13 @@ import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-const _kScreensaver = AdViewModel(
-  id: 'screensaver',
-  type: CreativeType.screensaver,
-  duration: const Duration(seconds: 5),
-  canSkipAfter: -1,
-  isSkippable: false,
-  filePath: 'assets/screensaver.jpg',
-);
+import 'package:uuid/uuid.dart';
 
 class AdState extends Equatable {
   /// If null display a placeholder
   final AdViewModel ad;
 
   const AdState(this.ad);
-
-  const AdState.screensaver() : ad = _kScreensaver;
 
   @override
   List<Object> get props => [ad];
@@ -68,6 +58,10 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     }
   }
 
+  AdViewModel _adToAdViewModel(Ad ad) {
+    return AdViewModel.fromAd(ad, _adConfig);
+  }
+
   AdState _pickAd(Iterable<Ad> ads) {
     final appState = _appBloc.state;
     final genders = appState.genders;
@@ -84,12 +78,17 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       Log.debug('beating');
 
       // show screensaver
-      return const AdState.screensaver();
+      return AdState(_adToAdViewModel(kScreensaverAd));
     }
 
     // (!) It supposes to figure out which ad is best for displaying.
     // For now it blindly chooses ad by rotating the list.
     final Ad pickedAd = _rotateCreative(matchedAds);
+
+    print(pickedAd.shortId);
+    print(appState.readyAds
+        .map((e) => '${e.shortId} ${e.displayPriority}')
+        .join('\n'));
 
     // once Ad was picked its priority order will be updated.
     _appBloc.add(
@@ -144,21 +143,14 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     // take the high priority ad which has a lowest `displayPriority` value.
     return _displayingQueue.removeFirst();
   }
-
-  _adToAdViewModel(Ad ad) {
-    return AdViewModel(
-      id: ad.creative.shortId,
-      type: ad.creative.type,
-      duration: Duration(seconds: ad.timeBlocks * _adConfig.timeBlockToSecs),
-      canSkipAfter: ad.canSkipAfter,
-      isSkippable: ad.isSkippable,
-      filePath: ad.creative.filePath,
-    );
-  }
 }
 
-class AdViewModel {
-  final String id;
+class AdViewModel extends Equatable {
+  final String adId;
+
+  /// An unique id that represents for an impression of a particular ad
+  /// and viewer.
+  final String impressionId;
 
   final CreativeType type;
 
@@ -174,7 +166,8 @@ class AdViewModel {
   final String filePath;
 
   const AdViewModel(
-      {@required this.id,
+      {@required this.adId,
+      @required this.impressionId,
       @required this.type,
       @required this.duration,
       @required this.canSkipAfter,
@@ -182,8 +175,32 @@ class AdViewModel {
       @required this.filePath});
 
   @override
+  List<Object> get props => [
+        adId,
+        impressionId,
+        type,
+        duration,
+        canSkipAfter,
+        isSkippable,
+        filePath,
+      ];
+
+  static AdViewModel fromAd(Ad ad, AdConfig adConfig) {
+    return AdViewModel(
+      adId: ad.creative.shortId,
+      impressionId: _uuid.v4(),
+      type: ad.creative.type,
+      duration: Duration(seconds: ad.timeBlocks * adConfig.timeBlockToSecs),
+      canSkipAfter: ad.canSkipAfter,
+      isSkippable: ad.isSkippable,
+      filePath: ad.creative.filePath,
+    );
+  }
+
+  @override
   String toString() {
-    return 'AdViewModel{id: $id'
+    return 'AdViewModel{id: $adId'
+        ', impressionId: $impressionId'
         ', type: $type'
         ', duration: $duration'
         ', canSkipAfter: $canSkipAfter'
@@ -191,3 +208,6 @@ class AdViewModel {
         ', filePath: $filePath}';
   }
 }
+
+/// Use for generating impression id of [AdViewModel]
+final _uuid = Uuid();

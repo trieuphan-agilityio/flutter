@@ -161,7 +161,7 @@ class _TaskQueue {
 
   /// Remove by task id.
   remove(String id) {
-    queue.removeWhere((task) => task.id == id);
+    queue.removeWhere((task) => task.adId == id);
   }
 
   /// execute next task if any

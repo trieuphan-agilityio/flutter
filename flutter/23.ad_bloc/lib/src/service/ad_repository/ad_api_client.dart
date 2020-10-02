@@ -1,5 +1,6 @@
 import 'package:ad_bloc/model.dart';
 import 'package:ad_bloc/src/model/faker/fake_ads.dart';
+import 'package:ad_bloc/src/service/debugger_builder.dart';
 import 'package:faker/faker.dart';
 
 /// Client library that help to communicate with Ad Server
@@ -9,6 +10,15 @@ abstract class AdApiClient {
 }
 
 class FakeAdApiClient implements AdApiClient {
+  final AdApiClientDebugger _debugger;
+
+  FakeAdApiClient({AdApiClientDebugger debugger}) : _debugger = debugger {
+    _debugger?.ads$?.listen((ads) => _debuggerValue = ads);
+  }
+
+  /// persist the ads result from debugger's stream
+  Iterable<Ad> _debuggerValue = const [];
+
   /// Keep track the current version of ads.
   ///
   /// It helps to simulate the updating behavior by increasing ad version every
@@ -20,12 +30,21 @@ class FakeAdApiClient implements AdApiClient {
   static const minNumOfItemsPerBatch = 50;
   static const maxNumOfItemsPerBatch = 100;
 
+  Future<Iterable<Ad>> getAds(LatLng latLng) async {
+    if (_debugger == null) {
+      return _doGetAds(latLng);
+    }
+
+    // use value from debugger's stream
+    return _debuggerValue;
+  }
+
   /// [getAds] simulate Ads distribution, it allows to verify if there is new,
   /// updated and removed ads.
   ///
   /// slice [minNumOfItemsPerBatch] -> [maxNumOfItemsPerBatch] items from
   /// [mockAds] for each time it's called.
-  Future<Iterable<Ad>> getAds(LatLng latLng) async {
+  Future<Iterable<Ad>> _doGetAds(LatLng latLng) async {
     // 90% use previous result, which mean the list don't change.
     if (faker.randomGenerator.integer(10) > 1) {
       if (_previousAdResults.length > 0) {

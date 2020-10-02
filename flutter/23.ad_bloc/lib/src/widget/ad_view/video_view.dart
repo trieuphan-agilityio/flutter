@@ -19,7 +19,6 @@ class _VideoViewState extends State<VideoView> {
   @override
   void initState() {
     super.initState();
-    Log.info(widget.model.filePath);
     _controller = VideoPlayerController.file(File(widget.model.filePath))
       ..initialize().then((_) {
         // Ensure the first frame is shown after the video is initialized,

@@ -20,6 +20,9 @@ dependencies:
   tuple: 1.0.3
   rxdart: ">=0.24.1 <2.0.0"
   stream_transform: 1.2.0
+  
+  # UUID Generator and Parser
+  uuid: 2.2.2
 
   # DEVICE PLUGINS
   #

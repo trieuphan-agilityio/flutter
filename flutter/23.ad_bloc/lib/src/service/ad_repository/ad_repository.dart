@@ -2,7 +2,6 @@ import 'package:ad_bloc/base.dart';
 import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/model.dart';
 
-import '../debugger_builder.dart';
 import '../service.dart';
 import 'ad_api_client.dart';
 import 'creative_downloader.dart';
@@ -23,22 +22,18 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     this._adApiClient,
     this._creativeDownloader,
     this._adConfigProvider,
-    this._configProvider, {
-    AdRepositoryDebugger debugger,
-  })  : _debugger = debugger,
-        _newAdsSubject = BehaviorSubject<Iterable<Ad>>.seeded(const []),
+    this._configProvider,
+  )   : _newAdsSubject = BehaviorSubject<Iterable<Ad>>.seeded(const []),
         _adsSubject = BehaviorSubject<Iterable<Ad>>.seeded(const []) {
-    if (_debugger == null) {
-      /// background task for fetching Ads from Ad Server.
-      backgroundTask = ServiceTask(
-        _fetchAds,
-        _configProvider.adRepositoryConfig.refreshInterval,
-      );
+    /// background task for fetching Ads from Ad Server.
+    backgroundTask = ServiceTask(
+      _fetchAds,
+      _configProvider.adRepositoryConfig.refreshInterval,
+    );
 
-      _configProvider.adRepositoryConfig$.listen((config) {
-        backgroundTask?.refreshIntervalSecs = config.refreshInterval;
-      });
-    }
+    _configProvider.adRepositoryConfig$.listen((config) {
+      backgroundTask?.refreshIntervalSecs = config.refreshInterval;
+    });
   }
 
   /// A client helps to pull ads from Ads Server.
@@ -51,8 +46,6 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   final AdRepositoryConfigProvider _configProvider;
 
   final AdConfigProvider _adConfigProvider;
-
-  final AdRepositoryDebugger _debugger;
 
   /// Produces [ads$] stream.
   final BehaviorSubject<Iterable<Ad>> _newAdsSubject;
@@ -92,12 +85,6 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
   start() async {
     super.start();
 
-    // run with debugger if it's enabled.
-    if (_debugger != null) {
-      disposer.autoDispose(_debugger.ads$.listen(_adsSubject.add));
-      return;
-    }
-
     // eagerly get ads from Ad Server after starting.
     _fetchAds();
 
@@ -120,7 +107,7 @@ class AdRepositoryImpl with ServiceMixin implements AdRepository {
     // Including downloaded Ads, and Ads that are queued up for downloading.
     final localAds = _newAdsSubject.value;
 
-    List<Ad> fetchedAds = await _adApiClient.getAds(_currentLatLng);
+    List<Ad> fetchedAds = [...await _adApiClient.getAds(_currentLatLng)];
 
     if (_adConfigProvider.adConfig.defaultAdEnabled &&
         _adConfigProvider.adConfig.defaultAd != null) {

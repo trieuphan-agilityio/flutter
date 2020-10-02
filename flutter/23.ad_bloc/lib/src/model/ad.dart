@@ -21,6 +21,17 @@ const kDefaultAd = Ad(
   lastModifiedAt: 1600393794477,
 );
 
+/// Ad that would be used as screensaver.
+const kScreensaverAd = Ad(
+  id: 'screensaver',
+  creative: const Screensaver(),
+  timeBlocks: 1,
+  canSkipAfter: -1,
+  version: 0,
+  createdAt: 1600393794477,
+  lastModifiedAt: 1600393794477,
+);
+
 /// Ad represent the details of an agreement between administrator and advertiser.
 ///
 /// It contains high level information about the ad campaign, such as which

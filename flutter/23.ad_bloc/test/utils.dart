@@ -1,4 +1,5 @@
 import 'package:ad_bloc/base.dart';
+import 'package:ad_bloc/config.dart';
 import 'package:ad_bloc/src/model/ad.dart';
 import 'package:ad_bloc/src/model/creative.dart';
 import 'package:ad_bloc/src/model/targeting_value.dart';
@@ -20,6 +21,13 @@ export 'utils/permission_plugin.dart';
 
 /// A zero-millisecond timer should wait until after all microtasks.
 Future flushMicrotasks() => Future.delayed(Duration.zero);
+
+const sampleConfig = Config(
+  defaultAdRepositoryRefreshInterval: 15,
+  defaultAd: null,
+  defaultAdEnabled: false,
+  creativeBaseUrl: 'http://localhost:8080/public/creatives/',
+);
 
 const sampleVideoCreatives = [
   VideoCreative(

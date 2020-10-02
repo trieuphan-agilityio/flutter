@@ -48,7 +48,7 @@ class _AdViewState extends State<_AdView> {
           children: [
             AnimatedSwitcher(
               child: Container(
-                key: Key('ad_view_${model.id}'),
+                key: Key('ad_view_${model.adId}'),
                 child: _buildView(context, model),
               ),
               duration: Duration(milliseconds: 500),
@@ -76,7 +76,7 @@ class _AdViewState extends State<_AdView> {
       child: Align(
         child: model.isSkippable
             ? SkipButton(
-                key: ValueKey('skip_button_${model.id}'),
+                key: ValueKey('skip_button_${model.adId}'),
                 canSkipAfter: model.canSkipAfter,
                 onSkip: _onSkip,
               )
@@ -117,7 +117,7 @@ class _AdViewState extends State<_AdView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${model.id}'
+              Text('${model.adId}'
                   ', ${model.type.name}'
                   ', ${model.duration.inSeconds}s'
                   ', skip after: ${model.canSkipAfter}'),

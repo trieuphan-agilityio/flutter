@@ -28,6 +28,7 @@ class _DebugButtonState extends State<DebugButton> {
   }
 
   _openDebugDashboard() {
+    Navigator.popUntil(context, (route) => route.isFirst);
     Navigator.pushReplacementNamed(context, '/debug');
   }
 }

@@ -85,11 +85,6 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     // For now it blindly chooses ad by rotating the list.
     final Ad pickedAd = _rotateCreative(matchedAds);
 
-    print(pickedAd.shortId);
-    print(appState.readyAds
-        .map((e) => '${e.shortId} ${e.displayPriority}')
-        .join('\n'));
-
     // once Ad was picked its priority order will be updated.
     _appBloc.add(
       ReadyAdsChanged(appState.readyAds.toList()

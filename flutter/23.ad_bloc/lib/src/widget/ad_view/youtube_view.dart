@@ -34,6 +34,8 @@ class _YoutubeViewState extends State<YoutubeView> {
       player: YoutubePlayer(controller: _controller),
       builder: (context, player) {
         return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [player],
         );
       },

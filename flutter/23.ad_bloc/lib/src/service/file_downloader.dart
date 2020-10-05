@@ -139,7 +139,7 @@ class FileDownloaderImpl implements FileDownloader {
 }
 
 class _TaskQueue {
-  Queue queue = Queue();
+  Queue<_Task> queue = Queue();
 
   /// Number of tasks that can be parallel executed when enqueue.
   final int parallelTasks;
@@ -160,9 +160,7 @@ class _TaskQueue {
   }
 
   /// Remove by task id.
-  remove(String id) {
-    queue.removeWhere((task) => task.adId == id);
-  }
+  remove(String id) => queue.removeWhere((task) => task.id == id);
 
   /// execute next task if any
   void work() {

@@ -1,0 +1,13 @@
+name: dart_parser
+description: Try parsing with dart analyzer.
+version: 0.0.1
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `pub publish`. This is preferred for private packages.
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.10.0 <3.0.0"
+
+dependencies:
+  analyzer: 0.40.4

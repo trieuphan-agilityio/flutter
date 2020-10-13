@@ -189,9 +189,10 @@ class AgDateRange implements AgBase<DateTimeRange> {
   DateTimeRange get initialValue => null;
 }
 
-class AgList implements AgBase<List<String>> {
-  final List<String> choices;
-  final List<String> initialValue;
+class AgList implements AgBase<Iterable<String>> {
+  final Iterable<String> choices;
+  final Type chooseFromEnum;
+  final Iterable<String> initialValue;
   final bool isRequired;
   final String hintText;
   final String labelText;
@@ -199,6 +200,7 @@ class AgList implements AgBase<List<String>> {
 
   const AgList({
     this.choices,
+    this.chooseFromEnum,
     this.initialValue,
     this.isRequired,
     this.hintText,

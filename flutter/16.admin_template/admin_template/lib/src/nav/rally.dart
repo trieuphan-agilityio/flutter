@@ -67,7 +67,6 @@ class _NavItemState extends State<NavItem> with SingleTickerProviderStateMixin {
     super.initState();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 200),
-      vsync: this,
     );
     _titleSizeAnimation = _controller.view;
     _titleFadeAnimation = _controller.drive(CurveTween(curve: Curves.easeOut));

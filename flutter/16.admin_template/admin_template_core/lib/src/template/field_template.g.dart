@@ -1186,6 +1186,8 @@ class _$AgListTemplate<T> extends AgListTemplate<T> {
   final Iterable<T> initialValue;
   @override
   final Iterable<T> choices;
+  @override
+  final String Function(T) stringify;
 
   factory _$AgListTemplate([void Function(AgListTemplateBuilder<T>) updates]) =>
       (new AgListTemplateBuilder<T>()..update(updates)).build();
@@ -1196,7 +1198,8 @@ class _$AgListTemplate<T> extends AgListTemplate<T> {
       this.labelText,
       this.helperText,
       this.initialValue,
-      this.choices})
+      this.choices,
+      this.stringify})
       : super._() {
     if (isRequired == null) {
       throw new BuiltValueNullFieldError('AgListTemplate', 'isRequired');
@@ -1216,6 +1219,9 @@ class _$AgListTemplate<T> extends AgListTemplate<T> {
     if (choices == null) {
       throw new BuiltValueNullFieldError('AgListTemplate', 'choices');
     }
+    if (stringify == null) {
+      throw new BuiltValueNullFieldError('AgListTemplate', 'stringify');
+    }
     if (T == dynamic) {
       throw new BuiltValueMissingGenericsError('AgListTemplate', 'T');
     }
@@ -1232,13 +1238,15 @@ class _$AgListTemplate<T> extends AgListTemplate<T> {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
+    final dynamic _$dynamicOther = other;
     return other is AgListTemplate &&
         isRequired == other.isRequired &&
         hintText == other.hintText &&
         labelText == other.labelText &&
         helperText == other.helperText &&
         initialValue == other.initialValue &&
-        choices == other.choices;
+        choices == other.choices &&
+        stringify == _$dynamicOther.stringify;
   }
 
   @override
@@ -1246,11 +1254,13 @@ class _$AgListTemplate<T> extends AgListTemplate<T> {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, isRequired.hashCode), hintText.hashCode),
-                    labelText.hashCode),
-                helperText.hashCode),
-            initialValue.hashCode),
-        choices.hashCode));
+                $jc(
+                    $jc($jc($jc(0, isRequired.hashCode), hintText.hashCode),
+                        labelText.hashCode),
+                    helperText.hashCode),
+                initialValue.hashCode),
+            choices.hashCode),
+        stringify.hashCode));
   }
 
   @override
@@ -1261,7 +1271,8 @@ class _$AgListTemplate<T> extends AgListTemplate<T> {
           ..add('labelText', labelText)
           ..add('helperText', helperText)
           ..add('initialValue', initialValue)
-          ..add('choices', choices))
+          ..add('choices', choices)
+          ..add('stringify', stringify))
         .toString();
   }
 }
@@ -1295,6 +1306,10 @@ class AgListTemplateBuilder<T>
   Iterable<T> get choices => _$this._choices;
   set choices(Iterable<T> choices) => _$this._choices = choices;
 
+  String Function(T) _stringify;
+  String Function(T) get stringify => _$this._stringify;
+  set stringify(String Function(T) stringify) => _$this._stringify = stringify;
+
   AgListTemplateBuilder();
 
   AgListTemplateBuilder<T> get _$this {
@@ -1305,6 +1320,7 @@ class AgListTemplateBuilder<T>
       _helperText = _$v.helperText;
       _initialValue = _$v.initialValue;
       _choices = _$v.choices;
+      _stringify = _$v.stringify;
       _$v = null;
     }
     return this;
@@ -1332,7 +1348,8 @@ class AgListTemplateBuilder<T>
             labelText: labelText,
             helperText: helperText,
             initialValue: initialValue,
-            choices: choices);
+            choices: choices,
+            stringify: stringify);
     replace(_$result);
     return _$result;
   }

@@ -1,6 +1,5 @@
 import 'package:admin_template_core/core.dart';
 import 'package:admin_template/src/form/utils.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 
 import 'field_panel.dart';
@@ -45,11 +44,12 @@ class LabeledCheckbox extends StatelessWidget {
   }
 }
 
-class AgCheckboxListField extends StatefulWidget {
+class AgCheckboxListField<T> extends StatefulWidget {
   const AgCheckboxListField({
     Key key,
     @required this.choices,
     @required this.initialValue,
+    @required this.stringify,
     this.icon,
     this.labelText,
     this.hintText,
@@ -61,31 +61,32 @@ class AgCheckboxListField extends StatefulWidget {
   })  : assert(choices != null && choices.length > 0),
         super(key: key);
 
-  final List<String> choices;
-  final BuiltList<String> initialValue;
+  final Iterable<T> choices;
+  final Iterable<T> initialValue;
+  final String Function(T) stringify;
   final Widget icon;
   final String labelText;
   final String hintText;
   final String helperText;
   final bool autovalidate;
-  final ValueChanged<BuiltList<String>> onChanged;
-  final FormFieldSetter<BuiltList<String>> onSaved;
-  final FormFieldValidator<BuiltList<String>> validator;
+  final ValueChanged<Iterable<T>> onChanged;
+  final FormFieldSetter<Iterable<T>> onSaved;
+  final FormFieldValidator<Iterable<T>> validator;
 
   @override
-  _AgCheckboxListFieldState createState() => _AgCheckboxListFieldState();
+  _AgCheckboxListFieldState<T> createState() => _AgCheckboxListFieldState();
 }
 
-class _AgCheckboxListFieldState extends State<AgCheckboxListField> {
+class _AgCheckboxListFieldState<T> extends State<AgCheckboxListField<T>> {
   @override
   Widget build(BuildContext context) {
-    final control = FormField<BuiltList<String>>(
+    final control = FormField<Iterable<T>>(
       initialValue: widget.initialValue,
       onSaved: widget.onSaved,
       validator: widget.validator,
       autovalidate: widget.autovalidate,
-      builder: (FormFieldState<BuiltList<String>> field) {
-        void onChangedHandler(BuiltList<String> value) {
+      builder: (FormFieldState<Iterable<T>> field) {
+        void onChangedHandler(Iterable<T> value) {
           if (widget.onChanged != null) {
             widget.onChanged(value);
           }
@@ -112,14 +113,14 @@ class _AgCheckboxListFieldState extends State<AgCheckboxListField> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...widget.choices.map(
-              (String value) => LabeledCheckbox(
-                label: value,
+              (T value) => LabeledCheckbox(
+                label: widget.stringify(value),
                 onChanged: (bool newValue) {
-                  var currentVal = BuiltList.of([...field.value]);
+                  var currentVal = [...field.value];
                   if (newValue)
-                    currentVal = currentVal.rebuild((b) => b.add(value));
+                    currentVal.add(value);
                   else
-                    currentVal = currentVal.rebuild((b) => b.remove(value));
+                    currentVal.remove(value);
                   onChangedHandler(currentVal);
                 },
                 value: field.value.contains(value),

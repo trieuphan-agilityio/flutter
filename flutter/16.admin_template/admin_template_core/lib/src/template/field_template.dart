@@ -125,4 +125,7 @@ abstract class AgListTemplate<T>
 
   Iterable<T> get initialValue;
   Iterable<T> get choices;
+
+  /// A signature indicates how to convert the `T` value into string format.
+  String Function(T) get stringify;
 }

@@ -10,5 +10,5 @@ import 'package:source_gen/source_gen.dart';
 /// code generation on changes.
 Builder adminTemplateBuilder(final BuilderOptions _) => SharedPartBuilder([
       FormGenerator(),
-      AgFormGenerator(),
+      const AgFormGenerator(),
     ], 'admin_template');

@@ -12,9 +12,15 @@ import 'processor/form_processor.dart';
 import 'value_object/form.dart';
 
 class AgFormGenerator extends Generator {
-  FutureOr<String> generate(LibraryReader reader, BuildStep buildStep) {
-    final ParsedLibraryResult parsedResult =
-        reader.element.session.getParsedLibraryByElement(reader.element);
+  const AgFormGenerator();
+
+  FutureOr<String> generate(LibraryReader libraryReader, BuildStep buildStep) {
+    var result = StringBuffer();
+
+    // libraryReader.element
+
+    final ParsedLibraryResult parsedResult = libraryReader.element.session
+        .getParsedLibraryByElement(libraryReader.element);
 
     final library = Library((b) {});
 

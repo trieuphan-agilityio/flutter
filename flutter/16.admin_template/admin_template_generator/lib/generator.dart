@@ -1,65 +1,35 @@
 import 'dart:async';
 
-import 'package:admin_template_annotation/admin_template_annotation.dart';
-import 'package:admin_template_generator/writer/form_writer.dart';
-import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:code_builder/code_builder.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'processor/form_processor.dart';
-import 'value_object/form.dart';
+import 'form_source_class.dart';
 
-class AgFormGenerator extends Generator {
-  const AgFormGenerator();
+class FormGenerator extends Generator {
+  const FormGenerator();
 
-  FutureOr<String> generate(LibraryReader libraryReader, BuildStep buildStep) {
+  FutureOr<String> generate(LibraryReader library, BuildStep buildStep) {
     var result = StringBuffer();
 
-    // libraryReader.element
+    // find ast node of form class template that implements AddForm<T>
+    for (var element in library.allElements) {
+      if (element is ClassElement && FormSourceClass.needsForm(element)) {
+        try {
+          result.writeln(FormSourceClass(element).generateCode() ?? '');
+        } catch (e, st) {
+          result.writeln(_error(e));
+          log.severe('Error in FormGenerator for $element.', e, st);
+        }
+      }
+    }
 
-    final ParsedLibraryResult parsedResult = libraryReader.element.session
-        .getParsedLibraryByElement(libraryReader.element);
-
-    final library = Library((b) {});
-
-    return library.accept(DartEmitter.scoped()).toString();
+    return result.toString();
   }
 }
 
-/// A generator that produces the implementation of the form code.
-///
-/// Note: This supposes to not use Annotation to build edit form.
-/// For now annotation is the easiest manner to make a generator.
-/// In the future, the generator should lookup the implementors of AgForm instead.
-class FormGenerator extends GeneratorForAnnotation<AgForm> {
-  @override
-  FutureOr<String> generateForAnnotatedElement(
-    final Element element,
-    final ConstantReader annotation,
-    final BuildStep buildStep,
-  ) {
-    final form = _getForm(element);
-    final library =
-        Library((builder) => builder..body.add(FormWriter(form).write()));
-
-    return library.accept(DartEmitter()).toString();
-  }
-
-  Form _getForm(final Element element) {
-    if (element is! ClassElement) {
-      throw InvalidGenerationSourceError(
-          'The element annotated with @AgForm is not a class.',
-          element: element);
-    }
-
-    final classElement = element as ClassElement;
-    if (!classElement.isAbstract) {
-      throw InvalidGenerationSourceError('The form class has to be abstract',
-          element: classElement);
-    }
-
-    return FormProcessor(classElement).process();
-  }
+String _error(Object error) {
+  var lines = '$error'.split('\n');
+  var indented = lines.skip(1).map((l) => '//        $l'.trim()).join('\n');
+  return '// Error: ${lines.first}\n$indented';
 }

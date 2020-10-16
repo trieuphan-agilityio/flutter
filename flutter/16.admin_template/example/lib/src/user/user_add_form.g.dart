@@ -1,6 +1,6 @@
 part of 'user_add_form.dart';
 
-class _$UserAddForm extends StatefulWidget implements AddForm<UserAddModel> {
+class _$UserAddForm extends StatefulWidget {
   final UserAddModel initialModel;
   final Widget username;
   final Widget email;
@@ -30,6 +30,12 @@ class _$UserAddForm extends StatefulWidget implements AddForm<UserAddModel> {
 
 class __$UserAddFormState extends State<_$UserAddForm> {
   UserAddModel model;
+
+  @override
+  void initState() {
+    model = widget.initialModel;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

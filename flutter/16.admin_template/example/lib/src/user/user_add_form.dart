@@ -1,5 +1,4 @@
 import 'package:admin_template/admin_template.dart';
-import 'package:admin_template_core/form.dart';
 import 'package:flutter/widgets.dart';
 
 part 'user_add_form.g.dart';

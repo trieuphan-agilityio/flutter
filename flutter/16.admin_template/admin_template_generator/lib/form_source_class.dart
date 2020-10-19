@@ -5,6 +5,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'error.dart';
+import 'form/form.dart';
 import 'form_source_field.dart';
 
 class FormSourceClass {
@@ -48,11 +49,8 @@ class FormSourceClass {
     var errors = computeErrors();
     if (errors.isNotEmpty) throw _makeError(errors);
 
-    var result = StringBuffer();
-
-    result.writeln('hello world!!!');
-
-    return result.toString();
+    final form = Form(implName, fields.map((f) => f.toFormField()));
+    return form.toSource();
   }
 
   Iterable<GeneratorError> computeErrors() {

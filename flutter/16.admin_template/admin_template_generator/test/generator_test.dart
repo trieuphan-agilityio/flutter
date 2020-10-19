@@ -1,3 +1,4 @@
+import 'package:code_builder/code_builder.dart';
 import 'package:test/test.dart';
 
 import 'util.dart';
@@ -48,8 +49,13 @@ class LoginModel {
 }
       ''');
 
-      final expected = '''
-part of 'form.dart';
+      final expected = '''// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of form;
+
+// **************************************************************************
+// FormGenerator
+// **************************************************************************
 
 class _\$LoginForm extends StatefulWidget {
   final LoginModel initialModel;
@@ -99,7 +105,6 @@ class __\$LoginForm extends State<_\$LoginForm> {
     );
   }
 
-
   Widget _buildPassword() {
     return AgTextField(
       initialValue: model.password,
@@ -116,7 +121,7 @@ class __\$LoginForm extends State<_\$LoginForm> {
 // ignore: unused_element
 final _tmp = _LoginForm();
       ''';
-      expect(actual, contains(expected));
+      expect(Code(actual), equalsDart(expected));
     }, timeout: Timeout.none);
   });
 }

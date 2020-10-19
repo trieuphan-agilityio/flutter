@@ -1,5 +1,5 @@
-import 'package:analyzer/dart/ast/ast.dart';
-import 'package:code_builder/code_builder.dart' hide Expression;
+import 'package:analyzer/dart/ast/ast.dart' as ast;
+import 'package:code_builder/code_builder.dart';
 import 'package:code_builder/src/base.dart';
 
 import 'base.dart';
@@ -12,10 +12,11 @@ enum FieldType {
   listBool,
 }
 
-abstract class FormField implements CodeGen {
+abstract class FormField {
   String get name;
+  Expression toExpression();
 
-  factory FormField.text(String name, Map<String, Expression> attrs) {
+  factory FormField.text(String name, Map<String, ast.Expression> attrs) {
     return TextField(name, attrs);
   }
 
@@ -23,22 +24,25 @@ abstract class FormField implements CodeGen {
   static const isRequired = 'isRequired';
   static const labelText = 'labelText';
   static const hintText = 'hintText';
-  static const onSave = 'onSave';
+  static const onSaved = 'onSaved';
+  static const maxLength = 'maxLength';
+  static const minLength = 'minLength';
+  static const min = 'min';
+  static const max = 'max';
 }
 
-class TextField with CodeGenMixin implements FormField {
+class TextField implements FormField {
   final String name;
-  final Map<String, Expression> attrs;
+  final Map<String, ast.Expression> attrs;
 
   const TextField(this.name, this.attrs);
 
-  @override
-  Spec toSpec() {
+  Expression toExpression() {
     return _kAgTextField.call(
       [],
       attrs.toNamedArguments()
-        ..putIfAbsent(FormField.onSave, () => makeOnSave(name))
-        ..putIfAbsent(FormField.initialValue, () => makeInitialValue(name)),
+        ..putIfAbsent(FormField.initialValue, () => makeInitialValue(name))
+        ..putIfAbsent(FormField.onSaved, () => makeOnSaved(name)),
     );
   }
 
@@ -50,7 +54,7 @@ Spec makeInitialValue(String propertyName) {
   return refer('model').property(propertyName);
 }
 
-Spec makeOnSave(String propertyName) {
+Spec makeOnSaved(String propertyName) {
   return Method(
     (b) => b
       ..requiredParameters.add(Parameter((b) => b..name = 'newValue'))

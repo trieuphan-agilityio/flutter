@@ -2,11 +2,15 @@ import 'package:admin_template_core/core.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:code_builder/code_builder.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'error.dart';
 import 'form/form.dart';
 import 'form_source_field.dart';
+
+final _dartFormatter = DartFormatter();
 
 class FormSourceClass {
   final ClassElement element;
@@ -50,7 +54,10 @@ class FormSourceClass {
     if (errors.isNotEmpty) throw _makeError(errors);
 
     final form = Form(implName, fields.map((f) => f.toFormField()));
-    return form.toSource();
+
+    return _dartFormatter.format(
+      form.toSpec().accept(DartEmitter.scoped()).toString(),
+    );
   }
 
   Iterable<GeneratorError> computeErrors() {

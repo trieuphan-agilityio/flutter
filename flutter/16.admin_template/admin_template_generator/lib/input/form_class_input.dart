@@ -2,23 +2,22 @@ import 'package:admin_template_core/core.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:code_builder/code_builder.dart';
-import 'package:dart_style/dart_style.dart';
-import 'package:source_gen/source_gen.dart';
 
 import 'error.dart';
-import 'form/form.dart';
-import 'form_source_field.dart';
+import 'form_field_input.dart';
 
-final _dartFormatter = DartFormatter();
-
-class FormSourceClass {
+class FormClassInput {
   final ClassElement element;
 
-  FormSourceClass(this.element);
+  FormClassInput(this.element);
 
   ParsedLibraryResult get parsedLibrary => _parsedLibrary ??=
       element.library.session.getParsedLibraryByElement(element.library);
+
+  ClassDeclaration get classDeclaration {
+    return _classDeclaration ??=
+        parsedLibrary.getElementDeclaration(element).node as ClassDeclaration;
+  }
 
   String get name => element.displayName;
 
@@ -28,38 +27,23 @@ class FormSourceClass {
   String get implName => _implName ??=
       name.startsWith('_') ? '_\$${name.substring(1)}' : '_\$$name';
 
+  Iterable<FormFieldInput> get fields =>
+      _fields ??= FormFieldInput.fromClassElements(parsedLibrary, element);
+
+  String get source =>
+      _source ??= element.library.definingCompilationUnit.source.contents.data;
+
   String get partStatement {
     var fileName = element.library.source.shortName.replaceAll('.dart', '');
     return "part '$fileName.g.dart';";
   }
-
-  Iterable<FormSourceField> get fields =>
-      _fields ??= FormSourceField.fromClassElements(parsedLibrary, element);
-
-  String get source =>
-      _source ??= element.library.definingCompilationUnit.source.contents.data;
 
   bool get hasPartStatement {
     var expectedCode = partStatement;
     return source.contains(expectedCode);
   }
 
-  ClassDeclaration get classDeclaration {
-    return _classDeclaration ??=
-        parsedLibrary.getElementDeclaration(element).node as ClassDeclaration;
-  }
-
-  String generateCode() {
-    var errors = computeErrors();
-    if (errors.isNotEmpty) throw _makeError(errors);
-
-    final form = Form(implName, fields.map((f) => f.toFormField()));
-
-    return _dartFormatter.format(
-      form.toSpec().accept(DartEmitter.scoped()).toString(),
-    );
-  }
-
+  /// Find errors if any before running [process]
   Iterable<GeneratorError> computeErrors() {
     return concat([
       _checkPart(),
@@ -142,15 +126,5 @@ class FormSourceClass {
   ClassDeclaration _classDeclaration;
 
   /// backing field of [fields]
-  Iterable<FormSourceField> _fields;
-}
-
-InvalidGenerationSourceError _makeError(Iterable<GeneratorError> todos) {
-  var message =
-      StringBuffer('Please make the following changes to use Form Codegen:\n');
-  for (var i = 0; i != todos.length; ++i) {
-    message.write('\n${i + 1}. ${todos.elementAt(i).message}');
-  }
-
-  return InvalidGenerationSourceError(message.toString());
+  Iterable<FormFieldInput> _fields;
 }

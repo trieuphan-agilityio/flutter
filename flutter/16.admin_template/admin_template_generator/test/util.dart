@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:admin_template_core/core.dart';
 import 'package:admin_template_generator/generator.dart';
 import 'package:build/build.dart';
@@ -5,6 +7,33 @@ import 'package:build_test/build_test.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:source_gen/source_gen.dart';
+import 'package:test/test.dart';
+
+/// [inputPath] Path to file relative to test_resource folder.
+///   It would be used to read the input of test as string format.
+///
+/// [expectedPath] Path to file relative to test_resource folder.
+///   It would be used as the expectation of the test.
+///
+Future<void> runAndExpect(
+  String inputPath,
+  String expectedPath,
+  dynamic Function(String, String) body, {
+  String testOn,
+  Timeout timeout,
+  dynamic skip,
+  dynamic tags,
+  Map<String, dynamic> onPlatform,
+  int retry,
+}) async {
+  final inputFile = new File('test_resource/$inputPath');
+  final input = await inputFile.readAsString();
+
+  final expectedFile = new File('test_resource/$expectedPath');
+  final expected = await expectedFile.readAsString();
+
+  await body(input, expected);
+}
 
 final _dartfmt = DartFormatter();
 

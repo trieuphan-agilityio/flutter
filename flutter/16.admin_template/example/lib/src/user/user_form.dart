@@ -8,7 +8,7 @@ import 'user.dart';
 
 part 'user_form.g.dart';
 
-@AgForm(modelType: User)
+@AgForm(User)
 abstract class UserForm {
   /// The widget to mount this form to the Widget tree
   FormBuilder<User> get builder;

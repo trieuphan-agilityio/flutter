@@ -4,17 +4,11 @@ import 'package:code_builder/src/base.dart';
 
 import 'base.dart';
 
-enum FieldType {
-  text,
-  int,
-  date,
-  bool,
-  listBool,
-}
+enum FieldType { text, int, date, bool, listBool }
 
 abstract class FormField {
   String get name;
-  Expression toExpression();
+  Expression toWidgetExpression();
 
   factory FormField.text(String name, Map<String, ast.Expression> attrs) {
     return TextField(name, attrs);
@@ -31,23 +25,22 @@ abstract class FormField {
   static const max = 'max';
 }
 
+const kAgTextField = Reference('AgTextField');
+
 class TextField implements FormField {
   final String name;
   final Map<String, ast.Expression> attrs;
 
   const TextField(this.name, this.attrs);
 
-  Expression toExpression() {
-    return _kAgTextField.call(
+  Expression toWidgetExpression() {
+    return kAgTextField.call(
       [],
       attrs.toNamedArguments()
         ..putIfAbsent(FormField.initialValue, () => makeInitialValue(name))
         ..putIfAbsent(FormField.onSaved, () => makeOnSaved(name)),
     );
   }
-
-  static const _kAgTextField =
-      Reference('AgTextField', 'admin_template:admin_template');
 }
 
 Spec makeInitialValue(String propertyName) {

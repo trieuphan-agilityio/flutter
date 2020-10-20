@@ -1,0 +1,85 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of form;
+
+// **************************************************************************
+// FormGenerator
+// **************************************************************************
+
+import 'package:admin_template/admin_template.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+class _$LoginForm extends StatefulWidget {
+  const _$LoginForm({Key key, this.initialModel, this.email, this.password})
+      : super(key: key);
+
+  final LoginModel initialModel;
+
+  final Widget email;
+
+  final Widget password;
+
+  @override
+  __$LoginForm createState() => __$LoginForm();
+}
+
+class __$LoginForm extends State<_$LoginForm> {
+  LoginModel model;
+
+  @override
+  void initState() {
+    model = widget.initialModel;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Shortcuts(
+      shortcuts: <LogicalKeySet, Intent>{
+        // Pressing enter on the field will now move to the next field.
+        LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
+      },
+      child: FocusTraversalGroup(
+        child: Form(
+          onWillPop: widget.onWillPop,
+          onChanged: widget.onChanged,
+          child: Builder(builder: (BuildContext context) {
+            return SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  widget.email ?? _buildEmail(),
+                  widget.password ?? _buildPassword(),
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmail() {
+    return AgTextField(
+        isRequired: true,
+        labelText: 'E-mail',
+        initialValue: model.email,
+        onSaved: (newValue) {
+          model = model.copyWith(email: newValue);
+        });
+  }
+
+  Widget _buildPassword() {
+    return AgTextField(
+        isRequired: true,
+        hintText: 'To continue, first verify that it is you',
+        labelText: 'Enter your password',
+        initialValue: model.password,
+        onSaved: (newValue) {
+          model = model.copyWith(password: newValue);
+        });
+  }
+}
+
+// ignore: unused_element
+final _tmp = _LoginForm();

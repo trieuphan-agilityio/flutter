@@ -2,6 +2,10 @@ part of 'user_add_form.dart';
 
 class _$UserAddForm extends StatefulWidget {
   final UserAddModel initialModel;
+  final WillPopCallback onWillPop;
+  final VoidCallback onChanged;
+  final ValueChanged onSaved;
+
   final Widget username;
   final Widget email;
   final Widget phone;
@@ -14,6 +18,9 @@ class _$UserAddForm extends StatefulWidget {
   const _$UserAddForm(
       {Key key,
       this.initialModel,
+      this.onWillPop,
+      this.onChanged,
+      this.onSaved,
       this.username,
       this.email,
       this.phone,
@@ -39,18 +46,33 @@ class __$UserAddFormState extends State<_$UserAddForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          widget.username ?? _buildUsername(),
-          widget.email ?? _buildEmail(),
-          widget.phone ?? _buildPhone(),
-          widget.bio ?? _buildBio(),
-          widget.password ?? _buildPassword(),
-          widget.passwordConfirmation ?? _buildPasswordConfirmation(),
-          widget.acceptActivityEmail ?? _buildAcceptActivityEmail(),
-          widget.groups ?? _buildGroups(),
-        ],
+    return Shortcuts(
+      shortcuts: <LogicalKeySet, Intent>{
+        // Pressing enter on the field will now move to the next field.
+        LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
+      },
+      child: FocusTraversalGroup(
+        child: Form(
+          onWillPop: widget.onWillPop,
+          onChanged: widget.onChanged,
+          child: Builder(
+            builder: (BuildContext context) {
+              return SingleChildScrollView(
+                  child: Column(
+                children: [
+                  widget.username ?? _buildUsername(),
+                  widget.email ?? _buildEmail(),
+                  widget.phone ?? _buildPhone(),
+                  widget.bio ?? _buildBio(),
+                  widget.password ?? _buildPassword(),
+                  widget.passwordConfirmation ?? _buildPasswordConfirmation(),
+                  widget.acceptActivityEmail ?? _buildAcceptActivityEmail(),
+                  widget.groups ?? _buildGroups(),
+                ],
+              ));
+            },
+          ),
+        ),
       ),
     );
   }

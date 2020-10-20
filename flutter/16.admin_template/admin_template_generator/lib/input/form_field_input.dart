@@ -1,14 +1,17 @@
-import 'package:admin_template_generator/form/field.dart';
+import 'dart:collection';
+
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
+import 'package:built_collection/built_collection.dart';
 
+import '../output/form_field.dart';
 import 'dart_types.dart';
 import 'error.dart';
-import 'field.dart';
 
-class FormSourceField {
+class FormFieldInput {
   /// Suffix of name of getter that indicates that the getter should be used
   /// as form field template.
   static const kGetterSuffix = 'Template';
@@ -16,7 +19,7 @@ class FormSourceField {
   final ParsedLibraryResult parsedLibrary;
   final FieldElement element;
 
-  FormSourceField(this.parsedLibrary, this.element);
+  FormFieldInput(this.parsedLibrary, this.element);
 
   MethodDeclaration get astNode =>
       _astNode ??= parsedLibrary.getElementDeclaration(element.getter).node
@@ -39,30 +42,6 @@ class FormSourceField {
   String get type => DartTypes.getName(element.getter.returnType);
 
   bool get isFunctionType => type.contains('(');
-
-  /// The [type] plus any import prefix.
-  String get typeWithPrefix {
-    var typeFromAst = astNode?.returnType?.toSource() ?? 'dynamic';
-    var typeFromElement = type;
-
-    // If the type is a function, we can't use the element result; it is
-    // formatted incorrectly.
-    if (isFunctionType) return typeFromAst;
-
-    // If the type does not have an import prefix, prefer the element result.
-    // It handles inherited generics correctly.
-    if (!typeFromAst.contains('.')) return typeFromElement;
-
-    return typeFromAst;
-  }
-
-  /// Returns the type with import prefix if the compilation unit matches,
-  /// otherwise the type with no import prefix.
-  String typeInCompilationUnit(CompilationUnitElement compilationUnitElement) {
-    return compilationUnitElement == element.library.definingCompilationUnit
-        ? typeWithPrefix
-        : type;
-  }
 
   bool get isGetter => element.getter != null && !element.getter.isSynthetic;
 
@@ -96,15 +75,15 @@ class FormSourceField {
     return result;
   }
 
-  static Iterable<FormSourceField> fromClassElements(
+  static Iterable<FormFieldInput> fromClassElements(
       ParsedLibraryResult parsedLibrary, ClassElement classElement) {
-    var result = <FormSourceField>[];
+    var result = <FormFieldInput>[];
 
     for (var field in collectFields(classElement)) {
       if (field.displayName.endsWith(kGetterSuffix) &&
           !field.isStatic &&
           field.getter != null) {
-        result.add(FormSourceField(parsedLibrary, field));
+        result.add(FormFieldInput(parsedLibrary, field));
       }
     }
 
@@ -130,4 +109,58 @@ class _GetFieldAttributes extends RecursiveAstVisitor {
     }
     return null;
   }
+}
+
+/// Gets fields, including from interfaces. Fields from interfaces are only
+/// returned if they are not also implemented by a mixin.
+///
+/// If a field is overridden then just the closest (overriding) field is
+/// returned.
+Iterable<FieldElement> collectFields(ClassElement element) =>
+    collectFieldsForType(element.thisType);
+
+/// Gets fields, including from interfaces. Fields from interfaces are only
+/// returned if they are not also implemented by a mixin.
+///
+/// If a field is overridden then just the closest (overriding) field is
+/// returned.
+Iterable<FieldElement> collectFieldsForType(InterfaceType type) {
+  var fields = <FieldElement>[];
+  // Add fields from this class before interfaces, so they're added to the set
+  // first below. Re-added fields from interfaces are ignored.
+  fields.addAll(_fieldElementsForType(type));
+
+  Set<InterfaceType>.from(type.interfaces)
+    ..addAll(type.mixins)
+    ..forEach((interface) => fields.addAll(collectFieldsForType(interface)));
+
+  // Overridden fields have multiple declarations, so deduplicate by adding
+  // to a set that compares on field name.
+  var fieldSet = LinkedHashSet<FieldElement>(
+      equals: (a, b) => a.displayName == b.displayName,
+      hashCode: (a) => a.displayName.hashCode);
+  fieldSet.addAll(fields);
+
+  // Filter to fields that are not implemented by a mixin.
+  return BuiltList<FieldElement>.build((b) => b
+    ..addAll(fieldSet)
+    ..where((field) =>
+        type
+            .lookUpGetter2(
+              field.name,
+              field.library,
+              inherited: true,
+              concrete: true,
+            )
+            ?.isAbstract ??
+        true));
+}
+
+BuiltList<FieldElement> _fieldElementsForType(InterfaceType type) {
+  var result = ListBuilder<FieldElement>();
+  for (var accessor in type.accessors) {
+    if (accessor.isSetter) continue;
+    result.add(accessor.variable as FieldElement);
+  }
+  return result.build();
 }

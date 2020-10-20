@@ -216,5 +216,5 @@ class AgList implements AgBase<Iterable<String>> {
 /// An annotation to instruct the generator build code for creating/edit form
 class AgForm {
   final Type modelType;
-  const AgForm({this.modelType});
+  const AgForm(this.modelType);
 }

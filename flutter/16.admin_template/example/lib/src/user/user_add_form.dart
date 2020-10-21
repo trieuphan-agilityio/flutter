@@ -15,32 +15,33 @@ class UserAddForm extends _$UserAddForm {
         );
 }
 
-class _UserAddForm implements AddForm<UserAddModel> {
-  AgFieldTemplate<String> get usernameTemplate =>
+@AgForm(modelType: UserAddModel)
+class _UserAddForm {
+  AgFieldTemplate<String> get username =>
       AgFieldTemplate((b) => b..isRequired = true);
 
-  AgTextTemplate get emailTemplate => AgTextTemplate((b) => b
+  AgTextTemplate get email => AgTextTemplate((b) => b
     ..isRequired = true
     ..hintText = 'Your business email address'
     ..labelText = 'E-mail');
 
-  AgTextTemplate get bioTemplate => AgTextTemplate((b) => b
+  AgTextTemplate get bio => AgTextTemplate((b) => b
     ..maxLength = 150
     ..hintText = 'Tell us about yourself'
         ' (e.g., write down what you do or what hobbies you have)'
     ..helperText = 'Keep it short, this is just a demo.'
     ..labelText = 'Life story');
 
-  AgSecureTemplate get passwordTemplate =>
+  AgSecureTemplate get password =>
       AgSecureTemplate((b) => b..isRequired = true);
 
-  AgSecureTemplate get passwordConfirmationTemplate =>
+  AgSecureTemplate get passwordConfirmation =>
       AgSecureTemplate((b) => b..isRequired = true);
 
-  AgBoolTemplate get acceptActivityEmailTemplate =>
+  AgBoolTemplate get acceptActivityEmail =>
       AgBoolTemplate((b) => b..isRequired = true);
 
-  AgListTemplate<UserRole> get groupsTemplate => AgListTemplate((b) => b
+  AgListTemplate<UserRole> get groups => AgListTemplate((b) => b
     ..isRequired = true
     ..initialValue = const [UserRole.editor]
     ..choices = UserRole.values

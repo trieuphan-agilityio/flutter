@@ -1,4 +1,4 @@
-import 'package:admin_template_generator/output/form_field.dart';
+import 'package:admin_template_generator/src/output/form_field.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:test/test.dart';
 

@@ -12,10 +12,6 @@ import 'dart_types.dart';
 import 'error.dart';
 
 class FormFieldInput {
-  /// Suffix of name of getter that indicates that the getter should be used
-  /// as form field template.
-  static const kGetterSuffix = 'Template';
-
   final ParsedLibraryResult parsedLibrary;
   final FieldElement element;
 
@@ -25,19 +21,7 @@ class FormFieldInput {
       _astNode ??= parsedLibrary.getElementDeclaration(element.getter).node
           as MethodDeclaration;
 
-  /// Name of the form field.
-  ///
-  /// e.g: given field declation
-  /// ```
-  /// AgTextField get firstNameTemplate
-  /// ```
-  ///
-  /// the result is
-  /// ```
-  /// firstName
-  /// ```
-  String get name => element.displayName
-      .substring(0, element.displayName.length - kGetterSuffix.length);
+  String get name => element.displayName;
 
   String get type => DartTypes.getName(element.getter.returnType);
 
@@ -80,9 +64,7 @@ class FormFieldInput {
     var result = <FormFieldInput>[];
 
     for (var field in collectFields(classElement)) {
-      if (field.displayName.endsWith(kGetterSuffix) &&
-          !field.isStatic &&
-          field.getter != null) {
+      if (!field.isStatic && field.getter != null) {
         result.add(FormFieldInput(parsedLibrary, field));
       }
     }

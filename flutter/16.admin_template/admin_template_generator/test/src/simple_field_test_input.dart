@@ -1,15 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+part of '_form_generator_test_input.dart';
 
-part of form;
-
-// **************************************************************************
-// FormGenerator
-// **************************************************************************
-
-import 'package:admin_template/admin_template.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-
+@ShouldGenerate(r'''
 class _$LoginForm extends StatefulWidget {
   const _$LoginForm({Key key, this.initialModel, this.email, this.password})
       : super(key: key);
@@ -83,3 +74,29 @@ class __$LoginForm extends State<_$LoginForm> {
 
 // ignore: unused_element
 final _tmp = _LoginForm();
+''')
+@AgForm(modelType: LoginModel)
+class _LoginForm {
+  AgFieldTemplate<String> get email => AgFieldTemplate((b) => b
+    ..isRequired = true
+    ..labelText = 'E-mail');
+
+  AgTextTemplate get password => AgTextTemplate((b) => b
+    ..isRequired = true
+    ..hintText = 'To continue, first verify that it is you'
+    ..labelText = 'Enter your password');
+}
+
+class LoginModel {
+  final String email;
+  final String password;
+
+  const LoginModel({this.email, this.password});
+
+  LoginModel copyWith({String email, String password}) {
+    return LoginModel(
+      email: email ?? this.email,
+      password: password ?? this.password,
+    );
+  }
+}

@@ -7,32 +7,15 @@ import 'package:build_test/build_test.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:source_gen/source_gen.dart';
-import 'package:test/test.dart';
 
-/// [inputPath] Path to file relative to test_resource folder.
+/// [filePaths] Paths to files that are relative to test_resource folder.
 ///   It would be used to read the input of test as string format.
-///
-/// [expectedPath] Path to file relative to test_resource folder.
-///   It would be used as the expectation of the test.
-///
-Future<void> runAndExpect(
-  String inputPath,
-  String expectedPath,
-  dynamic Function(String, String) body, {
-  String testOn,
-  Timeout timeout,
-  dynamic skip,
-  dynamic tags,
-  Map<String, dynamic> onPlatform,
-  int retry,
-}) async {
-  final inputFile = new File('test_resource/$inputPath');
-  final input = await inputFile.readAsString();
-
-  final expectedFile = new File('test_resource/$expectedPath');
-  final expected = await expectedFile.readAsString();
-
-  await body(input, expected);
+///   The result is the list of content read from [filePaths].
+Iterable<String> loadFiles(Iterable<String> filePaths) sync* {
+  for (final filePath in filePaths) {
+    final file = new File('test_resource/$filePath');
+    yield file.readAsStringSync();
+  }
 }
 
 final _dartfmt = DartFormatter();

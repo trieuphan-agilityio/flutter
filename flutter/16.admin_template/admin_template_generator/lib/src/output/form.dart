@@ -22,11 +22,6 @@ class Form {
 
   Spec toSpec() {
     return Library((b) => b
-      ..directives.addAll([
-        Directive.import('package:admin_template/admin_template.dart'),
-        Directive.import('package:flutter/services.dart'),
-        Directive.import('package:flutter/widgets.dart'),
-      ])
       ..body.addAll([
         _buildStatefulWidgetSpec(),
         _buildStateSpec(),
@@ -35,33 +30,73 @@ class Form {
   }
 
   Spec _buildStatefulWidgetSpec() {
+    final initialModelField = Field((b) => b
+      ..modifier = FieldModifier.final$
+      ..type = refer(modelType)
+      ..name = 'initialModel');
+
+    final callbackFields = [
+      Field((b) => b
+        ..modifier = FieldModifier.final$
+        ..type = refer('WillPopCallback')
+        ..name = 'onWillPop'),
+      Field((b) => b
+        ..modifier = FieldModifier.final$
+        ..type = refer('VoidCallback')
+        ..name = 'onChanged'),
+      Field((b) => b
+        ..modifier = FieldModifier.final$
+        ..type = refer('ValueChanged')
+        ..name = 'onSaved'),
+    ];
+
     return Class((b) => b
       ..name = name
       ..extend = kFlutterStatefulWidget
-      ..fields.add(Field((b) => b
-        ..modifier = FieldModifier.final$
-        ..type = refer(modelType)
-        ..name = 'initialModel'))
-      ..fields.addAll(fields.map((f) => Field((b) => b
-        ..modifier = FieldModifier.final$
-        ..type = kFlutterWidget
-        ..name = f.name)))
+      ..fields.addAll([
+        initialModelField,
+        ...callbackFields,
+        ...fields.map((f) => Field((b) => b
+          ..modifier = FieldModifier.final$
+          ..type = kFlutterWidget
+          ..name = f.name)),
+      ])
       ..constructors.add(_buildConstructor())
       ..methods.add(_buildCreateStateMethod()));
   }
 
   Constructor _buildConstructor() {
+    final keyParam = Parameter((b) => b
+      ..type = kFlutterKey
+      ..name = 'key'
+      ..named = true);
+
+    final initialModelParam = Parameter((b) => b
+      ..name = 'initialModel'
+      ..toThis = true
+      ..named = true);
+
+    final callbackParams = [
+      Parameter((b) => b
+        ..name = 'onWillPop'
+        ..toThis = true
+        ..named = true),
+      Parameter((b) => b
+        ..name = 'onChanged'
+        ..toThis = true
+        ..named = true),
+      Parameter((b) => b
+        ..name = 'onSaved'
+        ..toThis = true
+        ..named = true),
+    ];
+
     return Constructor((b) => b
       ..constant = true
       ..optionalParameters = ListBuilder<Parameter>([
-        Parameter((b) => b
-          ..type = kFlutterKey
-          ..name = 'key'
-          ..named = true),
-        Parameter((b) => b
-          ..name = 'initialModel'
-          ..toThis = true
-          ..named = true),
+        keyParam,
+        initialModelParam,
+        ...callbackParams,
         ...fields.map((f) => Parameter((b) => b
           ..name = f.name
           ..toThis = true

@@ -1,19 +1,20 @@
-import 'package:test/test.dart';
+import 'package:admin_template_generator/generator.dart';
+import 'package:source_gen_test/source_gen_test.dart';
 
-import 'util.dart';
+Future<void> main() async {
+  initializeBuildLogTracking();
+  final reader = await initializeLibraryReaderForDirectory(
+    'test/src',
+    '_form_generator_test_input.dart',
+  );
 
-main() {
-  useDartfmt();
-  group('generator', () {
-    test('run with 2 text fields', () async {
-      await runAndExpect(
-        'generator_test_input.txt',
-        'generator_test_output.txt',
-        (String input, String output) async {
-          final actual = await generate(input);
-          expect(actual, output);
-        },
-      );
-    });
-  });
+  testAnnotatedElements(
+    reader,
+    const FormGenerator(),
+    expectedAnnotatedTests: _expectedAnnotatedTests,
+  );
 }
+
+const _expectedAnnotatedTests = [
+  '_LoginForm',
+];

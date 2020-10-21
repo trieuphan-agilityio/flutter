@@ -27,6 +27,8 @@ class FormClassInput {
   String get implName => _implName ??=
       name.startsWith('_') ? '_\$${name.substring(1)}' : '_\$$name';
 
+  String get firstAnnotation => '';
+
   Iterable<FormFieldInput> get fields =>
       _fields ??= FormFieldInput.fromClassElements(parsedLibrary, element);
 
@@ -46,57 +48,25 @@ class FormClassInput {
   /// Find errors if any before running [process]
   Iterable<GeneratorError> computeErrors() {
     return concat([
-      _checkPart(),
-      _checkFormClass(),
+      _checkFormTemplateClass(),
       _checkFieldList(),
       concat(fields.map((field) => field.computeErrors()))
     ]);
   }
 
-  Iterable<GeneratorError> _checkPart() {
-    if (hasPartStatement) return [];
-
-    var directives = (classDeclaration.parent as CompilationUnit).directives;
-    if (directives.isEmpty) {
-      return [
-        GeneratorError(
-          message: 'Import generated part: $partStatement',
-          offset: 0,
-          length: 0,
-          fix: '$partStatement\n\n',
-        ),
-      ];
-    } else {
-      return [
-        GeneratorError(
-          message: 'Import generated part: $partStatement',
-          offset: directives.last.offset + directives.last.length,
-          length: 0,
-          fix: '\n\n$partStatement\n\n',
-        ),
-      ];
-    }
-  }
-
-  Iterable<GeneratorError> _checkFormClass() {
+  Iterable<GeneratorError> _checkFormTemplateClass() {
     var result = <GeneratorError>[];
 
-    var implementsClause = classDeclaration.implementsClause;
-
-    var implementsClauseIsCorrect =
-        implementsClause != null && implementsClause.interfaces.length == 1;
-
-    if (!implementsClauseIsCorrect) {
+    final className = classDeclaration.name.name;
+    if (!className.startsWith('_')) {
       result.add(GeneratorError(
-        message: 'Make class implements AddForm<T>.'
-            ' The inteface should use for code generation only.',
-        offset: classDeclaration.leftBracket.offset - 1,
-        length: 0,
-        fix: 'implements AddForm<T>',
+        message: 'Make class $className hidden by'
+            'appending underscore (_) prefix.',
+        offset: classDeclaration.name.offset - 1,
+        length: className.length,
+        fix: 'class _$className',
       ));
     }
-
-    // FIXME: raise error if use "extends" by mistake
 
     return result;
   }
@@ -107,10 +77,7 @@ class FormClassInput {
   }
 
   static bool needsForm(ClassElement classElement) {
-    return !classElement.displayName.startsWith('_\$') &&
-        (classElement.allSupertypes.any(
-          (interfaceType) => interfaceType.element.name.startsWith('AddForm'),
-        ));
+    return !classElement.displayName.startsWith('_\$');
   }
 
   /// backing field of [parsedLibrary]

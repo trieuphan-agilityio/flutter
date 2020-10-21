@@ -13,9 +13,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  admin_template_annotation:
-    path: ../admin_template_annotation
-
   admin_template_core:
     path: ../admin_template_core
 

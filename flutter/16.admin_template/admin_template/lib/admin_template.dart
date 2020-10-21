@@ -1,4 +1,3 @@
-export 'package:admin_template_annotation/admin_template_annotation.dart';
 export 'package:admin_template_core/core.dart';
 
 export 'src/form/checkbox.dart';

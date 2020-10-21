@@ -5,11 +5,6 @@ echo $(pwd)
 pub upgrade
 cd ..
 
-cd admin_template_annotation
-echo $(pwd)
-pub upgrade
-cd ..
-
 cd admin_template_generator
 echo $(pwd)
 pub upgrade

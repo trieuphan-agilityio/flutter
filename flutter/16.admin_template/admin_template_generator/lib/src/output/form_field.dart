@@ -10,9 +10,38 @@ abstract class FormField {
   String get name;
   Expression toWidgetExpression();
 
+  const FormField();
+
   factory FormField.text(String name, Map<String, ast.Expression> attrs) {
     return TextField(name, attrs);
   }
+
+  Expression handleInitialValueAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleIsRequiredAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleLabelTextAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleHintTextAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleOnSavedAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleMaxLengthAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleMinLengthAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleMinAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
+
+  Expression handleMaxAttribute(ast.Expression astExpr) =>
+      CodeExpression(Code(astExpr.toSource()));
 
   static const initialValue = 'initialValue';
   static const isRequired = 'isRequired';
@@ -27,11 +56,16 @@ abstract class FormField {
 
 const kAgTextField = Reference('AgTextField');
 
-class TextField implements FormField {
+class TextField extends FormField {
   final String name;
   final Map<String, ast.Expression> attrs;
 
   const TextField(this.name, this.attrs);
+
+  @override
+  Expression handleIsRequiredAttribute(ast.Expression astExpr) {
+    return super.handleIsRequiredAttribute(astExpr);
+  }
 
   Expression toWidgetExpression() {
     return kAgTextField.call(

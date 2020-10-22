@@ -56,10 +56,7 @@ class CompositeValidator<T> implements Validator<T> {
   final List<Validator> validators;
   String _error;
 
-  CompositeValidator({
-    @required this.property,
-    @required this.validators,
-  });
+  CompositeValidator({@required this.property, @required this.validators});
 
   String call(T value) {
     for (final validator in validators) {
@@ -99,12 +96,12 @@ class RegExpValidator implements Validator<String> {
 
 class RequiredValidator implements Validator<dynamic> {
   final String property;
-  final String error;
+  final String _error;
 
-  RequiredValidator({
-    @required this.property,
-    String error,
-  }) : this.error = error ?? '${property.toTitleCase()} is required.';
+  const RequiredValidator({@required this.property, String error})
+      : this._error = error;
+
+  String get error => _error ?? '${property.toTitleCase()} is required.';
 
   @override
   String call(dynamic value) {

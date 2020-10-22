@@ -2,10 +2,23 @@ part of '_form_generator_test_input.dart';
 
 @ShouldGenerate(r'''
 class _$LoginForm extends StatefulWidget {
-  const _$LoginForm({Key key, this.initialModel, this.email, this.password})
+  const _$LoginForm(
+      {Key key,
+      this.initialModel,
+      this.onWillPop,
+      this.onChanged,
+      this.onSaved,
+      this.email,
+      this.password})
       : super(key: key);
 
   final LoginModel initialModel;
+
+  final WillPopCallback onWillPop;
+
+  final VoidCallback onChanged;
+
+  final ValueChanged onSaved;
 
   final Widget email;
 
@@ -52,7 +65,7 @@ class __$LoginForm extends State<_$LoginForm> {
 
   Widget _buildEmail() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'email'),
         labelText: 'E-mail',
         initialValue: model.email,
         onSaved: (newValue) {
@@ -62,7 +75,7 @@ class __$LoginForm extends State<_$LoginForm> {
 
   Widget _buildPassword() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'password'),
         hintText: 'To continue, first verify that it is you',
         labelText: 'Enter your password',
         initialValue: model.password,

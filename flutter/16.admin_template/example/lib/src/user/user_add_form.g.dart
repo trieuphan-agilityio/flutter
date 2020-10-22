@@ -90,7 +90,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   Widget _buildUsername() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'username'),
         initialValue: model.username,
         onSaved: (newValue) {
           model = model.copyWith(username: newValue);
@@ -99,14 +99,13 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   Widget _buildEmail() {
     return AgTextField(
-      hintText: 'Your business email address',
-      labelText: 'E-mail',
-      initialValue: model.email,
-      onSaved: (newValue) {
-        model = model.copyWith(email: newValue);
-      },
-      validator: RequiredValidator(property: 'email'),
-    );
+        validator: const RequiredValidator(property: 'email'),
+        hintText: 'Your business email address',
+        labelText: 'E-mail',
+        initialValue: model.email,
+        onSaved: (newValue) {
+          model = model.copyWith(email: newValue);
+        });
   }
 
   Widget _buildBio() {
@@ -124,7 +123,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   Widget _buildPassword() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'password'),
         initialValue: model.password,
         onSaved: (newValue) {
           model = model.copyWith(password: newValue);
@@ -133,7 +132,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   Widget _buildPasswordConfirmation() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'passwordConfirmation'),
         initialValue: model.passwordConfirmation,
         onSaved: (newValue) {
           model = model.copyWith(passwordConfirmation: newValue);
@@ -142,7 +141,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   Widget _buildAcceptActivityEmail() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'acceptActivityEmail'),
         initialValue: model.acceptActivityEmail,
         onSaved: (newValue) {
           model = model.copyWith(acceptActivityEmail: newValue);
@@ -151,7 +150,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   Widget _buildGroups() {
     return AgTextField(
-        isRequired: true,
+        validator: const RequiredValidator(property: 'groups'),
         initialValue: const [UserRole.editor],
         choices: UserRole.values,
         helperText: 'The groups this user belongs to.',

@@ -39,11 +39,33 @@ AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
           input.toFormField().toWidgetExpression(),
           equalsDart(
             "AgTextField("
-            "initialValue: model.name,"
+            "validator: const RequiredValidator(property: 'name'),"
+            " initialValue: model.name,"
             " onSaved: (newValue) {"
             "  model = model.copyWith(name: newValue);"
-            " },"
-            " validator: RequiredValidator(property: 'name') )",
+            " } )",
+          ));
+    });
+
+    test('has String-type attribute', () async {
+      final input = await _makeFormFieldInput(
+        """
+AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
+  ..isRequired = true
+  ..labelText = 'E-mail');
+""",
+      );
+
+      expect(
+          input.toFormField().toWidgetExpression(),
+          equalsDart(
+            "AgTextField("
+            "validator: const RequiredValidator(property: 'name'),"
+            " labelText: 'E-mail',"
+            " initialValue: model.name,"
+            " onSaved: (newValue) {"
+            "  model = model.copyWith(name: newValue);"
+            " } )",
           ));
     });
   });

@@ -1,8 +1,4 @@
-import 'package:admin_template_generator/src/input/form_field_input.dart';
-import 'package:analyzer/dart/element/element.dart';
-import 'package:build_test/build_test.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 
 import 'util.dart';
@@ -10,9 +6,9 @@ import 'util.dart';
 main() {
   useDartfmt();
 
-  group('TextField', () {
+  group('Text field', () {
     test('has default attributes', () async {
-      final input = await _makeFormFieldInput(
+      final input = await makeFormFieldInput(
         'AgFieldTemplate<String> get name => AgFieldTemplate((b) => b));',
       );
 
@@ -28,7 +24,7 @@ main() {
     });
 
     test('has isRequired attribute', () async {
-      final input = await _makeFormFieldInput(
+      final input = await makeFormFieldInput(
         """
 AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
   ..isRequired = true);
@@ -48,7 +44,7 @@ AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
     });
 
     test('has String-type attribute', () async {
-      final input = await _makeFormFieldInput(
+      final input = await makeFormFieldInput(
         """
 AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
   ..isRequired = true
@@ -69,27 +65,4 @@ AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
           ));
     });
   });
-}
-
-Future<FormFieldInput> _makeFormFieldInput(String field) async {
-  final fieldElement = await _makeFieldElement(field);
-  final parsedLibrary = fieldElement.session.getParsedLibraryByElement(
-    fieldElement.library,
-  );
-  return FormFieldInput(parsedLibrary, fieldElement);
-}
-
-Future<FieldElement> _makeFieldElement(String field) async {
-  final library = await resolveSource("""
-    library test;
-    
-    import 'package:admin_template_core/core.dart';
-    
-    class Foo {
-      $field
-    }
-    """, (resolver) async {
-    return LibraryReader(await resolver.findLibraryByName('test'));
-  });
-  return library.classes.first.fields.first;
 }

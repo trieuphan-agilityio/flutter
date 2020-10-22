@@ -1,15 +1,24 @@
 import 'dart:collection';
 
 import 'package:analyzer/dart/analysis/results.dart';
-import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/ast.dart' as ast;
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:code_builder/code_builder.dart';
 
 import '../output/form_field.dart';
 import 'dart_types.dart';
 import 'error.dart';
+
+enum AgValueType {
+  text,
+  bool,
+  int,
+  date,
+  dateRange,
+}
 
 class FormFieldInput {
   final ParsedLibraryResult parsedLibrary;
@@ -17,13 +26,17 @@ class FormFieldInput {
 
   FormFieldInput(this.parsedLibrary, this.element);
 
-  MethodDeclaration get astNode =>
+  ast.MethodDeclaration get astNode =>
       _astNode ??= parsedLibrary.getElementDeclaration(element.getter).node
-          as MethodDeclaration;
+          as ast.MethodDeclaration;
 
   String get name => element.displayName;
 
   String get type => DartTypes.getName(element.getter.returnType);
+
+  AgValueType get fieldValueType {
+    return AgValueType.text;
+  }
 
   bool get isFunctionType => type.contains('(');
 
@@ -32,7 +45,32 @@ class FormFieldInput {
   FormField toFormField() {
     final fieldVisitor = _GetFieldAttributes();
     astNode.visitChildren(fieldVisitor);
-    return FormField.text(name, fieldVisitor.attrs);
+    final fieldAttrs = fieldVisitor.attrs;
+
+    final typeArguments = (element.type as ParameterizedType)?.typeArguments;
+    String typeArgumentName;
+
+    if (typeArguments != null && typeArguments.length > 0) {
+      final typeArgument = typeArguments.first;
+
+      if (typeArgument != null) {
+        typeArgumentName = typeArgument.getDisplayString();
+        if (typeArgument.isDartCoreBool) {
+          return FormField.bool(name, fieldAttrs);
+        }
+      }
+    }
+
+    if (element.type.getDisplayString() == 'AgBoolTemplate') {
+      return FormField.bool(name, fieldAttrs);
+    }
+
+    if (element.type.getDisplayString().startsWith('AgListTemplate') &&
+        typeArgumentName != null) {
+      return FormField.list(name, fieldAttrs, refer(typeArgumentName));
+    }
+
+    return FormField.text(name, fieldAttrs);
   }
 
   Iterable<GeneratorError> computeErrors() {
@@ -73,19 +111,19 @@ class FormFieldInput {
   }
 
   /// backing field of [astNode]
-  MethodDeclaration _astNode;
+  ast.MethodDeclaration _astNode;
 }
 
 /// Visitor that handles Cascade Expression
 class _GetFieldAttributes extends RecursiveAstVisitor {
-  final Map<String, Expression> attrs = {};
+  final Map<String, ast.Expression> attrs = {};
 
   @override
-  void visitCascadeExpression(CascadeExpression node) {
+  void visitCascadeExpression(ast.CascadeExpression node) {
     for (final expr in node.cascadeSections) {
-      final assignmentExpr = expr as AssignmentExpression;
+      final assignmentExpr = expr as ast.AssignmentExpression;
       final fieldProperty =
-          (assignmentExpr.leftHandSide as PropertyAccess).propertyName.name;
+          (assignmentExpr.leftHandSide as ast.PropertyAccess).propertyName.name;
       final fieldValueExpr = assignmentExpr.rightHandSide;
       attrs.putIfAbsent(fieldProperty, () => fieldValueExpr);
     }

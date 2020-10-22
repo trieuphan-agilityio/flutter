@@ -38,8 +38,8 @@ class _UserAddForm {
   AgSecureTemplate get passwordConfirmation =>
       AgSecureTemplate((b) => b..isRequired = true);
 
-  AgBoolTemplate get acceptActivityEmail =>
-      AgBoolTemplate((b) => b..isRequired = true);
+  AgFieldTemplate<bool> get acceptActivityEmail =>
+      AgFieldTemplate((b) => b..isRequired = true);
 
   AgListTemplate<UserRole> get groups => AgListTemplate((b) => b
     ..isRequired = true

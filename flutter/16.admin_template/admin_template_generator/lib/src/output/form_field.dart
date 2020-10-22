@@ -19,6 +19,9 @@ const kPropertyStr = 'property';
 const kValidatorsStr = 'validators';
 
 const kAgTextFieldRef = Reference('AgTextField');
+const kAgCheckboxFieldRef = Reference('AgCheckboxField');
+const kAgCheckboxListFieldRef = Reference('AgCheckboxListField');
+
 const kRequiredValidatorRef = Reference('RequiredValidator');
 const kCompositeValidatorRef = Reference('CompositeValidator');
 const kDynamicValidatorRef = Reference('Validator<dynamic>');
@@ -30,14 +33,34 @@ abstract class FormField {
   /// Attributes that comes from AST node that parsed from the field template.
   Map<String, ast.Expression> get inputAttrs;
 
+  /// Reference of the value type.
+  ///
+  /// Every form field have a value type. There are fields that have obvious
+  /// value type such as AgTextField, AgCheckboxField and AgDateRangeField.
+  ///
+  /// There are also field that require explicitly specify the value type such
+  /// as AgCheckboxListField<T> and AgRelatedField<T>.
+  ///
+  /// If the value type is implicit, this field should be null.
+  Reference get valueTypeRef => null;
+
   /// Reference to Flutter widget that represents this form field on widget tree.
   Reference get widgetRef;
 
   const FormField();
 
-  factory FormField.text(String name, Map<String, ast.Expression> attrs) {
-    return TextField(name, attrs);
-  }
+  factory FormField.text(String name, Map<String, ast.Expression> attrs) =>
+      TextField(name, attrs);
+
+  factory FormField.bool(String name, Map<String, ast.Expression> attrs) =>
+      CheckboxField(name, attrs);
+
+  factory FormField.list(
+    String name,
+    Map<String, ast.Expression> attrs,
+    Reference valueTypeRef,
+  ) =>
+      CheckboxListField(name, attrs, valueTypeRef);
 
   Expression toWidgetExpression() {
     var args = BuiltMap<String, Expression>.from({});
@@ -234,4 +257,31 @@ class TextField extends FormField {
 
   @override
   Reference get widgetRef => kAgTextFieldRef;
+}
+
+class CheckboxField extends FormField {
+  final String name;
+  final Map<String, ast.Expression> inputAttrs;
+
+  const CheckboxField(this.name, this.inputAttrs);
+
+  @override
+  Reference get widgetRef => kAgCheckboxFieldRef;
+}
+
+class CheckboxListField extends FormField {
+  final String name;
+  final Map<String, ast.Expression> inputAttrs;
+
+  const CheckboxListField(this.name, this.inputAttrs, Reference valueTypeRef)
+      : _valueTypeRef = valueTypeRef;
+
+  @override
+  Reference get widgetRef => kAgCheckboxListFieldRef;
+
+  @override
+  Reference get valueTypeRef => _valueTypeRef;
+
+  /// Backing field of [valueTypeRef]
+  final Reference _valueTypeRef;
 }

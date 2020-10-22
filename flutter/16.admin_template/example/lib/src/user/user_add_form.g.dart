@@ -140,7 +140,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
   }
 
   Widget _buildAcceptActivityEmail() {
-    return AgTextField(
+    return AgCheckboxField(
         validator: const RequiredValidator(property: 'acceptActivityEmail'),
         initialValue: model.acceptActivityEmail,
         onSaved: (newValue) {
@@ -149,7 +149,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
   }
 
   Widget _buildGroups() {
-    return AgTextField(
+    return AgCheckboxListField(
         validator: const RequiredValidator(property: 'groups'),
         initialValue: const [UserRole.editor],
         choices: UserRole.values,

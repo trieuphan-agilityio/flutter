@@ -75,15 +75,15 @@ class CompositeValidator<T> implements Validator<T> {
 }
 
 class RegExpValidator implements Validator<String> {
-  final String pattern;
   final String property;
+  final String pattern;
   final String error;
 
   RegExp get regExp => RegExp(pattern);
 
   RegExpValidator({
-    @required this.pattern,
     @required this.property,
+    @required this.pattern,
     String error,
   }) : this.error = error ?? '$pattern does not match.';
 
@@ -131,15 +131,17 @@ class EmailValidator extends RegExpValidator {
 }
 
 class MinLengthValidator implements Validator<String> {
-  final int minLength;
   final String property;
-  final String error;
+  final int minLength;
+  final String _error;
 
-  MinLengthValidator(
-    this.minLength, {
-    this.property,
+  const MinLengthValidator({
+    @required this.minLength,
+    @required this.property,
     String error,
-  }) : this.error = error ?? '${property.toTitleCase()} is too short.';
+  }) : this._error = error;
+
+  String get error => _error ?? '${property.toTitleCase()} is too short.';
 
   @override
   String call(String value) {

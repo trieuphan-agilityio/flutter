@@ -39,26 +39,16 @@ class __$LoginForm extends State<_$LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Shortcuts(
-      shortcuts: <LogicalKeySet, Intent>{
-        // Pressing enter on the field will now move to the next field.
-        LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
-      },
-      child: FocusTraversalGroup(
-        child: Form(
-          onWillPop: widget.onWillPop,
-          onChanged: widget.onChanged,
-          child: Builder(builder: (BuildContext context) {
-            return SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  widget.email ?? _buildEmail(),
-                  widget.password ?? _buildPassword(),
-                ],
-              ),
-            );
-          }),
-        ),
+    return AgScaffold(
+      header: AgHeader(
+        icon: const Icon(Icons.group),
+        title: const Text('New User'),
+      ),
+      body: AgForm(
+        fields: [
+          widget.email ?? _buildEmail(),
+          widget.password ?? _buildPassword(),
+        ],
       ),
     );
   }

@@ -1,14 +1,13 @@
 import 'dart:collection';
 
+import 'package:admin_template_generator/src/output/form_field_attribute.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart' as ast;
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:code_builder/code_builder.dart';
 
-import '../output/form_field.dart';
 import 'dart_types.dart';
 import 'error.dart';
 
@@ -42,36 +41,53 @@ class FormFieldInput {
 
   bool get isGetter => element.getter != null && !element.getter.isSynthetic;
 
-  FormField toFormField() {
-    final fieldVisitor = _GetFieldAttributes();
-    astNode.visitChildren(fieldVisitor);
-    final fieldAttrs = fieldVisitor.attrs;
-
-    final typeArguments = (element.type as ParameterizedType)?.typeArguments;
-    String typeArgumentName;
-
-    if (typeArguments != null && typeArguments.length > 0) {
-      final typeArgument = typeArguments.first;
-
-      if (typeArgument != null) {
-        typeArgumentName = typeArgument.getDisplayString();
-        if (typeArgument.isDartCoreBool) {
-          return FormField.bool(name, fieldAttrs);
-        }
-      }
+  /// Form field attributes that are derived from the lexical templates defined
+  /// in the form field getter such as [AgFieldTemplate] and [AgTextTemplate].
+  ///
+  /// E.g:
+  ///
+  /// Given a field template as below.
+  /// ```
+  /// AgFieldTemplate<int> get title => AgFieldTemplate((b) => b
+  ///   ..isRequired = true
+  ///   ..helperText = 'The page title as you\'d like to be seen by the public'
+  /// );
+  /// ```
+  ///
+  /// Then the map result would be:
+  /// ```
+  /// {
+  ///   "isRequired": TODO,
+  ///   "helperText": TODO
+  /// }
+  /// ```
+  Iterable<FormFieldAttribute> get attrs {
+    if (_attrs == null) {
+      final fieldVisitor = _GetFieldAttributes();
+      astNode.visitChildren(fieldVisitor);
+      _attrs = fieldVisitor.attrs;
     }
-
-    if (element.type.getDisplayString() == 'AgBoolTemplate') {
-      return FormField.bool(name, fieldAttrs);
-    }
-
-    if (element.type.getDisplayString().startsWith('AgListTemplate') &&
-        typeArgumentName != null) {
-      return FormField.list(name, fieldAttrs, refer(typeArgumentName));
-    }
-
-    return FormField.text(name, fieldAttrs);
+    return _attrs;
   }
+
+  String get fieldTemplateName => element.type.getDisplayString();
+
+  ParameterizedType get typeArgument {
+    if (_typeArgument == null) {
+      final typeArguments = (element.type as ParameterizedType)?.typeArguments;
+
+      ParameterizedType typeArgument;
+      if (typeArguments != null && typeArguments.length > 0) {
+        typeArgument = typeArguments.first;
+      }
+
+      _typeArgument = typeArgument;
+    }
+
+    return _typeArgument;
+  }
+
+  String get typeArgumentName => typeArgument?.getDisplayString() ?? null;
 
   Iterable<GeneratorError> computeErrors() {
     var result = <GeneratorError>[];
@@ -112,11 +128,17 @@ class FormFieldInput {
 
   /// backing field of [astNode]
   ast.MethodDeclaration _astNode;
+
+  /// Backing field of [attrs]
+  Iterable<FormFieldAttribute> _attrs;
+
+  /// Backing field of [typeArgument]
+  ParameterizedType _typeArgument;
 }
 
 /// Visitor that handles Cascade Expression
 class _GetFieldAttributes extends RecursiveAstVisitor {
-  final Map<String, ast.Expression> attrs = {};
+  final List<FormFieldAttribute> attrs = [];
 
   @override
   void visitCascadeExpression(ast.CascadeExpression node) {
@@ -125,7 +147,8 @@ class _GetFieldAttributes extends RecursiveAstVisitor {
       final fieldProperty =
           (assignmentExpr.leftHandSide as ast.PropertyAccess).propertyName.name;
       final fieldValueExpr = assignmentExpr.rightHandSide;
-      attrs.putIfAbsent(fieldProperty, () => fieldValueExpr);
+
+      attrs.add(FormFieldAttribute(fieldProperty, fieldValueExpr));
     }
     return null;
   }

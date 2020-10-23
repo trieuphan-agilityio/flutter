@@ -4,6 +4,8 @@ import 'package:code_builder/code_builder.dart';
 import 'package:code_builder/src/base.dart';
 import 'package:admin_template_core/core.dart';
 
+import 'form_field_attribute.dart';
+
 enum FieldType { text, int, date, bool, listBool }
 
 const kInitialValueStr = 'initialValue';
@@ -20,10 +22,12 @@ const kPropertyStr = 'property';
 const kValidatorsStr = 'validators';
 
 const kAgTextFieldRef = Reference('AgTextField');
+const kAgSecureFieldRef = Reference('AgSecureField');
 const kAgCheckboxFieldRef = Reference('AgCheckboxField');
 const kAgCheckboxListFieldRef = Reference('AgCheckboxListField');
 
 const kRequiredValidatorRef = Reference('RequiredValidator');
+const kMinLengthValidatorRef = Reference('MinLengthValidator');
 const kCompositeValidatorRef = Reference('CompositeValidator');
 const kDynamicValidatorRef = Reference('Validator<dynamic>');
 
@@ -32,7 +36,7 @@ abstract class FormField {
   String get name;
 
   /// Attributes that comes from AST node that parsed from the field template.
-  Map<String, ast.Expression> get inputAttrs;
+  Iterable<FormFieldAttribute> get attrs;
 
   /// Reference of the value type.
   ///
@@ -50,65 +54,52 @@ abstract class FormField {
 
   const FormField();
 
-  factory FormField.text(String name, Map<String, ast.Expression> attrs) =>
-      TextField(name, attrs);
-
-  factory FormField.bool(String name, Map<String, ast.Expression> attrs) =>
-      CheckboxField(name, attrs);
-
-  factory FormField.list(
-    String name,
-    Map<String, ast.Expression> attrs,
-    Reference valueTypeRef,
-  ) =>
-      CheckboxListField(name, attrs, valueTypeRef);
-
   Expression toWidgetExpression() {
     var args = BuiltMap<String, Expression>.from({});
 
-    for (final e in inputAttrs.entries) {
-      switch (e.key) {
+    for (final a in attrs) {
+      switch (a.name) {
         case kInitialValueStr:
-          args = args.rebuild((b) => transformInitialValue(e.key, e.value, b));
+          args = args.rebuild((b) => transformInitialValue(a.name, a.expr, b));
           break;
 
         case kIsRequiredStr:
-          args = args.rebuild((b) => transformIsRequired(e.key, e.value, b));
+          args = args.rebuild((b) => transformIsRequired(a.name, a.expr, b));
           break;
 
         case kLabelTextStr:
-          args = args.rebuild((b) => transformLabelText(e.key, e.value, b));
+          args = args.rebuild((b) => transformLabelText(a.name, a.expr, b));
           break;
 
         case kHintTextStr:
-          args = args.rebuild((b) => transformHintText(e.key, e.value, b));
+          args = args.rebuild((b) => transformHintText(a.name, a.expr, b));
           break;
 
         case kOnSavedStr:
-          args = args.rebuild((b) => transformOnSaved(e.key, e.value, b));
+          args = args.rebuild((b) => transformOnSaved(a.name, a.expr, b));
           break;
 
         case kMaxLengthStr:
-          args = args.rebuild((b) => transformMaxLength(e.key, e.value, b));
+          args = args.rebuild((b) => transformMaxLength(a.name, a.expr, b));
           break;
 
         case kMinLengthStr:
-          args = args.rebuild((b) => transformMinLength(e.key, e.value, b));
+          args = args.rebuild((b) => transformMinLength(a.name, a.expr, b));
           break;
 
         case kMinStr:
-          args = args.rebuild((b) => transformMin(e.key, e.value, b));
+          args = args.rebuild((b) => transformMin(a.name, a.expr, b));
           break;
 
         case kMaxStr:
-          args = args.rebuild((b) => transformMax(e.key, e.value, b));
+          args = args.rebuild((b) => transformMax(a.name, a.expr, b));
           break;
 
         default:
           // Other property would be transformed identically to the syntax
           // in form field template.
           args = args.rebuild(
-            (b) => b..putIfAbsent(e.key, () => _identical(e.value)),
+            (b) => b..putIfAbsent(a.name, () => _identical(a.expr)),
           );
       }
     }
@@ -134,33 +125,13 @@ abstract class FormField {
     ast.Expression astExpr,
     MapBuilder<String, Expression> builder,
   ) {
-    final currentValidator = builder.remove(kValidatorStr);
     final requiredValidatorExpr = InvokeExpression.constOf(
       kRequiredValidatorRef,
       [],
       {kPropertyStr: literalString(name)},
       const [],
     );
-
-    if (currentValidator == null) {
-      builder.putIfAbsent(kValidatorStr, () => requiredValidatorExpr);
-    } else {
-      builder.putIfAbsent(
-        kValidatorStr,
-        () => InvokeExpression.constOf(
-          kCompositeValidatorRef,
-          [],
-          {
-            kPropertyStr: literalString(name),
-            kValidatorsStr: literalList(
-              [currentValidator, requiredValidatorExpr],
-              kDynamicValidatorRef,
-            ),
-          },
-          const [],
-        ),
-      );
-    }
+    return addValidator(requiredValidatorExpr, builder);
   }
 
   transformLabelText(
@@ -233,6 +204,37 @@ abstract class FormField {
   Expression _identical(ast.Expression astExpr) =>
       CodeExpression(Code(astExpr.toSource()));
 
+  /// An utility to compose multiple validators.
+  addValidator(
+    InvokeExpression validatorExpr,
+    MapBuilder<String, Expression> builder,
+  ) {
+    // Start rebuild validator,
+    // first of all, take it out from the attribute list.
+    final currentValidator = builder.remove(kValidatorStr);
+
+    if (currentValidator == null) {
+      builder.putIfAbsent(kValidatorStr, () => validatorExpr);
+    } else {
+      // make a composite validator
+      builder.putIfAbsent(
+        kValidatorStr,
+        () => InvokeExpression.newOf(
+          kCompositeValidatorRef,
+          [],
+          {
+            kPropertyStr: literalString(name),
+            kValidatorsStr: literalList(
+              [currentValidator, validatorExpr],
+              kDynamicValidatorRef,
+            ),
+          },
+          const [],
+        ),
+      );
+    }
+  }
+
   Spec makeInitialValue(String propertyName) {
     return refer('model').property(propertyName);
   }
@@ -257,19 +259,47 @@ abstract class FormField {
 
 class TextField extends FormField {
   final String name;
-  final Map<String, ast.Expression> inputAttrs;
+  final Iterable<FormFieldAttribute> attrs;
 
-  const TextField(this.name, this.inputAttrs);
+  const TextField(this.name, this.attrs);
 
   @override
   Reference get widgetRef => kAgTextFieldRef;
 }
 
+class SecureField extends FormField {
+  final String name;
+  final Iterable<FormFieldAttribute> attrs;
+
+  const SecureField(this.name, this.attrs);
+
+  @override
+  Reference get widgetRef => kAgSecureFieldRef;
+
+  @override
+  transformMinLength(
+    String propertyName,
+    ast.Expression astExpr,
+    MapBuilder<String, Expression> builder,
+  ) {
+    final minLengthValidatorExpr = InvokeExpression.constOf(
+      kMinLengthValidatorRef,
+      [],
+      {
+        kPropertyStr: literalString(name),
+        kMinLengthStr: literalNum(int.parse(astExpr.toSource())),
+      },
+      const [],
+    );
+    return addValidator(minLengthValidatorExpr, builder);
+  }
+}
+
 class CheckboxField extends FormField {
   final String name;
-  final Map<String, ast.Expression> inputAttrs;
+  final Iterable<FormFieldAttribute> attrs;
 
-  const CheckboxField(this.name, this.inputAttrs);
+  const CheckboxField(this.name, this.attrs);
 
   @override
   Reference get widgetRef => kAgCheckboxFieldRef;
@@ -277,9 +307,9 @@ class CheckboxField extends FormField {
 
 class CheckboxListField extends FormField {
   final String name;
-  final Map<String, ast.Expression> inputAttrs;
+  final Iterable<FormFieldAttribute> attrs;
 
-  const CheckboxListField(this.name, this.inputAttrs, Reference valueTypeRef)
+  const CheckboxListField(this.name, this.attrs, Reference valueTypeRef)
       : _valueTypeRef = valueTypeRef;
 
   @override

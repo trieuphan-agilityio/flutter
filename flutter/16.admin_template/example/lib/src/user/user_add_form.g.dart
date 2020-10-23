@@ -113,8 +113,13 @@ class __$UserAddForm extends State<_$UserAddForm> {
   }
 
   Widget _buildPassword() {
-    return AgTextField(
-        validator: const RequiredValidator(property: 'password'),
+    return AgSecureField(
+        validator: CompositeValidator(
+            property: 'password',
+            validators: <Validator<dynamic>>[
+              const RequiredValidator(property: 'password'),
+              const MinLengthValidator(property: 'password', minLength: 8)
+            ]),
         helperText: 'Must have at least 8 characters.',
         initialValue: model.password,
         onSaved: (newValue) {
@@ -124,7 +129,7 @@ class __$UserAddForm extends State<_$UserAddForm> {
   }
 
   Widget _buildPasswordConfirmation() {
-    return AgTextField(
+    return AgSecureField(
         validator: const RequiredValidator(property: 'passwordConfirmation'),
         initialValue: model.passwordConfirmation,
         onSaved: (newValue) {

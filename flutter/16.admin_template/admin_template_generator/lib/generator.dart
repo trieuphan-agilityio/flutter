@@ -10,6 +10,7 @@ import 'package:dart_style/dart_style.dart';
 
 import 'src/input/form_settings.dart';
 import 'src/output/form.dart';
+import 'src/output/form_field_factory.dart';
 import 'src/util.dart';
 
 final _dartFormatter = DartFormatter();
@@ -40,7 +41,15 @@ class FormGenerator extends GeneratorForAnnotation<AgFormTemplate> {
         final output = Form(
           formInput.implName,
           formSettings.modelType,
-          formInput.fields.map((f) => f.toFormField()),
+          formInput.fields.map(
+            (f) => FormFieldFactory().createFormField(
+              f.name,
+              f.attrs,
+              templateName: f.fieldTemplateName,
+              typeArgument: f.typeArgument,
+              typeArgumentName: f.typeArgumentName,
+            ),
+          ),
         );
 
         // output

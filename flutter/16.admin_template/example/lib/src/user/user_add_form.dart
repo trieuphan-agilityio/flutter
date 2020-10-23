@@ -34,7 +34,7 @@ class _UserAddForm {
 
   AgSecureTemplate get password => AgSecureTemplate((b) => b
     ..isRequired = true
-    // ..minLength = 8
+    ..minLength = 8
     ..helperText = 'Must have at least 8 characters.');
 
   AgSecureTemplate get passwordConfirmation =>

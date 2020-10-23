@@ -76,10 +76,10 @@ class _AgTextFieldState extends State<AgTextField> {
 }
 
 /// ===================================================================
-/// Password Field
+/// Secure Field
 /// ===================================================================
 
-class AgPasswordField extends StatefulWidget {
+class AgSecureField extends StatefulWidget {
   final TextEditingController controller;
   final String initialValue;
   final Widget icon;
@@ -93,7 +93,7 @@ class AgPasswordField extends StatefulWidget {
   final FormFieldValidator<String> validator;
   final ValueChanged<String> onFieldSubmitted;
 
-  const AgPasswordField({
+  const AgSecureField({
     Key key,
     this.controller,
     this.initialValue,
@@ -110,10 +110,10 @@ class AgPasswordField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AgPasswordFieldState createState() => _AgPasswordFieldState();
+  _AgSecureFieldState createState() => _AgSecureFieldState();
 }
 
-class _AgPasswordFieldState extends State<AgPasswordField> {
+class _AgSecureFieldState extends State<AgSecureField> {
   bool _obscureText = true;
 
   @override
@@ -165,7 +165,7 @@ class _AgPasswordFieldState extends State<AgPasswordField> {
     );
   }
 
-  void toggleViewPassword() {
+  void toggleViewSecure() {
     setState(() => _obscureText = !_obscureText);
   }
 }

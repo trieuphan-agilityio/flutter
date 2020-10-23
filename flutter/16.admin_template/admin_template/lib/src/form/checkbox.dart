@@ -5,10 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'field_panel.dart';
 
 class AgCheckboxField extends FormField<bool> {
-  final ValueChanged<bool> onFieldSubmitted;
   AgCheckboxField({
     Key key,
-    @required bool initialValue,
+    bool initialValue = false,
     Widget icon,
     String labelText,
     String hintText,
@@ -17,9 +16,7 @@ class AgCheckboxField extends FormField<bool> {
     ValueChanged<bool> onChanged,
     FormFieldSetter<bool> onSaved,
     FormFieldValidator<bool> validator,
-    ValueChanged<bool> onFieldSubmitted,
-  })  : onFieldSubmitted = onFieldSubmitted,
-        super(
+  }) : super(
           key: key,
           onSaved: onSaved,
           validator: validator,

@@ -6,15 +6,15 @@ import 'package:source_gen/source_gen.dart';
 import 'input/form_settings.dart';
 
 /// Return an instance of [FormSettings] corresponding to a the provided
-/// [reader] of [AgForm] annotation.
+/// [reader] of [AgFormTemplate] annotation.
 FormSettings _valueForAnnotation(ConstantReader reader) => FormSettings(
       modelType: reader.read('modelType').typeValue.getDisplayString(),
     );
 
-/// Returns a [AgForm] with values from the [AgForm]
+/// Returns a [AgFormTemplate] with values from the [AgFormTemplate]
 /// instance represented by [reader].
 ///
-/// For fields that are not defined in [AgForm] or `null` in [reader],
+/// For fields that are not defined in [AgFormTemplate] or `null` in [reader],
 /// use the values in [config].
 FormSettings mergeSettings(
   FormSettings config,

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 class DateTextInputFormatter extends TextInputFormatter {
   /// Creates a date formatter with the given separator.
   DateTextInputFormatter(this.separator)
-      : _filterFormatter = WhitelistingTextInputFormatter(
+      : _filterFormatter = FilteringTextInputFormatter.allow(
             RegExp('[\\d$_commonSeparators\\$separator]+'));
 
   /// List of common separators that are used in dates. This is used to make
@@ -19,7 +19,7 @@ class DateTextInputFormatter extends TextInputFormatter {
 
   // Formatter that will filter out all characters except digits and date
   // separators.
-  final WhitelistingTextInputFormatter _filterFormatter;
+  final FilteringTextInputFormatter _filterFormatter;
 
   @override
   TextEditingValue formatEditUpdate(

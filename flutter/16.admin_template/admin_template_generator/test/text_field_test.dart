@@ -16,7 +16,8 @@ main() {
           input.toFormField().toWidgetExpression(),
           equalsDart(
             "AgTextField("
-            "initialValue: model.name,"
+            "labelText: 'Name',"
+            " initialValue: model.name,"
             " onSaved: (newValue) {"
             "  model = model.copyWith(name: newValue);"
             " } )",
@@ -36,6 +37,7 @@ AgFieldTemplate<String> get name => AgFieldTemplate((b) => b
           equalsDart(
             "AgTextField("
             "validator: const RequiredValidator(property: 'name'),"
+            " labelText: 'Name',"
             " initialValue: model.name,"
             " onSaved: (newValue) {"
             "  model = model.copyWith(name: newValue);"

@@ -2,6 +2,7 @@ import 'package:analyzer/dart/ast/ast.dart' as ast;
 import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:code_builder/src/base.dart';
+import 'package:admin_template_core/core.dart';
 
 enum FieldType { text, int, date, bool, listBool }
 
@@ -115,7 +116,8 @@ abstract class FormField {
     // inject default value for initialValue and onSaved if missing
     args = args.rebuild((b) => b
       ..putIfAbsent(kInitialValueStr, () => makeInitialValue(name))
-      ..putIfAbsent(kOnSavedStr, () => makeOnSaved(name)));
+      ..putIfAbsent(kOnSavedStr, () => makeOnSaved(name))
+      ..putIfAbsent(kLabelTextStr, () => makeLabelText(name)));
 
     return widgetRef.call([], args.asMap());
   }
@@ -246,6 +248,10 @@ abstract class FormField {
             ))
             .statement,
     ).closure;
+  }
+
+  Spec makeLabelText(String propertyName) {
+    return literalString(propertyName.toTitleCase());
   }
 }
 

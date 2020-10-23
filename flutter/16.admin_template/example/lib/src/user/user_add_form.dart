@@ -1,21 +1,21 @@
 import 'package:admin_template/admin_template.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 part 'user_add_form.g.dart';
 
 class UserAddForm extends _$UserAddForm {
-  final UserAddModel initialModel;
-
-  UserAddForm({Key key, @required this.initialModel})
-      : super(
+  UserAddForm({
+    Key key,
+    UserAddModel initialModel,
+    ValueChanged onSaved,
+  }) : super(
           key: key,
           initialModel: initialModel,
-          acceptActivityEmail: AgCheckboxField(initialValue: true),
+          onSaved: onSaved,
         );
 }
 
-@AgForm(modelType: UserAddModel)
+@AgFormTemplate(modelType: UserAddModel)
 class _UserAddForm {
   AgFieldTemplate<String> get username =>
       AgFieldTemplate((b) => b..isRequired = true);
@@ -32,14 +32,19 @@ class _UserAddForm {
     ..helperText = 'Keep it short, this is just a demo.'
     ..labelText = 'Life story');
 
-  AgSecureTemplate get password =>
-      AgSecureTemplate((b) => b..isRequired = true);
+  AgSecureTemplate get password => AgSecureTemplate((b) => b
+    ..isRequired = true
+    // ..minLength = 8
+    ..helperText = 'Must have at least 8 characters.');
 
   AgSecureTemplate get passwordConfirmation =>
       AgSecureTemplate((b) => b..isRequired = true);
 
-  AgFieldTemplate<bool> get acceptActivityEmail =>
-      AgFieldTemplate((b) => b..isRequired = true);
+  AgFieldTemplate<bool> get acceptActivityEmail => AgFieldTemplate((b) => b
+    ..isRequired = true
+    ..helperText =
+        'I would like to receive the notification about new activity.'
+    ..labelText = 'Activity Email');
 
   AgListTemplate<UserRole> get groups => AgListTemplate((b) => b
     ..isRequired = true

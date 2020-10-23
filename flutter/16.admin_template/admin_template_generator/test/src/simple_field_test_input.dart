@@ -88,7 +88,8 @@ class __$LoginForm extends State<_$LoginForm> {
 // ignore: unused_element
 final _tmp = _LoginForm();
 ''')
-@AgForm(modelType: LoginModel)
+@AgFormTemplate(modelType: LoginModel)
+// ignore: unused_element
 class _LoginForm {
   AgFieldTemplate<String> get email => AgFieldTemplate((b) => b
     ..isRequired = true

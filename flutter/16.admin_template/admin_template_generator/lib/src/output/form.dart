@@ -158,27 +158,15 @@ class Form {
         ..type = kFlutterBuildContext
         ..name = 'context'))
       ..body = Code('''
-return Shortcuts(
-  shortcuts: <LogicalKeySet, Intent>{
-    // Pressing enter on the field will now move to the next field.
-    LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
-  },
-  child: FocusTraversalGroup(
-    child: Form(
-      onWillPop: widget.onWillPop,
-      onChanged: widget.onChanged,
-      child: Builder(
-        builder: (BuildContext context) {
-          return SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                $loadFormFieldWidgets,
-              ],
-            ),
-          );
-        }
-      ),
-    ),
+return AgScaffold(
+  header: AgHeader(
+    icon: const Icon(Icons.group),
+    title: const Text('New User'),
+  ),
+  body: AgForm(
+    fields: [
+      $loadFormFieldWidgets,
+    ],
   ),
 );
       '''));

@@ -43,6 +43,7 @@ class _HelperErrorState extends State<HelperError>
   void initState() {
     super.initState();
     _controller = AnimationController(
+      vsync: this,
       duration: _kTransitionDuration,
     );
     if (widget.errorText != null) {

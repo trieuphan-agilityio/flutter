@@ -14,7 +14,7 @@ import 'src/util.dart';
 
 final _dartFormatter = DartFormatter();
 
-class FormGenerator extends GeneratorForAnnotation<AgForm> {
+class FormGenerator extends GeneratorForAnnotation<AgFormTemplate> {
   const FormGenerator();
 
   @override

@@ -54,7 +54,7 @@ class AgCheckboxListField<T> extends StatefulWidget {
     this.labelText,
     this.hintText,
     this.helperText,
-    this.autovalidate = false,
+    this.autovalidateMode = AutovalidateMode.disabled,
     this.onChanged,
     this.onSaved,
     this.validator,
@@ -68,7 +68,7 @@ class AgCheckboxListField<T> extends StatefulWidget {
   final String labelText;
   final String hintText;
   final String helperText;
-  final bool autovalidate;
+  final AutovalidateMode autovalidateMode;
   final ValueChanged<Iterable<T>> onChanged;
   final FormFieldSetter<Iterable<T>> onSaved;
   final FormFieldValidator<Iterable<T>> validator;
@@ -84,7 +84,7 @@ class _AgCheckboxListFieldState<T> extends State<AgCheckboxListField<T>> {
       initialValue: widget.initialValue,
       onSaved: widget.onSaved,
       validator: widget.validator,
-      autovalidate: widget.autovalidate,
+      autovalidateMode: widget.autovalidateMode,
       builder: (FormFieldState<Iterable<T>> field) {
         void onChangedHandler(Iterable<T> value) {
           if (widget.onChanged != null) {

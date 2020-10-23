@@ -59,31 +59,21 @@ class __$UserAddForm extends State<_$UserAddForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Shortcuts(
-      shortcuts: <LogicalKeySet, Intent>{
-        // Pressing enter on the field will now move to the next field.
-        LogicalKeySet(LogicalKeyboardKey.enter): NextFocusIntent(),
-      },
-      child: FocusTraversalGroup(
-        child: Form(
-          onWillPop: widget.onWillPop,
-          onChanged: widget.onChanged,
-          child: Builder(builder: (BuildContext context) {
-            return SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  widget.username ?? _buildUsername(),
-                  widget.email ?? _buildEmail(),
-                  widget.bio ?? _buildBio(),
-                  widget.password ?? _buildPassword(),
-                  widget.passwordConfirmation ?? _buildPasswordConfirmation(),
-                  widget.acceptActivityEmail ?? _buildAcceptActivityEmail(),
-                  widget.groups ?? _buildGroups(),
-                ],
-              ),
-            );
-          }),
-        ),
+    return AgScaffold(
+      header: AgHeader(
+        icon: const Icon(Icons.group),
+        title: const Text('New User'),
+      ),
+      body: AgForm(
+        fields: [
+          widget.username ?? _buildUsername(),
+          widget.email ?? _buildEmail(),
+          widget.bio ?? _buildBio(),
+          widget.password ?? _buildPassword(),
+          widget.passwordConfirmation ?? _buildPasswordConfirmation(),
+          widget.acceptActivityEmail ?? _buildAcceptActivityEmail(),
+          widget.groups ?? _buildGroups(),
+        ],
       ),
     );
   }
@@ -94,7 +84,8 @@ class __$UserAddForm extends State<_$UserAddForm> {
         initialValue: model.username,
         onSaved: (newValue) {
           model = model.copyWith(username: newValue);
-        });
+        },
+        labelText: 'Username');
   }
 
   Widget _buildEmail() {
@@ -124,10 +115,12 @@ class __$UserAddForm extends State<_$UserAddForm> {
   Widget _buildPassword() {
     return AgTextField(
         validator: const RequiredValidator(property: 'password'),
+        helperText: 'Must have at least 8 characters.',
         initialValue: model.password,
         onSaved: (newValue) {
           model = model.copyWith(password: newValue);
-        });
+        },
+        labelText: 'Password');
   }
 
   Widget _buildPasswordConfirmation() {
@@ -136,12 +129,16 @@ class __$UserAddForm extends State<_$UserAddForm> {
         initialValue: model.passwordConfirmation,
         onSaved: (newValue) {
           model = model.copyWith(passwordConfirmation: newValue);
-        });
+        },
+        labelText: 'Password Confirmation');
   }
 
   Widget _buildAcceptActivityEmail() {
     return AgCheckboxField(
         validator: const RequiredValidator(property: 'acceptActivityEmail'),
+        helperText:
+            'I would like to receive the notification about new activity.',
+        labelText: 'Activity Email',
         initialValue: model.acceptActivityEmail,
         onSaved: (newValue) {
           model = model.copyWith(acceptActivityEmail: newValue);
@@ -157,7 +154,8 @@ class __$UserAddForm extends State<_$UserAddForm> {
         stringify: (UserRole value) => value.name,
         onSaved: (newValue) {
           model = model.copyWith(groups: newValue);
-        });
+        },
+        labelText: 'Groups');
   }
 }
 

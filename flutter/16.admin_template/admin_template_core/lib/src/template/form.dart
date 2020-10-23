@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
-/// The `AgForm` is primarily meant for code-generation.
-class AgForm {
+/// The `AgFormTemplate` is primarily meant for code-generation.
+class AgFormTemplate {
   final Type modelType;
 
-  const AgForm({@required this.modelType});
+  const AgFormTemplate({@required this.modelType});
 }

@@ -167,6 +167,9 @@ return AgScaffold(
     fields: [
       $loadFormFieldWidgets,
     ],
+    footer: AgFormFooter(
+      onSaved: (_) => widget.onSaved(model),
+    ),
   ),
 );
       '''));

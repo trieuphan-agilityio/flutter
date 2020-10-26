@@ -25,11 +25,17 @@ class _UserAddForm {
     ..hintText = 'Your business email address'
     ..labelText = 'E-mail');
 
+  AgFieldTemplate<String> get phone => AgFieldTemplate((b) => b);
+
   AgTextTemplate get bio => AgTextTemplate((b) => b
     ..maxLength = 150
     ..hintText = 'Tell us about yourself'
-        ' (e.g., write down what you do or what hobbies you have)'
-    ..helperText = 'Keep it short, this is just a demo.'
+        ' (e.g.,'
+        ' write down what'
+        ' you do or what hobbies you have)'
+    ..helperText = 'Keep it short,'
+        ' this is just'
+        ' a demo.'
     ..labelText = 'Life story');
 
   AgSecureTemplate get password => AgSecureTemplate((b) => b
@@ -129,5 +135,17 @@ class UserAddModel {
       acceptActivityEmail: acceptActivityEmail ?? this.acceptActivityEmail,
       groups: groups ?? this.groups,
     );
+  }
+
+  @override
+  String toString() {
+    return 'UserAddModel(username: $username,'
+        ' email: $email,'
+        ' phone: $phone,'
+        ' bio: $bio,'
+        ' password: $password,'
+        ' passwordConfirmation: $passwordConfirmation,'
+        ' acceptActivityEmail: $acceptActivityEmail,'
+        ' groups: $groups)';
   }
 }

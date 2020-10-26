@@ -40,12 +40,12 @@ class __DemoState extends State<_Demo> {
           labelType: NavigationRailLabelType.selected,
           destinations: <NavigationRailDestination>[
             NavigationRailDestination(
-              icon: const Icon(Icons.public),
-              label: Text('Publish', style: theme.textTheme.button),
-            ),
-            NavigationRailDestination(
               icon: const Icon(Icons.group),
               label: Text('Editor', style: theme.textTheme.button),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(Icons.public),
+              label: Text('Publish', style: theme.textTheme.button),
             ),
           ],
           onDestinationSelected: (int newIndex) {
@@ -69,7 +69,7 @@ class __DemoState extends State<_Demo> {
                 secondaryAnimation: secondaryAnimation,
               );
             },
-            child: _selectedIndex == 0 ? WebPageDemo() : _UserFormDemo(),
+            child: _selectedIndex == 0 ? _UserFormDemo() : WebPageDemo(),
           ),
         ),
       ],
@@ -81,24 +81,42 @@ class __DemoState extends State<_Demo> {
 /// User form demo
 /// ===================================================================
 
-class _UserFormDemo extends StatelessWidget {
+class _UserFormDemo extends StatefulWidget {
+  @override
+  __UserFormDemoState createState() => __UserFormDemoState();
+}
+
+class __UserFormDemoState extends State<_UserFormDemo> {
+  UserAddModel model;
+
+  @override
+  void initState() {
+    model = UserAddModel(
+      username: 'john_doe',
+      email: 'johndoe@example.com',
+      phone: '561111111',
+      password: '',
+      passwordConfirmation: '',
+      acceptActivityEmail: false,
+      groups: const [UserRole.editor],
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return UserAddForm(
-      initialModel: UserAddModel(
-        username: 'john_doe',
-        email: 'johndoe@example.com',
-        phone: '561111111',
-        password: '',
-        passwordConfirmation: '',
-        acceptActivityEmail: false,
-        groups: const [UserRole.editor],
-      ),
-      onSaved: (newValue) => _notifySaveSuccess(
-        context,
-        title: newValue.username,
-        content: newValue.toString(),
-      ),
+      initialModel: model,
+      onSaved: (newValue) {
+        // refresh form data
+        setState(() => model = newValue);
+
+        _notifySaveSuccess(
+          context,
+          title: newValue.username,
+          content: newValue.toString(),
+        );
+      },
     );
   }
 }

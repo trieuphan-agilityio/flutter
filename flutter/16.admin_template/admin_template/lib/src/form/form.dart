@@ -1,3 +1,4 @@
+import 'package:admin_template/src/form/form_footer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,11 +7,18 @@ const _kMaxFormWidth = 800.0;
 class AgForm extends StatelessWidget {
   final Iterable<Widget> fields;
 
+  final AgFormFooter footer;
+
   final WillPopCallback onWillPop;
 
   final VoidCallback onChanged;
 
-  const AgForm({Key key, this.fields, this.onWillPop, this.onChanged})
+  const AgForm(
+      {Key key,
+      @required this.fields,
+      @required this.footer,
+      this.onWillPop,
+      this.onChanged})
       : super(key: key);
 
   @override
@@ -31,6 +39,8 @@ class AgForm extends StatelessWidget {
                 child: Column(
                   children: <Widget>[
                     ..._joinWidgets(fields, const SizedBox(height: 20)),
+                    const SizedBox(height: 20),
+                    footer,
                   ],
                 ),
               ),
@@ -42,6 +52,8 @@ class AgForm extends StatelessWidget {
   }
 }
 
+/// Concatenates the widgets, with the [separator] interleaved widget between
+/// the widgets.
 Iterable<Widget> _joinWidgets(
   Iterable<Widget> widgets,
   Widget separator,

@@ -104,9 +104,25 @@ abstract class FormField {
       }
     }
 
+    // initialValue by default comes from model, and fallback to value from
+    // field template.
+    final initialValueRef = args.toMap().remove(kInitialValueStr);
+    Expression compositedInitialValueExpr;
+
+    if (initialValueRef == null) {
+      compositedInitialValueExpr = refer('model').property(name);
+    } else {
+      compositedInitialValueExpr =
+          refer('model').property(name).ifNullThen(initialValueRef);
+    }
+
+    // rebuild initialValue
+    args = args.rebuild((b) => b
+      ..remove(kInitialValueStr)
+      ..putIfAbsent(kInitialValueStr, () => compositedInitialValueExpr));
+
     // inject default value for initialValue and onSaved if missing
     args = args.rebuild((b) => b
-      ..putIfAbsent(kInitialValueStr, () => makeInitialValue(name))
       ..putIfAbsent(kOnSavedStr, () => makeOnSaved(name))
       ..putIfAbsent(kLabelTextStr, () => makeLabelText(name)));
 
@@ -233,10 +249,6 @@ abstract class FormField {
         ),
       );
     }
-  }
-
-  Spec makeInitialValue(String propertyName) {
-    return refer('model').property(propertyName);
   }
 
   Spec makeOnSaved(String propertyName) {

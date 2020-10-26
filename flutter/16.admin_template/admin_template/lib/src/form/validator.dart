@@ -70,22 +70,23 @@ class CompositeValidator<T> implements Validator<T> {
     return null;
   }
 
-  @override
   String get error => _error;
 }
 
 class RegExpValidator implements Validator<String> {
   final String property;
   final String pattern;
-  final String error;
+  final String _error;
 
-  RegExp get regExp => RegExp(pattern);
-
-  RegExpValidator({
+  const RegExpValidator({
     @required this.property,
     @required this.pattern,
     String error,
-  }) : this.error = error ?? '$pattern does not match.';
+  }) : _error = error;
+
+  String get error => _error ?? '$pattern does not match.';
+
+  RegExp get regExp => RegExp(pattern);
 
   @override
   String call(String value) {
@@ -113,21 +114,27 @@ class RequiredValidator implements Validator<dynamic> {
 }
 
 class NameValidator extends RegExpValidator {
-  NameValidator({
+  const NameValidator({
     @required String property,
     String error,
   }) : super(pattern: r'^[A-Za-z ]+$', property: property, error: error);
 }
 
 class EmailValidator extends RegExpValidator {
-  EmailValidator({
+  const EmailValidator({
     @required String property,
     String error,
-  }) : super(
+  })  : _error = error,
+        super(
           pattern: r'^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$',
           property: property,
-          error: error ?? 'E-mail is invalid.',
+          error: error,
         );
+
+  final String _error;
+
+  @override
+  String get error => _error ?? 'E-mail is invalid.';
 }
 
 class MinLengthValidator implements Validator<String> {

@@ -15,6 +15,7 @@ class _$UserAddForm extends StatefulWidget {
       this.onSaved,
       this.username,
       this.email,
+      this.phone,
       this.bio,
       this.password,
       this.passwordConfirmation,
@@ -33,6 +34,8 @@ class _$UserAddForm extends StatefulWidget {
   final Widget username;
 
   final Widget email;
+
+  final Widget phone;
 
   final Widget bio;
 
@@ -68,12 +71,16 @@ class __$UserAddForm extends State<_$UserAddForm> {
         fields: [
           widget.username ?? _buildUsername(),
           widget.email ?? _buildEmail(),
+          widget.phone ?? _buildPhone(),
           widget.bio ?? _buildBio(),
           widget.password ?? _buildPassword(),
           widget.passwordConfirmation ?? _buildPasswordConfirmation(),
           widget.acceptActivityEmail ?? _buildAcceptActivityEmail(),
           widget.groups ?? _buildGroups(),
         ],
+        footer: AgFormFooter(
+          onSaved: (_) => widget.onSaved(model),
+        ),
       ),
     );
   }
@@ -99,12 +106,23 @@ class __$UserAddForm extends State<_$UserAddForm> {
         });
   }
 
+  Widget _buildPhone() {
+    return AgTextField(
+        initialValue: model.phone,
+        onSaved: (newValue) {
+          model = model.copyWith(phone: newValue);
+        },
+        labelText: 'Phone');
+  }
+
   Widget _buildBio() {
     return AgTextField(
         maxLength: 150,
         hintText: 'Tell us about yourself'
-            ' (e.g., write down what you do or what hobbies you have)',
-        helperText: 'Keep it short, this is just a demo.',
+            ' (e.g.,'
+            ' write down what'
+            ' you do or what hobbies you have)',
+        helperText: 'Keep it short,' ' this is just' ' a demo.',
         labelText: 'Life story',
         initialValue: model.bio,
         onSaved: (newValue) {
@@ -153,10 +171,10 @@ class __$UserAddForm extends State<_$UserAddForm> {
   Widget _buildGroups() {
     return AgCheckboxListField(
         validator: const RequiredValidator(property: 'groups'),
-        initialValue: const [UserRole.editor],
         choices: UserRole.values,
         helperText: 'The groups this user belongs to.',
         stringify: (UserRole value) => value.name,
+        initialValue: model.groups ?? const [UserRole.editor],
         onSaved: (newValue) {
           model = model.copyWith(groups: newValue);
         },

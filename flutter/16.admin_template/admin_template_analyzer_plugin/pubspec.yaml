@@ -1,0 +1,17 @@
+name: admin_template_analyzer_plugin
+version: 0.0.1
+description: >
+  Experimental analyzer plugin for the admin_template code generator.
+
+environment:
+  sdk: '>=2.7.0 <3.0.0'
+
+dependencies:
+  analyzer: '>=0.39.0 <0.40.0'
+  analyzer_plugin: '>=0.1.0 <0.3.0'
+  admin_template_generator:
+    path: ../admin_template_generator
+
+dev_dependencies:
+  build_test: ^0.10.12
+  test: ^1.0.0

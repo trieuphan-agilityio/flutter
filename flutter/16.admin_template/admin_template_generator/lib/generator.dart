@@ -1,13 +1,12 @@
 import 'package:admin_template_core/core.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:build/build.dart';
+import 'package:build/build.dart' hide log;
 import 'package:code_builder/code_builder.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'src/input/error.dart';
 import 'src/input/form_class_input.dart';
-import 'package:dart_style/dart_style.dart';
-
 import 'src/input/form_settings.dart';
 import 'src/output/form.dart';
 import 'src/output/form_field_factory.dart';

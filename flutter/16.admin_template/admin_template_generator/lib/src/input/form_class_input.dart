@@ -5,6 +5,7 @@ import 'package:analyzer/dart/element/element.dart';
 
 import 'error.dart';
 import 'form_field_input.dart';
+import '../util.dart';
 
 class FormClassInput {
   final ClassElement element;
@@ -62,9 +63,9 @@ class FormClassInput {
       result.add(GeneratorError(
         message: 'Make class $className hidden by'
             'appending underscore (_) prefix.',
-        offset: classDeclaration.name.offset - 1,
+        offset: classDeclaration.name.offset,
         length: className.length,
-        fix: 'class _$className',
+        fix: '_$className',
       ));
     }
 
@@ -76,9 +77,8 @@ class FormClassInput {
     return [];
   }
 
-  static bool needsForm(ClassElement classElement) {
-    return !classElement.displayName.startsWith('_\$');
-  }
+  static bool needsForm(ClassElement classElement) =>
+      isAgFormTemplateClass(classElement);
 
   /// backing field of [parsedLibrary]
   ParsedLibraryResult _parsedLibrary;

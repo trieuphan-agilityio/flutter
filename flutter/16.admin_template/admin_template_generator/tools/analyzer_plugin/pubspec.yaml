@@ -1,0 +1,11 @@
+name: admin_template_analyzer_plugin_loader
+version: 0.0.1
+description: This pubspec determines the version of the analyzer plugin to load.
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  admin_template_analyzer_plugin:
+    path: ../../../admin_template_analyzer_plugin
+  admin_template_generator:
+    path: ../../../admin_template_generator

@@ -80,7 +80,7 @@ final _tmp = _LoginForm();
 ''')
 @AgFormTemplate(modelType: LoginModel)
 // ignore: unused_element
-class _LoginForm {
+class LoginForm {
   AgFieldTemplate<String> get email => AgFieldTemplate((b) => b
     ..isRequired = true
     ..labelText = 'E-mail');

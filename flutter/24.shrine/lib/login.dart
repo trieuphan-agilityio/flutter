@@ -5,6 +5,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:shrine/command/sign_in_command.dart';
 
 import 'package:shrine/data/gallery_options.dart';
 import 'package:shrine/layout/adaptive.dart';
@@ -25,59 +26,64 @@ double desktopLoginScreenMainAreaWidth({BuildContext context}) {
   );
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage();
 
   @override
-  Widget build(BuildContext context) {
-    final isDesktop = isDisplayDesktop(context);
+  _LoginPageState createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ApplyTextOptions(
-      child: isDesktop
-          ? LayoutBuilder(
-              builder: (context, constraints) => Scaffold(
-                body: SafeArea(
-                  child: Center(
-                    child: Container(
-                      width: desktopLoginScreenMainAreaWidth(context: context),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          _ShrineLogo(),
-                          SizedBox(height: 40),
-                          _UsernameTextField(),
-                          SizedBox(height: 16),
-                          _PasswordTextField(),
-                          SizedBox(height: 24),
-                          _CancelAndNextButtons(),
-                          SizedBox(height: 62),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            )
-          : Scaffold(
-              appBar: AppBar(backgroundColor: Colors.white),
-              body: SafeArea(
-                child: ListView(
-                  physics: const ClampingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: _horizontalPadding,
-                  ),
-                  children: const [
-                    SizedBox(height: 80),
-                    _ShrineLogo(),
-                    SizedBox(height: 120),
-                    _UsernameTextField(),
-                    SizedBox(height: 12),
-                    _PasswordTextField(),
-                    _CancelAndNextButtons(),
-                  ],
-                ),
-              ),
+      child: Scaffold(
+        appBar: AppBar(backgroundColor: Colors.white),
+        body: SafeArea(
+          child: ListView(
+            physics: const ClampingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(
+              horizontal: _horizontalPadding,
             ),
+            children: [
+              SizedBox(height: 80),
+              _ShrineLogo(),
+              SizedBox(height: 120),
+              _UsernameTextField(emailController: _emailController),
+              SizedBox(height: 12),
+              _PasswordTextField(passwordController: _passwordController),
+              Builder(
+                builder: (context) => _CancelAndNextButtons(
+                  onNext: () async {
+                    final ok = await SignInWithEmailCommand(context).execute(
+                      _emailController.text,
+                      _passwordController.text,
+                    );
+                    if (ok) {
+                      Navigator.of(context).pushNamed(ShrineApp.homeRoute);
+                    }
+                  },
+                  onCancel: () {
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text("Failed to sign in with Email & Password"),
+                    ));
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -109,19 +115,19 @@ class _ShrineLogo extends StatelessWidget {
 }
 
 class _UsernameTextField extends StatelessWidget {
-  const _UsernameTextField();
+  const _UsernameTextField({@required this.emailController});
+
+  final TextEditingController emailController;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final _usernameController = TextEditingController();
-
     return PrimaryColorOverride(
       color: shrineBrown900,
       child: Container(
         child: TextField(
-          controller: _usernameController,
+          controller: emailController,
           cursorColor: colorScheme.onSurface,
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context).shrineLoginUsernameLabel,
@@ -135,19 +141,19 @@ class _UsernameTextField extends StatelessWidget {
 }
 
 class _PasswordTextField extends StatelessWidget {
-  const _PasswordTextField();
+  const _PasswordTextField({@required this.passwordController});
+
+  final TextEditingController passwordController;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final _passwordController = TextEditingController();
-
     return PrimaryColorOverride(
       color: shrineBrown900,
       child: Container(
         child: TextField(
-          controller: _passwordController,
+          controller: passwordController,
           cursorColor: colorScheme.onSurface,
           obscureText: true,
           decoration: InputDecoration(
@@ -162,7 +168,10 @@ class _PasswordTextField extends StatelessWidget {
 }
 
 class _CancelAndNextButtons extends StatelessWidget {
-  const _CancelAndNextButtons();
+  const _CancelAndNextButtons({@required this.onNext, @required this.onCancel});
+
+  final VoidCallback onNext;
+  final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -192,13 +201,7 @@ class _CancelAndNextButtons extends StatelessWidget {
                   style: TextStyle(color: colorScheme.onSurface),
                 ),
               ),
-              onPressed: () {
-                // The login screen is immediately displayed on top of
-                // the Shrine home screen using onGenerateRoute and so
-                // rootNavigator must be set to true in order to get out
-                // of Shrine completely.
-                Navigator.of(context, rootNavigator: true).pop();
-              },
+              onPressed: () => onCancel(),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -215,9 +218,7 @@ class _CancelAndNextButtons extends StatelessWidget {
                       letterSpacing: letterSpacingOrNone(largeLetterSpacing)),
                 ),
               ),
-              onPressed: () {
-                Navigator.of(context).pushNamed(ShrineApp.homeRoute);
-              },
+              onPressed: () => onNext(),
             ),
           ],
         ),

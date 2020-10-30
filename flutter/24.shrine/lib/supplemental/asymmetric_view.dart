@@ -5,16 +5,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
+import 'package:shrine/category_menu_page.dart';
 import 'package:shrine/data/gallery_options.dart';
 import 'package:shrine/layout/text_scale.dart';
-import 'package:shrine/category_menu_page.dart';
 import 'package:shrine/model/product.dart';
-import 'package:shrine/supplemental/balanced_layout.dart';
 import 'package:shrine/page_status.dart';
+import 'package:shrine/supplemental/balanced_layout.dart';
 import 'package:shrine/supplemental/desktop_product_columns.dart';
-import 'package:shrine/supplemental/product_columns.dart';
 import 'package:shrine/supplemental/product_card.dart';
+import 'package:shrine/supplemental/product_columns.dart';
 
 const _topPadding = 34.0;
 const _bottomPadding = 44.0;
@@ -141,7 +140,10 @@ class MobileAsymmetricView extends StatelessWidget {
           excluding: !productPageIsVisible(context),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return ListView(
+              final columns = _buildColumns(context, constraints);
+              return ListView.builder(
+                itemCount: columns.length,
+                itemBuilder: (_, i) => columns[i],
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsetsDirectional.fromSTEB(
                   0,
@@ -149,7 +151,6 @@ class MobileAsymmetricView extends StatelessWidget {
                   16,
                   _bottomPadding,
                 ),
-                children: _buildColumns(context, constraints),
                 physics: const AlwaysScrollableScrollPhysics(),
               );
             },

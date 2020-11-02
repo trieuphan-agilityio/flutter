@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>420123381064-j6miu8854bq6dss29l92f73d8mnmhq7i.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.420123381064-j6miu8854bq6dss29l92f73d8mnmhq7i</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCHEvniblVd5jnrQRUoXxX23NOAc6eP0do</string>
+	<key>GCM_SENDER_ID</key>
+	<string>420123381064</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>dev.sangdong.phone-auth</string>
+	<key>PROJECT_ID</key>
+	<string>flutter-shrine-84b3a</string>
+	<key>STORAGE_BUCKET</key>
+	<string>flutter-shrine-84b3a.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:420123381064:ios:daf6fcdb10e0af4268b77d</string>
+	<key>DATABASE_URL</key>
+	<string>https://flutter-shrine-84b3a.firebaseio.com</string>
+</dict>
+</plist>

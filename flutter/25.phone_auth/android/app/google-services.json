@@ -1,0 +1,119 @@
+{
+  "project_info": {
+    "project_number": "420123381064",
+    "firebase_url": "https://flutter-shrine-84b3a.firebaseio.com",
+    "project_id": "flutter-shrine-84b3a",
+    "storage_bucket": "flutter-shrine-84b3a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420123381064:android:e88abc566a39cdfc68b77d",
+        "android_client_info": {
+          "package_name": "dev.sangdong.phone_auth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420123381064-hvidra6krd7j8l71jnvub28hlosfofvg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1hqCSX8bg1E23760FVQefc59ujcMNCGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420123381064-hvidra6krd7j8l71jnvub28hlosfofvg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "420123381064-j6miu8854bq6dss29l92f73d8mnmhq7i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.sangdong.phone-auth"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420123381064:android:e8f7a75fb23fb3fe68b77d",
+        "android_client_info": {
+          "package_name": "dev.sangdong.sastra_ebooks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420123381064-hvidra6krd7j8l71jnvub28hlosfofvg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1hqCSX8bg1E23760FVQefc59ujcMNCGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420123381064-hvidra6krd7j8l71jnvub28hlosfofvg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "420123381064-j6miu8854bq6dss29l92f73d8mnmhq7i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.sangdong.phone-auth"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420123381064:android:68425b20519e729e68b77d",
+        "android_client_info": {
+          "package_name": "dev.sangdong.shrine"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420123381064-hvidra6krd7j8l71jnvub28hlosfofvg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1hqCSX8bg1E23760FVQefc59ujcMNCGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420123381064-hvidra6krd7j8l71jnvub28hlosfofvg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "420123381064-j6miu8854bq6dss29l92f73d8mnmhq7i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.sangdong.phone-auth"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

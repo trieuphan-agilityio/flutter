@@ -71,12 +71,16 @@ class _LoginPageState extends State<LoginPage> {
                     );
                     if (ok) {
                       Navigator.of(context).pushNamed(ShrineApp.homeRoute);
+                    } else {
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content:
+                            Text("Failed to sign in with Email & Password"),
+                      ));
                     }
                   },
                   onCancel: () {
-                    Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text("Failed to sign in with Email & Password"),
-                    ));
+                    _emailController.text = '';
+                    _passwordController.text = '';
                   },
                 ),
               ),
